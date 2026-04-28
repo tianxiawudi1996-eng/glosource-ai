@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     const prompt = `당신은 건설 현장 안전관리 전문가입니다.
 아래 조건에 맞는 안전교육 자료를 작성해주세요.
