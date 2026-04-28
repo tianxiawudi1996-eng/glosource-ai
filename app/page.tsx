@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { GenerateRequest, SafetyEducationOutput, WorkerType, EducationType } from './api/generate/route';
 
 const CONSTRUCTION_TYPES = [
@@ -26,11 +26,20 @@ const EDUCATION_TYPES: { value: EducationType; label: string; desc: string }[] =
   { value: 'special',    label: '특별교육',           desc: '위험작업 전' },
 ];
 
-// 법정 필요시간 계산
 const LEGAL_HOURS: Record<WorkerType, Record<EducationType, number>> = {
   office:  { regular: 3,  onboarding: 4,  change: 1,  special: 2 },
   field:   { regular: 6,  onboarding: 8,  change: 2,  special: 16 },
   special: { regular: 6,  onboarding: 8,  change: 2,  special: 16 },
+};
+
+const WORKER_LABELS: Record<WorkerType, string> = {
+  office: '사무직', field: '현장 근로자', special: '특별위험작업 근로자',
+};
+const EDU_LABELS: Record<EducationType, string> = {
+  regular: '정기교육', onboarding: '채용 시 교육', change: '작업 변경 시 교육', special: '특별교육',
+};
+const DURATION_LABELS: Record<string, string> = {
+  '30min': '30분', '1hr': '1시간', '2hr': '2시간',
 };
 
 type ResultTab = 'pptScript' | 'quiz' | 'attendance' | 'certificate';
@@ -41,6 +50,137 @@ const TAB_LABELS: Record<ResultTab, string> = {
   attendance: '📋 출석부',
   certificate: '🏆 이수확인서',
 };
+
+const FREE_CREDITS = 1;
+const CREDITS_KEY = 'safedoc_credits_v2';
+
+function generatePrintHTML(
+  tab: ResultTab,
+  result: SafetyEducationOutput,
+  companyName: string,
+  trainingDate: string,
+  form: GenerateRequest
+): string {
+  const company = companyName || '(주)귀사명 입력';
+  const dateStr = new Date(trainingDate).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
+  const workerLabel = WORKER_LABELS[form.workerType];
+  const eduLabel = EDU_LABELS[form.educationType];
+  const durationLabel = DURATION_LABELS[form.duration];
+
+  const baseStyle = `
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: 'Noto Sans KR', '맑은 고딕', sans-serif; padding: 15mm 20mm; color: #1a1a1a; font-size: 10pt; line-height: 1.6; }
+      h1 { font-size: 18pt; font-weight: 900; text-align: center; margin-bottom: 6px; }
+      h2 { font-size: 13pt; font-weight: 700; margin: 14px 0 6px; border-left: 4px solid #1a1a1a; padding-left: 8px; }
+      h3 { font-size: 11pt; font-weight: 700; margin: 10px 0 4px; }
+      .subtitle { text-align: center; color: #555; font-size: 10pt; margin-bottom: 16px; }
+      .info-box { background: #f8f8f8; border: 1px solid #ddd; border-radius: 6px; padding: 10px 14px; margin-bottom: 14px; }
+      .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+      .info-row { display: flex; gap: 6px; font-size: 9.5pt; }
+      .info-label { font-weight: 700; min-width: 80px; }
+      .divider { border: none; border-top: 2px solid #1a1a1a; margin: 10px 0; }
+      .thin-divider { border: none; border-top: 1px solid #ccc; margin: 8px 0; }
+      pre { font-family: 'Noto Sans KR', '맑은 고딕', sans-serif; white-space: pre-wrap; font-size: 9.5pt; line-height: 1.7; }
+      table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 9pt; }
+      th { background: #2c2c2c; color: #fff; padding: 7px 5px; text-align: center; font-weight: 700; border: 1px solid #1a1a1a; }
+      td { padding: 6px 5px; text-align: center; border: 1px solid #ccc; height: 28px; }
+      tr:nth-child(even) td { background: #f9f9f9; }
+      .cert-box { border: 3px double #1a1a1a; padding: 20px; text-align: center; margin: 10px 0; }
+      .cert-title { font-size: 28pt; font-weight: 900; letter-spacing: 6px; margin-bottom: 6px; }
+      .cert-sub { font-size: 11pt; color: #444; margin-bottom: 16px; }
+      .cert-name { font-size: 22pt; font-weight: 900; border-bottom: 2px solid #000; display: inline-block; padding: 0 30px 4px; margin: 10px 0; }
+      .cert-body { font-size: 11pt; line-height: 2; margin: 12px 0; }
+      .seal-box { margin-top: 20px; display: flex; justify-content: flex-end; }
+      .seal { border: 2px solid #ccc; border-radius: 50%; width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; font-size: 8pt; color: #999; text-align: center; }
+      .legal-note { font-size: 8pt; color: #888; margin-top: 12px; text-align: center; border-top: 1px solid #eee; padding-top: 8px; }
+      .slide-block { margin-bottom: 14px; border: 1px solid #e0e0e0; border-radius: 6px; padding: 10px 14px; }
+      .slide-num { font-size: 8pt; font-weight: 700; color: #666; letter-spacing: 1px; text-transform: uppercase; }
+      .quiz-block { margin-bottom: 10px; padding: 8px 12px; border-left: 3px solid #1a1a1a; background: #fafafa; }
+      @media print {
+        body { padding: 10mm 15mm; }
+        @page { size: A4 portrait; margin: 0; }
+      }
+    </style>
+  `;
+
+  const headerInfo = `
+    <div class="info-box">
+      <div class="info-grid">
+        <div class="info-row"><span class="info-label">회사명</span><span>${company}</span></div>
+        <div class="info-row"><span class="info-label">교육일자</span><span>${dateStr}</span></div>
+        <div class="info-row"><span class="info-label">공사 종류</span><span>${form.constructionType}</span></div>
+        <div class="info-row"><span class="info-label">위험요소</span><span>${form.hazardTypes}</span></div>
+        <div class="info-row"><span class="info-label">근로자 유형</span><span>${workerLabel}</span></div>
+        <div class="info-row"><span class="info-label">교육 구분</span><span>${eduLabel}</span></div>
+        <div class="info-row"><span class="info-label">교육 시간</span><span>${durationLabel}</span></div>
+        <div class="info-row"><span class="info-label">법적 근거</span><span>${result.legalInfo.legalBasis}</span></div>
+      </div>
+    </div>
+  `;
+
+  const legalNote = `<p class="legal-note">본 교육자료는 산업안전보건법 제29조 및 고용노동부 고시 기준에 따라 AI로 생성되었습니다. 현장 실정에 맞게 수정 후 사용하시기 바랍니다. | SafeDoc AI (safedoc-ai.vercel.app)</p>`;
+
+  if (tab === 'pptScript') {
+    const slides = result.pptScript.split(/(?=={3,}\s*슬라이드)/).filter(Boolean);
+    const slideBlocks = slides.length > 1
+      ? slides.map((s, i) => `<div class="slide-block"><div class="slide-num">슬라이드 ${i + 1}</div><pre>${s.replace(/={3,}[^\n]*={3,}/g, '').trim()}</pre></div>`).join('')
+      : `<pre>${result.pptScript}</pre>`;
+
+    return `<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8">${baseStyle}<title>PPT 스크립트 - ${company}</title></head><body>
+      <h1>안전교육 PPT 스크립트</h1>
+      <p class="subtitle">${eduLabel} · ${workerLabel} · ${durationLabel}</p>
+      <hr class="divider">
+      ${headerInfo}
+      ${slideBlocks}
+      ${legalNote}
+      <script>window.onload = () => window.print();</script>
+    </body></html>`;
+  }
+
+  if (tab === 'quiz') {
+    const questions = result.quiz.split(/(?=Q\d+[.:])/).filter(Boolean);
+    const qBlocks = questions.length > 1
+      ? questions.map(q => `<div class="quiz-block"><pre>${q.trim()}</pre></div>`).join('')
+      : `<pre>${result.quiz}</pre>`;
+
+    return `<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8">${baseStyle}<title>이해도 퀴즈 - ${company}</title></head><body>
+      <h1>안전교육 이해도 확인 퀴즈</h1>
+      <p class="subtitle">${eduLabel} · ${workerLabel} · 10문항</p>
+      <hr class="divider">
+      ${headerInfo}
+      ${qBlocks}
+      ${legalNote}
+      <script>window.onload = () => window.print();</script>
+    </body></html>`;
+  }
+
+  if (tab === 'attendance') {
+    return `<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8">${baseStyle}<title>교육 출석부 - ${company}</title></head><body>
+      <h1>안전교육 출석부</h1>
+      <p class="subtitle">${company} · ${dateStr}</p>
+      <hr class="divider">
+      ${headerInfo}
+      <pre>${result.attendance}</pre>
+      ${legalNote}
+      <script>window.onload = () => window.print();</script>
+    </body></html>`;
+  }
+
+  // certificate
+  return `<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8">${baseStyle}<title>교육 이수 확인서 - ${company}</title></head><body>
+    <div class="cert-box">
+      <div class="cert-title">교육 이수 확인서</div>
+      <div class="cert-sub">CERTIFICATE OF SAFETY EDUCATION COMPLETION</div>
+      <hr class="thin-divider">
+      <pre style="text-align:left; margin-top:12px;">${result.certificate}</pre>
+      <div class="seal-box"><div class="seal">직인<br/>란</div></div>
+    </div>
+    ${legalNote}
+    <script>window.onload = () => window.print();</script>
+  </body></html>`;
+}
 
 export default function HomePage() {
   const [form, setForm] = useState<GenerateRequest>({
@@ -57,6 +197,20 @@ export default function HomePage() {
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState<ResultTab>('pptScript');
   const [copied, setCopied] = useState(false);
+  const [companyName, setCompanyName] = useState('');
+  const [trainingDate, setTrainingDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [credits, setCredits] = useState(FREE_CREDITS);
+  const [showPaywall, setShowPaywall] = useState(false);
+  const resultRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const stored = localStorage.getItem(CREDITS_KEY);
+    if (stored === null) {
+      localStorage.setItem(CREDITS_KEY, String(FREE_CREDITS));
+    } else {
+      setCredits(parseInt(stored, 10));
+    }
+  }, []);
 
   const requiredHours = LEGAL_HOURS[form.workerType][form.educationType];
 
@@ -69,6 +223,10 @@ export default function HomePage() {
   };
 
   const handleGenerate = async () => {
+    if (credits <= 0) {
+      setShowPaywall(true);
+      return;
+    }
     if (!form.constructionType) { setError('공사 종류를 선택해주세요.'); return; }
     if (!form.hazardTypes) { setError('위험요소를 하나 이상 선택해주세요.'); return; }
     setLoading(true);
@@ -84,6 +242,10 @@ export default function HomePage() {
       if (!res.ok) throw new Error(json.error || '오류가 발생했습니다.');
       setResult(json.data as SafetyEducationOutput);
       setActiveTab('pptScript');
+      const newCredits = credits - 1;
+      setCredits(newCredits);
+      localStorage.setItem(CREDITS_KEY, String(newCredits));
+      setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
     } catch (e) {
       setError(e instanceof Error ? e.message : '알 수 없는 오류');
     } finally {
@@ -98,8 +260,72 @@ export default function HomePage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handlePrintPDF = () => {
+    if (!result) return;
+    const html = generatePrintHTML(activeTab, result, companyName, trainingDate, form);
+    const win = window.open('', '_blank', 'width=900,height=700');
+    if (!win) { alert('팝업 차단을 해제해주세요.'); return; }
+    win.document.write(html);
+    win.document.close();
+  };
+
+  const handlePrintAll = () => {
+    if (!result) return;
+    const tabs: ResultTab[] = ['attendance', 'certificate', 'pptScript', 'quiz'];
+    tabs.forEach((tab, i) => {
+      setTimeout(() => {
+        const html = generatePrintHTML(tab, result, companyName, trainingDate, form);
+        const win = window.open('', '_blank', 'width=900,height=700');
+        if (win) { win.document.write(html); win.document.close(); }
+      }, i * 400);
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gray-950 text-white">
+      {/* 결제 모달 */}
+      {showPaywall && (
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+          <div className="bg-gray-900 border border-yellow-500/30 rounded-2xl p-8 max-w-md w-full shadow-[0_0_40px_rgba(212,175,55,0.2)]">
+            <div className="text-center mb-6">
+              <p className="text-4xl mb-3">⚡</p>
+              <h2 className="text-2xl font-black text-white">무료 체험 소진</h2>
+              <p className="text-gray-400 text-sm mt-2">계속 사용하려면 크레딧을 충전해주세요</p>
+            </div>
+            <div className="space-y-3 mb-6">
+              {[
+                { name: '스타터', count: '10회', price: '29,000원', unit: '건당 2,900원', highlight: false },
+                { name: '프로', count: '무제한', price: '월 49,000원', unit: '가장 인기', highlight: true },
+                { name: '팀', count: '무제한 + 5계정', price: '월 149,000원', unit: '팀 관리 기능', highlight: false },
+              ].map(plan => (
+                <div key={plan.name} className={`rounded-xl p-4 border flex items-center justify-between ${plan.highlight ? 'bg-yellow-500/15 border-yellow-500/40' : 'bg-gray-800 border-white/10'}`}>
+                  <div>
+                    <p className={`font-bold text-sm ${plan.highlight ? 'text-yellow-300' : 'text-white'}`}>{plan.name} · {plan.count}</p>
+                    <p className="text-xs text-gray-400">{plan.unit}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-black text-white">{plan.price}</p>
+                    <a
+                      href={`mailto:visionlab@seowonenc.co.kr?subject=SafeDoc AI ${plan.name} 플랜 문의&body=안녕하세요, ${plan.name} 플랜 결제를 원합니다.`}
+                      className={`text-xs px-3 py-1 rounded-full mt-1 inline-block ${plan.highlight ? 'bg-yellow-500 text-black font-bold' : 'bg-gray-700 text-gray-300'}`}
+                    >
+                      {plan.highlight ? '바로 시작' : '문의하기'}
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={() => setShowPaywall(false)}
+              className="w-full py-3 rounded-xl border border-white/10 text-gray-400 hover:text-white hover:border-white/20 transition-all text-sm"
+            >
+              닫기
+            </button>
+            <p className="text-center text-xs text-gray-600 mt-3">visionlab@seowonenc.co.kr · 평일 9-18시 응대</p>
+          </div>
+        </div>
+      )}
+
       {/* 헤더 */}
       <header className="border-b border-white/10 bg-gray-900/80 backdrop-blur sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -111,9 +337,18 @@ export default function HomePage() {
             <span className="text-xs bg-blue-500/20 text-blue-400 border border-blue-500/30 px-3 py-1 rounded-full hidden sm:block">
               산업안전보건법 제29조 기준
             </span>
-            <span className="text-xs bg-green-500/20 text-green-400 border border-green-500/30 px-3 py-1 rounded-full">
-              FREE DEMO
-            </span>
+            {credits > 0 ? (
+              <span className="text-xs bg-green-500/20 text-green-400 border border-green-500/30 px-3 py-1 rounded-full font-bold">
+                무료 {credits}회 남음
+              </span>
+            ) : (
+              <button
+                onClick={() => setShowPaywall(true)}
+                className="text-xs bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 px-3 py-1 rounded-full font-bold hover:bg-yellow-500/30 transition-all"
+              >
+                ⚡ 크레딧 충전
+              </button>
+            )}
           </div>
         </div>
       </header>
@@ -167,7 +402,6 @@ export default function HomePage() {
                   </button>
                 ))}
               </div>
-              {/* 법정 시간 뱃지 */}
               <div className="mt-2 flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 rounded-lg px-3 py-2">
                 <span className="text-blue-400 text-xs">⚖️</span>
                 <span className="text-blue-300 text-xs font-semibold">
@@ -261,7 +495,7 @@ export default function HomePage() {
                   <span className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
                   AI 생성 중... (약 20~30초)
                 </span>
-              ) : '⚡ 법정 안전교육 자료 생성하기'}
+              ) : credits > 0 ? '⚡ 법정 안전교육 자료 생성하기 (무료)' : '⚡ 크레딧 충전 후 생성하기'}
             </button>
 
             <div className="bg-gray-800/50 border border-white/5 rounded-xl p-4 text-xs text-gray-500 space-y-1">
@@ -274,7 +508,7 @@ export default function HomePage() {
           </div>
 
           {/* 오른쪽: 결과 */}
-          <div>
+          <div ref={resultRef}>
             {result ? (
               <div className="space-y-4">
                 {/* 법정 준수 뱃지 */}
@@ -287,6 +521,46 @@ export default function HomePage() {
                   <p className="text-xs text-blue-300 mt-1">
                     법정 필요 시간: <strong>{result.legalInfo.requiredHours}시간</strong> · 필수 항목 {result.legalInfo.mandatoryItems.length}개 반영
                   </p>
+                </div>
+
+                {/* PDF 설정 */}
+                <div className="bg-gray-800/60 border border-white/10 rounded-xl p-4 space-y-3">
+                  <p className="text-sm font-semibold text-white">📄 PDF 출력 설정</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs text-gray-400 mb-1">회사명</label>
+                      <input
+                        type="text"
+                        placeholder="(주)서원토건"
+                        value={companyName}
+                        onChange={(e) => setCompanyName(e.target.value)}
+                        className="w-full bg-gray-700 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:border-yellow-500/50 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-400 mb-1">교육일자</label>
+                      <input
+                        type="date"
+                        value={trainingDate}
+                        onChange={(e) => setTrainingDate(e.target.value)}
+                        className="w-full bg-gray-700 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:border-yellow-500/50 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={handlePrintPDF}
+                      className="py-2.5 rounded-lg bg-yellow-500 text-black font-bold text-sm hover:bg-yellow-400 transition-all flex items-center justify-center gap-1.5"
+                    >
+                      🖨️ 현재 탭 PDF 저장
+                    </button>
+                    <button
+                      onClick={handlePrintAll}
+                      className="py-2.5 rounded-lg bg-gray-700 border border-yellow-500/30 text-yellow-300 font-bold text-sm hover:bg-gray-600 transition-all flex items-center justify-center gap-1.5"
+                    >
+                      📦 전체 4종 저장
+                    </button>
+                  </div>
                 </div>
 
                 <div className="flex items-center justify-between">
@@ -315,7 +589,7 @@ export default function HomePage() {
                   ))}
                 </div>
 
-                <div className="bg-gray-800/50 border border-white/10 rounded-xl p-4 h-[440px] overflow-y-auto">
+                <div className="bg-gray-800/50 border border-white/10 rounded-xl p-4 h-[380px] overflow-y-auto">
                   <pre className="text-xs text-gray-300 whitespace-pre-wrap leading-relaxed font-sans">
                     {result[activeTab]}
                   </pre>
@@ -343,9 +617,9 @@ export default function HomePage() {
                       </div>
                     ))}
                   </div>
-                  <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 text-left max-w-sm mx-auto">
-                    <p className="text-blue-400 text-xs font-bold mb-2">⚖️ 법정 기준 자동 반영</p>
-                    <p className="text-gray-400 text-xs">산업안전보건법 제29조 + 고용노동부 고시 기준으로 법적 효력 있는 교육자료 생성</p>
+                  <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4 text-left max-w-sm mx-auto">
+                    <p className="text-yellow-400 text-xs font-bold mb-1">🖨️ PDF 즉시 출력 가능</p>
+                    <p className="text-gray-400 text-xs">회사명·날짜 입력 후 버튼 한 번으로 법정 양식 PDF 저장. 고용노동부 감사 대비 즉시 제출 가능.</p>
                   </div>
                 </div>
               </div>
@@ -355,23 +629,53 @@ export default function HomePage() {
 
         {/* 가격 */}
         <div className="mt-16 border-t border-white/5 pt-10">
-          <h3 className="text-center text-lg font-bold mb-6 text-gray-300">서비스 요금</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <h3 className="text-center text-lg font-bold mb-2 text-gray-300">서비스 요금</h3>
+          <p className="text-center text-xs text-gray-500 mb-8">교육자료 1세트 = PPT스크립트 + 퀴즈 + 출석부 + 이수확인서 + PDF 다운로드</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
             {[
-              { name: 'DEMO', price: '무료', features: ['3회 무료 체험', '모든 기능 포함', '법정 기준 반영'], highlight: false },
-              { name: 'BASIC', price: '월 15만원', features: ['무제한 생성', '5개 현장 관리', '이메일 지원'], highlight: true },
-              { name: 'PRO', price: '건당 3만원', features: ['단발성 사용', '즉시 결제·생성', '영수증 발행'], highlight: false },
+              {
+                name: '스타터', badge: '10회권',
+                price: '29,000원', unit: '건당 2,900원',
+                features: ['교육자료 4종 생성', 'PDF 즉시 출력', '법정 기준 자동 반영'],
+                highlight: false, cta: '문의하기',
+              },
+              {
+                name: '프로', badge: '가장 인기',
+                price: '49,000원', unit: '/월 무제한',
+                features: ['무제한 생성', 'PDF 즉시 출력', '생성 이력 저장', '우선 지원'],
+                highlight: true, cta: '바로 시작',
+              },
+              {
+                name: '팀', badge: '기업용',
+                price: '149,000원', unit: '/월',
+                features: ['5계정 공유', '회사 로고 삽입', '현장별 관리', '전화 지원'],
+                highlight: false, cta: '문의하기',
+              },
             ].map((plan) => (
-              <div key={plan.name} className={`rounded-xl p-5 border ${plan.highlight ? 'bg-yellow-500/10 border-yellow-500/30' : 'bg-gray-800/30 border-white/5'}`}>
-                <p className={`text-sm font-bold ${plan.highlight ? 'text-yellow-400' : 'text-gray-400'}`}>{plan.name}</p>
-                <p className="text-2xl font-black text-white mt-1">{plan.price}</p>
-                <ul className="mt-3 space-y-1">
+              <div key={plan.name} className={`rounded-xl p-5 border ${plan.highlight ? 'bg-yellow-500/10 border-yellow-500/40 shadow-[0_0_20px_rgba(212,175,55,0.15)]' : 'bg-gray-800/30 border-white/5'}`}>
+                <div className="flex items-center justify-between mb-2">
+                  <p className={`text-sm font-bold ${plan.highlight ? 'text-yellow-400' : 'text-gray-400'}`}>{plan.name}</p>
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${plan.highlight ? 'bg-yellow-500/20 text-yellow-300' : 'bg-gray-700 text-gray-400'}`}>{plan.badge}</span>
+                </div>
+                <p className="text-2xl font-black text-white">{plan.price}</p>
+                <p className="text-xs text-gray-500 mb-3">{plan.unit}</p>
+                <ul className="space-y-1 mb-4">
                   {plan.features.map((f) => <li key={f} className="text-xs text-gray-400">✓ {f}</li>)}
                 </ul>
+                <a
+                  href={`mailto:visionlab@seowonenc.co.kr?subject=SafeDoc AI ${plan.name} 플랜 문의`}
+                  className={`block w-full text-center py-2.5 rounded-lg font-bold text-sm transition-all ${
+                    plan.highlight
+                      ? 'bg-yellow-500 text-black hover:bg-yellow-400'
+                      : 'border border-white/10 text-gray-300 hover:border-white/20'
+                  }`}
+                >
+                  {plan.cta}
+                </a>
               </div>
             ))}
           </div>
-          <p className="text-center text-xs text-gray-600 mt-6">문의: visionlab@seowonenc.co.kr</p>
+          <p className="text-center text-xs text-gray-600 mt-6">문의: visionlab@seowonenc.co.kr · 세금계산서 발행 가능</p>
         </div>
       </main>
     </div>
