@@ -99,7 +99,8 @@ export async function POST(request: NextRequest) {
     const mandatoryItems = LEGAL_ITEMS[eType];
     const legalBasis = `산업안전보건법 제29조, 고용노동부 고시 제2023-19호`;
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    // 모델 우선순위: 2.5-flash → 2.0-flash-lite (503 폴백)
+    const MODELS = ['gemini-2.5-flash', 'gemini-2.0-flash-lite'];
 
     const prompt = `당신은 고용노동부 공인 건설 현장 안전관리 전문가입니다.
 산업안전보건법 제29조 및 고용노동부 고시 기준에 맞는 안전교육 자료를 작성해주세요.
@@ -126,8 +127,25 @@ ${mandatoryItems.map((item, i) => `${i + 1}. ${item}`).join('\n')}
 
 중요: 모든 내용은 실제 현장에서 법적 효력을 가질 수 있도록 산업안전보건법 기준에 정확히 맞게 작성하세요.`;
 
-    const result = await model.generateContent(prompt);
-    const text = result.response.text().trim();
+    // 자동 재시도 + 폴백 모델
+    let lastError: Error | null = null;
+    let text = '';
+    for (const modelName of MODELS) {
+      try {
+        const model = genAI.getGenerativeModel({ model: modelName });
+        const result = await model.generateContent(prompt);
+        text = result.response.text().trim();
+        break;
+      } catch (e) {
+        lastError = e instanceof Error ? e : new Error(String(e));
+        const is503 = lastError.message.includes('503') || lastError.message.includes('Service Unavailable');
+        const is429 = lastError.message.includes('429') || lastError.message.includes('Too Many');
+        if (!is503 && !is429) throw lastError; // 503/429 이외 에러는 즉시 throw
+        console.warn(`[SafeDoc] ${modelName} unavailable, trying next model...`);
+        await new Promise(r => setTimeout(r, 1500));
+      }
+    }
+    if (!text) throw lastError ?? new Error('모든 AI 모델이 응답하지 않습니다. 잠시 후 다시 시도해주세요.');
 
     let jsonText = text;
     if (jsonText.startsWith('```')) {
