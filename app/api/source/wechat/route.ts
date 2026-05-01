@@ -3,6 +3,8 @@ import { load } from 'cheerio';
 import { NextRequest, NextResponse } from 'next/server';
 import type { WeChatPost, WeChatSourcingOutput } from '../types';
 
+export const maxDuration = 60;
+
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 const SOGOU_HEADERS = {
@@ -101,14 +103,21 @@ ${articleList}
 }
 
 async function analyzeWithGemini(prompt: string): Promise<string> {
-  // grounding 없이 분석 (이미 스크래핑된 데이터를 처리)
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-  const result = await model.generateContent(prompt);
-  return result.response.text().trim();
+  for (const modelId of ['gemini-2.5-flash', 'gemini-1.5-flash']) {
+    try {
+      const model = genAI.getGenerativeModel({ model: modelId });
+      const result = await model.generateContent(prompt);
+      return result.response.text().trim();
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (!msg.includes('404') && !msg.includes('no longer available') && !msg.includes('503')) throw e;
+      console.warn('[WeChat] model failed:', modelId, msg.slice(0, 80));
+    }
+  }
+  throw new Error('AI 분석 모델 응답 실패');
 }
 
 async function fallbackGeminiGrounding(keyword: string): Promise<WeChatSourcingOutput> {
-  // Sogou 스크래핑 실패 시 Gemini Grounding으로 WeChat 검색
   const prompt = `당신은 중국 WeChat 소싱 전문가입니다. Google 검색을 통해 "${keyword}"와 관련된 WeChat 공식계정(微信公众号) 공장 홍보 정보를 탐색하세요.
 
 검색어: "${keyword} 微信公众号 工厂 报价 site:mp.weixin.qq.com"
@@ -138,16 +147,25 @@ async function fallbackGeminiGrounding(keyword: string): Promise<WeChatSourcingO
   "disclaimer": "WeChat 정보는 AI 참고용이며 직접 확인이 필요합니다."
 }`;
 
-  const model = genAI.getGenerativeModel({
-    model: 'gemini-2.0-flash',
-    tools: [{ googleSearch: {} }] as never,
-  });
-  const result = await model.generateContent(prompt);
-  const text = result.response.text().trim();
-  const clean = text.startsWith('```')
-    ? text.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '')
-    : text;
-  return JSON.parse(clean.replace(/\[\d+\]/g, '')) as WeChatSourcingOutput;
+  for (const modelId of ['gemini-2.5-flash', 'gemini-1.5-flash']) {
+    try {
+      const model = genAI.getGenerativeModel({
+        model: modelId,
+        tools: [{ googleSearch: {} }] as never,
+      });
+      const result = await model.generateContent(prompt);
+      const text = result.response.text().trim();
+      const clean = text.startsWith('```')
+        ? text.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '')
+        : text;
+      return JSON.parse(clean.replace(/\[\d+\]/g, '')) as WeChatSourcingOutput;
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (!msg.includes('404') && !msg.includes('no longer available') && !msg.includes('503')) throw e;
+      console.warn('[WeChat-grounding] model failed:', modelId, msg.slice(0, 80));
+    }
+  }
+  throw new Error('WeChat Grounding 분석 실패');
 }
 
 export async function POST(request: NextRequest) {

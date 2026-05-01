@@ -2,6 +2,8 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
 import type { SourcingRequest, SourcingOutput } from '../types';
 
+export const maxDuration = 60;
+
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 function build1688Prompt(req: SourcingRequest): string {
@@ -99,29 +101,31 @@ export async function POST(request: NextRequest) {
     let text = '';
     let groundingUsed = false;
 
-    // 1차: grounding (1688.com 실시간 검색)
-    try {
-      const model = genAI.getGenerativeModel({
-        model: 'gemini-2.0-flash',
-        tools: [{ googleSearch: {} }] as never,
-      });
-      const result = await model.generateContent(prompt);
-      text = result.response.text().trim();
-      groundingUsed = true;
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      console.warn('[1688] grounding failed:', msg.slice(0, 100));
-
-      // 2차: 2.5-flash fallback
+    const MODELS = [
+      { model: 'gemini-2.5-flash', grounding: true },
+      { model: 'gemini-2.5-flash', grounding: false },
+      { model: 'gemini-1.5-flash', grounding: false },
+    ];
+    for (const m of MODELS) {
       try {
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+        const cfg = m.grounding
+          ? { model: m.model, tools: [{ googleSearch: {} }] as never }
+          : { model: m.model };
+        const model = genAI.getGenerativeModel(cfg);
         const result = await model.generateContent(prompt);
         text = result.response.text().trim();
-        groundingUsed = false;
-      } catch {
-        throw new Error('1688 소싱 분석에 실패했습니다. 잠시 후 다시 시도해주세요.');
+        groundingUsed = m.grounding;
+        break;
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        const retryable = msg.includes('503') || msg.includes('429') || msg.includes('400') ||
+          msg.includes('403') || msg.includes('404') || msg.includes('no longer available');
+        if (!retryable) throw new Error('1688 소싱 분석 실패: ' + msg.slice(0, 80));
+        console.warn('[1688] attempt failed:', m.model, msg.slice(0, 80));
+        await new Promise(r => setTimeout(r, 1000));
       }
     }
+    if (!text) throw new Error('1688 소싱 분석에 실패했습니다. 잠시 후 다시 시도해주세요.');
 
     const jsonText = stripMarkdown(text);
 

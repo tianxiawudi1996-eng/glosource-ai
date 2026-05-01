@@ -2,6 +2,8 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
 import type { SourcingRequest, SourcingOutput } from './types';
 
+export const maxDuration = 60;
+
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 const COUNTRY_LABELS: Record<string, string> = {
@@ -109,25 +111,26 @@ export async function POST(request: NextRequest) {
 
     const prompt = buildPrompt(req);
 
-    // 전략: 1차(grounding) → 2차(grounding 없이 2.5-flash) → 3차(2.0-flash-lite)
-    const ATTEMPTS: Array<{ useGrounding: boolean; model?: string }> = [
-      { useGrounding: true },
-      { useGrounding: false },
+    // 전략: 1차(2.5-flash + grounding) → 2차(2.5-flash no-grounding) → 3차(1.5-flash)
+    const MODELS = [
+      { model: 'gemini-2.5-flash', grounding: true },
+      { model: 'gemini-2.5-flash', grounding: false },
+      { model: 'gemini-1.5-flash', grounding: false },
     ];
 
     let text = '';
     let groundingUsed = false;
     let lastError: Error | null = null;
 
-    for (const attempt of ATTEMPTS) {
+    for (const m of MODELS) {
       try {
-        const modelConfig = attempt.useGrounding
-          ? { model: 'gemini-2.0-flash', tools: [{ googleSearch: {} }] as never }
-          : { model: 'gemini-2.5-flash' };
-        const model = genAI.getGenerativeModel(modelConfig);
+        const cfg = m.grounding
+          ? { model: m.model, tools: [{ googleSearch: {} }] as never }
+          : { model: m.model };
+        const model = genAI.getGenerativeModel(cfg);
         const result = await model.generateContent(prompt);
         text = result.response.text().trim();
-        groundingUsed = attempt.useGrounding;
+        groundingUsed = m.grounding;
         break;
       } catch (e) {
         lastError = e instanceof Error ? e : new Error(String(e));
@@ -135,23 +138,16 @@ export async function POST(request: NextRequest) {
         const isRetryable =
           msg.includes('503') || msg.includes('Service Unavailable') ||
           msg.includes('429') || msg.includes('Too Many') ||
-          msg.includes('400') || msg.includes('403'); // grounding 미지원
+          msg.includes('400') || msg.includes('403') ||
+          msg.includes('404') || msg.includes('no longer available');
         if (!isRetryable) throw lastError;
-        console.warn(`[GloSource] attempt failed (${attempt.useGrounding ? 'grounding' : 'no-grounding'}):`, msg.slice(0, 100));
-        await new Promise(r => setTimeout(r, 1500));
+        console.warn(`[GloSource] attempt failed (${m.model} grounding=${m.grounding}):`, msg.slice(0, 120));
+        await new Promise(r => setTimeout(r, 1000));
       }
     }
 
-    // 최후 폴백: gemini-2.0-flash-lite
     if (!text) {
-      try {
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
-        const result = await model.generateContent(prompt);
-        text = result.response.text().trim();
-        groundingUsed = false;
-      } catch (e) {
-        throw lastError ?? new Error('모든 AI 모델이 응답하지 않습니다. 잠시 후 다시 시도해주세요.');
-      }
+      throw lastError ?? new Error('모든 AI 모델이 응답하지 않습니다. 잠시 후 다시 시도해주세요.');
     }
 
     // JSON 파싱 (마크다운 코드블록 제거)
