@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import type { GenerateRequest, SafetyEducationOutput, WorkerType, EducationType } from './api/generate/route';
+import type { SourcingRequest, SourcingOutput, Supplier, CountryPreference, OrderFrequency } from './api/source/types';
 
 /* ══════════════════════════════════════════════
-   SVG 아이콘 컴포넌트 (이모지 완전 대체)
+   SVG 아이콘
 ══════════════════════════════════════════════ */
 const Icon = {
   Shield: ({ className = '' }: { className?: string }) => (
@@ -13,47 +13,33 @@ const Icon = {
       <polyline points="9,12 11,14 15,10"/>
     </svg>
   ),
-  FileText: ({ className = '' }: { className?: string }) => (
+  Search: ({ className = '' }: { className?: string }) => (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z"/>
-      <polyline points="14,2 14,8 20,8"/>
-      <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/>
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
     </svg>
   ),
-  Clock: ({ className = '' }: { className?: string }) => (
+  Globe: ({ className = '' }: { className?: string }) => (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="12" r="10"/>
-      <polyline points="12,6 12,12 16,14"/>
+      <line x1="2" y1="12" x2="22" y2="12"/>
+      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+    </svg>
+  ),
+  Mail: ({ className = '' }: { className?: string }) => (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+      <polyline points="22,6 12,13 2,6"/>
     </svg>
   ),
   Download: ({ className = '' }: { className?: string }) => (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15"/>
+      <path d="M21 15V19C21 20.1 20.1 21 19 21H5C3.9 21 3 20.1 3 19V15"/>
       <polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/>
     </svg>
   ),
   Check: ({ className = '' }: { className?: string }) => (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
       <polyline points="20,6 9,17 4,12"/>
-    </svg>
-  ),
-  CheckCircle: ({ className = '' }: { className?: string }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M22 11.08V12C21.9988 14.1564 21.3005 16.2547 20.0093 17.9818C18.7182 19.7088 16.9033 20.9725 14.8354 21.5839C12.7674 22.1953 10.5573 22.1219 8.53447 21.3746C6.51168 20.6273 4.78465 19.2461 3.61096 17.4371C2.43727 15.628 1.87979 13.4881 2.02168 11.3363C2.16356 9.18455 2.99721 7.13631 4.39828 5.49706C5.79935 3.85781 7.69279 2.71537 9.79619 2.24013C11.8996 1.7649 14.1003 1.98232 16.07 2.85999"/>
-      <polyline points="22,4 12,14.01 9,11.01"/>
-    </svg>
-  ),
-  HardHat: ({ className = '' }: { className?: string }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M2 18H22"/><path d="M2 14C2 14 3.5 8 12 8C20.5 8 22 14 22 14"/>
-      <path d="M12 2V8"/><path d="M5 14V18"/><path d="M19 14V18"/>
-    </svg>
-  ),
-  Users: ({ className = '' }: { className?: string }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-      <circle cx="9" cy="7" r="4"/>
-      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
     </svg>
   ),
   AlertTriangle: ({ className = '' }: { className?: string }) => (
@@ -67,24 +53,6 @@ const Icon = {
       <polygon points="13,2 3,14 12,14 11,22 21,10 12,10 13,2"/>
     </svg>
   ),
-  Scale: ({ className = '' }: { className?: string }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="12" y1="3" x2="12" y2="21"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-    </svg>
-  ),
-  Printer: ({ className = '' }: { className?: string }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="6,9 6,2 18,2 18,9"/>
-      <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
-      <rect x="6" y="14" width="12" height="8"/>
-    </svg>
-  ),
-  Layers: ({ className = '' }: { className?: string }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <polygon points="12,2 2,7 12,12 22,7 12,2"/>
-      <polyline points="2,17 12,22 22,17"/><polyline points="2,12 12,17 22,12"/>
-    </svg>
-  ),
   ChevronRight: ({ className = '' }: { className?: string }) => (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <polyline points="9,18 15,12 9,6"/>
@@ -96,23 +64,22 @@ const Icon = {
       <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
     </svg>
   ),
-  BarChart: ({ className = '' }: { className?: string }) => (
+  Printer: ({ className = '' }: { className?: string }) => (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
-      <line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/>
+      <polyline points="6,9 6,2 18,2 18,9"/>
+      <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+      <rect x="6" y="14" width="12" height="8"/>
     </svg>
   ),
-  Award: ({ className = '' }: { className?: string }) => (
+  ExternalLink: ({ className = '' }: { className?: string }) => (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="8" r="7"/>
-      <polyline points="8.21,13.89 7,23 12,20 17,23 15.79,13.88"/>
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <polyline points="15,3 21,3 21,9"/><line x1="10" y1="14" x2="21" y2="3"/>
     </svg>
   ),
-  List: ({ className = '' }: { className?: string }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
-      <line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/>
-      <line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+  Star: ({ className = '' }: { className?: string }) => (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" stroke="none">
+      <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26 12,2"/>
     </svg>
   ),
   Settings: ({ className = '' }: { className?: string }) => (
@@ -126,210 +93,221 @@ const Icon = {
 /* ══════════════════════════════════════════════
    상수
 ══════════════════════════════════════════════ */
-const CONSTRUCTION_TYPES = [
-  '철근콘크리트 공사', '조적·미장 공사', '도장 공사', '가설 공사',
-  '토공사·굴착', '철골 공사', '전기·설비 공사', '인테리어·마감 공사',
-];
-const HAZARD_TYPES = [
-  '고소작업 (추락)', '중장비 협착', '전기 감전', '밀폐공간',
-  '화재·폭발', '낙하·비래', '질식·유해가스', '근골격계 부담',
-];
-const WORKER_TYPES: { value: WorkerType; label: string; legal: string }[] = [
-  { value: 'office',  label: '사무직',          legal: '분기 3시간' },
-  { value: 'field',   label: '현장 근로자',      legal: '분기 6시간' },
-  { value: 'special', label: '특별위험작업',     legal: '특별교육 16시간' },
-];
-const EDUCATION_TYPES: { value: EducationType; label: string; desc: string }[] = [
-  { value: 'regular',    label: '정기교육',        desc: '분기별 의무' },
-  { value: 'onboarding', label: '채용 시 교육',     desc: '신규 채용' },
-  { value: 'change',     label: '작업 변경 교육',   desc: '공종 변경' },
-  { value: 'special',    label: '특별교육',         desc: '위험작업 전' },
-];
-const LEGAL_HOURS: Record<WorkerType, Record<EducationType, number>> = {
-  office:  { regular: 3,  onboarding: 4,  change: 1,  special: 2 },
-  field:   { regular: 6,  onboarding: 8,  change: 2,  special: 16 },
-  special: { regular: 6,  onboarding: 8,  change: 2,  special: 16 },
-};
-const WORKER_LABELS: Record<WorkerType, string> = { office: '사무직', field: '현장 근로자', special: '특별위험작업 근로자' };
-const EDU_LABELS: Record<EducationType, string> = { regular: '정기교육', onboarding: '채용 시 교육', change: '작업 변경 시 교육', special: '특별교육' };
-const DURATION_LABELS: Record<string, string> = { '30min': '30분', '1hr': '1시간', '2hr': '2시간' };
-
-type ResultTab = 'pptScript' | 'quiz' | 'attendance' | 'certificate';
-const TABS: { key: ResultTab; label: string }[] = [
-  { key: 'pptScript',   label: 'PPT 스크립트' },
-  { key: 'quiz',        label: '퀴즈 10문항' },
-  { key: 'attendance',  label: '출석부' },
-  { key: 'certificate', label: '이수확인서' },
-];
-
 const FREE_CREDITS = 1;
-const CREDITS_KEY = 'safedoc_credits_v3';
+const CREDITS_KEY = 'glosource_credits_v1';
+
+const COUNTRY_OPTIONS: { value: CountryPreference; label: string; desc: string }[] = [
+  { value: 'china',         label: '중국',     desc: '최대 공급망' },
+  { value: 'southeast_asia',label: '동남아',   desc: '베트남·태국' },
+  { value: 'europe',        label: '유럽',     desc: '고품질 특화' },
+  { value: 'japan',         label: '일본',     desc: '정밀 부품' },
+  { value: 'any',           label: '상관없음', desc: '전 세계' },
+];
+
+const FREQUENCY_OPTIONS: { value: OrderFrequency; label: string; desc: string }[] = [
+  { value: 'one_time',       label: '1회성',   desc: '단발 발주' },
+  { value: 'monthly',        label: '월 1회',  desc: '정기 발주' },
+  { value: 'bimonthly_plus', label: '월 2회+', desc: '대량 정기' },
+];
+
+const LOADING_MESSAGES = [
+  'Alibaba 탐색 중...',
+  'Made-in-China 검색 중...',
+  'Global Sources 확인 중...',
+  '공급자 신뢰도 분석 중...',
+  'RFQ 이메일 초안 작성 중...',
+  '소싱 리포트 생성 중...',
+];
+
+/* ══════════════════════════════════════════════
+   신뢰도 점수 → 색상
+══════════════════════════════════════════════ */
+function getTrustColor(score: number): string {
+  if (score >= 80) return 'text-emerald-600 bg-emerald-50 border-emerald-200';
+  if (score >= 60) return 'text-amber-600 bg-amber-50 border-amber-200';
+  return 'text-red-600 bg-red-50 border-red-200';
+}
+function getTrustLabel(score: number): string {
+  if (score >= 80) return '신뢰';
+  if (score >= 60) return '보통';
+  return '주의';
+}
 
 /* ══════════════════════════════════════════════
    PDF 생성
 ══════════════════════════════════════════════ */
-function generatePrintHTML(tab: ResultTab, result: SafetyEducationOutput, company: string, date: string, form: GenerateRequest): string {
+function generateReportHTML(result: SourcingOutput, req: SourcingRequest, company: string, date: string): string {
   const co = company || '(회사명 미입력)';
   const dt = new Date(date).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
   const css = `<style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:'Noto Sans KR','맑은 고딕',sans-serif;padding:15mm 20mm;color:#0F172A;font-size:10pt;line-height:1.65}
-    h1{font-size:18pt;font-weight:900;text-align:center;padding-bottom:8px;border-bottom:2px solid #0F172A;margin-bottom:12px}
-    .sub{text-align:center;color:#475569;font-size:9.5pt;margin-bottom:12px}
+    h1{font-size:18pt;font-weight:900;text-align:center;padding-bottom:8px;border-bottom:2px solid #0F172A;margin-bottom:10px}
+    .sub{text-align:center;color:#475569;font-size:9pt;margin-bottom:12px}
     .meta{background:#F8FAFC;border:1px solid #E2E8F0;border-radius:6px;padding:10px 14px;margin-bottom:14px;display:grid;grid-template-columns:1fr 1fr;gap:3px 20px}
     .mr{font-size:9pt;display:flex;gap:8px}.ml{font-weight:700;min-width:70px;color:#374151}
-    pre{font-family:'Noto Sans KR','맑은 고딕',sans-serif;white-space:pre-wrap;font-size:9.5pt;line-height:1.75}
-    .slide{margin-bottom:12px;border:1px solid #E2E8F0;border-radius:6px;padding:10px 14px}
-    .sn{font-size:8pt;font-weight:700;color:#1E40AF;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
-    .qq{border-left:3px solid #1E40AF;padding:8px 12px;margin-bottom:8px;background:#F8FAFC}
-    table{width:100%;border-collapse:collapse;margin-top:8px}
-    th{background:#1E3A8A;color:#fff;padding:7px;font-size:9pt;border:1px solid #1E3A8A}
-    td{padding:6px;border:1px solid #CBD5E1;height:28px;text-align:center;font-size:9pt}
+    .section{margin-bottom:16px}
+    .sh{font-size:11pt;font-weight:700;border-left:4px solid #0D1B2A;padding-left:10px;margin-bottom:8px}
+    table{width:100%;border-collapse:collapse;margin-top:6px;font-size:9pt}
+    th{background:#0D1B2A;color:#fff;padding:7px 8px;text-align:left;border:1px solid #0D1B2A}
+    td{padding:6px 8px;border:1px solid #CBD5E1;vertical-align:top}
     tr:nth-child(even)td{background:#F8FAFC}
-    .cert{border:3px double #0F172A;padding:24px;text-align:center;margin:10px 0}
-    .ct{font-size:24pt;font-weight:900;letter-spacing:8px;margin-bottom:8px}
-    .cs{font-size:9.5pt;color:#475569;margin-bottom:16px}
-    .seal{float:right;width:68px;height:68px;border:2px solid #CBD5E1;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8pt;color:#9CA3AF;text-align:center}
-    .foot{margin-top:12px;padding-top:8px;border-top:1px solid #E2E8F0;font-size:7.5pt;color:#94A3B8;text-align:center}
+    .score-h{font-weight:700;color:#16a34a}.score-m{font-weight:700;color:#d97706}.score-l{font-weight:700;color:#dc2626}
+    .ev{font-size:8.5pt;color:#475569;margin-top:3px}
+    .rf{font-size:8.5pt;color:#dc2626;margin-top:3px}
+    .rec{background:#EFF6FF;border:1px solid #BFDBFE;border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:9.5pt}
+    .dis{margin-top:12px;padding-top:8px;border-top:1px solid #E2E8F0;font-size:7.5pt;color:#94A3B8;text-align:center}
+    .grounding{display:inline-block;background:#DCFCE7;color:#16a34a;font-size:7.5pt;padding:2px 8px;border-radius:10px;margin-bottom:8px}
     @media print{@page{size:A4;margin:0}body{padding:10mm 15mm}}
   </style>`;
-  const meta = `<div class="meta">
-    <div class="mr"><span class="ml">회사명</span><span>${co}</span></div>
-    <div class="mr"><span class="ml">교육일자</span><span>${dt}</span></div>
-    <div class="mr"><span class="ml">공사 종류</span><span>${form.constructionType}</span></div>
-    <div class="mr"><span class="ml">위험요소</span><span>${form.hazardTypes}</span></div>
-    <div class="mr"><span class="ml">근로자 유형</span><span>${WORKER_LABELS[form.workerType]}</span></div>
-    <div class="mr"><span class="ml">교육 구분</span><span>${EDU_LABELS[form.educationType]}</span></div>
-    <div class="mr"><span class="ml">교육 시간</span><span>${DURATION_LABELS[form.duration]}</span></div>
-    <div class="mr"><span class="ml">법적 근거</span><span>${result.legalInfo.legalBasis}</span></div>
-  </div>`;
-  const foot = `<p class="foot">본 교육자료는 산업안전보건법 제29조 및 고용노동부 고시 기준에 따라 SafeDoc AI가 생성하였습니다. 현장 실정에 맞게 수정 후 사용하십시오. | safedoc-ai.vercel.app</p>`;
-  const wrap = (t: string, s: string, b: string) =>
-    `<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8">${css}<title>${t} — ${co}</title></head><body>
-    <h1>${t}</h1><p class="sub">${s}</p>${meta}${b}${foot}
-    <script>window.onload=()=>window.print();</script></body></html>`;
-  if (tab === 'pptScript') {
-    const slides = result.pptScript.split(/(?=={3,}\s*슬라이드)/).filter(Boolean);
-    const body = slides.length > 1
-      ? slides.map((s,i)=>`<div class="slide"><div class="sn">SLIDE ${i+1}</div><pre>${s.replace(/={3,}[^\n]*={3,}/g,'').trim()}</pre></div>`).join('')
-      : `<pre>${result.pptScript}</pre>`;
-    return wrap('안전교육 PPT 스크립트', `${EDU_LABELS[form.educationType]} · ${WORKER_LABELS[form.workerType]} · ${DURATION_LABELS[form.duration]}`, body);
-  }
-  if (tab === 'quiz') {
-    const qs = result.quiz.split(/(?=Q\d+[.:])/).filter(Boolean);
-    const body = qs.length>1 ? qs.map(q=>`<div class="qq"><pre>${q.trim()}</pre></div>`).join('') : `<pre>${result.quiz}</pre>`;
-    return wrap('이해도 확인 퀴즈', `${EDU_LABELS[form.educationType]} · 10문항`, body);
-  }
-  if (tab === 'attendance') return wrap('안전교육 출석부', `${co} · ${dt}`, `<pre>${result.attendance}</pre>`);
-  return wrap('교육 이수 확인서', `${co} · ${dt}`, `<div class="cert"><div class="ct">교육 이수 확인서</div><div class="cs">CERTIFICATE OF SAFETY EDUCATION COMPLETION</div><pre style="text-align:left">${result.certificate}</pre><div class="seal">직인</div></div>`);
+
+  const suppliersTable = `<table>
+    <tr><th>#</th><th>공급자명</th><th>플랫폼</th><th>신뢰도</th><th>예상 단가</th><th>MOQ</th></tr>
+    ${result.suppliers.map(s => {
+      const cls = s.trustScore >= 80 ? 'score-h' : s.trustScore >= 60 ? 'score-m' : 'score-l';
+      return `<tr>
+        <td>${s.rank}</td>
+        <td><strong>${s.name}</strong><div class="ev">${s.trustEvidence.slice(0, 2).join(' · ')}</div>${s.redFlags.length ? `<div class="rf">⚠ ${s.redFlags.join(' / ')}</div>` : ''}</td>
+        <td>${s.platform}</td>
+        <td class="${cls}">${s.trustScore}/100<br><small>${getTrustLabel(s.trustScore)}</small></td>
+        <td>${s.estimatedPrice}</td>
+        <td>${s.moq}</td>
+      </tr>`;
+    }).join('')}
+  </table>`;
+
+  return `<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8">${css}<title>글로벌 소싱 리포트 — ${co}</title></head><body>
+    <h1>글로벌 소싱 리포트</h1>
+    <p class="sub">GloSource AI · ${result.groundingUsed ? '<span class="grounding">실시간 웹 검색 기반</span>' : 'AI 지식 기반'}</p>
+    <div class="meta">
+      <div class="mr"><span class="ml">회사명</span><span>${co}</span></div>
+      <div class="mr"><span class="ml">분석일</span><span>${dt}</span></div>
+      <div class="mr"><span class="ml">소싱 품목</span><span>${req.productDescription}</span></div>
+      <div class="mr"><span class="ml">필요 수량</span><span>${req.quantity}</span></div>
+      ${req.budget ? `<div class="mr"><span class="ml">예산</span><span>${req.budget}</span></div>` : ''}
+    </div>
+    <div class="section"><div class="sh">공급자 비교표</div>${suppliersTable}</div>
+    <div class="section"><div class="sh">AI 최종 추천</div><div class="rec">${result.recommendation}</div></div>
+    <p class="dis">${result.disclaimer} | GloSource AI · visionlab@seowonenc.co.kr</p>
+    <script>window.onload=()=>window.print();</script>
+  </body></html>`;
 }
 
 /* ══════════════════════════════════════════════
    메인 컴포넌트
 ══════════════════════════════════════════════ */
 export default function HomePage() {
-  const [form, setForm] = useState<GenerateRequest>({ constructionType:'', hazardTypes:'', workerCount:10, duration:'1hr', workerType:'field', educationType:'regular' });
-  const [selectedHazards, setSelectedHazards] = useState<string[]>([]);
+  const [form, setForm] = useState<SourcingRequest>({
+    productDescription: '',
+    quantity: '',
+    budget: '',
+    countryPreference: 'china',
+    orderFrequency: 'one_time',
+  });
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<SafetyEducationOutput|null>(null);
+  const [loadingMsg, setLoadingMsg] = useState(0);
+  const [result, setResult] = useState<SourcingOutput | null>(null);
   const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState<ResultTab>('pptScript');
+  const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
+  const [emailLang, setEmailLang] = useState<'en' | 'zh'>('en');
   const [copied, setCopied] = useState(false);
   const [companyName, setCompanyName] = useState('');
-  const [trainingDate, setTrainingDate] = useState(()=>new Date().toISOString().split('T')[0]);
+  const [reportDate, setReportDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [credits, setCredits] = useState(FREE_CREDITS);
   const [showPaywall, setShowPaywall] = useState(false);
   const resultRef = useRef<HTMLDivElement>(null);
-  const toolRef = useRef<HTMLDivElement>(null);
+  const loadingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  useEffect(()=>{
+  useEffect(() => {
     const s = localStorage.getItem(CREDITS_KEY);
-    if(s===null) localStorage.setItem(CREDITS_KEY,String(FREE_CREDITS));
-    else setCredits(parseInt(s,10));
-  },[]);
+    if (s === null) localStorage.setItem(CREDITS_KEY, String(FREE_CREDITS));
+    else setCredits(parseInt(s, 10));
+  }, []);
 
-  const requiredHours = LEGAL_HOURS[form.workerType][form.educationType];
+  const handleGenerate = async () => {
+    if (credits <= 0) { setShowPaywall(true); return; }
+    if (!form.productDescription.trim()) { setError('제품/자재명을 입력해주세요.'); return; }
+    if (!form.quantity.trim()) { setError('필요 수량을 입력해주세요.'); return; }
 
-  const toggleHazard = (h:string)=>{
-    setSelectedHazards(prev=>{
-      const next = prev.includes(h) ? prev.filter(x=>x!==h) : [...prev,h];
-      setForm(f=>({...f, hazardTypes:next.join(', ')}));
-      return next;
-    });
-  };
+    setLoading(true); setError(''); setResult(null); setSelectedSupplier(null);
+    setLoadingMsg(0);
+    loadingRef.current = setInterval(() => setLoadingMsg(p => (p + 1) % LOADING_MESSAGES.length), 3000);
 
-  const handleGenerate = async ()=>{
-    if(credits<=0){setShowPaywall(true);return;}
-    if(!form.constructionType){setError('공사 종류를 선택해주세요.');return;}
-    if(!form.hazardTypes){setError('위험요소를 하나 이상 선택해주세요.');return;}
-    setLoading(true);setError('');setResult(null);
-    try{
-      const res = await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(form)});
+    try {
+      const res = await fetch('/api/source', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
       const json = await res.json();
-      if(!res.ok) throw new Error(json.error||'오류가 발생했습니다.');
-      setResult(json.data as SafetyEducationOutput);
-      setActiveTab('pptScript');
-      const nc=credits-1; setCredits(nc); localStorage.setItem(CREDITS_KEY,String(nc));
-      setTimeout(()=>resultRef.current?.scrollIntoView({behavior:'smooth'}),100);
-    }catch(e){setError(e instanceof Error ? e.message : '알 수 없는 오류');}
-    finally{setLoading(false);}
+      if (!res.ok) throw new Error(json.error || '오류가 발생했습니다.');
+      const data = json.data as SourcingOutput;
+      setResult(data);
+      setSelectedSupplier(data.suppliers[0] ?? null);
+      const nc = credits - 1;
+      setCredits(nc);
+      localStorage.setItem(CREDITS_KEY, String(nc));
+      setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : '알 수 없는 오류');
+    } finally {
+      setLoading(false);
+      if (loadingRef.current) clearInterval(loadingRef.current);
+    }
   };
 
-  const handleCopy = async ()=>{
-    if(!result)return;
-    await navigator.clipboard.writeText(result[activeTab]);
-    setCopied(true); setTimeout(()=>setCopied(false),2000);
+  const handleCopyEmail = async () => {
+    if (!result) return;
+    await navigator.clipboard.writeText(result.rfqEmail[emailLang]);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
-  const handlePrint = (tab?:ResultTab)=>{
-    if(!result)return;
-    const html = generatePrintHTML(tab??activeTab,result,companyName,trainingDate,form);
-    const win = window.open('','_blank','width=900,height=700');
-    if(!win){alert('팝업 차단을 해제해주세요.');return;}
-    win.document.write(html);win.document.close();
-  };
-
-  const handlePrintAll = ()=>{
-    if(!result)return;
-    (['attendance','certificate','pptScript','quiz'] as ResultTab[]).forEach((t,i)=>setTimeout(()=>handlePrint(t),i*500));
+  const handlePrintReport = () => {
+    if (!result) return;
+    const html = generateReportHTML(result, form, companyName, reportDate);
+    const win = window.open('', '_blank', 'width=900,height=700');
+    if (!win) { alert('팝업 차단을 해제해주세요.'); return; }
+    win.document.write(html);
+    win.document.close();
   };
 
   return (
-    <div className="min-h-screen bg-white" style={{fontFamily:"'Pretendard','Inter','Apple SD Gothic Neo','Malgun Gothic',sans-serif"}}>
+    <div className="min-h-screen bg-white" style={{ fontFamily: "'Pretendard','Inter','Apple SD Gothic Neo','Malgun Gothic',sans-serif" }}>
 
       {/* ── 결제 모달 ── */}
-      {showPaywall&&(
+      {showPaywall && (
         <div className="fixed inset-0 bg-slate-900/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
           <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-lg w-full">
             <div className="mb-6">
               <div className="w-12 h-12 bg-[#0D1B2A] rounded-xl flex items-center justify-center mb-4">
-                <Icon.Zap className="w-6 h-6 text-white"/>
+                <Icon.Globe className="w-6 h-6 text-white" />
               </div>
               <h2 className="text-xl font-bold text-[#0D1B2A] mb-1">무료 체험 횟수 소진</h2>
-              <p className="text-slate-500 text-sm">법정 안전교육 자료 자동 생성을 계속 이용하려면 플랜을 선택하세요.</p>
+              <p className="text-slate-500 text-sm">AI 글로벌 소싱 분석을 계속 이용하려면 플랜을 선택하세요.</p>
             </div>
             <div className="space-y-2 mb-6">
               {[
-                {name:'스타터',detail:'10회권',price:'29,000원',per:'건당 2,900원',hot:false},
-                {name:'프로',detail:'월 무제한',price:'49,000원/월',per:'가장 인기 · 무제한 사용',hot:true},
-                {name:'팀',detail:'5계정 공유',price:'149,000원/월',per:'기업용 · 현장별 관리',hot:false},
-              ].map(p=>(
-                <a key={p.name} href={`mailto:visionlab@seowonenc.co.kr?subject=SafeDoc AI ${p.name} 플랜 문의`}
-                  className={`flex items-center justify-between p-4 rounded-xl border transition-all cursor-pointer ${p.hot?'border-[#1E40AF] bg-blue-50':'border-slate-200 hover:border-slate-300'}`}>
+                { name: '스타터', detail: '10회권', price: '10만원/월', per: '분석 10회 · PDF 다운로드 · 이메일 초안', hot: false },
+                { name: '프로', detail: '무제한', price: '30만원/월', per: '무제한 분석 · 이력 관리 · 우선 지원', hot: true },
+                { name: '팀', detail: '5계정', price: '70만원/월', per: '5계정 공유 · 현장별 관리 · 전담 지원', hot: false },
+              ].map(p => (
+                <a key={p.name} href={`mailto:visionlab@seowonenc.co.kr?subject=GloSource AI ${p.name} 플랜 문의`}
+                  className={`flex items-center justify-between p-4 rounded-xl border transition-all cursor-pointer ${p.hot ? 'border-[#0D1B2A] bg-slate-50' : 'border-slate-200 hover:border-slate-300'}`}>
                   <div>
-                    <p className={`font-semibold text-sm ${p.hot?'text-[#1E40AF]':'text-[#0D1B2A]'}`}>{p.name} <span className="font-normal text-slate-400 text-xs">· {p.detail}</span></p>
+                    <p className={`font-semibold text-sm ${p.hot ? 'text-[#0D1B2A]' : 'text-[#0D1B2A]'}`}>{p.name} <span className="font-normal text-slate-400 text-xs">· {p.detail}</span></p>
                     <p className="text-xs text-slate-400 mt-0.5">{p.per}</p>
                   </div>
-                  <div className="text-right flex items-center gap-2">
+                  <div className="flex items-center gap-2">
                     <p className="font-bold text-[#0D1B2A] text-sm">{p.price}</p>
-                    <Icon.ChevronRight className="w-4 h-4 text-slate-300"/>
+                    <Icon.ChevronRight className="w-4 h-4 text-slate-300" />
                   </div>
                 </a>
               ))}
             </div>
             <p className="text-xs text-slate-400 text-center mb-4">세금계산서 발행 가능 · visionlab@seowonenc.co.kr</p>
-            <button onClick={()=>setShowPaywall(false)} className="w-full py-2.5 text-sm text-slate-400 hover:text-slate-600 transition-colors border border-slate-200 rounded-xl">닫기</button>
+            <button onClick={() => setShowPaywall(false)} className="w-full py-2.5 text-sm text-slate-400 hover:text-slate-600 border border-slate-200 rounded-xl transition-colors">닫기</button>
           </div>
         </div>
       )}
@@ -339,21 +317,21 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 bg-[#0D1B2A] rounded-lg flex items-center justify-center flex-shrink-0">
-              <Icon.Shield className="w-4 h-4 text-white"/>
+              <Icon.Globe className="w-4 h-4 text-white" />
             </div>
             <div>
-              <span className="font-bold text-[#0D1B2A] tracking-tight">SafeDoc AI</span>
-              <span className="hidden sm:inline text-xs text-slate-400 ml-2">건설 안전교육 자료 자동화</span>
+              <span className="font-bold text-[#0D1B2A] tracking-tight">GloSource AI</span>
+              <span className="hidden sm:inline text-xs text-slate-400 ml-2">AI 글로벌 소싱 에이전트</span>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <div className="hidden md:flex items-center gap-1.5 text-xs text-slate-500 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-full">
-              <Icon.Scale className="w-3 h-3"/>
-              <span>산업안전보건법 제29조 기준</span>
+              <Icon.Shield className="w-3 h-3" />
+              <span>AI 공급자 신뢰도 검증</span>
             </div>
-            {credits>0
+            {credits > 0
               ? <span className="text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-full">무료 체험 {credits}회 남음</span>
-              : <button onClick={()=>setShowPaywall(true)} className="text-xs font-semibold bg-[#EA580C] text-white px-3 py-1.5 rounded-full hover:bg-[#DC4C00] transition-colors">크레딧 충전</button>
+              : <button onClick={() => setShowPaywall(true)} className="text-xs font-semibold bg-[#EA580C] text-white px-3 py-1.5 rounded-full hover:bg-[#DC4C00] transition-colors">크레딧 충전</button>
             }
           </div>
         </div>
@@ -364,37 +342,36 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto px-6 py-16">
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 border border-white/20 rounded-full px-3 py-1 text-xs text-slate-300 mb-6">
-              <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"/>
-              고용노동부 고시 제2023-19호 기준 자동 반영
+              <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+              Alibaba · Made-in-China · Global Sources 실시간 탐색
             </div>
             <h1 className="text-4xl md:text-5xl font-black leading-[1.15] tracking-tight mb-5">
-              법정 안전교육 자료,<br/>
-              <span className="text-[#EA580C]">이제 2분이면 완성됩니다.</span>
+              해외 공장, 믿고<br />
+              <span className="text-[#EA580C]">직발주하세요.</span>
             </h1>
             <p className="text-slate-400 text-base md:text-lg leading-relaxed mb-8 max-w-xl">
-              산업안전보건법 제29조 필수 항목이 자동으로 반영됩니다.<br/>
-              PPT 스크립트부터 이수확인서까지, 한 번의 클릭으로 법정 문서 4종을 완성하세요.
+              AI가 Alibaba·Made-in-China에서 검증된 공급자를 탐색하고<br />
+              사기 여부를 분석합니다. RFQ 이메일까지 자동 생성.
             </p>
             <div className="flex flex-wrap gap-3 mb-12">
               {[
-                {icon:<Icon.Shield className="w-3.5 h-3.5"/>, text:'산업안전보건법 제29조 준수'},
-                {icon:<Icon.Download className="w-3.5 h-3.5"/>, text:'PDF 즉시 출력'},
-                {icon:<Icon.Clock className="w-3.5 h-3.5"/>, text:'평균 생성 시간 2분'},
-                {icon:<Icon.Award className="w-3.5 h-3.5"/>, text:'법적 효력 있는 양식'},
-              ].map(b=>(
+                { icon: <Icon.Search className="w-3.5 h-3.5" />, text: '공급자 3~5개 자동 탐색' },
+                { icon: <Icon.Shield className="w-3.5 h-3.5" />, text: '신뢰도 AI 분석' },
+                { icon: <Icon.Mail className="w-3.5 h-3.5" />, text: 'RFQ 이메일 자동 생성' },
+                { icon: <Icon.Download className="w-3.5 h-3.5" />, text: '한국어 리포트 PDF' },
+              ].map(b => (
                 <span key={b.text} className="inline-flex items-center gap-1.5 bg-white/10 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-slate-300">
                   {b.icon}{b.text}
                 </span>
               ))}
             </div>
-            {/* 수치 지표 */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 border-t border-white/10 pt-8">
               {[
-                {num:'4종', label:'법정 문서 동시 완성'},
-                {num:'120초', label:'평균 생성 소요 시간'},
-                {num:'29조', label:'산업안전보건법 기준'},
-                {num:'100%', label:'고용노동부 고시 준수'},
-              ].map(s=>(
+                { num: '3~5개', label: '공급자 자동 탐색' },
+                { num: '60초', label: '평균 분석 소요 시간' },
+                { num: '0~100', label: '신뢰도 점수 채점' },
+                { num: '2개국어', label: 'RFQ 이메일 자동화' },
+              ].map(s => (
                 <div key={s.num}>
                   <p className="text-2xl font-black text-white">{s.num}</p>
                   <p className="text-xs text-slate-400 mt-0.5">{s.label}</p>
@@ -406,7 +383,7 @@ export default function HomePage() {
       </section>
 
       {/* ── 메인 툴 ── */}
-      <section ref={toolRef} className="bg-slate-50">
+      <section className="bg-slate-50">
         <div className="max-w-6xl mx-auto px-6 py-10">
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-6">
 
@@ -414,125 +391,97 @@ export default function HomePage() {
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm">
               <div className="px-6 py-5 border-b border-slate-100 flex items-center gap-3">
                 <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center">
-                  <Icon.Settings className="w-4 h-4 text-slate-500"/>
+                  <Icon.Settings className="w-4 h-4 text-slate-500" />
                 </div>
                 <div>
-                  <p className="font-bold text-[#0D1B2A] text-sm">교육 조건 설정</p>
-                  <p className="text-xs text-slate-400">6가지 항목 입력 후 생성 버튼 클릭</p>
+                  <p className="font-bold text-[#0D1B2A] text-sm">소싱 조건 설정</p>
+                  <p className="text-xs text-slate-400">5가지 항목 입력 후 AI 분석 시작</p>
                 </div>
               </div>
               <div className="p-6 space-y-6">
 
-                {/* ① 근로자 유형 */}
+                {/* ① 제품/자재명 */}
                 <div>
-                  <label className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
+                  <label className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
                     <span className="w-5 h-5 rounded-full bg-[#0D1B2A] text-white flex items-center justify-center text-xs font-black">1</span>
-                    근로자 유형
+                    제품/자재명 <span className="font-normal normal-case text-red-400">필수</span>
                   </label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {WORKER_TYPES.map(w=>(
-                      <button key={w.value} onClick={()=>setForm({...form,workerType:w.value})}
-                        className={`py-3 px-3 rounded-xl border text-center transition-all ${form.workerType===w.value?'bg-[#0D1B2A] border-[#0D1B2A] text-white':'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`}>
-                        <p className="text-xs font-semibold">{w.label}</p>
-                        <p className={`text-xs mt-0.5 ${form.workerType===w.value?'text-slate-300':'text-slate-400'}`}>{w.legal}</p>
-                      </button>
-                    ))}
+                  <textarea
+                    rows={2}
+                    placeholder="예: SS400 강판 6T × 1,000장, 건설 현장용&#10;예: 알루미늄 압출 프로파일 40×40, OEM 가능"
+                    value={form.productDescription}
+                    onChange={e => setForm({ ...form, productDescription: e.target.value })}
+                    className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm text-slate-700 focus:border-[#0D1B2A] focus:ring-2 focus:ring-slate-100 focus:outline-none resize-none"
+                  />
+                </div>
+
+                {/* ② 수량 + 예산 */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                      <span className="w-5 h-5 rounded-full bg-[#0D1B2A] text-white flex items-center justify-center text-xs font-black">2</span>
+                      필요 수량
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="예: 1,000장 / 500개"
+                      value={form.quantity}
+                      onChange={e => setForm({ ...form, quantity: e.target.value })}
+                      className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm text-slate-700 focus:border-[#0D1B2A] focus:ring-2 focus:ring-slate-100 focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                      <span className="w-5 h-5 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs font-black">3</span>
+                      예산 범위 <span className="font-normal normal-case text-slate-400">선택</span>
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="예: 개당 $10 이하"
+                      value={form.budget}
+                      onChange={e => setForm({ ...form, budget: e.target.value })}
+                      className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm text-slate-700 focus:border-[#0D1B2A] focus:ring-2 focus:ring-slate-100 focus:outline-none"
+                    />
                   </div>
                 </div>
 
-                {/* ② 교육 구분 */}
-                <div>
-                  <label className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
-                    <span className="w-5 h-5 rounded-full bg-[#0D1B2A] text-white flex items-center justify-center text-xs font-black">2</span>
-                    교육 구분
-                  </label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {EDUCATION_TYPES.map(e=>(
-                      <button key={e.value} onClick={()=>setForm({...form,educationType:e.value})}
-                        className={`py-3 px-3 rounded-xl border text-left transition-all ${form.educationType===e.value?'bg-[#0D1B2A] border-[#0D1B2A] text-white':'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`}>
-                        <p className="text-xs font-semibold">{e.label}</p>
-                        <p className={`text-xs mt-0.5 ${form.educationType===e.value?'text-slate-300':'text-slate-400'}`}>{e.desc}</p>
-                      </button>
-                    ))}
-                  </div>
-                  <div className="mt-2 flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2">
-                    <Icon.Scale className="w-3.5 h-3.5 text-blue-600 flex-shrink-0"/>
-                    <span className="text-xs font-semibold text-blue-700">법정 필요 시간: {requiredHours}시간 이상</span>
-                    <span className="text-xs text-slate-400 ml-auto">산업안전보건법 제29조</span>
-                  </div>
-                </div>
-
-                {/* ③ 공사 종류 */}
-                <div>
-                  <label className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
-                    <span className="w-5 h-5 rounded-full bg-[#0D1B2A] text-white flex items-center justify-center text-xs font-black">3</span>
-                    공사 종류
-                  </label>
-                  <div className="relative">
-                    <select value={form.constructionType} onChange={e=>setForm({...form,constructionType:e.target.value})}
-                      className="w-full appearance-none bg-white border border-slate-300 rounded-xl px-4 py-3 text-sm text-slate-700 focus:border-[#0D1B2A] focus:ring-2 focus:ring-slate-100 focus:outline-none pr-10">
-                      <option value="">공사 종류 선택</option>
-                      {CONSTRUCTION_TYPES.map(t=><option key={t} value={t}>{t}</option>)}
-                    </select>
-                    <Icon.ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 rotate-90 pointer-events-none"/>
-                  </div>
-                </div>
-
-                {/* ④ 위험요소 */}
+                {/* ③ 원산지 선호 */}
                 <div>
                   <label className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
                     <span className="w-5 h-5 rounded-full bg-[#0D1B2A] text-white flex items-center justify-center text-xs font-black">4</span>
-                    주요 위험요소
-                    <span className="font-normal normal-case text-slate-400">복수 선택</span>
+                    원산지 선호
                   </label>
-                  <div className="grid grid-cols-2 gap-1.5">
-                    {HAZARD_TYPES.map(h=>(
-                      <button key={h} onClick={()=>toggleHazard(h)}
-                        className={`flex items-center gap-2 text-left text-xs px-3 py-2.5 rounded-lg border transition-all ${selectedHazards.includes(h)?'bg-[#0D1B2A] border-[#0D1B2A] text-white':'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`}>
-                        <div className={`w-4 h-4 rounded border flex-shrink-0 flex items-center justify-center transition-all ${selectedHazards.includes(h)?'bg-white/20 border-white/40':'border-slate-300'}`}>
-                          {selectedHazards.includes(h)&&<Icon.Check className="w-3 h-3 text-white"/>}
-                        </div>
-                        {h}
+                  <div className="grid grid-cols-5 gap-1.5">
+                    {COUNTRY_OPTIONS.map(c => (
+                      <button key={c.value} onClick={() => setForm({ ...form, countryPreference: c.value })}
+                        className={`py-2.5 px-2 rounded-xl border text-center transition-all ${form.countryPreference === c.value ? 'bg-[#0D1B2A] border-[#0D1B2A] text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`}>
+                        <p className="text-xs font-semibold">{c.label}</p>
+                        <p className={`text-xs mt-0.5 ${form.countryPreference === c.value ? 'text-slate-300' : 'text-slate-400'}`}>{c.desc}</p>
                       </button>
                     ))}
                   </div>
                 </div>
 
-                {/* ⑤⑥ 인원 + 시간 */}
-                <div className="grid grid-cols-2 gap-5">
-                  <div>
-                    <label className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
-                      <span className="w-5 h-5 rounded-full bg-[#0D1B2A] text-white flex items-center justify-center text-xs font-black">5</span>
-                      교육 인원
-                    </label>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs text-slate-400">인원 수</span>
-                      <span className="text-sm font-bold text-[#0D1B2A]">{form.workerCount}명</span>
-                    </div>
-                    <input type="range" min={1} max={100} value={form.workerCount}
-                      onChange={e=>setForm({...form,workerCount:Number(e.target.value)})}
-                      className="w-full accent-[#0D1B2A]"/>
-                    <div className="flex justify-between text-xs text-slate-400 mt-1"><span>1명</span><span>100명</span></div>
-                  </div>
-                  <div>
-                    <label className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
-                      <span className="w-5 h-5 rounded-full bg-[#0D1B2A] text-white flex items-center justify-center text-xs font-black">6</span>
-                      교육 시간
-                    </label>
-                    <div className="flex flex-col gap-1.5">
-                      {(['30min','1hr','2hr'] as const).map(d=>(
-                        <button key={d} onClick={()=>setForm({...form,duration:d})}
-                          className={`py-2.5 rounded-xl border text-xs font-semibold transition-all ${form.duration===d?'bg-[#0D1B2A] border-[#0D1B2A] text-white':'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`}>
-                          {d==='30min'?'30분':d==='1hr'?'1시간':'2시간'}
-                        </button>
-                      ))}
-                    </div>
+                {/* ④ 발주 주기 */}
+                <div>
+                  <label className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
+                    <span className="w-5 h-5 rounded-full bg-[#0D1B2A] text-white flex items-center justify-center text-xs font-black">5</span>
+                    발주 주기
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {FREQUENCY_OPTIONS.map(f => (
+                      <button key={f.value} onClick={() => setForm({ ...form, orderFrequency: f.value })}
+                        className={`py-3 px-3 rounded-xl border text-center transition-all ${form.orderFrequency === f.value ? 'bg-[#0D1B2A] border-[#0D1B2A] text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`}>
+                        <p className="text-xs font-semibold">{f.label}</p>
+                        <p className={`text-xs mt-0.5 ${form.orderFrequency === f.value ? 'text-slate-300' : 'text-slate-400'}`}>{f.desc}</p>
+                      </button>
+                    ))}
                   </div>
                 </div>
 
-                {error&&(
+                {error && (
                   <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
-                    <Icon.AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0"/>
+                    <Icon.AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0" />
                     <p className="text-red-700 text-sm">{error}</p>
                   </div>
                 )}
@@ -540,19 +489,16 @@ export default function HomePage() {
                 <button onClick={handleGenerate} disabled={loading}
                   className="w-full py-4 rounded-xl font-bold text-sm transition-all bg-[#EA580C] text-white hover:bg-[#DC4C00] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm">
                   {loading
-                    ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"/>AI 생성 중... (약 20~30초)</>
-                    : credits>0
-                      ? <><Icon.Zap className="w-4 h-4"/>안전교육 자료 생성하기 (무료 체험)</>
-                      : <><Icon.Zap className="w-4 h-4"/>크레딧 충전 후 생성하기</>
+                    ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />{LOADING_MESSAGES[loadingMsg]}</>
+                    : credits > 0
+                      ? <><Icon.Search className="w-4 h-4" />공급자 탐색 · AI 신뢰도 분석 시작</>
+                      : <><Icon.Zap className="w-4 h-4" />크레딧 충전 후 분석하기</>
                   }
                 </button>
 
-                <div className="flex items-start gap-3 p-4 bg-slate-50 border border-slate-200 rounded-xl">
-                  <Icon.Shield className="w-5 h-5 text-slate-400 flex-shrink-0 mt-0.5"/>
-                  <div>
-                    <p className="text-xs font-semibold text-slate-700 mb-0.5">법적 효력 보장</p>
-                    <p className="text-xs text-slate-400 leading-relaxed">산업안전보건법 제29조 · 고용노동부 고시 제2023-19호 기준 법정 필수 항목 자동 포함. 현장 실정에 맞게 수정 후 사용하세요.</p>
-                  </div>
+                <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                  <Icon.AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
+                  <p className="text-xs text-slate-600 leading-relaxed">AI 분석은 참고용입니다. 최종 거래 결정은 반드시 직접 확인 후 진행하세요. 특정 공급자를 보증하지 않습니다.</p>
                 </div>
               </div>
             </div>
@@ -561,75 +507,156 @@ export default function HomePage() {
             <div ref={resultRef}>
               {result ? (
                 <div className="space-y-4">
-                  {/* 완료 상태 */}
+                  {/* 상태 + 그라운딩 뱃지 */}
                   <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
-                    <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
                         <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center">
-                          <Icon.Check className="w-3.5 h-3.5 text-white"/>
+                          <Icon.Check className="w-3.5 h-3.5 text-white" />
                         </div>
-                        <span className="font-bold text-[#0D1B2A] text-sm">생성 완료</span>
+                        <span className="font-bold text-[#0D1B2A] text-sm">소싱 분석 완료</span>
                       </div>
-                      <span className="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded-full font-medium flex items-center gap-1">
-                        <Icon.CheckCircle className="w-3 h-3"/>법정 기준 적합
+                      <span className={`text-xs px-2.5 py-1 rounded-full font-medium border ${result.groundingUsed ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-50 text-slate-500 border-slate-200'}`}>
+                        {result.groundingUsed ? '실시간 웹 검색 기반' : 'AI 지식 기반 분석'}
                       </span>
                     </div>
-                    <div className="bg-blue-50 border border-blue-100 rounded-xl p-3">
-                      <p className="text-xs font-medium text-blue-700">{result.legalInfo.legalBasis}</p>
-                      <p className="text-xs text-slate-500 mt-1">법정 필요 시간 <strong className="text-slate-700">{result.legalInfo.requiredHours}시간</strong> · 필수 교육항목 <strong className="text-slate-700">{result.legalInfo.mandatoryItems.length}개</strong> 자동 반영</p>
+                    <p className="text-xs text-slate-500 bg-blue-50 border border-blue-100 rounded-lg px-3 py-2">{result.recommendation}</p>
+                  </div>
+
+                  {/* 공급자 카드 리스트 */}
+                  <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div className="px-4 py-3 border-b border-slate-100 flex items-center gap-2">
+                      <Icon.Globe className="w-4 h-4 text-slate-400" />
+                      <p className="text-sm font-bold text-[#0D1B2A]">추천 공급자 {result.suppliers.length}개</p>
+                    </div>
+                    <div className="divide-y divide-slate-100">
+                      {result.suppliers.map(s => (
+                        <button key={s.rank} onClick={() => setSelectedSupplier(s)}
+                          className={`w-full text-left px-4 py-3 transition-all ${selectedSupplier?.rank === s.rank ? 'bg-slate-50' : 'hover:bg-slate-50/50'}`}>
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex items-start gap-3 flex-1 min-w-0">
+                              <div className="w-7 h-7 rounded-lg bg-[#0D1B2A] text-white flex items-center justify-center text-xs font-black flex-shrink-0 mt-0.5">
+                                {s.rank}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-semibold text-sm text-[#0D1B2A] truncate">{s.name}</p>
+                                <p className="text-xs text-slate-400">{s.platform} · {s.country}</p>
+                                {s.redFlags.length > 0 && (
+                                  <p className="text-xs text-red-500 mt-0.5 flex items-center gap-1">
+                                    <Icon.AlertTriangle className="w-3 h-3" />
+                                    {s.redFlags[0]}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex-shrink-0 text-right">
+                              <span className={`inline-block text-xs font-bold px-2 py-1 rounded-lg border ${getTrustColor(s.trustScore)}`}>
+                                {s.trustScore}점
+                              </span>
+                              <p className="text-xs text-slate-400 mt-1">{s.estimatedPrice}</p>
+                            </div>
+                          </div>
+                        </button>
+                      ))}
                     </div>
                   </div>
 
-                  {/* PDF 설정 */}
+                  {/* 선택 공급자 상세 */}
+                  {selectedSupplier && (
+                    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <p className="font-bold text-[#0D1B2A] text-sm">{selectedSupplier.name}</p>
+                          <p className="text-xs text-slate-400">{selectedSupplier.platform} · {selectedSupplier.country}</p>
+                        </div>
+                        <a href={selectedSupplier.url} target="_blank" rel="noopener noreferrer"
+                          className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 transition-colors border border-blue-200 rounded-lg px-2.5 py-1.5">
+                          <Icon.ExternalLink className="w-3 h-3" />공급자 페이지
+                        </a>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3 mb-3">
+                        <div className="bg-slate-50 rounded-lg p-3">
+                          <p className="text-xs font-medium text-slate-500 mb-1">예상 단가</p>
+                          <p className="text-sm font-bold text-[#0D1B2A]">{selectedSupplier.estimatedPrice}</p>
+                        </div>
+                        <div className="bg-slate-50 rounded-lg p-3">
+                          <p className="text-xs font-medium text-slate-500 mb-1">최소 발주량(MOQ)</p>
+                          <p className="text-sm font-bold text-[#0D1B2A]">{selectedSupplier.moq}</p>
+                        </div>
+                      </div>
+                      {selectedSupplier.trustEvidence.length > 0 && (
+                        <div className="mb-2">
+                          <p className="text-xs font-bold text-emerald-700 mb-1.5">신뢰 근거</p>
+                          <ul className="space-y-1">
+                            {selectedSupplier.trustEvidence.map((e, i) => (
+                              <li key={i} className="flex items-center gap-1.5 text-xs text-slate-600">
+                                <Icon.Check className="w-3 h-3 text-emerald-500 flex-shrink-0" />{e}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      {selectedSupplier.redFlags.length > 0 && (
+                        <div className="mt-2 bg-red-50 border border-red-200 rounded-lg p-3">
+                          <p className="text-xs font-bold text-red-700 mb-1">주의사항</p>
+                          <ul className="space-y-1">
+                            {selectedSupplier.redFlags.map((f, i) => (
+                              <li key={i} className="flex items-center gap-1.5 text-xs text-red-600">
+                                <Icon.AlertTriangle className="w-3 h-3 flex-shrink-0" />{f}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* RFQ 이메일 */}
+                  <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div className="flex border-b border-slate-100">
+                      <button onClick={() => setEmailLang('en')}
+                        className={`flex-1 py-3 text-xs font-medium transition-all border-b-2 ${emailLang === 'en' ? 'border-[#0D1B2A] text-[#0D1B2A] bg-slate-50/50' : 'border-transparent text-slate-400 hover:text-slate-600'}`}>
+                        영어 이메일
+                      </button>
+                      <button onClick={() => setEmailLang('zh')}
+                        className={`flex-1 py-3 text-xs font-medium transition-all border-b-2 ${emailLang === 'zh' ? 'border-[#0D1B2A] text-[#0D1B2A] bg-slate-50/50' : 'border-transparent text-slate-400 hover:text-slate-600'}`}>
+                        중국어 이메일
+                      </button>
+                      <button onClick={handleCopyEmail}
+                        className="px-4 border-l border-slate-100 text-slate-400 hover:text-slate-600 transition-colors flex items-center gap-1">
+                        <Icon.Copy className="w-3.5 h-3.5" />
+                        <span className="text-xs">{copied ? '완료' : '복사'}</span>
+                      </button>
+                    </div>
+                    <div className="p-4 h-[220px] overflow-y-auto">
+                      <pre className="text-xs text-slate-600 whitespace-pre-wrap leading-relaxed" style={{ fontFamily: "'Pretendard','Malgun Gothic',sans-serif" }}>
+                        {result.rfqEmail[emailLang]}
+                      </pre>
+                    </div>
+                  </div>
+
+                  {/* PDF 출력 */}
                   <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
                     <div className="flex items-center gap-2 mb-3">
-                      <Icon.Printer className="w-4 h-4 text-slate-500"/>
-                      <p className="text-sm font-bold text-[#0D1B2A]">PDF 출력 설정</p>
+                      <Icon.Printer className="w-4 h-4 text-slate-400" />
+                      <p className="text-sm font-bold text-[#0D1B2A]">소싱 리포트 PDF 저장</p>
                     </div>
                     <div className="grid grid-cols-2 gap-3 mb-3">
                       <div>
                         <label className="block text-xs font-medium text-slate-500 mb-1.5">회사명</label>
-                        <input type="text" placeholder="(주)서원토건" value={companyName} onChange={e=>setCompanyName(e.target.value)}
-                          className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm text-slate-700 focus:border-[#0D1B2A] focus:ring-2 focus:ring-slate-100 focus:outline-none"/>
+                        <input type="text" placeholder="(주)서원토건" value={companyName} onChange={e => setCompanyName(e.target.value)}
+                          className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 focus:border-[#0D1B2A] focus:outline-none" />
                       </div>
                       <div>
-                        <label className="block text-xs font-medium text-slate-500 mb-1.5">교육일자</label>
-                        <input type="date" value={trainingDate} onChange={e=>setTrainingDate(e.target.value)}
-                          className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm text-slate-700 focus:border-[#0D1B2A] focus:ring-2 focus:ring-slate-100 focus:outline-none"/>
+                        <label className="block text-xs font-medium text-slate-500 mb-1.5">분석일자</label>
+                        <input type="date" value={reportDate} onChange={e => setReportDate(e.target.value)}
+                          className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 focus:border-[#0D1B2A] focus:outline-none" />
                       </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <button onClick={()=>handlePrint()}
-                        className="py-2.5 rounded-xl bg-[#EA580C] text-white font-semibold text-xs hover:bg-[#DC4C00] transition-colors flex items-center justify-center gap-1.5">
-                        <Icon.Download className="w-3.5 h-3.5"/>현재 탭 PDF 저장
-                      </button>
-                      <button onClick={handlePrintAll}
-                        className="py-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 font-semibold text-xs hover:border-slate-300 hover:bg-slate-50 transition-all flex items-center justify-center gap-1.5">
-                        <Icon.Layers className="w-3.5 h-3.5"/>전체 4종 저장
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* 탭 + 문서 미리보기 */}
-                  <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div className="flex border-b border-slate-100">
-                      {TABS.map(tab=>(
-                        <button key={tab.key} onClick={()=>setActiveTab(tab.key)}
-                          className={`flex-1 py-3 px-1 text-xs font-medium transition-all border-b-2 ${activeTab===tab.key?'border-[#0D1B2A] text-[#0D1B2A] bg-slate-50/50':'border-transparent text-slate-400 hover:text-slate-600'}`}>
-                          {tab.label}
-                        </button>
-                      ))}
-                      <button onClick={handleCopy}
-                        className="px-4 border-l border-slate-100 text-slate-400 hover:text-slate-600 transition-colors flex items-center gap-1">
-                        <Icon.Copy className="w-3.5 h-3.5"/>
-                        <span className="text-xs">{copied?'완료':'복사'}</span>
-                      </button>
-                    </div>
-                    <div className="p-5 h-[360px] overflow-y-auto">
-                      <pre className="text-xs text-slate-600 whitespace-pre-wrap leading-relaxed" style={{fontFamily:"'Pretendard','Malgun Gothic',sans-serif"}}>
-                        {result[activeTab]}
-                      </pre>
-                    </div>
+                    <button onClick={handlePrintReport}
+                      className="w-full py-2.5 rounded-xl bg-[#0D1B2A] text-white font-semibold text-xs hover:bg-slate-800 transition-colors flex items-center justify-center gap-1.5">
+                      <Icon.Download className="w-3.5 h-3.5" />소싱 리포트 PDF 저장 (공급자 비교표 포함)
+                    </button>
                   </div>
                 </div>
               ) : (
@@ -637,32 +664,26 @@ export default function HomePage() {
                 <div className="bg-white rounded-2xl border border-slate-200 shadow-sm h-full min-h-[580px] flex items-center justify-center">
                   <div className="text-center max-w-sm px-8">
                     <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                      <Icon.HardHat className="w-8 h-8 text-slate-400"/>
+                      <Icon.Globe className="w-8 h-8 text-slate-400" />
                     </div>
-                    <h3 className="font-bold text-[#0D1B2A] text-lg mb-2">조건을 설정하고 생성하세요</h3>
+                    <h3 className="font-bold text-[#0D1B2A] text-lg mb-2">소싱 조건을 설정하세요</h3>
                     <p className="text-slate-400 text-sm leading-relaxed mb-8">
-                      6가지 항목 선택 후 생성 버튼을 누르면<br/>법정 교육자료 4종이 즉시 완성됩니다
+                      제품명과 수량 입력 후 분석 버튼을 누르면<br />
+                      AI가 검증된 해외 공급자를 탐색합니다
                     </p>
                     <div className="grid grid-cols-2 gap-2 mb-6">
                       {[
-                        {icon:<Icon.BarChart className="w-4 h-4"/>, label:'PPT 스크립트', desc:'슬라이드 10장'},
-                        {icon:<Icon.List className="w-4 h-4"/>,    label:'퀴즈 10문항',  desc:'정답 자동 포함'},
-                        {icon:<Icon.Users className="w-4 h-4"/>,   label:'출석부',        desc:'법정 양식'},
-                        {icon:<Icon.Award className="w-4 h-4"/>,   label:'이수확인서',    desc:'법적 효력'},
-                      ].map(item=>(
+                        { icon: <Icon.Search className="w-4 h-4" />, label: '공급자 탐색', desc: 'Alibaba · MIC' },
+                        { icon: <Icon.Shield className="w-4 h-4" />, label: '신뢰도 분석', desc: '0~100점 채점' },
+                        { icon: <Icon.Mail className="w-4 h-4" />, label: 'RFQ 이메일', desc: '영어 · 중국어' },
+                        { icon: <Icon.Download className="w-4 h-4" />, label: 'PDF 리포트', desc: '공급자 비교표' },
+                      ].map(item => (
                         <div key={item.label} className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-left">
                           <div className="w-8 h-8 bg-white border border-slate-200 rounded-lg flex items-center justify-center mb-2 text-slate-500">{item.icon}</div>
                           <p className="text-xs font-semibold text-slate-700">{item.label}</p>
                           <p className="text-xs text-slate-400">{item.desc}</p>
                         </div>
                       ))}
-                    </div>
-                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-left">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Icon.Download className="w-3.5 h-3.5 text-amber-600"/>
-                        <p className="text-xs font-semibold text-amber-700">PDF 즉시 출력 가능</p>
-                      </div>
-                      <p className="text-xs text-slate-500">회사명과 교육일자 입력 후 클릭 한 번으로 법정 양식 PDF 저장. 고용노동부 감사 즉시 대응.</p>
                     </div>
                   </div>
                 </div>
@@ -672,96 +693,63 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── How it works ── */}
+      {/* ── 요금제 ── */}
       <section className="bg-white border-t border-slate-200">
-        <div className="max-w-6xl mx-auto px-6 py-16">
-          <div className="text-center mb-12">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">사용 방법</p>
-            <h2 className="text-2xl font-black text-[#0D1B2A]">3단계, 2분이면 완성됩니다</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-            {[
-              {step:'01',icon:<Icon.Settings className="w-6 h-6"/>,title:'조건 설정',desc:'근로자 유형, 교육 구분, 공사 종류, 위험요소 등 6가지 항목을 클릭으로 선택합니다.'},
-              {step:'02',icon:<Icon.Zap className="w-6 h-6"/>,title:'AI 자동 생성',desc:'고용노동부 고시 기준 법정 필수 항목이 포함된 맞춤 교육자료를 AI가 120초 이내에 완성합니다.'},
-              {step:'03',icon:<Icon.Printer className="w-6 h-6"/>,title:'PDF 저장·출력',desc:'회사명과 날짜 입력 후 버튼 하나로 A4 법정 양식 PDF를 저장합니다. 즉시 인쇄·제출 가능합니다.'},
-            ].map((s,i)=>(
-              <div key={s.step} className="relative">
-                {i<2&&<div className="hidden md:block absolute top-8 left-full w-8 h-px bg-slate-300 -translate-x-4 z-10"/>}
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0">
-                    <div className="w-14 h-14 bg-[#0D1B2A] rounded-2xl flex items-center justify-center text-white">
-                      {s.icon}
-                    </div>
-                  </div>
-                  <div className="pt-1">
-                    <p className="text-xs font-bold text-slate-400 mb-1">STEP {s.step}</p>
-                    <h3 className="font-bold text-[#0D1B2A] mb-2">{s.title}</h3>
-                    <p className="text-sm text-slate-500 leading-relaxed">{s.desc}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── 가격 ── */}
-      <section className="bg-slate-50 border-t border-slate-200">
         <div className="max-w-5xl mx-auto px-6 py-16">
           <div className="text-center mb-12">
             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">요금제</p>
             <h2 className="text-2xl font-black text-[#0D1B2A] mb-3">규모에 맞는 플랜을 선택하세요</h2>
-            <p className="text-sm text-slate-500">1세트 = PPT 스크립트 + 퀴즈 + 출석부 + 이수확인서 + PDF 출력</p>
+            <p className="text-sm text-slate-500">1회 = 공급자 3~5개 탐색 + 신뢰도 분석 + RFQ 이메일 + PDF 리포트</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {[
               {
-                name:'스타터', tag:'소규모 현장',
-                price:'29,000', unit:'원 / 10회',
-                per:'건당 2,900원',
-                features:['교육자료 4종 자동 생성','PDF 즉시 출력','법정 기준 자동 반영','세금계산서 발행'],
-                highlight:false,
-              },{
-                name:'프로', tag:'가장 인기',
-                price:'49,000', unit:'원 / 월',
-                per:'월 무제한 사용',
-                features:['무제한 생성','PDF 즉시 출력','30일 생성 이력','우선 이메일 지원','세금계산서 발행'],
-                highlight:true,
-              },{
-                name:'팀', tag:'기업용',
-                price:'149,000', unit:'원 / 월',
-                per:'5계정 팀 공유',
-                features:['5계정 공유 사용','회사 로고 PDF 삽입','현장별 분류 관리','전화·카카오 지원','세금계산서 발행'],
-                highlight:false,
+                name: '스타터', tag: '소규모 발주',
+                price: '10만원', unit: '/ 월',
+                per: '분석 10회/월',
+                features: ['공급자 탐색 3~5개', 'AI 신뢰도 분석', 'RFQ 이메일 자동화', 'PDF 리포트 저장'],
+                highlight: false,
+              }, {
+                name: '프로', tag: '가장 인기',
+                price: '30만원', unit: '/ 월',
+                per: '무제한 분석',
+                features: ['무제한 소싱 분석', '이력 관리 30일', 'RFQ 이메일 (영·중·한)', '우선 이메일 지원', '세금계산서 발행'],
+                highlight: true,
+              }, {
+                name: '팀', tag: '기업용',
+                price: '70만원', unit: '/ 월',
+                per: '5계정 공유',
+                features: ['5계정 공유', '현장별 분류 관리', '전담 전화·카카오 지원', '세금계산서 발행'],
+                highlight: false,
               },
-            ].map(plan=>(
-              <div key={plan.name} className={`rounded-2xl border p-6 flex flex-col relative ${plan.highlight?'bg-[#0D1B2A] border-[#0D1B2A]':'bg-white border-slate-200'}`}>
-                {plan.highlight&&(
+            ].map(plan => (
+              <div key={plan.name} className={`rounded-2xl border p-6 flex flex-col relative ${plan.highlight ? 'bg-[#0D1B2A] border-[#0D1B2A]' : 'bg-white border-slate-200'}`}>
+                {plan.highlight && (
                   <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#EA580C] text-white text-xs font-bold px-3 py-1 rounded-full">가장 인기</span>
                 )}
                 <div className="mb-5">
                   <div className="flex items-center justify-between mb-3">
-                    <span className={`text-sm font-bold ${plan.highlight?'text-white':'text-[#0D1B2A]'}`}>{plan.name}</span>
-                    <span className={`text-xs px-2 py-1 rounded-full ${plan.highlight?'bg-white/10 text-slate-300':'bg-slate-100 text-slate-500'}`}>{plan.tag}</span>
+                    <span className={`text-sm font-bold ${plan.highlight ? 'text-white' : 'text-[#0D1B2A]'}`}>{plan.name}</span>
+                    <span className={`text-xs px-2 py-1 rounded-full ${plan.highlight ? 'bg-white/10 text-slate-300' : 'bg-slate-100 text-slate-500'}`}>{plan.tag}</span>
                   </div>
                   <div className="flex items-end gap-1 mb-0.5">
-                    <span className={`text-3xl font-black ${plan.highlight?'text-white':'text-[#0D1B2A]'}`}>{plan.price}</span>
-                    <span className={`text-sm mb-1 ${plan.highlight?'text-slate-300':'text-slate-400'}`}>{plan.unit}</span>
+                    <span className={`text-3xl font-black ${plan.highlight ? 'text-white' : 'text-[#0D1B2A]'}`}>{plan.price}</span>
+                    <span className={`text-sm mb-1 ${plan.highlight ? 'text-slate-300' : 'text-slate-400'}`}>{plan.unit}</span>
                   </div>
-                  <p className={`text-xs ${plan.highlight?'text-slate-400':'text-slate-400'}`}>{plan.per}</p>
+                  <p className={`text-xs ${plan.highlight ? 'text-slate-400' : 'text-slate-400'}`}>{plan.per}</p>
                 </div>
                 <ul className="space-y-2.5 mb-6 flex-1">
-                  {plan.features.map(f=>(
+                  {plan.features.map(f => (
                     <li key={f} className="flex items-center gap-2">
-                      <div className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 ${plan.highlight?'bg-white/10':'bg-slate-100'}`}>
-                        <Icon.Check className={`w-2.5 h-2.5 ${plan.highlight?'text-white':'text-[#0D1B2A]'}`}/>
+                      <div className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 ${plan.highlight ? 'bg-white/10' : 'bg-slate-100'}`}>
+                        <Icon.Check className={`w-2.5 h-2.5 ${plan.highlight ? 'text-white' : 'text-[#0D1B2A]'}`} />
                       </div>
-                      <span className={`text-xs ${plan.highlight?'text-slate-300':'text-slate-500'}`}>{f}</span>
+                      <span className={`text-xs ${plan.highlight ? 'text-slate-300' : 'text-slate-500'}`}>{f}</span>
                     </li>
                   ))}
                 </ul>
-                <a href={`mailto:visionlab@seowonenc.co.kr?subject=SafeDoc AI ${plan.name} 플랜 문의`}
-                  className={`block w-full text-center py-3 rounded-xl font-semibold text-sm transition-all ${plan.highlight?'bg-white text-[#0D1B2A] hover:bg-slate-100':'bg-[#0D1B2A] text-white hover:bg-slate-800'}`}>
+                <a href={`mailto:visionlab@seowonenc.co.kr?subject=GloSource AI ${plan.name} 플랜 문의`}
+                  className={`block w-full text-center py-3 rounded-xl font-semibold text-sm transition-all ${plan.highlight ? 'bg-white text-[#0D1B2A] hover:bg-slate-100' : 'bg-[#0D1B2A] text-white hover:bg-slate-800'}`}>
                   도입 문의하기
                 </a>
               </div>
@@ -778,14 +766,14 @@ export default function HomePage() {
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-7 h-7 bg-white/10 rounded-lg flex items-center justify-center">
-                  <Icon.Shield className="w-4 h-4 text-white"/>
+                  <Icon.Globe className="w-4 h-4 text-white" />
                 </div>
-                <span className="font-bold text-white">SafeDoc AI</span>
+                <span className="font-bold text-white">GloSource AI</span>
               </div>
-              <p className="text-xs text-slate-400 max-w-xs">건설 현장 법정 안전교육 자료 자동화 서비스. 산업안전보건법 제29조 · 고용노동부 고시 제2023-19호 기준.</p>
+              <p className="text-xs text-slate-400 max-w-xs">한국 제조·건설업체를 위한 AI 글로벌 소싱 에이전트. 해외 공장 직발주를 안전하게 시작하세요.</p>
             </div>
             <div className="text-right">
-              <p className="text-xs text-slate-400">© 2026 SafeDoc AI. All rights reserved.</p>
+              <p className="text-xs text-slate-400">© 2026 GloSource AI. All rights reserved.</p>
               <p className="text-xs text-slate-500 mt-1">visionlab@seowonenc.co.kr</p>
             </div>
           </div>

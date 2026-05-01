@@ -9,9 +9,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "SafeDoc AI | 건설 현장 안전교육 자료 자동 생성",
-  description: "산업안전보건법 제29조 기준 법정 안전교육 자료를 AI가 2분 만에 자동 생성. PPT 스크립트, 퀴즈, 출석부, 이수확인서 PDF 즉시 출력.",
-  keywords: "안전교육, 건설현장, 산업안전보건법, 교육자료, AI자동생성",
+  title: "GloSource AI | AI 글로벌 소싱 에이전트",
+  description: "해외 공장 직발주, 이제 안전하게 시작하세요. AI가 Alibaba·Made-in-China에서 검증된 공급자를 탐색하고 신뢰도를 한국어로 분석합니다. RFQ 이메일 자동 생성.",
+  keywords: "해외소싱, 공급자검증, 글로벌소싱, 수입직발주, AI소싱에이전트, 알리바바검증, 중국공장직거래",
 };
 
 export default function RootLayout({
