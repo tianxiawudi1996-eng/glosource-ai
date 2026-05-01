@@ -34,3 +34,22 @@ export interface SourcingOutput {
   disclaimer: string;
   groundingUsed: boolean;
 }
+
+export interface WeChatPost {
+  accountName: string;
+  accountType: string;
+  articleTitle: string;
+  publishDate: string;
+  url: string;
+  summary: string;
+  productKeywords: string[];
+  contactHint: string;
+  relevanceScore: number;
+}
+
+export interface WeChatSourcingOutput {
+  posts: WeChatPost[];
+  analysis: string;
+  searchKeyword: string;
+  disclaimer: string;
+}

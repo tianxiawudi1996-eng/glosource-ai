@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import type { SourcingRequest, SourcingOutput, Supplier, CountryPreference, OrderFrequency } from './api/source/types';
+import type { SourcingRequest, SourcingOutput, Supplier, CountryPreference, OrderFrequency, WeChatSourcingOutput } from './api/source/types';
+
+type SourceMode = 'ai' | '1688' | 'wechat';
 
 /* ══════════════════════════════════════════════
    SVG 아이콘
@@ -110,14 +112,32 @@ const FREQUENCY_OPTIONS: { value: OrderFrequency; label: string; desc: string }[
   { value: 'bimonthly_plus', label: '월 2회+', desc: '대량 정기' },
 ];
 
-const LOADING_MESSAGES = [
-  'Alibaba 탐색 중...',
-  'Made-in-China 검색 중...',
-  'Global Sources 확인 중...',
-  '공급자 신뢰도 분석 중...',
-  'RFQ 이메일 초안 작성 중...',
-  '소싱 리포트 생성 중...',
-];
+const LOADING_MESSAGES: Record<SourceMode, string[]> = {
+  ai: [
+    '1688.com 원가 탐색 중...',
+    'Alibaba 공급자 검색 중...',
+    'WeChat 공장 정보 확인 중...',
+    '공급자 신뢰도 분석 중...',
+    'RFQ 이메일 초안 작성 중...',
+    '소싱 리포트 생성 중...',
+  ],
+  '1688': [
+    '1688.com 접속 중...',
+    '공장 직거래 업체 탐색 중...',
+    '诚信通 인증 확인 중...',
+    '원가 분석 및 Alibaba 비교 중...',
+    'CNY/USD 환산 중...',
+    '1688 소싱 리포트 생성 중...',
+  ],
+  wechat: [
+    'WeChat 공식계정 검색 중...',
+    'Sogou 위챗 검색 연결 중...',
+    '공장 홍보 담당자 포스팅 분석 중...',
+    '계정 유형 판단 중 (공장/무역상)...',
+    '연락처 정보 추출 중...',
+    'WeChat 인텔리전스 분석 완료...',
+  ],
+};
 
 /* ══════════════════════════════════════════════
    신뢰도 점수 → 색상
@@ -216,6 +236,8 @@ export default function HomePage() {
   const [reportDate, setReportDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [credits, setCredits] = useState(FREE_CREDITS);
   const [showPaywall, setShowPaywall] = useState(false);
+  const [activeSource, setActiveSource] = useState<SourceMode>('ai');
+  const [wechatResult, setWechatResult] = useState<WeChatSourcingOutput | null>(null);
   const resultRef = useRef<HTMLDivElement>(null);
   const loadingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -225,26 +247,49 @@ export default function HomePage() {
     else setCredits(parseInt(s, 10));
   }, []);
 
+  const startLoading = () => {
+    const msgs = LOADING_MESSAGES[activeSource];
+    setLoading(true); setError(''); setResult(null); setSelectedSupplier(null); setWechatResult(null);
+    setLoadingMsg(0);
+    loadingRef.current = setInterval(() => setLoadingMsg(p => (p + 1) % msgs.length), 3000);
+  };
+
+  const stopLoading = () => {
+    setLoading(false);
+    if (loadingRef.current) clearInterval(loadingRef.current);
+  };
+
   const handleGenerate = async () => {
     if (credits <= 0) { setShowPaywall(true); return; }
     if (!form.productDescription.trim()) { setError('제품/자재명을 입력해주세요.'); return; }
-    if (!form.quantity.trim()) { setError('필요 수량을 입력해주세요.'); return; }
+    if (activeSource !== 'wechat' && !form.quantity.trim()) { setError('필요 수량을 입력해주세요.'); return; }
 
-    setLoading(true); setError(''); setResult(null); setSelectedSupplier(null);
-    setLoadingMsg(0);
-    loadingRef.current = setInterval(() => setLoadingMsg(p => (p + 1) % LOADING_MESSAGES.length), 3000);
+    startLoading();
 
     try {
-      const res = await fetch('/api/source', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || '오류가 발생했습니다.');
-      const data = json.data as SourcingOutput;
-      setResult(data);
-      setSelectedSupplier(data.suppliers[0] ?? null);
+      if (activeSource === 'wechat') {
+        const res = await fetch('/api/source/wechat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ keyword: form.productDescription }),
+        });
+        const json = await res.json();
+        if (!res.ok) throw new Error(json.error || '오류가 발생했습니다.');
+        setWechatResult(json.data as WeChatSourcingOutput);
+      } else {
+        const apiPath = activeSource === '1688' ? '/api/source/factory-direct' : '/api/source';
+        const res = await fetch(apiPath, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(form),
+        });
+        const json = await res.json();
+        if (!res.ok) throw new Error(json.error || '오류가 발생했습니다.');
+        const data = json.data as SourcingOutput;
+        setResult(data);
+        setSelectedSupplier(data.suppliers[0] ?? null);
+      }
+
       const nc = credits - 1;
       setCredits(nc);
       localStorage.setItem(CREDITS_KEY, String(nc));
@@ -252,8 +297,7 @@ export default function HomePage() {
     } catch (e) {
       setError(e instanceof Error ? e.message : '알 수 없는 오류');
     } finally {
-      setLoading(false);
-      if (loadingRef.current) clearInterval(loadingRef.current);
+      stopLoading();
     }
   };
 
@@ -343,15 +387,15 @@ export default function HomePage() {
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 border border-white/20 rounded-full px-3 py-1 text-xs text-slate-300 mb-6">
               <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-              Alibaba · Made-in-China · Global Sources 실시간 탐색
+              1688.com · Alibaba · WeChat公众号 실시간 탐색
             </div>
             <h1 className="text-4xl md:text-5xl font-black leading-[1.15] tracking-tight mb-5">
               해외 공장, 믿고<br />
               <span className="text-[#EA580C]">직발주하세요.</span>
             </h1>
             <p className="text-slate-400 text-base md:text-lg leading-relaxed mb-8 max-w-xl">
-              AI가 Alibaba·Made-in-China에서 검증된 공급자를 탐색하고<br />
-              사기 여부를 분석합니다. RFQ 이메일까지 자동 생성.
+              AI가 <strong className="text-white">1688 공장직거래</strong>·Alibaba·<strong className="text-white">WeChat 실시간 홍보</strong>에서 공급자를 탐색하고
+              신뢰도를 분석합니다. RFQ 이메일까지 자동 생성.
             </p>
             <div className="flex flex-wrap gap-3 mb-12">
               {[
@@ -389,13 +433,31 @@ export default function HomePage() {
 
             {/* 입력 폼 */}
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm">
-              <div className="px-6 py-5 border-b border-slate-100 flex items-center gap-3">
+              {/* 소스 탭 */}
+              <div className="flex border-b border-slate-100">
+                {([
+                  { id: 'ai'     as SourceMode, label: 'AI 종합 소싱',    badge: '1688+Alibaba+WeChat' },
+                  { id: '1688'   as SourceMode, label: '1688 직거래',      badge: '원가 30~50% 절감' },
+                  { id: 'wechat' as SourceMode, label: 'WeChat 실시간',    badge: '공장 홍보 직접 탐색' },
+                ] as const).map(tab => (
+                  <button key={tab.id} onClick={() => { setActiveSource(tab.id); setResult(null); setWechatResult(null); setError(''); }}
+                    className={`flex-1 py-3 px-1 text-center transition-all border-b-2 ${activeSource === tab.id ? 'border-[#EA580C] bg-orange-50/30' : 'border-transparent hover:bg-slate-50'}`}>
+                    <p className={`text-xs font-bold ${activeSource === tab.id ? 'text-[#0D1B2A]' : 'text-slate-400'}`}>{tab.label}</p>
+                    <p className="text-xs text-slate-400 font-normal mt-0.5 hidden sm:block">{tab.badge}</p>
+                  </button>
+                ))}
+              </div>
+              <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3">
                 <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center">
-                  <Icon.Settings className="w-4 h-4 text-slate-500" />
+                  {activeSource === 'wechat' ? <Icon.Globe className="w-4 h-4 text-slate-500" /> : <Icon.Settings className="w-4 h-4 text-slate-500" />}
                 </div>
                 <div>
-                  <p className="font-bold text-[#0D1B2A] text-sm">소싱 조건 설정</p>
-                  <p className="text-xs text-slate-400">5가지 항목 입력 후 AI 분석 시작</p>
+                  <p className="font-bold text-[#0D1B2A] text-sm">
+                    {activeSource === 'ai' ? '소싱 조건 설정' : activeSource === '1688' ? '1688 공장직거래 검색' : 'WeChat 공장 홍보 탐색'}
+                  </p>
+                  <p className="text-xs text-slate-400">
+                    {activeSource === 'ai' ? '5가지 항목 입력 후 AI 종합 분석' : activeSource === '1688' ? '1688.com 원가 + 诚信通 신뢰도 분석' : '微信公众号 공장 홍보 담당자 포스팅 탐색'}
+                  </p>
                 </div>
               </div>
               <div className="p-6 space-y-6">
@@ -445,39 +507,51 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                {/* ③ 원산지 선호 */}
-                <div>
-                  <label className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
-                    <span className="w-5 h-5 rounded-full bg-[#0D1B2A] text-white flex items-center justify-center text-xs font-black">4</span>
-                    원산지 선호
-                  </label>
-                  <div className="grid grid-cols-5 gap-1.5">
-                    {COUNTRY_OPTIONS.map(c => (
-                      <button key={c.value} onClick={() => setForm({ ...form, countryPreference: c.value })}
-                        className={`py-2.5 px-2 rounded-xl border text-center transition-all ${form.countryPreference === c.value ? 'bg-[#0D1B2A] border-[#0D1B2A] text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`}>
-                        <p className="text-xs font-semibold">{c.label}</p>
-                        <p className={`text-xs mt-0.5 ${form.countryPreference === c.value ? 'text-slate-300' : 'text-slate-400'}`}>{c.desc}</p>
-                      </button>
-                    ))}
+                {/* WeChat 모드일 때 힌트 표시 */}
+                {activeSource === 'wechat' && (
+                  <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 text-xs text-emerald-700">
+                    <p className="font-semibold mb-1">WeChat 탐색 방법</p>
+                    <p>제품명을 입력하면 Sogou 위챗 검색을 통해 공장 홍보 담당자가 직접 올린 실시간 가격·재고 정보를 탐색합니다. 중문 병기 시 정확도 향상 (예: 알루미늄 프로파일 铝合金型材)</p>
                   </div>
-                </div>
+                )}
 
-                {/* ④ 발주 주기 */}
-                <div>
-                  <label className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
-                    <span className="w-5 h-5 rounded-full bg-[#0D1B2A] text-white flex items-center justify-center text-xs font-black">5</span>
-                    발주 주기
-                  </label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {FREQUENCY_OPTIONS.map(f => (
-                      <button key={f.value} onClick={() => setForm({ ...form, orderFrequency: f.value })}
-                        className={`py-3 px-3 rounded-xl border text-center transition-all ${form.orderFrequency === f.value ? 'bg-[#0D1B2A] border-[#0D1B2A] text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`}>
-                        <p className="text-xs font-semibold">{f.label}</p>
-                        <p className={`text-xs mt-0.5 ${form.orderFrequency === f.value ? 'text-slate-300' : 'text-slate-400'}`}>{f.desc}</p>
-                      </button>
-                    ))}
+                {/* ③ 원산지 선호 (WeChat 모드에서는 숨김) */}
+                {activeSource !== 'wechat' && (
+                  <div>
+                    <label className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
+                      <span className="w-5 h-5 rounded-full bg-[#0D1B2A] text-white flex items-center justify-center text-xs font-black">4</span>
+                      원산지 선호
+                    </label>
+                    <div className="grid grid-cols-5 gap-1.5">
+                      {COUNTRY_OPTIONS.map(c => (
+                        <button key={c.value} onClick={() => setForm({ ...form, countryPreference: c.value })}
+                          className={`py-2.5 px-2 rounded-xl border text-center transition-all ${form.countryPreference === c.value ? 'bg-[#0D1B2A] border-[#0D1B2A] text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`}>
+                          <p className="text-xs font-semibold">{c.label}</p>
+                          <p className={`text-xs mt-0.5 ${form.countryPreference === c.value ? 'text-slate-300' : 'text-slate-400'}`}>{c.desc}</p>
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
+
+                {/* ④ 발주 주기 (WeChat 모드에서는 숨김) */}
+                {activeSource !== 'wechat' && (
+                  <div>
+                    <label className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
+                      <span className="w-5 h-5 rounded-full bg-[#0D1B2A] text-white flex items-center justify-center text-xs font-black">5</span>
+                      발주 주기
+                    </label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {FREQUENCY_OPTIONS.map(f => (
+                        <button key={f.value} onClick={() => setForm({ ...form, orderFrequency: f.value })}
+                          className={`py-3 px-3 rounded-xl border text-center transition-all ${form.orderFrequency === f.value ? 'bg-[#0D1B2A] border-[#0D1B2A] text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`}>
+                          <p className="text-xs font-semibold">{f.label}</p>
+                          <p className={`text-xs mt-0.5 ${form.orderFrequency === f.value ? 'text-slate-300' : 'text-slate-400'}`}>{f.desc}</p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {error && (
                   <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
@@ -489,9 +563,14 @@ export default function HomePage() {
                 <button onClick={handleGenerate} disabled={loading}
                   className="w-full py-4 rounded-xl font-bold text-sm transition-all bg-[#EA580C] text-white hover:bg-[#DC4C00] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm">
                   {loading
-                    ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />{LOADING_MESSAGES[loadingMsg]}</>
+                    ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />{LOADING_MESSAGES[activeSource][loadingMsg]}</>
                     : credits > 0
-                      ? <><Icon.Search className="w-4 h-4" />공급자 탐색 · AI 신뢰도 분석 시작</>
+                      ? <>
+                          <Icon.Search className="w-4 h-4" />
+                          {activeSource === 'ai' && '공급자 탐색 · AI 신뢰도 분석 시작'}
+                          {activeSource === '1688' && '1688 공장직거래 탐색 시작'}
+                          {activeSource === 'wechat' && 'WeChat 공장 홍보 정보 탐색'}
+                        </>
                       : <><Icon.Zap className="w-4 h-4" />크레딧 충전 후 분석하기</>
                   }
                 </button>
@@ -505,6 +584,67 @@ export default function HomePage() {
 
             {/* 결과 패널 */}
             <div ref={resultRef}>
+              {/* WeChat 결과 */}
+              {wechatResult && (
+                <div className="space-y-4">
+                  <div className="bg-white rounded-2xl border border-emerald-200 shadow-sm p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center">
+                        <Icon.Check className="w-3.5 h-3.5 text-white" />
+                      </div>
+                      <span className="font-bold text-[#0D1B2A] text-sm">WeChat 공장 정보 분석 완료</span>
+                      <span className="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full ml-auto">Sogou 위챗 검색</span>
+                    </div>
+                    <p className="text-xs text-slate-600 bg-blue-50 border border-blue-100 rounded-lg px-3 py-2 leading-relaxed">{wechatResult.analysis}</p>
+                  </div>
+
+                  {wechatResult.posts.map((post, i) => (
+                    <div key={i} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
+                      <div className="flex items-start justify-between gap-3 mb-2">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-sm text-[#0D1B2A] leading-snug">{post.articleTitle}</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-xs text-slate-400">{post.accountName}</span>
+                            <span className={`text-xs px-1.5 py-0.5 rounded-full border ${
+                              post.accountType.includes('공장') ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                              post.accountType.includes('무역') ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                              'bg-slate-50 text-slate-500 border-slate-200'
+                            }`}>{post.accountType}</span>
+                            <span className="text-xs text-slate-400">{post.publishDate}</span>
+                          </div>
+                        </div>
+                        <span className={`text-xs font-bold px-2 py-1 rounded-lg border flex-shrink-0 ${
+                          post.relevanceScore >= 80 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                          post.relevanceScore >= 60 ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                          'bg-slate-50 text-slate-500 border-slate-200'
+                        }`}>{post.relevanceScore}점</span>
+                      </div>
+                      <p className="text-xs text-slate-600 leading-relaxed mb-2">{post.summary}</p>
+                      {post.productKeywords.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mb-2">
+                          {post.productKeywords.map((kw, ki) => (
+                            <span key={ki} className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded">{kw}</span>
+                          ))}
+                        </div>
+                      )}
+                      {post.contactHint && (
+                        <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-2">
+                          <p className="text-xs text-amber-800"><span className="font-semibold">연락처 힌트:</span> {post.contactHint}</p>
+                        </div>
+                      )}
+                      <a href={post.url} target="_blank" rel="noopener noreferrer"
+                        className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 transition-colors">
+                        <Icon.ExternalLink className="w-3 h-3" />WeChat 원문 보기
+                      </a>
+                    </div>
+                  ))}
+
+                  <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+                    <p className="text-xs text-amber-800 leading-relaxed">{wechatResult.disclaimer}</p>
+                  </div>
+                </div>
+              )}
+
               {result ? (
                 <div className="space-y-4">
                   {/* 상태 + 그라운딩 뱃지 */}
@@ -661,32 +801,49 @@ export default function HomePage() {
                 </div>
               ) : (
                 /* 빈 상태 */
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm h-full min-h-[580px] flex items-center justify-center">
-                  <div className="text-center max-w-sm px-8">
-                    <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                      <Icon.Globe className="w-8 h-8 text-slate-400" />
-                    </div>
-                    <h3 className="font-bold text-[#0D1B2A] text-lg mb-2">소싱 조건을 설정하세요</h3>
-                    <p className="text-slate-400 text-sm leading-relaxed mb-8">
-                      제품명과 수량 입력 후 분석 버튼을 누르면<br />
-                      AI가 검증된 해외 공급자를 탐색합니다
-                    </p>
-                    <div className="grid grid-cols-2 gap-2 mb-6">
-                      {[
-                        { icon: <Icon.Search className="w-4 h-4" />, label: '공급자 탐색', desc: 'Alibaba · MIC' },
-                        { icon: <Icon.Shield className="w-4 h-4" />, label: '신뢰도 분석', desc: '0~100점 채점' },
-                        { icon: <Icon.Mail className="w-4 h-4" />, label: 'RFQ 이메일', desc: '영어 · 중국어' },
-                        { icon: <Icon.Download className="w-4 h-4" />, label: 'PDF 리포트', desc: '공급자 비교표' },
-                      ].map(item => (
-                        <div key={item.label} className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-left">
-                          <div className="w-8 h-8 bg-white border border-slate-200 rounded-lg flex items-center justify-center mb-2 text-slate-500">{item.icon}</div>
-                          <p className="text-xs font-semibold text-slate-700">{item.label}</p>
-                          <p className="text-xs text-slate-400">{item.desc}</p>
+                !wechatResult && (
+                  <div className="bg-white rounded-2xl border border-slate-200 shadow-sm h-full min-h-[480px] flex items-center justify-center">
+                    <div className="text-center max-w-sm px-8">
+                      <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                        {activeSource === 'wechat' ? <Icon.Globe className="w-8 h-8 text-emerald-400" /> : <Icon.Search className="w-8 h-8 text-slate-400" />}
+                      </div>
+                      <h3 className="font-bold text-[#0D1B2A] text-lg mb-2">
+                        {activeSource === 'ai' && '소싱 조건을 설정하세요'}
+                        {activeSource === '1688' && '1688 공장 직거래 탐색'}
+                        {activeSource === 'wechat' && 'WeChat 공장 정보 탐색'}
+                      </h3>
+                      <p className="text-slate-400 text-sm leading-relaxed mb-6">
+                        {activeSource === 'ai' && '제품명과 수량 입력 후 분석 버튼을 누르면 AI가 1688·Alibaba·WeChat에서 공급자를 탐색합니다'}
+                        {activeSource === '1688' && '제품명과 수량을 입력하면 1688.com 공장 직거래 공급자를 탐색합니다. Alibaba 대비 30~50% 저렴한 원가 데이터를 제공합니다'}
+                        {activeSource === 'wechat' && '제품명을 입력하면 WeChat 공식계정에서 공장 홍보 담당자가 직접 올린 실시간 가격·재고·연락처 정보를 탐색합니다'}
+                      </p>
+                      {activeSource === '1688' && (
+                        <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-left">
+                          <p className="text-xs font-bold text-emerald-700 mb-2">1688 직거래 강점</p>
+                          <ul className="space-y-1">
+                            {['중국 내수 원가 — 수출 마진 없음', '诚信通 인증으로 공장 신뢰도 검증', 'OEM/ODM 소량 발주 가능', 'CNY + USD 이중 가격 표시'].map(t => (
+                              <li key={t} className="flex items-center gap-1.5 text-xs text-emerald-700">
+                                <Icon.Check className="w-3 h-3 flex-shrink-0" />{t}
+                              </li>
+                            ))}
+                          </ul>
                         </div>
-                      ))}
+                      )}
+                      {activeSource === 'wechat' && (
+                        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-left">
+                          <p className="text-xs font-bold text-blue-700 mb-2">WeChat 탐색 강점</p>
+                          <ul className="space-y-1">
+                            {['공장 홍보 직원이 올린 실시간 정보', 'Alibaba에 없는 소규모 공장 발굴', '직접 연락처 힌트 추출', '계정 유형 자동 판별 (공장/무역상)'].map(t => (
+                              <li key={t} className="flex items-center gap-1.5 text-xs text-blue-700">
+                                <Icon.Check className="w-3 h-3 flex-shrink-0" />{t}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                     </div>
                   </div>
-                </div>
+                )
               )}
             </div>
           </div>
