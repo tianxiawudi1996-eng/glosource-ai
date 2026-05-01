@@ -130,12 +130,19 @@ async function analyzeWithGemini(prompt: string): Promise<string> {
 }
 
 async function fallbackGeminiGrounding(keyword: string): Promise<WeChatSourcingOutput> {
-  const prompt = `당신은 중국 WeChat 소싱 전문가입니다. Google 검색을 통해 "${keyword}"와 관련된 WeChat 공식계정(微信公众号) 공장 홍보 정보를 탐색하세요.
+  // WeChat is a closed platform — articles aren't indexed by Google Search.
+  // Instead, ask Gemini for knowledge-based sourcing intelligence about WeChat
+  // accounts/groups that are known to be active for this product category.
+  const prompt = `당신은 10년 경력의 중국 WeChat 소싱 전문가입니다. "${keyword}" 제품 카테고리에서 WeChat(微信)을 통해 중국 공장 직거래를 하는 방법을 소싱 바이어에게 안내하세요.
 
-검색어: "${keyword} 微信公众号 工厂 报价 site:mp.weixin.qq.com"
-또는: "${keyword} 厂家 微信 直供 批发价"
+실제로 존재하는 WeChat 공식계정(微信公众号) 유형, 행업군 WeChat 그룹, 공장 영업사원 접촉 방법 등을 구체적으로 설명하세요.
 
-탐색 후 소싱 바이어에게 유용한 WeChat 공장 계정 정보를 분석하세요.
+[답변 기준]
+1. "${keyword}" 제품을 판매하는 실제 공장 유형(산지별: 광동성, 저장성, 장쑤성 등)에서 운영하는 WeChat 공식계정 패턴을 설명하세요
+2. 해당 제품 카테고리에서 활성화된 업계 WeChat 그룹(微信群) 진입 방법을 알려주세요
+3. 1688.com 또는 Made-in-China.com 공급자의 WeChat ID를 찾는 구체적 방법을 알려주세요
+4. WeChat 소싱 시 흔히 쓰이는 협상 문구(중국어)를 포함하세요
+5. 가격 협상 팁과 샘플 요청 절차를 알려주세요
 
 [출력 형식]
 마크다운 코드블록(\`\`\`)이나 인용번호([1][2]) 없이 순수 JSON만 반환하세요.
@@ -143,38 +150,35 @@ async function fallbackGeminiGrounding(keyword: string): Promise<WeChatSourcingO
 {
   "posts": [
     {
-      "accountName": "WeChat 공식계정명",
-      "accountType": "공장 직영 | 무역상 | 미분류",
-      "articleTitle": "기사 또는 포스팅 제목",
-      "publishDate": "날짜 (알 수 없으면 '최근')",
-      "url": "https://mp.weixin.qq.com/...",
-      "summary": "소싱 관련 핵심 내용 (한국어)",
-      "productKeywords": ["키워드"],
-      "contactHint": "연락처 힌트 또는 빈 문자열",
-      "relevanceScore": 75
+      "accountName": "공식계정명 (카테고리 대표 계정 패턴, 예: 佛山铝材行业协会)",
+      "accountType": "공장 직영 | 업계 협회 | 소싱 에이전트",
+      "articleTitle": "이 계정 유형이 주로 올리는 콘텐츠 설명",
+      "publishDate": "상시 활성",
+      "url": "https://mp.weixin.qq.com/",
+      "summary": "${keyword} 소싱에 이 WeChat 채널이 유용한 이유와 접근 방법 (한국어, 2~3문장)",
+      "productKeywords": ["${keyword} 관련 중국어 검색어"],
+      "contactHint": "이 채널 유형의 영업사원에게 연락하는 방법 (예: 공식계정 메시지 → 담당자 WeChat ID 요청)",
+      "relevanceScore": 80
     }
   ],
-  "analysis": "WeChat 소싱 분석 요약 (한국어)",
+  "analysis": "「${keyword}」 WeChat 소싱 전략 종합 안내: 어떤 지역 공장을 타겟해야 하는지, 어떤 업계 그룹에 진입해야 하는지, 가격 협상은 어떻게 시작하는지 (한국어 4~6문장). 실제 중국어 협상 문구 2~3개 포함.",
   "searchKeyword": "${keyword}",
-  "disclaimer": "WeChat 정보는 AI 참고용이며 직접 확인이 필요합니다."
+  "disclaimer": "이 정보는 AI가 생성한 WeChat 소싱 가이드입니다. 실제 계정 정보와 다를 수 있으며, 반드시 직접 검색 및 확인 후 거래하세요."
 }`;
 
   for (const modelId of ['gemini-2.5-flash', 'gemini-1.5-flash']) {
     try {
-      const model = genAI.getGenerativeModel({
-        model: modelId,
-        tools: [{ googleSearch: {} }] as never,
-      });
+      const model = genAI.getGenerativeModel({ model: modelId });
       const result = await model.generateContent(prompt);
       const text = result.response.text().trim();
       return parseWeChatJSON(text);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       if (!msg.includes('404') && !msg.includes('no longer available') && !msg.includes('503')) throw e;
-      console.warn('[WeChat-grounding] model failed:', modelId, msg.slice(0, 80));
+      console.warn('[WeChat-intelligence] model failed:', modelId, msg.slice(0, 80));
     }
   }
-  throw new Error('WeChat Grounding 분석 실패');
+  throw new Error('WeChat 소싱 인텔리전스 생성 실패');
 }
 
 export async function POST(request: NextRequest) {
