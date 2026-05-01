@@ -1,5 +1,8 @@
 export type CountryPreference = 'china' | 'southeast_asia' | 'europe' | 'japan' | 'any';
 export type OrderFrequency = 'one_time' | 'monthly' | 'bimonthly_plus';
+export type QuantityUnit = '개' | 'kg' | 'ton' | 'm' | 'm2' | 'm3' | 'set';
+export type VerificationStatus = 'grounding_confirmed' | 'ai_estimated';
+export type ProductStage = 'raw_material' | 'semi_finished' | 'finished_product';
 
 export interface SourcingRequest {
   productDescription: string;
@@ -7,6 +10,9 @@ export interface SourcingRequest {
   budget?: string;
   countryPreference: CountryPreference;
   orderFrequency: OrderFrequency;
+  categoryCode?: string;
+  categoryNameZh?: string;
+  quantityUnit?: QuantityUnit;
 }
 
 export interface Supplier {
@@ -22,6 +28,11 @@ export interface Supplier {
   estimatedPrice: string;
   moq: string;
   summary: string;
+  verificationStatus: VerificationStatus;
+  productStage: ProductStage;
+  leadTimeDays: string;
+  hscode: string;
+  exportToKoreaExperience: boolean;
 }
 
 export interface SourcingOutput {
@@ -51,5 +62,6 @@ export interface WeChatSourcingOutput {
   posts: WeChatPost[];
   analysis: string;
   searchKeyword: string;
+  translatedKeyword?: string;
   disclaimer: string;
 }

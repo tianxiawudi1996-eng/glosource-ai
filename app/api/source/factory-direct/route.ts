@@ -1,24 +1,44 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
+import { isValidLicenseKey, extractLicenseKey } from '../../../lib/licenseAuth';
+import { getCategoryByCode } from '../../../lib/categories';
+import type { Category } from '../../../lib/categories';
 import type { SourcingRequest, SourcingOutput } from '../types';
 
 export const maxDuration = 60;
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
-function build1688Prompt(req: SourcingRequest): string {
+function build1688Prompt(req: SourcingRequest, categoryContext?: Category): string {
+  const catSection = categoryContext ? `
+[카테고리 컨텍스트 — 검색어 및 분석에 적극 활용]
+대분류: ${categoryContext.l1NameKo} (${categoryContext.l1NameZh})
+소분류: ${categoryContext.l2NameKo} (${categoryContext.l2NameZh})
+중국어 검색어: ${categoryContext.searchTermsZh.join(', ')}
+관련 HS코드: ${categoryContext.hsCodes.join(', ')}
+관련 인증: ${categoryContext.certifications.join(', ')}
+일반 가격대: ${categoryContext.typicalPriceRange}
+` : '';
+
   return `당신은 중국 내수 B2B 소싱 전문가입니다. 1688.com에서 아래 제품의 공장 직거래 공급자를 탐색하세요.
 
 1688.com은 알리바바 그룹의 중국 내수 도매 플랫폼으로, Alibaba.com 대비 30~50% 저렴한 실제 원가 가격입니다.
-
+${catSection}
 [소싱 요청]
 - 제품: ${req.productDescription}
 - 수량: ${req.quantity}
 - 예산: ${req.budget || '미지정'}
 
+[중요 규칙 — 반드시 준수]
+1. Google 그라운딩 검색으로 실제 확인한 공급자만 반환하라
+2. URL을 직접 확인하지 못했다면 url은 빈 문자열("")로 설정하라
+3. 1688.com URL을 추측으로 생성하지 마라 — 존재하지 않는 URL은 신뢰를 파괴한다
+4. 확인된 공급자가 3개 미만이더라도 추측으로 수를 채우지 마라
+5. 제품명(${req.productDescription})을 우선 권위로, 카테고리는 보조 힌트로만 사용하라
+
 [탐색 지시]
 1. 다음 검색을 통해 1688.com 공급자 3~5개를 찾으세요:
-   - "site:1688.com ${req.productDescription} 厂家直销"
+   - "site:1688.com ${categoryContext ? categoryContext.searchTermsZh[0] : req.productDescription} 厂家直销"
    - "1688 ${req.productDescription} 批发 工厂"
    - "${req.productDescription} 1688网 诚信通"
 
@@ -89,7 +109,13 @@ function extractJSON(text: string): string {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = (await request.json()) as Pick<SourcingRequest, 'productDescription' | 'quantity' | 'budget'>;
+    // License key validation
+    const licenseKey = extractLicenseKey(request);
+    if (licenseKey !== null && !isValidLicenseKey(licenseKey)) {
+      return NextResponse.json({ error: 'subscription_required' }, { status: 401 });
+    }
+
+    const body = (await request.json()) as Pick<SourcingRequest, 'productDescription' | 'quantity' | 'budget' | 'categoryCode'>;
 
     if (!body.productDescription?.trim()) {
       return NextResponse.json({ error: '제품/자재명을 입력해주세요.' }, { status: 400 });
@@ -104,9 +130,11 @@ export async function POST(request: NextRequest) {
       budget: body.budget,
       countryPreference: 'china',
       orderFrequency: 'one_time',
+      categoryCode: body.categoryCode,
     };
 
-    const prompt = build1688Prompt(req);
+    const categoryContext = req.categoryCode ? getCategoryByCode(req.categoryCode) : undefined;
+    const prompt = build1688Prompt(req, categoryContext);
     let text = '';
     let groundingUsed = false;
 

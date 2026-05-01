@@ -1,102 +1,23 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import CategorySelector from './components/CategorySelector';
+import PaywallModal from './components/PaywallModal';
+import WeChatCard from './components/WeChatCard';
+import { SupplierRow, SupplierDetail } from './components/SupplierCard';
+import RFQComposer from './components/RFQComposer';
+import { Icon } from './components/icons';
+import type { Category } from './lib/categories';
 import type { SourcingRequest, SourcingOutput, Supplier, CountryPreference, OrderFrequency, WeChatSourcingOutput } from './api/source/types';
 
 type SourceMode = 'ai' | '1688' | 'wechat';
-
-/* ══════════════════════════════════════════════
-   SVG 아이콘
-══════════════════════════════════════════════ */
-const Icon = {
-  Shield: ({ className = '' }: { className?: string }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 22C12 22 4 18 4 12V5.5L12 2.5L20 5.5V12C20 18 12 22 12 22Z"/>
-      <polyline points="9,12 11,14 15,10"/>
-    </svg>
-  ),
-  Search: ({ className = '' }: { className?: string }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-    </svg>
-  ),
-  Globe: ({ className = '' }: { className?: string }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10"/>
-      <line x1="2" y1="12" x2="22" y2="12"/>
-      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-    </svg>
-  ),
-  Mail: ({ className = '' }: { className?: string }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-      <polyline points="22,6 12,13 2,6"/>
-    </svg>
-  ),
-  Download: ({ className = '' }: { className?: string }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 15V19C21 20.1 20.1 21 19 21H5C3.9 21 3 20.1 3 19V15"/>
-      <polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/>
-    </svg>
-  ),
-  Check: ({ className = '' }: { className?: string }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="20,6 9,17 4,12"/>
-    </svg>
-  ),
-  AlertTriangle: ({ className = '' }: { className?: string }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-      <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-    </svg>
-  ),
-  Zap: ({ className = '' }: { className?: string }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <polygon points="13,2 3,14 12,14 11,22 21,10 12,10 13,2"/>
-    </svg>
-  ),
-  ChevronRight: ({ className = '' }: { className?: string }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="9,18 15,12 9,6"/>
-    </svg>
-  ),
-  Copy: ({ className = '' }: { className?: string }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-    </svg>
-  ),
-  Printer: ({ className = '' }: { className?: string }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="6,9 6,2 18,2 18,9"/>
-      <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
-      <rect x="6" y="14" width="12" height="8"/>
-    </svg>
-  ),
-  ExternalLink: ({ className = '' }: { className?: string }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-      <polyline points="15,3 21,3 21,9"/><line x1="10" y1="14" x2="21" y2="3"/>
-    </svg>
-  ),
-  Star: ({ className = '' }: { className?: string }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor" stroke="none">
-      <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26 12,2"/>
-    </svg>
-  ),
-  Settings: ({ className = '' }: { className?: string }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="3"/>
-      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-    </svg>
-  ),
-};
 
 /* ══════════════════════════════════════════════
    상수
 ══════════════════════════════════════════════ */
 const FREE_CREDITS = 1;
 const CREDITS_KEY = 'glosource_credits_v1';
+const LICENSE_KEY_STORAGE = 'glosource_license_key';
 
 const COUNTRY_OPTIONS: { value: CountryPreference; label: string; desc: string }[] = [
   { value: 'china',         label: '중국',     desc: '최대 공급망' },
@@ -230,14 +151,14 @@ export default function HomePage() {
   const [result, setResult] = useState<SourcingOutput | null>(null);
   const [error, setError] = useState('');
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
-  const [emailLang, setEmailLang] = useState<'en' | 'zh'>('en');
-  const [copied, setCopied] = useState(false);
   const [companyName, setCompanyName] = useState('');
   const [reportDate, setReportDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [credits, setCredits] = useState(FREE_CREDITS);
   const [showPaywall, setShowPaywall] = useState(false);
   const [activeSource, setActiveSource] = useState<SourceMode>('ai');
   const [wechatResult, setWechatResult] = useState<WeChatSourcingOutput | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [licenseKey, setLicenseKey] = useState<string | null>(null);
   const resultRef = useRef<HTMLDivElement>(null);
   const loadingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -245,6 +166,8 @@ export default function HomePage() {
     const s = localStorage.getItem(CREDITS_KEY);
     if (s === null) localStorage.setItem(CREDITS_KEY, String(FREE_CREDITS));
     else setCredits(parseInt(s, 10));
+    const lk = localStorage.getItem(LICENSE_KEY_STORAGE);
+    if (lk) setLicenseKey(lk);
   }, []);
 
   const startLoading = () => {
@@ -259,40 +182,52 @@ export default function HomePage() {
     if (loadingRef.current) clearInterval(loadingRef.current);
   };
 
+  const handleLicenseActivated = (key: string) => {
+    localStorage.setItem(LICENSE_KEY_STORAGE, key);
+    setLicenseKey(key);
+  };
+
   const handleGenerate = async () => {
-    if (credits <= 0) { setShowPaywall(true); return; }
+    if (!licenseKey && credits <= 0) { setShowPaywall(true); return; }
     if (!form.productDescription.trim()) { setError('제품/자재명을 입력해주세요.'); return; }
     if (activeSource !== 'wechat' && !form.quantity.trim()) { setError('필요 수량을 입력해주세요.'); return; }
 
     startLoading();
 
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (licenseKey) headers['X-License-Key'] = licenseKey;
+
     try {
       if (activeSource === 'wechat') {
         const res = await fetch('/api/source/wechat', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify({ keyword: form.productDescription }),
         });
         const json = await res.json();
+        if (json.error === 'subscription_required') { stopLoading(); setShowPaywall(true); return; }
         if (!res.ok) throw new Error(json.error || '오류가 발생했습니다.');
         setWechatResult(json.data as WeChatSourcingOutput);
       } else {
         const apiPath = activeSource === '1688' ? '/api/source/factory-direct' : '/api/source';
         const res = await fetch(apiPath, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify(form),
         });
         const json = await res.json();
+        if (json.error === 'subscription_required') { stopLoading(); setShowPaywall(true); return; }
         if (!res.ok) throw new Error(json.error || '오류가 발생했습니다.');
         const data = json.data as SourcingOutput;
         setResult(data);
         setSelectedSupplier(data.suppliers[0] ?? null);
       }
 
-      const nc = credits - 1;
-      setCredits(nc);
-      localStorage.setItem(CREDITS_KEY, String(nc));
+      if (!licenseKey) {
+        const nc = credits - 1;
+        setCredits(nc);
+        localStorage.setItem(CREDITS_KEY, String(nc));
+      }
       setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
     } catch (e) {
       setError(e instanceof Error ? e.message : '알 수 없는 오류');
@@ -301,11 +236,14 @@ export default function HomePage() {
     }
   };
 
-  const handleCopyEmail = async () => {
-    if (!result) return;
-    await navigator.clipboard.writeText(result.rfqEmail[emailLang]);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleCategorySelect = (cat: Category | null) => {
+    setSelectedCategory(cat);
+    setForm(f => ({
+      ...f,
+      categoryCode: cat?.code,
+      categoryNameZh: cat?.l2NameZh,
+      quantityUnit: cat?.quantityUnitSuggestion ?? f.quantityUnit,
+    }));
   };
 
   const handlePrintReport = () => {
@@ -322,38 +260,10 @@ export default function HomePage() {
 
       {/* ── 결제 모달 ── */}
       {showPaywall && (
-        <div className="fixed inset-0 bg-slate-900/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-lg w-full">
-            <div className="mb-6">
-              <div className="w-12 h-12 bg-[#0D1B2A] rounded-xl flex items-center justify-center mb-4">
-                <Icon.Globe className="w-6 h-6 text-white" />
-              </div>
-              <h2 className="text-xl font-bold text-[#0D1B2A] mb-1">무료 체험 횟수 소진</h2>
-              <p className="text-slate-500 text-sm">AI 글로벌 소싱 분석을 계속 이용하려면 플랜을 선택하세요.</p>
-            </div>
-            <div className="space-y-2 mb-6">
-              {[
-                { name: '스타터', detail: '10회권', price: '10만원/월', per: '분석 10회 · PDF 다운로드 · 이메일 초안', hot: false },
-                { name: '프로', detail: '무제한', price: '30만원/월', per: '무제한 분석 · 이력 관리 · 우선 지원', hot: true },
-                { name: '팀', detail: '5계정', price: '70만원/월', per: '5계정 공유 · 현장별 관리 · 전담 지원', hot: false },
-              ].map(p => (
-                <a key={p.name} href={`mailto:visionlab@seowonenc.co.kr?subject=GloSource AI ${p.name} 플랜 문의`}
-                  className={`flex items-center justify-between p-4 rounded-xl border transition-all cursor-pointer ${p.hot ? 'border-[#0D1B2A] bg-slate-50' : 'border-slate-200 hover:border-slate-300'}`}>
-                  <div>
-                    <p className={`font-semibold text-sm ${p.hot ? 'text-[#0D1B2A]' : 'text-[#0D1B2A]'}`}>{p.name} <span className="font-normal text-slate-400 text-xs">· {p.detail}</span></p>
-                    <p className="text-xs text-slate-400 mt-0.5">{p.per}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <p className="font-bold text-[#0D1B2A] text-sm">{p.price}</p>
-                    <Icon.ChevronRight className="w-4 h-4 text-slate-300" />
-                  </div>
-                </a>
-              ))}
-            </div>
-            <p className="text-xs text-slate-400 text-center mb-4">세금계산서 발행 가능 · visionlab@seowonenc.co.kr</p>
-            <button onClick={() => setShowPaywall(false)} className="w-full py-2.5 text-sm text-slate-400 hover:text-slate-600 border border-slate-200 rounded-xl transition-colors">닫기</button>
-          </div>
-        </div>
+        <PaywallModal
+          onClose={() => setShowPaywall(false)}
+          onLicenseActivated={handleLicenseActivated}
+        />
       )}
 
       {/* ── 네비게이션 ── */}
@@ -373,9 +283,11 @@ export default function HomePage() {
               <Icon.Shield className="w-3 h-3" />
               <span>AI 공급자 신뢰도 검증</span>
             </div>
-            {credits > 0
-              ? <span className="text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-full">무료 체험 {credits}회 남음</span>
-              : <button onClick={() => setShowPaywall(true)} className="text-xs font-semibold bg-[#EA580C] text-white px-3 py-1.5 rounded-full hover:bg-[#DC4C00] transition-colors">크레딧 충전</button>
+            {licenseKey
+              ? <span className="text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1.5 rounded-full">🔑 구독 활성</span>
+              : credits > 0
+                ? <span className="text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-full">무료 체험 {credits}회 남음</span>
+                : <button onClick={() => setShowPaywall(true)} className="text-xs font-semibold bg-[#EA580C] text-white px-3 py-1.5 rounded-full hover:bg-[#DC4C00] transition-colors">크레딧 충전</button>
             }
           </div>
         </div>
@@ -477,7 +389,18 @@ export default function HomePage() {
                   />
                 </div>
 
-                {/* ② 수량 + 예산 */}
+                {/* ① 카테고리 (AI/1688 모드만) */}
+                {activeSource !== 'wechat' && (
+                  <div>
+                    <label className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                      <span className="w-5 h-5 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs font-black">2</span>
+                      건자재 카테고리 <span className="font-normal normal-case text-slate-400">선택</span>
+                    </label>
+                    <CategorySelector selected={selectedCategory} onSelect={handleCategorySelect} />
+                  </div>
+                )}
+
+                {/* ③ 수량 + 예산 */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
@@ -515,7 +438,7 @@ export default function HomePage() {
                   </div>
                 )}
 
-                {/* ③ 원산지 선호 (WeChat 모드에서는 숨김) */}
+                {/* ④ 원산지 선호 (WeChat 모드에서는 숨김) */}
                 {activeSource !== 'wechat' && (
                   <div>
                     <label className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
@@ -534,7 +457,7 @@ export default function HomePage() {
                   </div>
                 )}
 
-                {/* ④ 발주 주기 (WeChat 모드에서는 숨김) */}
+                {/* ⑤ 발주 주기 (WeChat 모드에서는 숨김) */}
                 {activeSource !== 'wechat' && (
                   <div>
                     <label className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
@@ -599,44 +522,7 @@ export default function HomePage() {
                   </div>
 
                   {wechatResult.posts.map((post, i) => (
-                    <div key={i} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
-                      <div className="flex items-start justify-between gap-3 mb-2">
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-sm text-[#0D1B2A] leading-snug">{post.articleTitle}</p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className="text-xs text-slate-400">{post.accountName}</span>
-                            <span className={`text-xs px-1.5 py-0.5 rounded-full border ${
-                              post.accountType.includes('공장') ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
-                              post.accountType.includes('무역') ? 'bg-amber-50 text-amber-700 border-amber-200' :
-                              'bg-slate-50 text-slate-500 border-slate-200'
-                            }`}>{post.accountType}</span>
-                            <span className="text-xs text-slate-400">{post.publishDate}</span>
-                          </div>
-                        </div>
-                        <span className={`text-xs font-bold px-2 py-1 rounded-lg border flex-shrink-0 ${
-                          post.relevanceScore >= 80 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
-                          post.relevanceScore >= 60 ? 'bg-amber-50 text-amber-700 border-amber-200' :
-                          'bg-slate-50 text-slate-500 border-slate-200'
-                        }`}>{post.relevanceScore}점</span>
-                      </div>
-                      <p className="text-xs text-slate-600 leading-relaxed mb-2">{post.summary}</p>
-                      {post.productKeywords.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mb-2">
-                          {post.productKeywords.map((kw, ki) => (
-                            <span key={ki} className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded">{kw}</span>
-                          ))}
-                        </div>
-                      )}
-                      {post.contactHint && (
-                        <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-2">
-                          <p className="text-xs text-amber-800"><span className="font-semibold">연락처 힌트:</span> {post.contactHint}</p>
-                        </div>
-                      )}
-                      <a href={post.url} target="_blank" rel="noopener noreferrer"
-                        className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 transition-colors">
-                        <Icon.ExternalLink className="w-3 h-3" />WeChat 원문 보기
-                      </a>
-                    </div>
+                    <WeChatCard key={i} post={post} />
                   ))}
 
                   <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
@@ -671,109 +557,23 @@ export default function HomePage() {
                     </div>
                     <div className="divide-y divide-slate-100">
                       {result.suppliers.map(s => (
-                        <button key={s.rank} onClick={() => setSelectedSupplier(s)}
-                          className={`w-full text-left px-4 py-3 transition-all ${selectedSupplier?.rank === s.rank ? 'bg-slate-50' : 'hover:bg-slate-50/50'}`}>
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="flex items-start gap-3 flex-1 min-w-0">
-                              <div className="w-7 h-7 rounded-lg bg-[#0D1B2A] text-white flex items-center justify-center text-xs font-black flex-shrink-0 mt-0.5">
-                                {s.rank}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="font-semibold text-sm text-[#0D1B2A] truncate">{s.name}</p>
-                                <p className="text-xs text-slate-400">{s.platform} · {s.country}</p>
-                                {s.redFlags.length > 0 && (
-                                  <p className="text-xs text-red-500 mt-0.5 flex items-center gap-1">
-                                    <Icon.AlertTriangle className="w-3 h-3" />
-                                    {s.redFlags[0]}
-                                  </p>
-                                )}
-                              </div>
-                            </div>
-                            <div className="flex-shrink-0 text-right">
-                              <span className={`inline-block text-xs font-bold px-2 py-1 rounded-lg border ${getTrustColor(s.trustScore)}`}>
-                                {s.trustScore}점
-                              </span>
-                              <p className="text-xs text-slate-400 mt-1">{s.estimatedPrice}</p>
-                            </div>
-                          </div>
-                        </button>
+                        <SupplierRow
+                          key={s.rank}
+                          supplier={s}
+                          isSelected={selectedSupplier?.rank === s.rank}
+                          onClick={() => setSelectedSupplier(s)}
+                        />
                       ))}
                     </div>
                   </div>
 
                   {/* 선택 공급자 상세 */}
                   {selectedSupplier && (
-                    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
-                      <div className="flex items-start justify-between mb-3">
-                        <div>
-                          <p className="font-bold text-[#0D1B2A] text-sm">{selectedSupplier.name}</p>
-                          <p className="text-xs text-slate-400">{selectedSupplier.platform} · {selectedSupplier.country}</p>
-                        </div>
-                        <a href={selectedSupplier.url} target="_blank" rel="noopener noreferrer"
-                          className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 transition-colors border border-blue-200 rounded-lg px-2.5 py-1.5">
-                          <Icon.ExternalLink className="w-3 h-3" />공급자 페이지
-                        </a>
-                      </div>
-                      <div className="grid grid-cols-2 gap-3 mb-3">
-                        <div className="bg-slate-50 rounded-lg p-3">
-                          <p className="text-xs font-medium text-slate-500 mb-1">예상 단가</p>
-                          <p className="text-sm font-bold text-[#0D1B2A]">{selectedSupplier.estimatedPrice}</p>
-                        </div>
-                        <div className="bg-slate-50 rounded-lg p-3">
-                          <p className="text-xs font-medium text-slate-500 mb-1">최소 발주량(MOQ)</p>
-                          <p className="text-sm font-bold text-[#0D1B2A]">{selectedSupplier.moq}</p>
-                        </div>
-                      </div>
-                      {selectedSupplier.trustEvidence.length > 0 && (
-                        <div className="mb-2">
-                          <p className="text-xs font-bold text-emerald-700 mb-1.5">신뢰 근거</p>
-                          <ul className="space-y-1">
-                            {selectedSupplier.trustEvidence.map((e, i) => (
-                              <li key={i} className="flex items-center gap-1.5 text-xs text-slate-600">
-                                <Icon.Check className="w-3 h-3 text-emerald-500 flex-shrink-0" />{e}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                      {selectedSupplier.redFlags.length > 0 && (
-                        <div className="mt-2 bg-red-50 border border-red-200 rounded-lg p-3">
-                          <p className="text-xs font-bold text-red-700 mb-1">주의사항</p>
-                          <ul className="space-y-1">
-                            {selectedSupplier.redFlags.map((f, i) => (
-                              <li key={i} className="flex items-center gap-1.5 text-xs text-red-600">
-                                <Icon.AlertTriangle className="w-3 h-3 flex-shrink-0" />{f}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                    </div>
+                    <SupplierDetail supplier={selectedSupplier} />
                   )}
 
                   {/* RFQ 이메일 */}
-                  <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div className="flex border-b border-slate-100">
-                      <button onClick={() => setEmailLang('en')}
-                        className={`flex-1 py-3 text-xs font-medium transition-all border-b-2 ${emailLang === 'en' ? 'border-[#0D1B2A] text-[#0D1B2A] bg-slate-50/50' : 'border-transparent text-slate-400 hover:text-slate-600'}`}>
-                        영어 이메일
-                      </button>
-                      <button onClick={() => setEmailLang('zh')}
-                        className={`flex-1 py-3 text-xs font-medium transition-all border-b-2 ${emailLang === 'zh' ? 'border-[#0D1B2A] text-[#0D1B2A] bg-slate-50/50' : 'border-transparent text-slate-400 hover:text-slate-600'}`}>
-                        중국어 이메일
-                      </button>
-                      <button onClick={handleCopyEmail}
-                        className="px-4 border-l border-slate-100 text-slate-400 hover:text-slate-600 transition-colors flex items-center gap-1">
-                        <Icon.Copy className="w-3.5 h-3.5" />
-                        <span className="text-xs">{copied ? '완료' : '복사'}</span>
-                      </button>
-                    </div>
-                    <div className="p-4 h-[220px] overflow-y-auto">
-                      <pre className="text-xs text-slate-600 whitespace-pre-wrap leading-relaxed" style={{ fontFamily: "'Pretendard','Malgun Gothic',sans-serif" }}>
-                        {result.rfqEmail[emailLang]}
-                      </pre>
-                    </div>
-                  </div>
+                  <RFQComposer rfqEmail={result.rfqEmail} />
 
                   {/* PDF 출력 */}
                   <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">

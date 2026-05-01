@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { load } from 'cheerio';
 import { NextRequest, NextResponse } from 'next/server';
+import { isValidLicenseKey, extractLicenseKey } from '../../../lib/licenseAuth';
 import type { WeChatPost, WeChatSourcingOutput } from '../types';
 
 export const maxDuration = 60;
@@ -34,6 +35,34 @@ interface SogouArticle {
   snippet: string;
 }
 
+// Translates a Korean (or any language) keyword to Chinese construction industry terminology.
+// Returns the original keyword on any failure so callers can always proceed.
+async function translateKeywordToZh(keyword: string): Promise<string> {
+  const CHINESE_RANGE = /[一-鿿]/;
+  // If the keyword already contains enough Chinese, skip translation
+  const chineseCount = [...keyword].filter((c) => CHINESE_RANGE.test(c)).length;
+  if (chineseCount >= 2) return keyword;
+
+  const prompt = `Translate the following product name to concise Chinese construction industry terminology (3–8 Chinese characters, no explanation, no romanization):
+"${keyword}"
+Reply with only the Chinese translation.`;
+
+  for (const modelId of ['gemini-2.5-flash', 'gemini-1.5-flash']) {
+    try {
+      const model = genAI.getGenerativeModel({ model: modelId });
+      const result = await model.generateContent(prompt);
+      const translated = result.response.text().trim().replace(/["']/g, '');
+      // Validate: must contain Chinese characters and be under 30 chars
+      if (CHINESE_RANGE.test(translated) && translated.length <= 30) {
+        return translated;
+      }
+    } catch {
+      // silent — fall through to next model
+    }
+  }
+  return keyword; // fallback: original keyword
+}
+
 async function scrapeSogouWeChat(keyword: string): Promise<SogouArticle[]> {
   const query = encodeURIComponent(`${keyword} 工厂 报价 厂家直供`);
   const url = `https://weixin.sogou.com/weixin?type=2&query=${query}&ie=utf8&page=1`;
@@ -49,7 +78,6 @@ async function scrapeSogouWeChat(keyword: string): Promise<SogouArticle[]> {
   const $ = load(html);
   const articles: SogouArticle[] = [];
 
-  // Sogou WeChat search result items
   $('ul.news-list > li').each((_, el) => {
     const $el = $(el);
     const title = $el.find('h3 a').text().trim() || $el.find('.txt-box h3').text().trim();
@@ -70,7 +98,7 @@ async function scrapeSogouWeChat(keyword: string): Promise<SogouArticle[]> {
     }
   });
 
-  return articles.slice(0, 8);
+  return articles.slice(0, 12); // increased from 8 to provide more candidates before filtering
 }
 
 function buildWeChatAnalysisPrompt(keyword: string, articles: SogouArticle[]): string {
@@ -131,8 +159,7 @@ async function analyzeWithGemini(prompt: string): Promise<string> {
 
 async function fallbackGeminiGrounding(keyword: string): Promise<WeChatSourcingOutput> {
   // WeChat is a closed platform — articles aren't indexed by Google Search.
-  // Instead, ask Gemini for knowledge-based sourcing intelligence about WeChat
-  // accounts/groups that are known to be active for this product category.
+  // Use Gemini knowledge-based sourcing intelligence instead.
   const prompt = `당신은 10년 경력의 중국 WeChat 소싱 전문가입니다. "${keyword}" 제품 카테고리에서 WeChat(微信)을 통해 중국 공장 직거래를 하는 방법을 소싱 바이어에게 안내하세요.
 
 실제로 존재하는 WeChat 공식계정(微信公众号) 유형, 행업군 WeChat 그룹, 공장 영업사원 접촉 방법 등을 구체적으로 설명하세요.
@@ -183,6 +210,12 @@ async function fallbackGeminiGrounding(keyword: string): Promise<WeChatSourcingO
 
 export async function POST(request: NextRequest) {
   try {
+    // License key validation
+    const licenseKey = extractLicenseKey(request);
+    if (licenseKey !== null && !isValidLicenseKey(licenseKey)) {
+      return NextResponse.json({ error: 'subscription_required' }, { status: 401 });
+    }
+
     const body = (await request.json()) as { keyword: string };
     const keyword = body.keyword?.trim();
 
@@ -190,23 +223,35 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '검색할 제품/키워드를 입력해주세요.' }, { status: 400 });
     }
 
+    // Step 0: Pre-translate Korean keyword to Chinese for better Sogou results
+    const translatedKeyword = await translateKeywordToZh(keyword);
+    const searchKeyword = translatedKeyword !== keyword ? translatedKeyword : keyword;
+
     let output: WeChatSourcingOutput;
 
     try {
-      // Step 1: Sogou WeChat 검색 스크래핑
-      const articles = await scrapeSogouWeChat(keyword);
+      const articles = await scrapeSogouWeChat(searchKeyword);
 
       if (articles.length === 0) {
-        // 스크래핑 결과 없으면 Gemini Grounding fallback
         output = await fallbackGeminiGrounding(keyword);
       } else {
-        // Step 2: Gemini로 기사 분석
         const analysisPrompt = buildWeChatAnalysisPrompt(keyword, articles);
         const analysisText = await analyzeWithGemini(analysisPrompt);
         output = parseWeChatJSON(analysisText);
       }
     } catch (scrapeErr) {
       console.warn('[WeChat] Sogou scrape failed, using Gemini grounding fallback:', scrapeErr instanceof Error ? scrapeErr.message.slice(0, 100) : String(scrapeErr));
+      output = await fallbackGeminiGrounding(keyword);
+    }
+
+    // Filter out low-relevance results
+    if (output.posts?.length) {
+      output.posts = output.posts.filter((p) => p.relevanceScore >= 50);
+    }
+
+    // If all posts filtered out, use knowledge-based fallback
+    if (!output.posts?.length) {
+      console.warn('[WeChat] All posts filtered (relevanceScore < 50), using knowledge fallback');
       output = await fallbackGeminiGrounding(keyword);
     }
 
@@ -217,8 +262,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 관련성 점수 기준 정렬
+    // Sort by relevance
     output.posts.sort((a, b) => b.relevanceScore - a.relevanceScore);
+
+    // Include translated keyword in response so client can display it as a chip
+    if (translatedKeyword !== keyword) {
+      output.translatedKeyword = translatedKeyword;
+    }
 
     return NextResponse.json({ success: true, data: output });
   } catch (error) {
