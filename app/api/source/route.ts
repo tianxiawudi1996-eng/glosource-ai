@@ -150,13 +150,15 @@ export async function POST(request: NextRequest) {
       throw lastError ?? new Error('모든 AI 모델이 응답하지 않습니다. 잠시 후 다시 시도해주세요.');
     }
 
-    // JSON 파싱 (마크다운 코드블록 제거)
+    // JSON 추출 (마크다운/thinking/인용번호 제거)
     let jsonText = text;
-    if (jsonText.startsWith('```')) {
-      jsonText = jsonText.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
+    if (jsonText.includes('```')) {
+      const m = jsonText.match(/```(?:json)?\s*\n?([\s\S]*?)\n?```/);
+      if (m) jsonText = m[1].trim();
     }
-    // 인용번호 제거 ([1], [2] 등)
-    jsonText = jsonText.replace(/\[\d+\]/g, '');
+    jsonText = jsonText.replace(/\[\d+\]/g, '').replace(/<thinking>[\s\S]*?<\/thinking>/gi, '').trim();
+    const jsonMatch = jsonText.match(/\{[\s\S]*\}/);
+    if (jsonMatch) jsonText = jsonMatch[0];
 
     let parsed: Omit<SourcingOutput, 'groundingUsed'>;
     try {

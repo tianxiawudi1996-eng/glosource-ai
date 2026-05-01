@@ -70,12 +70,21 @@ function build1688Prompt(req: SourcingRequest): string {
 }`;
 }
 
-function stripMarkdown(text: string): string {
+function extractJSON(text: string): string {
   let clean = text.trim();
-  if (clean.startsWith('```')) {
-    clean = clean.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
+  // 마크다운 코드블록 제거
+  if (clean.includes('```')) {
+    const m = clean.match(/```(?:json)?\s*\n?([\s\S]*?)\n?```/);
+    if (m) clean = m[1].trim();
   }
-  return clean.replace(/\[\d+\]/g, '');
+  // 인용번호 제거
+  clean = clean.replace(/\[\d+\]/g, '');
+  // Gemini thinking 태그 제거
+  clean = clean.replace(/<thinking>[\s\S]*?<\/thinking>/gi, '').trim();
+  // JSON 객체 추출 (앞뒤 텍스트 무시)
+  const match = clean.match(/\{[\s\S]*\}/);
+  if (match) return match[0];
+  return clean;
 }
 
 export async function POST(request: NextRequest) {
@@ -127,7 +136,7 @@ export async function POST(request: NextRequest) {
     }
     if (!text) throw new Error('1688 소싱 분석에 실패했습니다. 잠시 후 다시 시도해주세요.');
 
-    const jsonText = stripMarkdown(text);
+    const jsonText = extractJSON(text);
 
     let parsed: Omit<SourcingOutput, 'groundingUsed'>;
     try {

@@ -7,6 +7,18 @@ export const maxDuration = 60;
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
+function parseWeChatJSON(text: string): WeChatSourcingOutput {
+  let clean = text.trim();
+  if (clean.includes('```')) {
+    const m = clean.match(/```(?:json)?\s*\n?([\s\S]*?)\n?```/);
+    if (m) clean = m[1].trim();
+  }
+  clean = clean.replace(/\[\d+\]/g, '').replace(/<thinking>[\s\S]*?<\/thinking>/gi, '').trim();
+  const match = clean.match(/\{[\s\S]*\}/);
+  if (match) clean = match[0];
+  return JSON.parse(clean) as WeChatSourcingOutput;
+}
+
 const SOGOU_HEADERS = {
   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
   'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
@@ -155,10 +167,7 @@ async function fallbackGeminiGrounding(keyword: string): Promise<WeChatSourcingO
       });
       const result = await model.generateContent(prompt);
       const text = result.response.text().trim();
-      const clean = text.startsWith('```')
-        ? text.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '')
-        : text;
-      return JSON.parse(clean.replace(/\[\d+\]/g, '')) as WeChatSourcingOutput;
+      return parseWeChatJSON(text);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       if (!msg.includes('404') && !msg.includes('no longer available') && !msg.includes('503')) throw e;
@@ -190,10 +199,7 @@ export async function POST(request: NextRequest) {
         // Step 2: Gemini로 기사 분석
         const analysisPrompt = buildWeChatAnalysisPrompt(keyword, articles);
         const analysisText = await analyzeWithGemini(analysisPrompt);
-        const clean = analysisText.startsWith('```')
-          ? analysisText.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '')
-          : analysisText;
-        output = JSON.parse(clean.replace(/\[\d+\]/g, '')) as WeChatSourcingOutput;
+        output = parseWeChatJSON(analysisText);
       }
     } catch (scrapeErr) {
       console.warn('[WeChat] Sogou scrape failed, using Gemini grounding fallback:', scrapeErr instanceof Error ? scrapeErr.message.slice(0, 100) : String(scrapeErr));
