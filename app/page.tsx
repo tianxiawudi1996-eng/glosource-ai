@@ -332,7 +332,6 @@ export default function HomePage() {
             <p className="text-slate-400 text-base md:text-lg leading-relaxed mb-8 max-w-xl">
               <strong className="text-white">기존 거래처를 끊지 마세요.</strong> GloSource는 협상 도구입니다.
               KS인증·관세·세금계산서·통관까지 한국 건설사가 필요한 모든 것을 자동화합니다.
-              <strong className="text-white"> 5위권 골조 회사 IT 총괄 출신</strong>이 만들었습니다.
             </p>
             <div className="flex flex-wrap gap-3 mb-12">
               {[
