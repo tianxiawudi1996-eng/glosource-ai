@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from 'react';
 
-const DEV_PASSWORD = 'glosource-dev-2026';
-const SESSION_KEY = 'glosource_dev_auth';
+const SESSION_KEY = 'glosource_dev_key';
 const HISTORY_KEY = 'glosource_search_history';
 
 type SourceMode = 'ai' | '1688' | 'wechat';
@@ -56,9 +55,11 @@ export default function DevPage() {
   const [tab, setTab] = useState<'history' | 'test'>('history');
 
   useEffect(() => {
-    if (sessionStorage.getItem(SESSION_KEY) === 'true') {
+    const saved = sessionStorage.getItem(SESSION_KEY);
+    if (saved) {
+      setPwInput(saved);
       setAuthed(true);
-      loadHistory();
+      loadHistory(saved);
     }
   }, []);
 
@@ -73,11 +74,12 @@ export default function DevPage() {
       };
     });
 
-  const loadHistory = async () => {
+  const loadHistory = async (key?: string) => {
+    const devKey = key ?? pwInput;
     // 1) Try server-side KV history first
     try {
       const res = await fetch('/api/history', {
-        headers: { 'x-dev-key': DEV_PASSWORD },
+        headers: { 'x-dev-key': devKey },
       });
       if (res.ok) {
         const json = await res.json() as { success: boolean; data: ApiResult[]; source: string };
@@ -101,13 +103,20 @@ export default function DevPage() {
     } catch { /* ignore */ }
   };
 
-  const handleLogin = () => {
-    if (pwInput === DEV_PASSWORD) {
-      sessionStorage.setItem(SESSION_KEY, 'true');
-      setAuthed(true);
-      loadHistory();
-    } else {
-      setPwError('비밀번호가 틀렸습니다.');
+  const handleLogin = async () => {
+    try {
+      const res = await fetch('/api/history', {
+        headers: { 'x-dev-key': pwInput },
+      });
+      if (res.ok) {
+        sessionStorage.setItem(SESSION_KEY, pwInput);
+        setAuthed(true);
+        loadHistory(pwInput);
+      } else {
+        setPwError('비밀번호가 틀렸습니다.');
+      }
+    } catch {
+      setPwError('서버 연결 실패');
     }
   };
 
@@ -220,7 +229,7 @@ export default function DevPage() {
             <button
               onClick={async () => {
                 localStorage.removeItem(HISTORY_KEY);
-                await fetch('/api/history', { method: 'DELETE', headers: { 'x-dev-key': DEV_PASSWORD } }).catch(() => {});
+                await fetch('/api/history', { method: 'DELETE', headers: { 'x-dev-key': pwInput } }).catch(() => {});
                 setResults([]);
               }}
               className="text-xs text-red-400 hover:text-red-300 transition-colors"
