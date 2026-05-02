@@ -124,15 +124,6 @@ ${catSection}
 }`;
 }
 
-async function callGemini(prompt: string, useGrounding: boolean): Promise<{ text: string; groundingUsed: boolean }> {
-  const modelConfig = useGrounding
-    ? { model: 'gemini-2.0-flash', tools: [{ googleSearch: {} }] as never }
-    : { model: 'gemini-2.5-flash' };
-
-  const model = genAI.getGenerativeModel(modelConfig);
-  const result = await model.generateContent(prompt);
-  return { text: result.response.text().trim(), groundingUsed: useGrounding };
-}
 
 export async function POST(request: NextRequest) {
   try {
@@ -168,10 +159,9 @@ export async function POST(request: NextRequest) {
 
     // 전략: 1차(2.5-flash + grounding) → 2차(2.5-flash no-grounding) → 3차(2.0-flash) → 4차(2.0-flash-lite)
     const MODELS = [
-      { model: 'gemini-2.5-flash', grounding: true },
-      { model: 'gemini-2.5-flash', grounding: false },
-      { model: 'gemini-2.0-flash', grounding: false },
-      { model: 'gemini-2.0-flash-lite', grounding: false },
+      { model: 'gemini-2.0-flash',      ms: 15000 },
+      { model: 'gemini-2.0-flash-lite', ms: 12000 },
+      { model: 'gemini-2.5-flash',      ms: 20000 },
     ];
 
     let text = '';
@@ -180,13 +170,14 @@ export async function POST(request: NextRequest) {
 
     for (const m of MODELS) {
       try {
-        const cfg = m.grounding
-          ? { model: m.model, tools: [{ googleSearch: {} }] as never }
-          : { model: m.model };
-        const model = genAI.getGenerativeModel(cfg);
-        const result = await model.generateContent(prompt);
+        const model = genAI.getGenerativeModel({ model: m.model });
+        const result = await Promise.race([
+          model.generateContent(prompt),
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error('timeout')), m.ms)),
+        ]);
         text = result.response.text().trim();
-        groundingUsed = m.grounding;
+        groundingUsed = false;
         break;
       } catch (e) {
         lastError = e instanceof Error ? e : new Error(String(e));
@@ -195,10 +186,11 @@ export async function POST(request: NextRequest) {
           msg.includes('503') || msg.includes('Service Unavailable') ||
           msg.includes('429') || msg.includes('Too Many') ||
           msg.includes('400') || msg.includes('403') ||
-          msg.includes('404') || msg.includes('no longer available');
+          msg.includes('404') || msg.includes('no longer available') ||
+          msg === 'timeout';
         if (!isRetryable) throw lastError;
-        console.warn(`[GloSource] attempt failed (${m.model} grounding=${m.grounding}):`, msg.slice(0, 120));
-        await new Promise(r => setTimeout(r, 1000));
+        console.warn(`[GloSource] attempt failed (${m.model}):`, msg.slice(0, 120));
+        await new Promise(r => setTimeout(r, 500));
       }
     }
 

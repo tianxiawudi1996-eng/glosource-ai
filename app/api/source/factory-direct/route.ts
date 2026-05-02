@@ -139,28 +139,29 @@ export async function POST(request: NextRequest) {
     let groundingUsed = false;
 
     const MODELS = [
-      { model: 'gemini-2.5-flash', grounding: true },
-      { model: 'gemini-2.5-flash', grounding: false },
-      { model: 'gemini-2.0-flash', grounding: false },
-      { model: 'gemini-2.0-flash-lite', grounding: false },
+      { model: 'gemini-2.0-flash',      ms: 15000 },
+      { model: 'gemini-2.0-flash-lite', ms: 12000 },
+      { model: 'gemini-2.5-flash',      ms: 20000 },
     ];
     for (const m of MODELS) {
       try {
-        const cfg = m.grounding
-          ? { model: m.model, tools: [{ googleSearch: {} }] as never }
-          : { model: m.model };
-        const model = genAI.getGenerativeModel(cfg);
-        const result = await model.generateContent(prompt);
+        const model = genAI.getGenerativeModel({ model: m.model });
+        const result = await Promise.race([
+          model.generateContent(prompt),
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error('timeout')), m.ms)),
+        ]);
         text = result.response.text().trim();
-        groundingUsed = m.grounding;
+        groundingUsed = false;
         break;
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
         const retryable = msg.includes('503') || msg.includes('429') || msg.includes('400') ||
-          msg.includes('403') || msg.includes('404') || msg.includes('no longer available');
+          msg.includes('403') || msg.includes('404') || msg.includes('no longer available') ||
+          msg === 'timeout';
         if (!retryable) throw new Error('1688 소싱 분석 실패: ' + msg.slice(0, 80));
         console.warn('[1688] attempt failed:', m.model, msg.slice(0, 80));
-        await new Promise(r => setTimeout(r, 1000));
+        await new Promise(r => setTimeout(r, 500));
       }
     }
     if (!text) throw new Error('1688 소싱 분석에 실패했습니다. 잠시 후 다시 시도해주세요.');

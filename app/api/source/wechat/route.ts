@@ -169,13 +169,18 @@ function isRateLimitOrUnavailable(e: unknown): boolean {
 }
 
 async function analyzeWithGemini(prompt: string): Promise<string> {
-  for (const modelId of ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-2.0-flash-lite']) {
+  for (const [modelId, ms] of [['gemini-2.0-flash', 15000], ['gemini-2.0-flash-lite', 12000], ['gemini-2.5-flash', 20000]] as [string, number][]) {
     try {
       const model = genAI.getGenerativeModel({ model: modelId });
-      const result = await model.generateContent(prompt);
+      const result = await Promise.race([
+        model.generateContent(prompt),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('timeout')), ms)),
+      ]);
       return result.response.text().trim();
     } catch (e) {
-      if (!isRateLimitOrUnavailable(e)) throw e;
+      const isTimeout = e instanceof Error && e.message === 'timeout';
+      if (!isRateLimitOrUnavailable(e) && !isTimeout) throw e;
       console.warn('[WeChat] model failed:', modelId, (e instanceof Error ? e.message : String(e)).slice(0, 80));
     }
   }
@@ -218,14 +223,19 @@ async function fallbackGeminiGrounding(keyword: string): Promise<WeChatSourcingO
   "disclaimer": "이 정보는 AI가 생성한 WeChat 소싱 가이드입니다. 실제 계정 정보와 다를 수 있으며, 반드시 직접 검색 및 확인 후 거래하세요."
 }`;
 
-  for (const modelId of ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-2.0-flash-lite']) {
+  for (const [modelId, ms] of [['gemini-2.0-flash', 15000], ['gemini-2.0-flash-lite', 12000], ['gemini-2.5-flash', 20000]] as [string, number][]) {
     try {
       const model = genAI.getGenerativeModel({ model: modelId });
-      const result = await model.generateContent(prompt);
+      const result = await Promise.race([
+        model.generateContent(prompt),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('timeout')), ms)),
+      ]);
       const text = result.response.text().trim();
       return parseWeChatJSON(text);
     } catch (e) {
-      if (!isRateLimitOrUnavailable(e)) throw e;
+      const isTimeout = e instanceof Error && e.message === 'timeout';
+      if (!isRateLimitOrUnavailable(e) && !isTimeout) throw e;
       console.warn('[WeChat-intelligence] model failed:', modelId, (e instanceof Error ? e.message : String(e)).slice(0, 80));
     }
   }
