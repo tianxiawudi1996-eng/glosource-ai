@@ -12,6 +12,7 @@ export interface HistoryEntry {
 
 const HISTORY_KEY = 'glosource:history';
 const MAX_ENTRIES = 200;
+const FREE_DAILY_LIMIT = 5;
 
 function getRedis(): Redis | null {
   if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
@@ -57,4 +58,23 @@ export async function kvClearHistory(): Promise<void> {
 
 export function isKvConfigured(): boolean {
   return !!(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN);
+}
+
+// Returns true if the IP is allowed (under free limit), false if blocked.
+// Falls back to allowing if Redis is not configured.
+export async function kvCheckFreeCredit(ip: string): Promise<boolean> {
+  const redis = getRedis();
+  if (!redis) return true; // no Redis → allow (graceful fallback)
+
+  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const key = `glosource:free:${ip}:${today}`;
+  try {
+    const count = await redis.incr(key);
+    if (count === 1) {
+      await redis.expire(key, 86400); // TTL 24h
+    }
+    return count <= FREE_DAILY_LIMIT;
+  } catch {
+    return true; // Redis error → allow
+  }
 }

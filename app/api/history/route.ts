@@ -24,6 +24,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  if (!isDevAuthed(request)) {
+    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  }
   const entry = (await request.json()) as HistoryEntry;
   await kvSaveHistory(entry);
   return NextResponse.json({ success: true });

@@ -3,7 +3,7 @@ import { load } from 'cheerio';
 import { NextRequest, NextResponse } from 'next/server';
 import { isValidLicenseKey, extractLicenseKey } from '../../../lib/licenseAuth';
 import type { WeChatPost, WeChatSourcingOutput } from '../types';
-import { kvSaveHistory } from '../../../lib/kv';
+import { kvSaveHistory, kvCheckFreeCredit } from '../../../lib/kv';
 
 export const maxDuration = 60;
 
@@ -249,6 +249,13 @@ export async function POST(request: NextRequest) {
     const licenseKey = extractLicenseKey(request);
     if (licenseKey !== null && !isValidLicenseKey(licenseKey)) {
       return NextResponse.json({ error: 'subscription_required' }, { status: 401 });
+    }
+    if (licenseKey === null) {
+      const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
+      const allowed = await kvCheckFreeCredit(ip);
+      if (!allowed) {
+        return NextResponse.json({ error: 'subscription_required' }, { status: 401 });
+      }
     }
 
     const body = (await request.json()) as { keyword: string };
