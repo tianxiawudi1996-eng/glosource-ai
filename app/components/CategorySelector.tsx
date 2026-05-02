@@ -60,7 +60,7 @@ export default function CategorySelector({ onSelect, selected }: CategorySelecto
                 <span className="text-sm leading-none">{GROUP_ICONS[group.id]}</span>
                 <span className="text-xs font-bold text-slate-500 tracking-wide">{group.label}</span>
               </div>
-              <div className="grid grid-cols-2 gap-1">
+              <div className="grid grid-cols-1 gap-1 sm:grid-cols-2">
                 {group.codes.map(code => {
                   const meta = L1_META[code];
                   const isOpen = openL1 === code;

@@ -1,11 +1,6 @@
 import { Icon } from './icons';
+import TrustScoreGauge from './TrustScoreGauge';
 import type { Supplier } from '../api/source/types';
-
-function getTrustColor(score: number): string {
-  if (score >= 80) return 'text-emerald-600 bg-emerald-50 border-emerald-200';
-  if (score >= 60) return 'text-amber-600 bg-amber-50 border-amber-200';
-  return 'text-red-600 bg-red-50 border-red-200';
-}
 
 interface SupplierRowProps {
   supplier: Supplier;
@@ -17,7 +12,7 @@ export function SupplierRow({ supplier: s, isSelected, onClick }: SupplierRowPro
   return (
     <button onClick={onClick}
       className={`w-full text-left px-4 py-3 transition-all ${isSelected ? 'bg-slate-50' : 'hover:bg-slate-50/50'}`}>
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex flex-col items-start justify-between gap-3 sm:flex-row">
         <div className="flex items-start gap-3 flex-1 min-w-0">
           <div className="w-7 h-7 rounded-lg bg-[#0D1B2A] text-white flex items-center justify-center text-xs font-black flex-shrink-0 mt-0.5">
             {s.rank}
@@ -33,10 +28,8 @@ export function SupplierRow({ supplier: s, isSelected, onClick }: SupplierRowPro
             )}
           </div>
         </div>
-        <div className="flex-shrink-0 text-right">
-          <span className={`inline-block text-xs font-bold px-2 py-1 rounded-lg border ${getTrustColor(s.trustScore)}`}>
-            {s.trustScore}점
-          </span>
+        <div className="w-full flex-shrink-0 text-left sm:w-auto sm:text-right">
+          <TrustScoreGauge score={s.trustScore} size="sm" />
           <p className="text-xs text-slate-400 mt-1">{s.estimatedPrice}</p>
         </div>
       </div>

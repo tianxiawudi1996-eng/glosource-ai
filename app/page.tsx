@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import CategorySelector from './components/CategorySelector';
+import EmptyState from './components/EmptyState';
+import ExportButton from './components/ExportButton';
 import PaywallModal from './components/PaywallModal';
 import WeChatCard from './components/WeChatCard';
 import { SupplierRow, SupplierDetail } from './components/SupplierCard';
@@ -166,6 +168,7 @@ export default function HomePage() {
   const [loadingMsg, setLoadingMsg] = useState(0);
   const [result, setResult] = useState<SourcingOutput | null>(null);
   const [error, setError] = useState('');
+  const [noResults, setNoResults] = useState(false);
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
   const [companyName, setCompanyName] = useState('');
   const [reportDate, setReportDate] = useState(() => new Date().toISOString().split('T')[0]);
@@ -188,7 +191,7 @@ export default function HomePage() {
 
   const startLoading = () => {
     const msgs = LOADING_MESSAGES[activeSource];
-    setLoading(true); setError(''); setResult(null); setSelectedSupplier(null); setWechatResult(null);
+    setLoading(true); setError(''); setNoResults(false); setResult(null); setSelectedSupplier(null); setWechatResult(null);
     setLoadingMsg(0);
     loadingRef.current = setInterval(() => setLoadingMsg(p => (p + 1) % msgs.length), 3000);
   };
@@ -254,10 +257,20 @@ export default function HomePage() {
       }
       setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
     } catch (e) {
-      setError(e instanceof Error ? e.message : '알 수 없는 오류');
+      const message = e instanceof Error ? e.message : '알 수 없는 오류';
+      if (message.includes('찾지 못했습니다')) {
+        setNoResults(true);
+        setError('');
+      } else {
+        setError(message);
+      }
     } finally {
       stopLoading();
     }
+  };
+
+  const handleRetry = () => {
+    void handleGenerate();
   };
 
   const handleCategorySelect = (cat: Category | null) => {
@@ -325,7 +338,7 @@ export default function HomePage() {
               <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
               1688.com · Alibaba · WeChat公众号 실시간 탐색
             </div>
-            <h1 className="text-4xl md:text-5xl font-black leading-[1.15] tracking-tight mb-5">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-black leading-[1.15] tracking-tight mb-5">
               한국 건설업계 전용<br />
               <span className="text-[#EA580C]">해외 자재 직소싱 AI</span>
             </h1>
@@ -377,7 +390,7 @@ export default function HomePage() {
                   { id: '1688'   as SourceMode, label: '1688 직거래',      badge: '원가 30~50% 절감' },
                   { id: 'wechat' as SourceMode, label: 'WeChat 실시간',    badge: '공장 홍보 직접 탐색' },
                 ] as const).map(tab => (
-                  <button key={tab.id} onClick={() => { setActiveSource(tab.id); setResult(null); setWechatResult(null); setError(''); }}
+                  <button key={tab.id} onClick={() => { setActiveSource(tab.id); setResult(null); setWechatResult(null); setError(''); setNoResults(false); }}
                     className={`flex-1 py-3 px-1 text-center transition-all border-b-2 ${activeSource === tab.id ? 'border-[#EA580C] bg-orange-50/30' : 'border-transparent hover:bg-slate-50'}`}>
                     <p className={`text-xs font-bold ${activeSource === tab.id ? 'text-[#0D1B2A]' : 'text-slate-400'}`}>{tab.label}</p>
                     <p className="text-xs text-slate-400 font-normal mt-0.5 hidden sm:block">{tab.badge}</p>
@@ -426,7 +439,7 @@ export default function HomePage() {
                 )}
 
                 {/* ③ 수량 + 예산 */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
                     <label className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
                       <span className="w-5 h-5 rounded-full bg-[#0D1B2A] text-white flex items-center justify-center text-xs font-black">2</span>
@@ -470,10 +483,10 @@ export default function HomePage() {
                       <span className="w-5 h-5 rounded-full bg-[#0D1B2A] text-white flex items-center justify-center text-xs font-black">4</span>
                       원산지 선호
                     </label>
-                    <div className="grid grid-cols-5 gap-1.5">
+                    <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-5">
                       {COUNTRY_OPTIONS.map(c => (
                         <button key={c.value} onClick={() => setForm({ ...form, countryPreference: c.value })}
-                          className={`py-2.5 px-2 rounded-xl border text-center transition-all ${form.countryPreference === c.value ? 'bg-[#0D1B2A] border-[#0D1B2A] text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`}>
+                          className={`min-h-[44px] py-2.5 px-2 rounded-xl border text-center transition-all ${form.countryPreference === c.value ? 'bg-[#0D1B2A] border-[#0D1B2A] text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`}>
                           <p className="text-xs font-semibold">{c.label}</p>
                           <p className={`text-xs mt-0.5 ${form.countryPreference === c.value ? 'text-slate-300' : 'text-slate-400'}`}>{c.desc}</p>
                         </button>
@@ -489,10 +502,10 @@ export default function HomePage() {
                       <span className="w-5 h-5 rounded-full bg-[#0D1B2A] text-white flex items-center justify-center text-xs font-black">5</span>
                       발주 주기
                     </label>
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                       {FREQUENCY_OPTIONS.map(f => (
                         <button key={f.value} onClick={() => setForm({ ...form, orderFrequency: f.value })}
-                          className={`py-3 px-3 rounded-xl border text-center transition-all ${form.orderFrequency === f.value ? 'bg-[#0D1B2A] border-[#0D1B2A] text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`}>
+                          className={`min-h-[44px] py-3 px-3 rounded-xl border text-center transition-all ${form.orderFrequency === f.value ? 'bg-[#0D1B2A] border-[#0D1B2A] text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`}>
                           <p className="text-xs font-semibold">{f.label}</p>
                           <p className={`text-xs mt-0.5 ${form.orderFrequency === f.value ? 'text-slate-300' : 'text-slate-400'}`}>{f.desc}</p>
                         </button>
@@ -501,15 +514,8 @@ export default function HomePage() {
                   </div>
                 )}
 
-                {error && (
-                  <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
-                    <Icon.AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0" />
-                    <p className="text-red-700 text-sm">{error}</p>
-                  </div>
-                )}
-
                 <button onClick={handleGenerate} disabled={loading}
-                  className="w-full py-4 rounded-xl font-bold text-sm transition-all bg-[#EA580C] text-white hover:bg-[#DC4C00] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm">
+                  className="w-full min-h-[44px] py-4 rounded-xl font-bold text-sm transition-all bg-[#EA580C] text-white hover:bg-[#DC4C00] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm">
                   {loading
                     ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />{LOADING_MESSAGES[activeSource][loadingMsg]}</>
                     : credits > 0
@@ -556,11 +562,15 @@ export default function HomePage() {
                 </div>
               )}
 
-              {result ? (
+              {error && !loading ? (
+                <EmptyState type="error" errorMessage={error} onRetry={handleRetry} />
+              ) : noResults && !loading ? (
+                <EmptyState type="no_results" />
+              ) : result ? (
                 <div className="space-y-4">
                   {/* 상태 + 그라운딩 뱃지 */}
                   <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-2">
                       <div className="flex items-center gap-2">
                         <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center">
                           <Icon.Check className="w-3.5 h-3.5 text-white" />
@@ -570,6 +580,7 @@ export default function HomePage() {
                       <span className={`text-xs px-2.5 py-1 rounded-full font-medium border ${result.groundingUsed ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-50 text-slate-500 border-slate-200'}`}>
                         {result.groundingUsed ? '실시간 웹 검색 기반' : 'AI 지식 기반 분석'}
                       </span>
+                      <ExportButton suppliers={result.suppliers} keyword={form.productDescription} />
                     </div>
                     <p className="text-xs text-slate-500 bg-blue-50 border border-blue-100 rounded-lg px-3 py-2">{result.recommendation}</p>
                   </div>
@@ -580,16 +591,22 @@ export default function HomePage() {
                       <Icon.Globe className="w-4 h-4 text-slate-400" />
                       <p className="text-sm font-bold text-[#0D1B2A]">추천 공급자 {result.suppliers.length}개</p>
                     </div>
-                    <div className="divide-y divide-slate-100">
-                      {result.suppliers.map(s => (
-                        <SupplierRow
-                          key={s.rank}
-                          supplier={s}
-                          isSelected={selectedSupplier?.rank === s.rank}
-                          onClick={() => setSelectedSupplier(s)}
-                        />
-                      ))}
-                    </div>
+                    {result.suppliers.length > 0 ? (
+                      <div className="divide-y divide-slate-100">
+                        {result.suppliers.map(s => (
+                          <SupplierRow
+                            key={s.rank}
+                            supplier={s}
+                            isSelected={selectedSupplier?.rank === s.rank}
+                            onClick={() => setSelectedSupplier(s)}
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="p-4">
+                        <EmptyState type="no_results" />
+                      </div>
+                    )}
                   </div>
 
                   {/* 선택 공급자 상세 */}
@@ -625,50 +642,7 @@ export default function HomePage() {
                   </div>
                 </div>
               ) : (
-                /* 빈 상태 */
-                !wechatResult && (
-                  <div className="bg-white rounded-2xl border border-slate-200 shadow-sm h-full min-h-[480px] flex items-center justify-center">
-                    <div className="text-center max-w-sm px-8">
-                      <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                        {activeSource === 'wechat' ? <Icon.Globe className="w-8 h-8 text-emerald-400" /> : <Icon.Search className="w-8 h-8 text-slate-400" />}
-                      </div>
-                      <h3 className="font-bold text-[#0D1B2A] text-lg mb-2">
-                        {activeSource === 'ai' && '소싱 조건을 설정하세요'}
-                        {activeSource === '1688' && '1688 공장 직거래 탐색'}
-                        {activeSource === 'wechat' && 'WeChat 공장 정보 탐색'}
-                      </h3>
-                      <p className="text-slate-400 text-sm leading-relaxed mb-6">
-                        {activeSource === 'ai' && '제품명과 수량 입력 후 분석 버튼을 누르면 AI가 1688·Alibaba·WeChat에서 공급자를 탐색합니다'}
-                        {activeSource === '1688' && '제품명과 수량을 입력하면 1688.com 공장 직거래 공급자를 탐색합니다. Alibaba 대비 30~50% 저렴한 원가 데이터를 제공합니다'}
-                        {activeSource === 'wechat' && '제품명을 입력하면 WeChat 공식계정에서 공장 홍보 담당자가 직접 올린 실시간 가격·재고·연락처 정보를 탐색합니다'}
-                      </p>
-                      {activeSource === '1688' && (
-                        <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-left">
-                          <p className="text-xs font-bold text-emerald-700 mb-2">1688 직거래 강점</p>
-                          <ul className="space-y-1">
-                            {['중국 내수 원가 — 수출 마진 없음', '诚信通 인증으로 공장 신뢰도 검증', 'OEM/ODM 소량 발주 가능', 'CNY + USD 이중 가격 표시'].map(t => (
-                              <li key={t} className="flex items-center gap-1.5 text-xs text-emerald-700">
-                                <Icon.Check className="w-3 h-3 flex-shrink-0" />{t}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                      {activeSource === 'wechat' && (
-                        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-left">
-                          <p className="text-xs font-bold text-blue-700 mb-2">WeChat 탐색 강점</p>
-                          <ul className="space-y-1">
-                            {['공장 홍보 직원이 올린 실시간 정보', 'Alibaba에 없는 소규모 공장 발굴', '직접 연락처 힌트 추출', '계정 유형 자동 판별 (공장/무역상)'].map(t => (
-                              <li key={t} className="flex items-center gap-1.5 text-xs text-blue-700">
-                                <Icon.Check className="w-3 h-3 flex-shrink-0" />{t}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )
+                !wechatResult && <EmptyState type="initial" />
               )}
             </div>
           </div>
