@@ -266,7 +266,7 @@ export default function DevPage() {
             {tab === 'history' && (
               <div className="text-center py-4">
                 <p className="text-xs text-gray-400">메인 페이지 검색 기록이<br/>자동으로 여기에 쌓입니다.</p>
-                <button onClick={loadHistory} className="mt-3 text-xs bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-lg transition-colors">
+                <button onClick={() => loadHistory()} className="mt-3 text-xs bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-lg transition-colors">
                   🔄 새로고침
                 </button>
               </div>
