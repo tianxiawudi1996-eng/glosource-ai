@@ -4,6 +4,7 @@ import { isValidLicenseKey, extractLicenseKey } from '../../lib/licenseAuth';
 import { getCategoryByCode } from '../../lib/categories';
 import type { Category } from '../../lib/categories';
 import type { SourcingRequest, SourcingOutput } from './types';
+import { kvSaveHistory } from '../../lib/kv';
 
 export const maxDuration = 60;
 
@@ -221,6 +222,17 @@ export async function POST(request: NextRequest) {
     }
 
     const output: SourcingOutput = { ...parsed, groundingUsed };
+
+    // Fire-and-forget KV save (don't block response)
+    kvSaveHistory({
+      id: `${Date.now()}-ai`,
+      timestamp: new Date().toISOString(),
+      source: 'ai',
+      query: { product: req.productDescription, quantity: req.quantity, budget: req.budget ?? '' },
+      status: 200,
+      supplierCount: output.suppliers?.length ?? 0,
+      raw: output,
+    }).catch(() => {});
 
     return NextResponse.json({ success: true, data: output });
   } catch (error) {

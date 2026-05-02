@@ -3,6 +3,7 @@ import { load } from 'cheerio';
 import { NextRequest, NextResponse } from 'next/server';
 import { isValidLicenseKey, extractLicenseKey } from '../../../lib/licenseAuth';
 import type { WeChatPost, WeChatSourcingOutput } from '../types';
+import { kvSaveHistory } from '../../../lib/kv';
 
 export const maxDuration = 60;
 
@@ -303,6 +304,16 @@ export async function POST(request: NextRequest) {
     if (translatedKeyword !== keyword) {
       output.translatedKeyword = translatedKeyword;
     }
+
+    kvSaveHistory({
+      id: `${Date.now()}-wechat`,
+      timestamp: new Date().toISOString(),
+      source: 'wechat',
+      query: { keyword },
+      status: 200,
+      supplierCount: output.posts?.length ?? 0,
+      raw: output,
+    }).catch(() => {});
 
     return NextResponse.json({ success: true, data: output });
   } catch (error) {

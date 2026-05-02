@@ -62,20 +62,40 @@ export default function DevPage() {
     }
   }, []);
 
-  const loadHistory = () => {
+  const parseItems = (items: ApiResult[]): ApiResult[] =>
+    items.map(item => {
+      const data = (item.raw as Record<string, unknown>)?.data as Record<string, unknown> | undefined;
+      return {
+        ...item,
+        suppliers: (data?.suppliers ?? (item.raw as Record<string, unknown>)?.suppliers) as Supplier[] | undefined,
+        groundingUsed: data?.groundingUsed as boolean | undefined,
+        error: (item.raw as Record<string, unknown>)?.error as string | undefined,
+      };
+    });
+
+  const loadHistory = async () => {
+    // 1) Try server-side KV history first
+    try {
+      const res = await fetch('/api/history', {
+        headers: { 'x-dev-key': DEV_PASSWORD },
+      });
+      if (res.ok) {
+        const json = await res.json() as { success: boolean; data: ApiResult[]; source: string };
+        if (json.success && json.data.length > 0) {
+          const parsed = parseItems(json.data);
+          setResults(parsed);
+          if (parsed.length > 0) setExpandedIdx(0);
+          return;
+        }
+      }
+    } catch { /* KV not configured — fall through */ }
+
+    // 2) Fallback: localStorage
     try {
       const raw = localStorage.getItem(HISTORY_KEY);
       if (!raw) return;
       const items = JSON.parse(raw) as ApiResult[];
-      const parsed = items.map(item => {
-        const data = (item.raw as Record<string, unknown>)?.data as Record<string, unknown> | undefined;
-        return {
-          ...item,
-          suppliers: (data?.suppliers ?? (item.raw as Record<string, unknown>)?.suppliers) as Supplier[] | undefined,
-          groundingUsed: data?.groundingUsed as boolean | undefined,
-          error: (item.raw as Record<string, unknown>)?.error as string | undefined,
-        };
-      });
+      const parsed = parseItems(items);
       setResults(parsed);
       if (parsed.length > 0) setExpandedIdx(0);
     } catch { /* ignore */ }
@@ -198,7 +218,11 @@ export default function DevPage() {
         <div className="flex items-center gap-4">
           {results.length > 0 && (
             <button
-              onClick={() => { localStorage.removeItem(HISTORY_KEY); setResults([]); }}
+              onClick={async () => {
+                localStorage.removeItem(HISTORY_KEY);
+                await fetch('/api/history', { method: 'DELETE', headers: { 'x-dev-key': DEV_PASSWORD } }).catch(() => {});
+                setResults([]);
+              }}
               className="text-xs text-red-400 hover:text-red-300 transition-colors"
             >
               기록 삭제
