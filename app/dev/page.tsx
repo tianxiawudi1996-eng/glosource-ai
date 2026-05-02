@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 
 const DEV_PASSWORD = 'glosource-dev-2026';
 const SESSION_KEY = 'glosource_dev_auth';
+const HISTORY_KEY = 'glosource_search_history';
 
 type SourceMode = 'ai' | '1688' | 'wechat';
 
@@ -52,15 +53,39 @@ export default function DevPage() {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<ApiResult[]>([]);
   const [expandedIdx, setExpandedIdx] = useState<number | null>(null);
+  const [tab, setTab] = useState<'history' | 'test'>('history');
 
   useEffect(() => {
-    if (sessionStorage.getItem(SESSION_KEY) === 'true') setAuthed(true);
+    if (sessionStorage.getItem(SESSION_KEY) === 'true') {
+      setAuthed(true);
+      loadHistory();
+    }
   }, []);
+
+  const loadHistory = () => {
+    try {
+      const raw = localStorage.getItem(HISTORY_KEY);
+      if (!raw) return;
+      const items = JSON.parse(raw) as ApiResult[];
+      const parsed = items.map(item => {
+        const data = (item.raw as Record<string, unknown>)?.data as Record<string, unknown> | undefined;
+        return {
+          ...item,
+          suppliers: (data?.suppliers ?? (item.raw as Record<string, unknown>)?.suppliers) as Supplier[] | undefined,
+          groundingUsed: data?.groundingUsed as boolean | undefined,
+          error: (item.raw as Record<string, unknown>)?.error as string | undefined,
+        };
+      });
+      setResults(parsed);
+      if (parsed.length > 0) setExpandedIdx(0);
+    } catch { /* ignore */ }
+  };
 
   const handleLogin = () => {
     if (pwInput === DEV_PASSWORD) {
       sessionStorage.setItem(SESSION_KEY, 'true');
       setAuthed(true);
+      loadHistory();
     } else {
       setPwError('비밀번호가 틀렸습니다.');
     }
@@ -114,6 +139,7 @@ export default function DevPage() {
 
       setResults(prev => [entry, ...prev]);
       setExpandedIdx(0);
+      setTab('history');
     } catch (e) {
       const entry: ApiResult = {
         timestamp,
@@ -125,6 +151,7 @@ export default function DevPage() {
       };
       setResults(prev => [entry, ...prev]);
       setExpandedIdx(0);
+      setTab('history');
     } finally {
       setLoading(false);
     }
@@ -168,15 +195,52 @@ export default function DevPage() {
           <span className="font-bold text-white">GloSource Dev Console</span>
           <span className="text-xs bg-blue-900 text-blue-300 px-2 py-0.5 rounded-full">DEVELOPER ONLY</span>
         </div>
-        <button onClick={handleLogout} className="text-xs text-gray-400 hover:text-white transition-colors">
-          로그아웃
-        </button>
+        <div className="flex items-center gap-4">
+          {results.length > 0 && (
+            <button
+              onClick={() => { localStorage.removeItem(HISTORY_KEY); setResults([]); }}
+              className="text-xs text-red-400 hover:text-red-300 transition-colors"
+            >
+              기록 삭제
+            </button>
+          )}
+          <button onClick={handleLogout} className="text-xs text-gray-400 hover:text-white transition-colors">
+            로그아웃
+          </button>
+        </div>
       </div>
 
       <div className="max-w-6xl mx-auto px-6 py-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Query Panel */}
         <div className="lg:col-span-1">
           <div className="bg-gray-900 border border-gray-700 rounded-xl p-5 sticky top-6">
+            {/* Tab */}
+            <div className="grid grid-cols-2 gap-1 mb-4">
+              <button
+                onClick={() => setTab('history')}
+                className={`py-1.5 rounded-lg text-xs font-semibold transition-colors ${tab === 'history' ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}
+              >
+                📋 검색 기록 {results.length > 0 && `(${results.length})`}
+              </button>
+              <button
+                onClick={() => setTab('test')}
+                className={`py-1.5 rounded-lg text-xs font-semibold transition-colors ${tab === 'test' ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}
+              >
+                ▶ 새 테스트
+              </button>
+            </div>
+
+            {tab === 'history' && (
+              <div className="text-center py-4">
+                <p className="text-xs text-gray-400">메인 페이지 검색 기록이<br/>자동으로 여기에 쌓입니다.</p>
+                <button onClick={loadHistory} className="mt-3 text-xs bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-lg transition-colors">
+                  🔄 새로고침
+                </button>
+              </div>
+            )}
+
+            {tab === 'test' && (
+              <>
             <h2 className="text-sm font-bold text-gray-300 mb-4 uppercase tracking-wide">API 테스트</h2>
 
             {/* Source */}
@@ -234,6 +298,8 @@ export default function DevPage() {
             {/* History count */}
             {results.length > 0 && (
               <p className="text-xs text-gray-500 text-center mt-3">{results.length}개 결과 기록됨</p>
+            )}
+              </>
             )}
           </div>
         </div>

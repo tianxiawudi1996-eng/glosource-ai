@@ -18,6 +18,22 @@ type SourceMode = 'ai' | '1688' | 'wechat';
 const FREE_CREDITS = 9999; // test mode: unlimited
 const CREDITS_KEY = 'glosource_credits_v1';
 const LICENSE_KEY_STORAGE = 'glosource_license_key';
+const HISTORY_KEY = 'glosource_search_history';
+const HISTORY_MAX = 50;
+
+function saveToHistory(entry: {
+  timestamp: string;
+  source: string;
+  query: Record<string, string>;
+  status: number;
+  raw: unknown;
+}) {
+  try {
+    const prev = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]') as unknown[];
+    const next = [entry, ...prev].slice(0, HISTORY_MAX);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(next));
+  } catch { /* storage full — ignore */ }
+}
 
 const COUNTRY_OPTIONS: { value: CountryPreference; label: string; desc: string }[] = [
   { value: 'china',         label: '중국',     desc: '최대 공급망' },
@@ -214,6 +230,7 @@ export default function HomePage() {
         if (json.error === 'subscription_required') { stopLoading(); setShowPaywall(true); return; }
         if (!res.ok) throw new Error(json.error || '오류가 발생했습니다.');
         setWechatResult(json.data as WeChatSourcingOutput);
+        saveToHistory({ timestamp: new Date().toISOString(), source: 'wechat', query: { keyword: form.productDescription }, status: res.status, raw: json });
       } else {
         const apiPath = activeSource === '1688' ? '/api/source/factory-direct' : '/api/source';
         const res = await fetch(apiPath, {
@@ -227,6 +244,7 @@ export default function HomePage() {
         const data = json.data as SourcingOutput;
         setResult(data);
         setSelectedSupplier(data.suppliers[0] ?? null);
+        saveToHistory({ timestamp: new Date().toISOString(), source: activeSource, query: { productDescription: form.productDescription, quantity: form.quantity }, status: res.status, raw: json });
       }
 
       if (!licenseKey) {
