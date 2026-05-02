@@ -197,6 +197,12 @@ export default function HomePage() {
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
     if (licenseKey) headers['X-License-Key'] = licenseKey;
 
+    const safeJson = async (res: Response) => {
+      const text = await res.text();
+      try { return JSON.parse(text); }
+      catch { throw new Error(`서버 오류 (${res.status}): ${text.slice(0, 120)}`); }
+    };
+
     try {
       if (activeSource === 'wechat') {
         const res = await fetch('/api/source/wechat', {
@@ -204,7 +210,7 @@ export default function HomePage() {
           headers,
           body: JSON.stringify({ keyword: form.productDescription }),
         });
-        const json = await res.json();
+        const json = await safeJson(res);
         if (json.error === 'subscription_required') { stopLoading(); setShowPaywall(true); return; }
         if (!res.ok) throw new Error(json.error || '오류가 발생했습니다.');
         setWechatResult(json.data as WeChatSourcingOutput);
@@ -215,7 +221,7 @@ export default function HomePage() {
           headers,
           body: JSON.stringify(form),
         });
-        const json = await res.json();
+        const json = await safeJson(res);
         if (json.error === 'subscription_required') { stopLoading(); setShowPaywall(true); return; }
         if (!res.ok) throw new Error(json.error || '오류가 발생했습니다.');
         const data = json.data as SourcingOutput;
