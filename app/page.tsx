@@ -15,7 +15,7 @@ type SourceMode = 'ai' | '1688' | 'wechat';
 /* ══════════════════════════════════════════════
    상수
 ══════════════════════════════════════════════ */
-const FREE_CREDITS = 9999; // test mode: unlimited
+const FREE_CREDITS = 5; // beta: 5 free analyses per user
 const CREDITS_KEY = 'glosource_credits_v1';
 const LICENSE_KEY_STORAGE = 'glosource_license_key';
 const HISTORY_KEY = 'glosource_search_history';
@@ -146,7 +146,7 @@ function generateReportHTML(result: SourcingOutput, req: SourcingRequest, compan
     </div>
     <div class="section"><div class="sh">공급자 비교표</div>${suppliersTable}</div>
     <div class="section"><div class="sh">AI 최종 추천</div><div class="rec">${result.recommendation}</div></div>
-    <p class="dis">${result.disclaimer} | GloSource AI · visionlab@seowonenc.co.kr</p>
+    <p class="dis">${result.disclaimer} | GloSource AI · like2buyglobal@gmail.com</p>
     <script>window.onload=()=>window.print();</script>
   </body></html>`;
 }
@@ -326,12 +326,13 @@ export default function HomePage() {
               1688.com · Alibaba · WeChat公众号 실시간 탐색
             </div>
             <h1 className="text-4xl md:text-5xl font-black leading-[1.15] tracking-tight mb-5">
-              해외 공장, 믿고<br />
-              <span className="text-[#EA580C]">직발주하세요.</span>
+              한국 건설업계 전용<br />
+              <span className="text-[#EA580C]">해외 자재 직소싱 AI</span>
             </h1>
             <p className="text-slate-400 text-base md:text-lg leading-relaxed mb-8 max-w-xl">
-              AI가 <strong className="text-white">1688 공장직거래</strong>·Alibaba·<strong className="text-white">WeChat 실시간 홍보</strong>에서 공급자를 탐색하고
-              신뢰도를 분석합니다. RFQ 이메일까지 자동 생성.
+              <strong className="text-white">기존 거래처를 끊지 마세요.</strong> GloSource는 협상 도구입니다.
+              KS인증·관세·세금계산서·통관까지 한국 건설사가 필요한 모든 것을 자동화합니다.
+              <strong className="text-white"> 5위권 골조 회사 IT 총괄 출신</strong>이 만들었습니다.
             </p>
             <div className="flex flex-wrap gap-3 mb-12">
               {[
@@ -686,21 +687,21 @@ export default function HomePage() {
             {[
               {
                 name: '스타터', tag: '소규모 발주',
-                price: '10만원', unit: '/ 월',
-                per: '분석 10회/월',
-                features: ['공급자 탐색 3~5개', 'AI 신뢰도 분석', 'RFQ 이메일 자동화', 'PDF 리포트 저장'],
+                price: '19만원', unit: '/ 월',
+                per: '분석 20회/월',
+                features: ['공급자 탐색 3~5개', 'KS인증 자동 매칭', '도착가 자동 계산', 'RFQ 이메일 자동화', 'PDF 리포트 저장'],
                 highlight: false,
               }, {
                 name: '프로', tag: '가장 인기',
-                price: '30만원', unit: '/ 월',
+                price: '49만원', unit: '/ 월',
                 per: '무제한 분석',
-                features: ['무제한 소싱 분석', '이력 관리 30일', 'RFQ 이메일 (영·중·한)', '우선 이메일 지원', '세금계산서 발행'],
+                features: ['무제한 소싱 분석', 'KS인증·관세 자동 매칭', '세금계산서 발행 결제', '한국어 의사결정 PDF', '한국어 AS 채널'],
                 highlight: true,
               }, {
                 name: '팀', tag: '기업용',
-                price: '70만원', unit: '/ 월',
+                price: '99만원', unit: '/ 월',
                 per: '5계정 공유',
-                features: ['5계정 공유', '현장별 분류 관리', '전담 전화·카카오 지원', '세금계산서 발행'],
+                features: ['5계정 공유', '현장별 분류 관리', '전담 전화·카카오 지원', '하자 분쟁 중재', '세금계산서 발행'],
                 highlight: false,
               },
             ].map(plan => (
@@ -729,14 +730,14 @@ export default function HomePage() {
                     </li>
                   ))}
                 </ul>
-                <a href={`mailto:visionlab@seowonenc.co.kr?subject=GloSource AI ${plan.name} 플랜 문의`}
+                <a href={`mailto:like2buyglobal@gmail.com?subject=GloSource AI ${plan.name} 플랜 문의`}
                   className={`block w-full text-center py-3 rounded-xl font-semibold text-sm transition-all ${plan.highlight ? 'bg-white text-[#0D1B2A] hover:bg-slate-100' : 'bg-[#0D1B2A] text-white hover:bg-slate-800'}`}>
                   도입 문의하기
                 </a>
               </div>
             ))}
           </div>
-          <p className="text-center text-xs text-slate-400 mt-8">세금계산서 발행 가능 · 문의: visionlab@seowonenc.co.kr · 평일 09:00–18:00</p>
+          <p className="text-center text-xs text-slate-400 mt-8">세금계산서 발행 가능 · 문의: like2buyglobal@gmail.com · 평일 09:00–18:00</p>
         </div>
       </section>
 
@@ -751,11 +752,11 @@ export default function HomePage() {
                 </div>
                 <span className="font-bold text-white">GloSource AI</span>
               </div>
-              <p className="text-xs text-slate-400 max-w-xs">한국 제조·건설업체를 위한 AI 글로벌 소싱 에이전트. 해외 공장 직발주를 안전하게 시작하세요.</p>
+              <p className="text-xs text-slate-400 max-w-xs">한국 건설업계 전용 해외 자재 직소싱 AI. KS인증·관세·세금계산서까지 자동화합니다.</p>
             </div>
             <div className="text-right">
               <p className="text-xs text-slate-400">© 2026 GloSource AI. All rights reserved.</p>
-              <p className="text-xs text-slate-500 mt-1">visionlab@seowonenc.co.kr</p>
+              <p className="text-xs text-slate-500 mt-1">like2buyglobal@gmail.com</p>
             </div>
           </div>
         </div>
