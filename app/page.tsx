@@ -609,7 +609,7 @@ export default function HomePage() {
                     <div className="grid grid-cols-2 gap-3 mb-3">
                       <div>
                         <label className="block text-xs font-medium text-slate-500 mb-1.5">회사명</label>
-                        <input type="text" placeholder="(주)서원토건" value={companyName} onChange={e => setCompanyName(e.target.value)}
+                        <input type="text" placeholder="(주)한국건설" value={companyName} onChange={e => setCompanyName(e.target.value)}
                           className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 focus:border-[#0D1B2A] focus:outline-none" />
                       </div>
                       <div>
