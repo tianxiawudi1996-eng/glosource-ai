@@ -141,7 +141,8 @@ export async function POST(request: NextRequest) {
     const MODELS = [
       { model: 'gemini-2.5-flash', grounding: true },
       { model: 'gemini-2.5-flash', grounding: false },
-      { model: 'gemini-1.5-flash', grounding: false },
+      { model: 'gemini-2.0-flash', grounding: false },
+      { model: 'gemini-2.0-flash-lite', grounding: false },
     ];
     for (const m of MODELS) {
       try {

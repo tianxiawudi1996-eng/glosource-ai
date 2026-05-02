@@ -47,7 +47,7 @@ async function translateKeywordToZh(keyword: string): Promise<string> {
 "${keyword}"
 Reply with only the Chinese translation.`;
 
-  for (const modelId of ['gemini-2.5-flash', 'gemini-1.5-flash']) {
+  for (const modelId of ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-2.0-flash-lite']) {
     try {
       const model = genAI.getGenerativeModel({ model: modelId });
       const result = await model.generateContent(prompt);
@@ -78,20 +78,40 @@ async function scrapeSogouWeChat(keyword: string): Promise<SogouArticle[]> {
   const $ = load(html);
   const articles: SogouArticle[] = [];
 
-  $('ul.news-list > li').each((_, el) => {
+  // Sogou changes its HTML periodically — try multiple selector patterns
+  $('ul.news-list li, .news-list li').each((_, el) => {
     const $el = $(el);
-    const title = $el.find('h3 a').text().trim() || $el.find('.txt-box h3').text().trim();
-    const accountName = $el.find('.account').text().trim() || $el.find('.s-p').text().trim();
-    const publishDate = $el.find('.s-p span').last().text().trim() ||
-                        $el.find('span.s-p').text().trim();
-    const href = $el.find('h3 a').attr('href') || $el.find('.txt-box h3 a').attr('href') || '';
-    const snippet = $el.find('p.txt-info').text().trim() || $el.find('.txt-box p').text().trim();
+
+    // Find title link: h3>a is standard, but may be .txt-box a[href] or data-linktype attr
+    const $h3a = $el.find('h3 a').first();
+    const $txtA = $el.find('.txt-box a[href]').first();
+    const $anyA = $el.find('a[href]').first();
+    const $titleLink = $h3a.length ? $h3a : $txtA.length ? $txtA : $anyA;
+
+    const title = $titleLink.text().trim()
+      || $el.find('h3').text().trim()
+      || $el.find('.txt-box').clone().find('p,span').remove().end().text().trim();
+
+    const href = $titleLink.attr('href') || '';
+
+    const accountName = $el.find('.account').text().trim()
+      || $el.find('[class*="account"]').text().trim()
+      || $el.find('.s-p a').first().text().trim()
+      || '미확인 계정';
+
+    const publishDate = $el.find('.s-p span').last().text().trim()
+      || $el.find('.s-p').text().replace(accountName, '').trim()
+      || '날짜 미확인';
+
+    const snippet = $el.find('p.txt-info').text().trim()
+      || $el.find('.txt-box p').text().trim()
+      || '';
 
     if (title && href) {
       articles.push({
         title,
-        accountName: accountName || '미확인 계정',
-        publishDate: publishDate || '날짜 미확인',
+        accountName,
+        publishDate,
         url: href.startsWith('http') ? href : `https://weixin.sogou.com${href}`,
         snippet,
       });
@@ -142,16 +162,21 @@ ${articleList}
 }`;
 }
 
+function isRateLimitOrUnavailable(e: unknown): boolean {
+  const msg = e instanceof Error ? e.message : String(e);
+  return msg.includes('404') || msg.includes('429') || msg.includes('503') ||
+    msg.includes('no longer available') || msg.includes('Resource exhausted');
+}
+
 async function analyzeWithGemini(prompt: string): Promise<string> {
-  for (const modelId of ['gemini-2.5-flash', 'gemini-1.5-flash']) {
+  for (const modelId of ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-2.0-flash-lite']) {
     try {
       const model = genAI.getGenerativeModel({ model: modelId });
       const result = await model.generateContent(prompt);
       return result.response.text().trim();
     } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      if (!msg.includes('404') && !msg.includes('no longer available') && !msg.includes('503')) throw e;
-      console.warn('[WeChat] model failed:', modelId, msg.slice(0, 80));
+      if (!isRateLimitOrUnavailable(e)) throw e;
+      console.warn('[WeChat] model failed:', modelId, (e instanceof Error ? e.message : String(e)).slice(0, 80));
     }
   }
   throw new Error('AI 분석 모델 응답 실패');
@@ -193,16 +218,15 @@ async function fallbackGeminiGrounding(keyword: string): Promise<WeChatSourcingO
   "disclaimer": "이 정보는 AI가 생성한 WeChat 소싱 가이드입니다. 실제 계정 정보와 다를 수 있으며, 반드시 직접 검색 및 확인 후 거래하세요."
 }`;
 
-  for (const modelId of ['gemini-2.5-flash', 'gemini-1.5-flash']) {
+  for (const modelId of ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-2.0-flash-lite']) {
     try {
       const model = genAI.getGenerativeModel({ model: modelId });
       const result = await model.generateContent(prompt);
       const text = result.response.text().trim();
       return parseWeChatJSON(text);
     } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      if (!msg.includes('404') && !msg.includes('no longer available') && !msg.includes('503')) throw e;
-      console.warn('[WeChat-intelligence] model failed:', modelId, msg.slice(0, 80));
+      if (!isRateLimitOrUnavailable(e)) throw e;
+      console.warn('[WeChat-intelligence] model failed:', modelId, (e instanceof Error ? e.message : String(e)).slice(0, 80));
     }
   }
   throw new Error('WeChat 소싱 인텔리전스 생성 실패');

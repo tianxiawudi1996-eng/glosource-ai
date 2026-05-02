@@ -166,11 +166,12 @@ export async function POST(request: NextRequest) {
     const categoryContext = req.categoryCode ? getCategoryByCode(req.categoryCode) : undefined;
     const prompt = buildPrompt(req, categoryContext);
 
-    // 전략: 1차(2.5-flash + grounding) → 2차(2.5-flash no-grounding) → 3차(1.5-flash)
+    // 전략: 1차(2.5-flash + grounding) → 2차(2.5-flash no-grounding) → 3차(2.0-flash) → 4차(2.0-flash-lite)
     const MODELS = [
       { model: 'gemini-2.5-flash', grounding: true },
       { model: 'gemini-2.5-flash', grounding: false },
-      { model: 'gemini-1.5-flash', grounding: false },
+      { model: 'gemini-2.0-flash', grounding: false },
+      { model: 'gemini-2.0-flash-lite', grounding: false },
     ];
 
     let text = '';

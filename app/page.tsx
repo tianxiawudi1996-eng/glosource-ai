@@ -15,7 +15,7 @@ type SourceMode = 'ai' | '1688' | 'wechat';
 /* ══════════════════════════════════════════════
    상수
 ══════════════════════════════════════════════ */
-const FREE_CREDITS = 1;
+const FREE_CREDITS = 9999; // test mode: unlimited
 const CREDITS_KEY = 'glosource_credits_v1';
 const LICENSE_KEY_STORAGE = 'glosource_license_key';
 
@@ -163,9 +163,9 @@ export default function HomePage() {
   const loadingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    const s = localStorage.getItem(CREDITS_KEY);
-    if (s === null) localStorage.setItem(CREDITS_KEY, String(FREE_CREDITS));
-    else setCredits(parseInt(s, 10));
+    // test mode: always reset to unlimited
+    localStorage.setItem(CREDITS_KEY, String(FREE_CREDITS));
+    setCredits(FREE_CREDITS);
     const lk = localStorage.getItem(LICENSE_KEY_STORAGE);
     if (lk) setLicenseKey(lk);
   }, []);
