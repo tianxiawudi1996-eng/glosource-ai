@@ -4,10 +4,10 @@ import type { HistoryEntry } from '../../lib/kv';
 
 export const maxDuration = 10;
 
-const DEV_KEY = 'glosource-dev-2026';
-
 function isDevAuthed(request: NextRequest): boolean {
-  return request.headers.get('x-dev-key') === DEV_KEY;
+  const secret = process.env.DEV_SECRET_KEY;
+  if (!secret) return false;
+  return request.headers.get('x-dev-key') === secret;
 }
 
 export async function GET(request: NextRequest) {
