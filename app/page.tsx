@@ -199,9 +199,13 @@ export default function HomePage() {
   const loadingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    // test mode: always reset to unlimited
-    localStorage.setItem(CREDITS_KEY, String(FREE_CREDITS));
-    setCredits(FREE_CREDITS);
+    const stored = localStorage.getItem(CREDITS_KEY);
+    if (stored === null) {
+      localStorage.setItem(CREDITS_KEY, String(FREE_CREDITS));
+      setCredits(FREE_CREDITS);
+    } else {
+      setCredits(Number(stored));
+    }
     const lk = localStorage.getItem(LICENSE_KEY_STORAGE);
     if (lk) setLicenseKey(lk);
   }, []);

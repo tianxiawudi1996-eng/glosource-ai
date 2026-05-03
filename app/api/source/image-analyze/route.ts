@@ -1,5 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
+import { isValidLicenseKey, extractLicenseKey } from '../../../lib/licenseAuth';
+import { kvCheckFreeCredit } from '../../../lib/kv';
 
 export const maxDuration = 30;
 
@@ -20,6 +22,18 @@ const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
 
 export async function POST(request: NextRequest) {
   try {
+    const licenseKey = extractLicenseKey(request);
+    if (licenseKey !== null && !isValidLicenseKey(licenseKey)) {
+      return NextResponse.json({ error: 'subscription_required' }, { status: 401 });
+    }
+    if (licenseKey === null) {
+      const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
+      const allowed = await kvCheckFreeCredit(ip);
+      if (!allowed) {
+        return NextResponse.json({ error: 'subscription_required' }, { status: 401 });
+      }
+    }
+
     const formData = await request.formData();
     const file = formData.get('image') as File | null;
 
