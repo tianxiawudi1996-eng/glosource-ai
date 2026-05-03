@@ -13,7 +13,17 @@ import { Icon } from './components/icons';
 import type { Category } from './lib/categories';
 import type { SourcingRequest, SourcingOutput, Supplier, CountryPreference, OrderFrequency, WeChatSourcingOutput } from './api/source/types';
 
-type SourceMode = 'ai' | '1688' | 'wechat';
+type SourceMode = 'ai' | '1688' | 'wechat' | 'image';
+
+interface ImageAnalysis {
+  productNameKo: string;
+  productNameEn: string;
+  productNameZh: string;
+  specs: string;
+  category: string;
+  confidence: 'high' | 'medium' | 'low';
+  searchQuery: string;
+}
 
 /* ══════════════════════════════════════════════
    상수
@@ -77,16 +87,19 @@ const LOADING_MESSAGES: Record<SourceMode, string[]> = {
     '연락처 정보 추출 중...',
     'WeChat 인텔리전스 분석 완료...',
   ],
+  image: [
+    '이미지 제품 식별 완료...',
+    '1688.com 원가 탐색 중...',
+    'Alibaba 공급자 검색 중...',
+    '공급자 신뢰도 분석 중...',
+    'RFQ 이메일 초안 작성 중...',
+    '소싱 리포트 생성 중...',
+  ],
 };
 
 /* ══════════════════════════════════════════════
    신뢰도 점수 → 색상
 ══════════════════════════════════════════════ */
-function getTrustColor(score: number): string {
-  if (score >= 80) return 'text-emerald-600 bg-emerald-50 border-emerald-200';
-  if (score >= 60) return 'text-amber-600 bg-amber-50 border-amber-200';
-  return 'text-red-600 bg-red-50 border-red-200';
-}
 function getTrustLabel(score: number): string {
   if (score >= 80) return '신뢰';
   if (score >= 60) return '보통';
@@ -179,6 +192,12 @@ export default function HomePage() {
   const [wechatResult, setWechatResult] = useState<WeChatSourcingOutput | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [licenseKey, setLicenseKey] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
+  const [imageAnalysis, setImageAnalysis] = useState<ImageAnalysis | null>(null);
+  const [imageAnalyzing, setImageAnalyzing] = useState(false);
+  const [imageDragOver, setImageDragOver] = useState(false);
+  const imageInputRef = useRef<HTMLInputElement>(null);
   const resultRef = useRef<HTMLDivElement>(null);
   const loadingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -209,8 +228,10 @@ export default function HomePage() {
 
   const handleGenerate = async () => {
     if (!licenseKey && credits <= 0) { setShowPaywall(true); return; }
+    if (activeSource === 'image' && !imageAnalysis) { setError('먼저 제품 이미지를 업로드해주세요.'); return; }
     if (!form.productDescription.trim()) { setError('제품/자재명을 입력해주세요.'); return; }
-    if (activeSource !== 'wechat' && !form.quantity.trim()) { setError('필요 수량을 입력해주세요.'); return; }
+    if (activeSource !== 'wechat' && activeSource !== 'image' && !form.quantity.trim()) { setError('필요 수량을 입력해주세요.'); return; }
+    if (activeSource === 'image' && !form.quantity.trim()) { setError('필요 수량을 입력해주세요.'); return; }
 
     startLoading();
 
@@ -272,6 +293,41 @@ export default function HomePage() {
 
   const handleRetry = () => {
     void handleGenerate();
+  };
+
+  const handleImageFile = async (file: File) => {
+    setImageFile(file);
+    setImagePreviewUrl(URL.createObjectURL(file));
+    setImageAnalysis(null);
+    setImageAnalyzing(true);
+    setError('');
+
+    try {
+      const fd = new FormData();
+      fd.append('image', file);
+      const res = await fetch('/api/source/image-analyze', { method: 'POST', body: fd });
+      const json = await res.json() as { success?: boolean; data?: ImageAnalysis; error?: string };
+      if (!res.ok || !json.data) throw new Error(json.error ?? '이미지 분석 실패');
+      setImageAnalysis(json.data);
+      setForm(f => ({
+        ...f,
+        productDescription: [json.data!.productNameKo, json.data!.specs].filter(Boolean).join(' '),
+      }));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : '이미지 분석 중 오류가 발생했습니다.');
+      setImageFile(null);
+      setImagePreviewUrl(null);
+    } finally {
+      setImageAnalyzing(false);
+    }
+  };
+
+  const handleImageReset = () => {
+    setImageFile(null);
+    setImagePreviewUrl(null);
+    setImageAnalysis(null);
+    setForm(f => ({ ...f, productDescription: '' }));
+    if (imageInputRef.current) imageInputRef.current.value = '';
   };
 
   const handleCategorySelect = (cat: Category | null) => {
@@ -492,6 +548,7 @@ export default function HomePage() {
                   { id: 'ai'     as SourceMode, label: 'AI 종합 소싱',    badge: '1688+Alibaba+WeChat' },
                   { id: '1688'   as SourceMode, label: '1688 직거래',      badge: '원가 30~50% 절감' },
                   { id: 'wechat' as SourceMode, label: 'WeChat 실시간',    badge: '공장 홍보 직접 탐색' },
+                  { id: 'image'  as SourceMode, label: '사진으로 찾기',    badge: 'AI 이미지 매칭' },
                 ] as const).map(tab => (
                   <button key={tab.id} onClick={() => { setActiveSource(tab.id); setResult(null); setWechatResult(null); setError(''); setNoResults(false); }}
                     className={`flex-1 py-3 px-1 text-center transition-all border-b-2 ${activeSource === tab.id ? 'border-[#EA580C] bg-orange-50/30' : 'border-transparent hover:bg-slate-50'}`}>
@@ -506,20 +563,99 @@ export default function HomePage() {
                 </div>
                 <div>
                   <p className="font-bold text-[#0D1B2A] text-sm">
-                    {activeSource === 'ai' ? '소싱 조건 설정' : activeSource === '1688' ? '1688 공장직거래 검색' : 'WeChat 공장 홍보 탐색'}
+                    {activeSource === 'ai' ? '소싱 조건 설정' : activeSource === '1688' ? '1688 공장직거래 검색' : activeSource === 'wechat' ? 'WeChat 공장 홍보 탐색' : 'AI 이미지 매칭 소싱'}
                   </p>
                   <p className="text-xs text-slate-400">
-                    {activeSource === 'ai' ? '5가지 항목 입력 후 AI 종합 분석' : activeSource === '1688' ? '1688.com 원가 + 诚信通 신뢰도 분석' : '微信公众号 공장 홍보 담당자 포스팅 탐색'}
+                    {activeSource === 'ai' ? '5가지 항목 입력 후 AI 종합 분석' : activeSource === '1688' ? '1688.com 원가 + 诚信通 신뢰도 분석' : activeSource === 'wechat' ? '微信公众号 공장 홍보 담당자 포스팅 탐색' : '제품 사진 업로드 → AI가 제품 식별 → 자동 소싱'}
                   </p>
                 </div>
               </div>
               <div className="p-6 space-y-6">
 
+                {/* ── 이미지 업로드 (image 모드) ── */}
+                {activeSource === 'image' && (
+                  <div>
+                    <label className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                      <span className="w-5 h-5 rounded-full bg-[#0D1B2A] text-white flex items-center justify-center text-xs font-black">1</span>
+                      제품 사진 업로드 <span className="font-normal normal-case text-red-400">필수</span>
+                    </label>
+
+                    <input
+                      ref={imageInputRef}
+                      type="file"
+                      accept="image/jpeg,image/jpg,image/png,image/webp"
+                      className="hidden"
+                      onChange={e => { const f = e.target.files?.[0]; if (f) void handleImageFile(f); }}
+                    />
+
+                    {!imageFile ? (
+                      <div
+                        onDragOver={e => { e.preventDefault(); setImageDragOver(true); }}
+                        onDragLeave={() => setImageDragOver(false)}
+                        onDrop={e => { e.preventDefault(); setImageDragOver(false); const f = e.dataTransfer.files[0]; if (f) void handleImageFile(f); }}
+                        onClick={() => imageInputRef.current?.click()}
+                        className={`cursor-pointer border-2 border-dashed rounded-xl p-8 flex flex-col items-center gap-3 transition-colors ${imageDragOver ? 'border-[#EA580C] bg-orange-50' : 'border-slate-300 bg-slate-50 hover:border-slate-400 hover:bg-white'}`}
+                      >
+                        <svg className="w-8 h-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                        </svg>
+                        <div className="text-center">
+                          <p className="text-sm font-semibold text-slate-600">클릭하거나 사진을 드래그하세요</p>
+                          <p className="text-xs text-slate-400 mt-1">JPEG · PNG · WebP · 최대 10MB</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="rounded-xl border border-slate-200 overflow-hidden">
+                        {/* 이미지 프리뷰 */}
+                        <div className="relative h-40 bg-slate-100">
+                          {imagePreviewUrl && (
+                            <Image src={imagePreviewUrl} alt="업로드된 제품 이미지" fill className="object-contain" />
+                          )}
+                          {imageAnalyzing && (
+                            <div className="absolute inset-0 bg-white/80 flex flex-col items-center justify-center gap-2">
+                              <div className="w-6 h-6 border-2 border-[#EA580C] border-t-transparent rounded-full animate-spin" />
+                              <p className="text-xs font-semibold text-slate-600">AI가 제품을 분석하는 중...</p>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* 분석 결과 카드 */}
+                        {imageAnalysis && (
+                          <div className="p-4 bg-white border-t border-slate-100">
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center gap-1.5">
+                                <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center">
+                                  <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                                </div>
+                                <span className="text-xs font-bold text-[#0D1B2A]">제품 인식 완료</span>
+                              </div>
+                              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${imageAnalysis.confidence === 'high' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : imageAnalysis.confidence === 'medium' ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-red-50 text-red-600 border border-red-200'}`}>
+                                {imageAnalysis.confidence === 'high' ? '높은 신뢰도' : imageAnalysis.confidence === 'medium' ? '보통 신뢰도' : '낮은 신뢰도'}
+                              </span>
+                            </div>
+                            <div className="space-y-1.5 text-xs">
+                              <div className="flex gap-2"><span className="text-slate-400 w-12 shrink-0">한국어</span><span className="font-semibold text-[#0D1B2A]">{imageAnalysis.productNameKo}</span></div>
+                              {imageAnalysis.productNameEn && <div className="flex gap-2"><span className="text-slate-400 w-12 shrink-0">English</span><span className="text-slate-600">{imageAnalysis.productNameEn}</span></div>}
+                              {imageAnalysis.productNameZh && <div className="flex gap-2"><span className="text-slate-400 w-12 shrink-0">中文</span><span className="text-slate-600">{imageAnalysis.productNameZh}</span></div>}
+                              {imageAnalysis.specs && <div className="flex gap-2"><span className="text-slate-400 w-12 shrink-0">규격</span><span className="text-slate-600">{imageAnalysis.specs}</span></div>}
+                              {imageAnalysis.category && <div className="flex gap-2"><span className="text-slate-400 w-12 shrink-0">카테고리</span><span className="text-slate-500">{imageAnalysis.category}</span></div>}
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="px-4 py-2.5 bg-slate-50 border-t border-slate-100 flex justify-end">
+                          <button onClick={handleImageReset} className="text-xs text-slate-400 hover:text-slate-600 underline">다른 이미지로 변경</button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {/* ① 제품/자재명 */}
                 <div>
                   <label className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-                    <span className="w-5 h-5 rounded-full bg-[#0D1B2A] text-white flex items-center justify-center text-xs font-black">1</span>
-                    제품/자재명 <span className="font-normal normal-case text-red-400">필수</span>
+                    <span className="w-5 h-5 rounded-full bg-[#0D1B2A] text-white flex items-center justify-center text-xs font-black">{activeSource === 'image' ? '2' : '1'}</span>
+                    {activeSource === 'image' ? '인식된 제품명 (수정 가능)' : '제품/자재명'} <span className="font-normal normal-case text-red-400">필수</span>
                   </label>
                   <textarea
                     rows={2}
@@ -627,6 +763,7 @@ export default function HomePage() {
                           {activeSource === 'ai' && '공급자 탐색 · AI 신뢰도 분석 시작'}
                           {activeSource === '1688' && '1688 공장직거래 탐색 시작'}
                           {activeSource === 'wechat' && 'WeChat 공장 홍보 정보 탐색'}
+                          {activeSource === 'image' && (imageAnalysis ? '이미지 매칭 공급자 탐색 시작' : '이미지를 먼저 업로드해주세요')}
                         </>
                       : <><Icon.Zap className="w-4 h-4" />크레딧 충전 후 분석하기</>
                   }
