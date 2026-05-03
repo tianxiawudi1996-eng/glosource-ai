@@ -67,8 +67,13 @@ ${catSection}
 [탐색 우선순위 — 아래 순서로 반드시 탐색]
 1순위: 1688.com (중국 내수 B2B 도매 플랫폼 — 공장 직거래, Alibaba 대비 30~50% 저렴한 원가)
    → 검색어 예시: "${categoryContext ? categoryContext.searchTermsZh[0] : req.productDescription} 厂家直销 site:1688.com"
-2순위: Alibaba.com (글로벌 수출 B2B — 단, 무역상 포함 주의)
-3순위: DHgate.com (소량 발주 특화), Made-in-China.com, Global Sources
+2순위: 중국 현지 B2B/공장 디렉터리 (Baidu 爱采购, 供应商网/中国供应商, 慧聪网, 搜了网, 马可波罗网)
+   → 검색어 예시: "${categoryContext ? categoryContext.searchTermsZh[0] : req.productDescription} 百度爱采购 生产厂家"
+   → 검색어 예시: "${categoryContext ? categoryContext.searchTermsZh[0] : req.productDescription} 供应商网 厂家"
+   → 검색어 예시: "${categoryContext ? categoryContext.searchTermsZh[0] : req.productDescription} 慧聪网 厂家"
+3순위: Alibaba.com (글로벌 수출 B2B — 단, 무역상 포함 주의)
+4순위: Made-in-China.com Audited Supplier, Global Sources Verified Supplier
+5순위: DHgate.com (소량/샘플 참고용 — 건설 자재 대량 발주에서는 낮은 우선순위)
 
 [중요 규칙 — 반드시 준수]
 1. Google 그라운딩 검색으로 실제 확인한 공급자만 반환하라
@@ -85,10 +90,11 @@ ${catSection}
    - 거래 리뷰 수 및 평점
    - 플랫폼 인증 배지 (Gold Supplier, 诚信通, Verified Supplier 등)
    - Red flag: 설립 6개월 미만, 연락처 불명확, 비상식적 저가, 리뷰 0개
-3. 1688.com 공급자의 경우 CNY 가격과 USD 환산가를 모두 표기하세요
-4. productStage를 원자재(raw_material)/반완성품(semi_finished)/완성품(finished_product)으로 구분하세요
-5. 신뢰도 점수 0~100으로 채점하세요 (증거 없으면 낮은 점수)
-6. 발주 주기(${FREQUENCY_LABELS[req.orderFrequency]})에 맞는 RFQ 이메일 초안을 영어와 중국어(간체)로 작성하세요
+3. 중국 내수 채널(1688/Baidu 爱采购/供应商网 등) 후보와 수출형 채널(Alibaba/Made-in-China/Global Sources) 후보를 구분하세요
+4. 1688.com 공급자의 경우 CNY 가격과 USD 환산가를 모두 표기하세요
+5. productStage를 원자재(raw_material)/반완성품(semi_finished)/완성품(finished_product)으로 구분하세요
+6. 신뢰도 점수 0~100으로 채점하세요 (증거 없으면 낮은 점수)
+7. 발주 주기(${FREQUENCY_LABELS[req.orderFrequency]})에 맞는 RFQ 이메일 초안을 영어와 중국어(간체)로 작성하세요
    - RFQ 영문에 수량 단위 명시: ${req.quantity}${req.quantityUnit ? ' ' + req.quantityUnit : ''}${unitNote ? ' ' + unitNote : ''}
 
 [출력 형식]

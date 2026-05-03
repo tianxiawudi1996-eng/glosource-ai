@@ -460,7 +460,7 @@ export default function HomePage() {
           <div className="flex flex-col sm:flex-row items-center gap-4">
             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap shrink-0">검증된 플랫폼 데이터 소스</p>
             <div className="flex flex-wrap justify-center sm:justify-start gap-2">
-              {(['1688.com 诚信通', 'Alibaba International', 'WeChat 公众号', 'Google 실시간 검색'] as const).map(name => (
+              {(['1688.com 诚信通', 'Baidu 爱采购', 'Made-in-China · Global Sources', 'WeChat 公众号'] as const).map(name => (
                 <span key={name} className="border border-slate-200 rounded-lg px-4 py-2 text-xs font-semibold text-slate-600 bg-slate-50">
                   {name}
                 </span>

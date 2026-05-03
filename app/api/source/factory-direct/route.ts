@@ -21,9 +21,10 @@ function build1688Prompt(req: SourcingRequest, categoryContext?: Category): stri
 일반 가격대: ${categoryContext.typicalPriceRange}
 ` : '';
 
-  return `당신은 중국 내수 B2B 소싱 전문가입니다. 1688.com에서 아래 제품의 공장 직거래 공급자를 탐색하세요.
+  return `당신은 중국 내수 B2B 소싱 전문가입니다. 1688.com과 중국 현지 B2B 채널에서 아래 제품의 공장 직거래 공급자를 탐색하세요.
 
 1688.com은 알리바바 그룹의 중국 내수 도매 플랫폼으로, Alibaba.com 대비 30~50% 저렴한 실제 원가 가격입니다.
+Baidu 爱采购, 供应商网/中国供应商, 慧聪网, 搜了网, 马可波罗网은 중국 현지 구매자가 중국어 검색으로 공급자 후보를 찾을 때 함께 확인할 수 있는 B2B 디렉터리/검색 채널입니다.
 ${catSection}
 [소싱 요청]
 - 제품: ${req.productDescription}
@@ -38,14 +39,18 @@ ${catSection}
 5. 제품명(${req.productDescription})을 우선 권위로, 카테고리는 보조 힌트로만 사용하라
 
 [탐색 지시]
-1. 다음 검색을 통해 1688.com 공급자 3~5개를 찾으세요:
+1. 다음 검색을 통해 1688.com 공급자와 중국 현지 B2B 후보를 3~5개 찾으세요:
    - "site:1688.com ${categoryContext ? categoryContext.searchTermsZh[0] : req.productDescription} 厂家直销"
+   - "site:factory.1688.com ${categoryContext ? categoryContext.searchTermsZh[0] : req.productDescription} 源头工厂"
    - "1688 ${req.productDescription} 批发 工厂"
    - "${req.productDescription} 1688网 诚信通"
+   - "${categoryContext ? categoryContext.searchTermsZh[0] : req.productDescription} 百度爱采购 生产厂家"
+   - "${categoryContext ? categoryContext.searchTermsZh[0] : req.productDescription} 供应商网 厂家"
+   - "${categoryContext ? categoryContext.searchTermsZh[0] : req.productDescription} 慧聪网 厂家"
 
 2. 각 공급자에 대해 다음 정보를 수집하세요:
    - 회사명 (중문 + 영문 번역)
-   - 1688.com 상품 페이지 URL
+   - 1688.com 또는 중국 현지 B2B 페이지 URL
    - CNY 단가 및 MOQ
    - 诚信通(청신통) 인증 여부 — 1688의 유료 신뢰 인증 배지
    - 거래 리뷰 수, 재구매율
@@ -53,13 +58,13 @@ ${catSection}
    - OEM/ODM 가능 여부
    - 연간 생산 능력 (年产量)
 
-3. 신뢰도 평가 기준 (1688 특화):
+3. 신뢰도 평가 기준 (중국 내수 채널 특화):
    - 诚信通 年限 (年数가 많을수록 신뢰도↑)
    - 实力商家 배지 보유 여부
    - 거래 리뷰 수 500건 이상 = 신뢰
    - Red flag: 诚信通 없음, 리뷰 0건, 가격이 비상식적으로 낮음
 
-4. Alibaba.com 동일 제품과 가격 비교를 반드시 포함하세요
+4. Alibaba.com/Made-in-China.com 동일 제품과 가격·검증 수준 비교를 반드시 포함하세요
 
 [출력 형식]
 마크다운 코드블록(\`\`\`)이나 인용번호([1][2]) 없이 순수 JSON만 반환하세요.
@@ -69,7 +74,7 @@ ${catSection}
     {
       "rank": 1,
       "name": "공급자명 (중문/영문)",
-      "platform": "1688",
+      "platform": "1688 | Baidu AiCaigou | 供应商网 | 慧聪网 | 搜了网 | 马可波罗",
       "country": "중국",
       "url": "https://detail.1688.com/...",
       "trustScore": 85,
