@@ -349,15 +349,29 @@ export default function HomePage() {
               <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
               1688.com · Alibaba · WeChat公众号 실시간 탐색
             </div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black leading-[1.08] tracking-tight mb-5">
-              한국 건설업계 전용<br />
-              <span className="text-[#EA580C]">해외 자재 직소싱 AI</span>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black leading-[1.08] tracking-tight mb-4">
+              AI로 해외 자재를 직발굴,<br />
+              <span className="text-[#EA580C]">가격 협상력을 되찾으세요</span>
             </h1>
-            <p className="text-slate-200 text-base md:text-lg leading-relaxed mb-8 max-w-xl">
-              <strong className="text-white">기존 거래처를 끊지 마세요.</strong> GloSource는 협상 도구입니다.
-              KS인증·관세·세금계산서·통관까지 한국 건설사가 필요한 모든 것을 자동화합니다.
-              <strong className="text-white">한국 건설 현장 출신</strong>이 만들었습니다.
+            <p className="text-slate-300 text-base md:text-lg leading-relaxed mb-8 max-w-xl">
+              한국 건설 현장 출신이 만든 해외 소싱 자동화 — 1688 · Alibaba · WeChat을 한 번에
             </p>
+            <div className="flex flex-wrap items-center gap-3 mb-10">
+              <a
+                href="#sourcing-tool"
+                onClick={(e) => { e.preventDefault(); document.getElementById('sourcing-tool')?.scrollIntoView({ behavior: 'smooth' }); }}
+                className="inline-flex items-center gap-2 bg-[#EA580C] hover:bg-[#DC4C00] text-white font-bold text-sm px-6 py-3 rounded-xl transition-all shadow-lg shadow-orange-900/30"
+              >
+                무료 5회 체험 시작 →
+              </a>
+              <a
+                href="#pricing"
+                onClick={(e) => { e.preventDefault(); document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' }); }}
+                className="inline-flex items-center border border-white/30 text-white font-semibold text-sm px-6 py-3 rounded-xl hover:bg-white/10 transition-all backdrop-blur"
+              >
+                요금제 보기
+              </a>
+            </div>
             <div className="flex flex-wrap gap-3 mb-12">
               {[
                 { icon: <Icon.Search className="w-3.5 h-3.5" />, text: '공급자 3~5개 자동 탐색' },
@@ -387,28 +401,86 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── 신뢰 배지 바 ── */}
+      <section className="bg-white border-y border-slate-100">
+        <div className="max-w-6xl mx-auto px-6 py-5">
+          <div className="flex flex-col sm:flex-row items-center gap-4">
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap shrink-0">검증된 플랫폼 데이터 소스</p>
+            <div className="flex flex-wrap justify-center sm:justify-start gap-2">
+              {(['1688.com 诚信通', 'Alibaba International', 'WeChat 公众号', 'Google 실시간 검색'] as const).map(name => (
+                <span key={name} className="border border-slate-200 rounded-lg px-4 py-2 text-xs font-semibold text-slate-600 bg-slate-50">
+                  {name}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── How it works ── */}
+      <section className="bg-slate-50 border-b border-slate-100">
+        <div className="max-w-5xl mx-auto px-6 py-16">
+          <div className="text-center mb-10">
+            <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-3">How it works</p>
+            <h2 className="text-2xl font-black text-[#0D1B2A]">3단계로 완성되는 소싱 워크플로우</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              {
+                step: '01',
+                title: '제품명 입력',
+                desc: '한국어·영어·중문 모두 지원. AI가 1688 최적화 중문 검색어로 자동 번역합니다.',
+                icon: (
+                  <svg className="w-5 h-5 text-[#0D1B2A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+                  </svg>
+                ),
+              },
+              {
+                step: '02',
+                title: 'AI 공급자 분석',
+                desc: '신뢰도 0~100점 자동 채점. 예상 단가·MOQ·리드타임·KS인증 여부까지 한 번에 추출합니다.',
+                icon: (
+                  <svg className="w-5 h-5 text-[#0D1B2A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                  </svg>
+                ),
+              },
+              {
+                step: '03',
+                title: 'RFQ 전송',
+                desc: '영문·중문 이메일 자동 생성. 내 명함 정보를 저장해 두면 발송 준비 완료까지 30초.',
+                icon: (
+                  <svg className="w-5 h-5 text-[#0D1B2A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                  </svg>
+                ),
+              },
+            ].map(item => (
+              <div key={item.step} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-8 h-8 rounded-full bg-[#0D1B2A] text-white text-sm font-black flex items-center justify-center flex-shrink-0">
+                    {item.step}
+                  </div>
+                  <div className="w-9 h-9 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center">
+                    {item.icon}
+                  </div>
+                </div>
+                <h3 className="font-bold text-[#0D1B2A] mb-2">{item.title}</h3>
+                <p className="text-xs text-slate-500 leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── 메인 툴 ── */}
-      <section className="bg-slate-50">
+      <section id="sourcing-tool" className="bg-slate-50">
         <div className="max-w-6xl mx-auto px-6 py-10">
-          <div className="mb-9 grid grid-cols-1 gap-6 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
-            <div>
-              <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-3">Sourcing Intelligence</p>
-              <h2 className="text-2xl font-black text-[#0D1B2A] leading-tight mb-3">가격 검색이 아니라, 거래 리스크까지 보는 소싱 워크플로우</h2>
-              <p className="text-sm leading-relaxed text-slate-500 max-w-xl">
-                자재 샘플, RFQ 문서, 공급자 검증 근거를 한 화면에서 비교하도록 설계했습니다.
-                단순 플랫폼 검색과 달리 한국 건설사의 발주 조건과 검증 흐름에 맞춰 결과를 정리합니다.
-              </p>
-            </div>
-            <div className="relative min-h-[220px] overflow-hidden rounded-lg border border-slate-200 bg-slate-200 shadow-sm">
-              <Image
-                src="/images/glosource-sourcing-workspace.png"
-                alt="건설 자재 소싱 분석 워크스페이스"
-                fill
-                sizes="(min-width: 1024px) 560px, 100vw"
-                className="object-cover"
-              />
-              <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(15,23,42,0.12),rgba(15,23,42,0))]" />
-            </div>
+          <div className="mb-8 text-center">
+            <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-3">Sourcing Intelligence</p>
+            <h2 className="text-2xl font-black text-[#0D1B2A] leading-tight mb-2">가격 검색이 아니라, 거래 리스크까지 보는 소싱 워크플로우</h2>
+            <p className="text-sm text-slate-500 max-w-xl mx-auto">공급자 탐색부터 RFQ 전송까지 — 자재 발주의 전 과정을 한 화면에서</p>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-6">
 
@@ -687,24 +759,18 @@ export default function HomePage() {
       </section>
 
       {/* ── 요금제 ── */}
-      <section className="bg-white border-t border-slate-200">
+      <section id="pricing" className="bg-white border-t border-slate-200">
         <div className="max-w-5xl mx-auto px-6 py-16">
-          <div className="mb-12 grid grid-cols-1 gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
-            <div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">요금제</p>
-              <h2 className="text-2xl font-black text-[#0D1B2A] mb-3">규모에 맞는 플랜을 선택하세요</h2>
-              <p className="text-sm leading-relaxed text-slate-500">1회 = 공급자 3~5개 탐색 + 신뢰도 분석 + RFQ 이메일 + PDF 리포트. 세금계산서, 한국어 AS 채널, 현장별 분류까지 운영 흐름에 맞춰 확장합니다.</p>
-            </div>
-            <div className="relative min-h-[220px] overflow-hidden rounded-lg border border-slate-200 bg-slate-100 shadow-sm">
-              <Image
-                src="/images/glosource-enterprise-ops.png"
-                alt="건설 소싱 계약과 운영 지원 데스크"
-                fill
-                sizes="(min-width: 1024px) 520px, 100vw"
-                className="object-cover"
-              />
-              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,0.08))]" />
-            </div>
+          <div className="text-center mb-12">
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">요금제</p>
+            <h2 className="text-2xl font-black text-[#0D1B2A] mb-3">규모에 맞는 플랜을 선택하세요</h2>
+            <p className="text-sm text-slate-500 mb-4">1회 = 공급자 3~5개 탐색 + 신뢰도 분석 + RFQ 이메일 + PDF 리포트</p>
+            <span className="inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold px-3 py-1.5 rounded-full">
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              연간 결제 시 2개월 무료
+            </span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {[
@@ -764,8 +830,23 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── CTA 스트립 ── */}
+      <section className="bg-[#0D1B2A] border-t border-white/5">
+        <div className="max-w-4xl mx-auto px-6 py-16 text-center">
+          <h2 className="text-2xl sm:text-3xl font-black text-white mb-3">지금 바로 5회 무료 체험을 시작하세요</h2>
+          <p className="text-slate-400 text-sm mb-8">신용카드 없이 · 계정 생성 없이 · 제품명만 입력하면 끝</p>
+          <a
+            href="#sourcing-tool"
+            onClick={(e) => { e.preventDefault(); document.getElementById('sourcing-tool')?.scrollIntoView({ behavior: 'smooth' }); }}
+            className="inline-flex items-center gap-2 bg-[#EA580C] hover:bg-[#DC4C00] text-white font-bold text-sm px-8 py-4 rounded-xl transition-all shadow-lg shadow-orange-900/40"
+          >
+            소싱 시작하기 →
+          </a>
+        </div>
+      </section>
+
       {/* ── 푸터 ── */}
-      <footer className="bg-[#0D1B2A] text-white">
+      <footer className="bg-[#0D1B2A] border-t border-white/10 text-white">
         <div className="max-w-6xl mx-auto px-6 py-10">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div>
