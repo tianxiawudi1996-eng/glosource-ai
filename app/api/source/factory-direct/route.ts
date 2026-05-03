@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import type { EnhancedGenerateContentResponse, Tool } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
 import { isValidLicenseKey, extractLicenseKey } from '../../../lib/licenseAuth';
 import { getCategoryByCode } from '../../../lib/categories';
@@ -9,6 +10,15 @@ import { kvSaveHistory, kvCheckFreeCredit } from '../../../lib/kv';
 export const maxDuration = 60;
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+const GOOGLE_SEARCH_TOOLS: Tool[] = [{ googleSearchRetrieval: {} }];
+
+function hasGroundingMetadata(response: EnhancedGenerateContentResponse): boolean {
+  return response.candidates?.some(candidate => {
+    const chunks = candidate.groundingMetadata?.groundingChunks?.length ?? 0;
+    const supports = candidate.groundingMetadata?.groundingSupports?.length ?? 0;
+    return chunks > 0 || supports > 0;
+  }) ?? false;
+}
 
 function build1688Prompt(req: SourcingRequest, categoryContext?: Category): string {
   const catSection = categoryContext ? `
@@ -152,20 +162,24 @@ export async function POST(request: NextRequest) {
     let groundingUsed = false;
 
     const MODELS = [
-      { model: 'gemini-2.0-flash',      ms: 15000 },
-      { model: 'gemini-2.0-flash-lite', ms: 12000 },
-      { model: 'gemini-2.5-flash',      ms: 20000 },
+      { model: 'gemini-2.5-flash',      ms: 25000, grounding: true },
+      { model: 'gemini-2.5-flash',      ms: 20000, grounding: false },
+      { model: 'gemini-2.0-flash',      ms: 15000, grounding: false },
+      { model: 'gemini-2.0-flash-lite', ms: 12000, grounding: false },
     ];
     for (const m of MODELS) {
       try {
-        const model = genAI.getGenerativeModel({ model: m.model });
+        const model = genAI.getGenerativeModel({
+          model: m.model,
+          ...(m.grounding ? { tools: GOOGLE_SEARCH_TOOLS } : {}),
+        });
         const result = await Promise.race([
           model.generateContent(prompt),
           new Promise<never>((_, reject) =>
             setTimeout(() => reject(new Error('timeout')), m.ms)),
         ]);
         text = result.response.text().trim();
-        groundingUsed = false;
+        groundingUsed = hasGroundingMetadata(result.response);
         break;
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);

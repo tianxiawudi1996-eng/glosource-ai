@@ -6,6 +6,7 @@ import CategorySelector from './components/CategorySelector';
 import EmptyState from './components/EmptyState';
 import ExportButton from './components/ExportButton';
 import PaywallModal from './components/PaywallModal';
+import ContactModal from './components/ContactModal';
 import WeChatCard from './components/WeChatCard';
 import { SupplierRow, SupplierDetail } from './components/SupplierCard';
 import RFQComposer from './components/RFQComposer';
@@ -185,6 +186,7 @@ export default function HomePage() {
   const [reportDate, setReportDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [credits, setCredits] = useState(FREE_CREDITS);
   const [showPaywall, setShowPaywall] = useState(false);
+  const [contactPlan, setContactPlan] = useState<string | null>(null);
   const [activeSource, setActiveSource] = useState<SourceMode>('ai');
   const [wechatResult, setWechatResult] = useState<WeChatSourcingOutput | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -358,6 +360,13 @@ export default function HomePage() {
         <PaywallModal
           onClose={() => setShowPaywall(false)}
           onLicenseActivated={handleLicenseActivated}
+          onContactPlan={setContactPlan}
+        />
+      )}
+      {contactPlan && (
+        <ContactModal
+          plan={contactPlan}
+          onClose={() => setContactPlan(null)}
         />
       )}
 
@@ -1029,10 +1038,12 @@ export default function HomePage() {
                     </li>
                   ))}
                 </ul>
-                <a href={`mailto:like2buyglobal@gmail.com?subject=GloSource AI ${plan.name} 플랜 문의`}
+                <button
+                  type="button"
+                  onClick={() => setContactPlan(plan.name)}
                   className={`block w-full text-center py-3 rounded-xl font-semibold text-sm transition-all ${plan.highlight ? 'bg-white text-[#0D1B2A] hover:bg-slate-100' : 'bg-[#0D1B2A] text-white hover:bg-slate-800'}`}>
                   도입 문의하기
-                </a>
+                </button>
               </div>
             ))}
           </div>

@@ -6,9 +6,10 @@ import { Icon } from './icons';
 interface PaywallModalProps {
   onClose: () => void;
   onLicenseActivated: (key: string) => void;
+  onContactPlan: (plan: string) => void;
 }
 
-export default function PaywallModal({ onClose, onLicenseActivated }: PaywallModalProps) {
+export default function PaywallModal({ onClose, onLicenseActivated, onContactPlan }: PaywallModalProps) {
   const [licenseKeyInput, setLicenseKeyInput] = useState('');
   const [status, setStatus] = useState<'idle' | 'verifying' | 'valid' | 'invalid'>('idle');
 
@@ -53,7 +54,13 @@ export default function PaywallModal({ onClose, onLicenseActivated }: PaywallMod
             { name: '프로', detail: '무제한', price: '49만원/월', per: '무제한 분석 · 세금계산서 · 한국어 지원', hot: true },
             { name: '팀', detail: '5계정', price: '99만원/월', per: '5계정 공유 · 현장별 관리 · 전담 지원', hot: false },
           ].map(p => (
-            <a key={p.name} href={`mailto:like2buyglobal@gmail.com?subject=GloSource AI ${p.name} 플랜 문의`}
+            <button
+              key={p.name}
+              type="button"
+              onClick={() => {
+                onClose();
+                onContactPlan(p.name);
+              }}
               className={`flex items-center justify-between p-4 rounded-xl border transition-all cursor-pointer ${p.hot ? 'border-[#0D1B2A] bg-slate-50' : 'border-slate-200 hover:border-slate-300'}`}>
               <div>
                 <p className="font-semibold text-sm text-[#0D1B2A]">{p.name} <span className="font-normal text-slate-400 text-xs">· {p.detail}</span></p>
@@ -63,7 +70,7 @@ export default function PaywallModal({ onClose, onLicenseActivated }: PaywallMod
                 <p className="font-bold text-[#0D1B2A] text-sm">{p.price}</p>
                 <Icon.ChevronRight className="w-4 h-4 text-slate-300" />
               </div>
-            </a>
+            </button>
           ))}
         </div>
         <p className="text-xs text-slate-400 text-center mb-4">세금계산서 발행 가능 · like2buyglobal@gmail.com</p>

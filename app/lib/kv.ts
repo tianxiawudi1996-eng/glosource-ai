@@ -10,8 +10,22 @@ export interface HistoryEntry {
   raw: unknown;
 }
 
+export interface ContactLead {
+  id: string;
+  timestamp: string;
+  plan: string;
+  name: string;
+  company: string;
+  contact: string;
+  message: string;
+  ip: string;
+  userAgent: string;
+}
+
 const HISTORY_KEY = 'glosource:history';
+const LEADS_KEY = 'glosource:leads';
 const MAX_ENTRIES = 200;
+const MAX_LEADS = 500;
 const FREE_DAILY_LIMIT = 5;
 
 function getRedis(): Redis | null {
@@ -61,10 +75,17 @@ export function isKvConfigured(): boolean {
 }
 
 // Returns true if the IP is allowed (under free limit), false if blocked.
-// Falls back to allowing if Redis is not configured.
+// Development can run without Upstash; production must fail closed so the paywall
+// cannot be bypassed when Redis is missing or temporarily unavailable.
 export async function kvCheckFreeCredit(ip: string): Promise<boolean> {
   const redis = getRedis();
-  if (!redis) return true; // no Redis → allow (graceful fallback)
+  if (!redis) {
+    const allowLocalFallback = process.env.NODE_ENV !== 'production';
+    if (!allowLocalFallback) {
+      console.warn('[KV] Redis is not configured; blocking anonymous free credit in production.');
+    }
+    return allowLocalFallback;
+  }
 
   const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
   const key = `glosource:free:${ip}:${today}`;
@@ -74,7 +95,27 @@ export async function kvCheckFreeCredit(ip: string): Promise<boolean> {
       await redis.expire(key, 86400); // TTL 24h
     }
     return count <= FREE_DAILY_LIMIT;
-  } catch {
-    return true; // Redis error → allow
+  } catch (e) {
+    console.warn('[KV] free credit check failed; blocking anonymous request:', e instanceof Error ? e.message : String(e));
+    return false;
+  }
+}
+
+export async function kvSaveLead(entry: ContactLead): Promise<boolean> {
+  const redis = getRedis();
+  if (!redis) {
+    const allowLocalFallback = process.env.NODE_ENV !== 'production';
+    if (!allowLocalFallback) {
+      console.warn('[KV] Redis is not configured; contact lead cannot be persisted in production.');
+    }
+    return allowLocalFallback;
+  }
+  try {
+    await redis.lpush(LEADS_KEY, entry);
+    await redis.ltrim(LEADS_KEY, 0, MAX_LEADS - 1);
+    return true;
+  } catch (e) {
+    console.warn('[KV] lead save failed:', e instanceof Error ? e.message : String(e));
+    return false;
   }
 }
