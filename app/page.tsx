@@ -321,7 +321,7 @@ export default function HomePage() {
               <span>AI 공급자 신뢰도 검증</span>
             </div>
             {licenseKey
-              ? <span className="text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1.5 rounded-full">🔑 구독 활성</span>
+              ? <span className="text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1.5 rounded-full">구독 활성</span>
               : credits > 0
                 ? <span className="text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-full">무료 체험 {credits}회 남음</span>
                 : <button onClick={() => setShowPaywall(true)} className="text-xs font-semibold bg-[#EA580C] text-white px-3 py-1.5 rounded-full hover:bg-[#DC4C00] transition-colors">크레딧 충전</button>
@@ -549,6 +549,12 @@ export default function HomePage() {
                       <span className="font-bold text-[#0D1B2A] text-sm">WeChat 공장 정보 분석 완료</span>
                       <span className="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full ml-auto">Sogou 위챗 검색</span>
                     </div>
+                    {wechatResult.translatedKeyword && (
+                      <div className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-orange-200 bg-orange-50 px-2.5 py-1 text-xs text-orange-700">
+                        <span className="font-semibold">중국어 검색어</span>
+                        <span>{wechatResult.translatedKeyword}</span>
+                      </div>
+                    )}
                     <p className="text-xs text-slate-600 bg-blue-50 border border-blue-100 rounded-lg px-3 py-2 leading-relaxed">{wechatResult.analysis}</p>
                   </div>
 

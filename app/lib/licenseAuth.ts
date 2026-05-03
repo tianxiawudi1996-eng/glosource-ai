@@ -12,7 +12,6 @@ export function isValidLicenseKey(key: string | null): boolean {
   if (!key) return false;
   const validKeys = getValidKeys();
   if (validKeys.length === 0) {
-    // No env var configured → deny all keyed requests
     console.warn('[licenseAuth] VALID_LICENSE_KEYS is not set. All license keys are invalid.');
     return false;
   }

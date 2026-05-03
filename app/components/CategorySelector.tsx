@@ -26,10 +26,10 @@ export default function CategorySelector({ onSelect, selected }: CategorySelecto
   };
 
   const GROUP_ICONS: Record<string, string> = {
-    construction: '🏗️',
-    ai_robot: '🤖',
-    it_hardware: '💻',
-    smart_mfg: '🏭',
+    construction: '',
+    ai_robot: '',
+    it_hardware: '',
+    smart_mfg: '',
   };
 
   return (
@@ -57,8 +57,7 @@ export default function CategorySelector({ onSelect, selected }: CategorySelecto
           {CATEGORY_GROUPS.map(group => (
             <div key={group.id}>
               <div className="flex items-center gap-1 px-1 pb-0.5 mb-1 border-b border-slate-100">
-                <span className="text-sm leading-none">{GROUP_ICONS[group.id]}</span>
-                <span className="text-xs font-bold text-slate-500 tracking-wide">{group.label}</span>
+                <span className="text-xs font-bold text-slate-500 tracking-wide uppercase">{group.label}</span>
               </div>
               <div className="grid grid-cols-1 gap-1 sm:grid-cols-2">
                 {group.codes.map(code => {

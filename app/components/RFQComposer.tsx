@@ -99,7 +99,10 @@ export default function RFQComposer({ rfqEmail }: RFQComposerProps) {
           onClick={() => setShowCard(!showCard)}
           className="w-full flex items-center justify-between px-4 py-2.5 text-xs text-slate-500 hover:bg-slate-50 transition-colors">
           <div className="flex items-center gap-2">
-            <span>👤 내 명함 정보</span>
+            <svg className="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0zM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+            </svg>
+            <span>내 명함 정보</span>
             {cardFilled
               ? <span className="bg-green-100 text-green-600 px-1.5 py-0.5 rounded text-[10px]">저장됨</span>
               : <span className="bg-orange-100 text-orange-500 px-1.5 py-0.5 rounded text-[10px]">미입력</span>}

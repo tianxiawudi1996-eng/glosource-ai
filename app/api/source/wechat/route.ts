@@ -28,18 +28,19 @@ function isRetryable(e: unknown): boolean {
     msg === 'timeout';
 }
 
-// Translate Korean keyword to Chinese manufacturing terminology
+// Translate Korean keyword to Chinese manufacturing terminology while preserving specs.
 async function translateKeywordToZh(keyword: string): Promise<string> {
   const CHINESE_RANGE = /[一-鿿]/;
   const chineseCount = [...keyword].filter((c) => CHINESE_RANGE.test(c)).length;
   if (chineseCount >= 2) return keyword;
 
-  const prompt = `당신은 중국 제조업 전문가입니다. 아래 제품명을 중국 B2B 도매 플랫폼(1688.com)에서 실제로 검색되는 중국어 제조업 용어로 번역하세요.
+  const prompt = `당신은 중국 제조업 검색어 전문가입니다. 아래 제품명을 중국 B2B/WeChat에서 실제로 검색되는 중국어 제품 검색어로 바꾸세요.
 제품명: "${keyword}"
 규칙:
-- 3~8자 중국어만 반환 (설명, 로마자 금지)
-- 제조업/공장 용어 우선 (예: 알루미늄창호→铝合金门窗, 단열재→保温材料, 철근→螺纹钢)
-- 반드시 1688.com에서 실제 검색되는 용어로`;
+- 설명 문장 금지. 검색어만 반환
+- 재질/등급/모델/규격 숫자(예: 6063-T5, SS400, 40x40, 6T)는 절대 삭제하지 마세요
+- 너무 일반적인 단어 하나만 반환 금지 (예: 铝材, 钢材)
+- 좋은 예: "6063-T5 铝合金门窗型材", "SS400 热轧钢板 6mm", "40x40 工业铝型材"`;
 
   for (const modelId of ['gemini-2.0-flash', 'gemini-2.0-flash-lite']) {
     try {
@@ -48,8 +49,8 @@ async function translateKeywordToZh(keyword: string): Promise<string> {
         model.generateContent(prompt),
         new Promise<never>((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000)),
       ]);
-      const translated = result.response.text().trim().replace(/["'\s]/g, '');
-      if (CHINESE_RANGE.test(translated) && translated.length >= 2 && translated.length <= 12) {
+      const translated = result.response.text().trim().replace(/["']/g, '').replace(/\s+/g, ' ');
+      if (CHINESE_RANGE.test(translated) && translated.length >= 2 && translated.length <= 48) {
         return translated;
       }
     } catch { /* fall through */ }
@@ -76,9 +77,14 @@ interface SogouArticle {
 async function scrapeSogouWeChat(zhKeyword: string): Promise<SogouArticle[]> {
   // Try multiple search queries for better coverage
   const queries = [
-    `${zhKeyword} 厂家直销 报价`,
-    `${zhKeyword} 工厂 批发价格`,
+    `"${zhKeyword}" 厂家直销 报价`,
+    `"${zhKeyword}" 工厂 批发价格`,
+    `"${zhKeyword}" 微信 公众号`,
+    `"${zhKeyword}" 参数 价格`,
   ];
+
+  const seen = new Set<string>();
+  const allArticles: SogouArticle[] = [];
 
   for (const q of queries) {
     try {
@@ -107,10 +113,16 @@ async function scrapeSogouWeChat(zhKeyword: string): Promise<SogouArticle[]> {
         }
       });
 
-      if (articles.length > 0) return articles.slice(0, 10);
+      for (const article of articles) {
+        const key = `${article.accountName}:${article.title}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          allArticles.push(article);
+        }
+      }
     } catch { /* try next query */ }
   }
-  return [];
+  return allArticles.slice(0, 14);
 }
 
 // A+B: Primary strategy — Gemini with Google Search grounding
@@ -135,8 +147,10 @@ async function searchWithGrounding(keyword: string, zhKeyword: string): Promise<
 
 [절대 금지]
 - ${keyword}와 무관한 공급자 포함 금지
+- 제품 스펙/가격/MOQ/공장명 중 2개 이상 확인되지 않으면 posts에 넣지 마세요
 - URL 추측 생성 금지 (확인 못한 URL은 빈 문자열)
 - 일반적인 WeChat 소싱 방법론 설명 금지 (제품 정보만)
+- "어떻게 찾는지" 설명하는 가이드성 결과 금지. 실제 제품/공급자 정보만 반환
 
 순수 JSON으로만 반환:
 {
@@ -150,9 +164,12 @@ async function searchWithGrounding(keyword: string, zhKeyword: string): Promise<
       "summary": "이 공급자의 ${keyword} 제품 구체적 정보: 스펙·가격·MOQ·한국 수출 경험 등 (한국어 2~3문장)",
       "productKeywords": ["${zhKeyword}", "관련 중국어 키워드"],
       "contactHint": "WeChat ID 또는 公众号명 (없으면 연락 방법)",
+      "productSpecs": "확인된 제품 스펙",
+      "productEvidence": "제품 일치 근거: 페이지 제목/본문에서 확인한 핵심 문구",
       "priceRange": "¥XX~XX/단위",
       "moq": "최소 주문 수량",
       "location": "광동성 포산시 등",
+      "sourceType": "web_search",
       "relevanceScore": 85
     }
   ],
@@ -219,6 +236,7 @@ ${articleList}
 [절대 금지]
 - 제품과 무관한 내용을 요약에 포함하지 마세요
 - 가격 정보 없으면 priceRange는 "문의 필요"로 표기
+- 일반적인 WeChat 사용법 설명 금지. 기사 안의 제품 정보만 요약
 
 순수 JSON만 반환:
 {
@@ -232,9 +250,12 @@ ${articleList}
       "summary": "${keyword} 제품 구체적 정보 (스펙·가격·MOQ 포함, 한국어 2~3문장)",
       "productKeywords": ["관련 키워드"],
       "contactHint": "연락처 힌트",
+      "productSpecs": "확인된 제품 스펙",
+      "productEvidence": "제품 일치 근거: 기사 제목/본문의 핵심 문구",
       "priceRange": "¥XX~XX/단위 또는 문의 필요",
       "moq": "최소 주문량",
       "location": "소재지",
+      "sourceType": "wechat_article",
       "relevanceScore": 85
     }
   ],
@@ -270,6 +291,24 @@ function mergeResults(grounding: WeChatSourcingOutput, sogou?: WeChatSourcingOut
     ...grounding,
     posts: [...grounding.posts, ...uniqueSogou],
     analysis: grounding.analysis,
+  };
+}
+
+function normalizeWeChatOutput(output: WeChatSourcingOutput): WeChatSourcingOutput {
+  return {
+    ...output,
+    posts: (output.posts ?? []).map((post) => ({
+      ...post,
+      productKeywords: Array.isArray(post.productKeywords) ? post.productKeywords : [],
+      contactHint: post.contactHint ?? '',
+      priceRange: post.priceRange || '문의 필요',
+      moq: post.moq || '문의 필요',
+      location: post.location || '미확인',
+      productSpecs: post.productSpecs || '미확인',
+      productEvidence: post.productEvidence || '',
+      sourceType: post.sourceType || (post.url ? 'web_search' : 'ai_estimated'),
+      relevanceScore: Math.max(0, Math.min(100, Number(post.relevanceScore) || 0)),
+    })),
   };
 }
 
@@ -324,9 +363,16 @@ export async function POST(request: NextRequest) {
       output = await searchWithGrounding(keyword, zhKeyword);
     }
 
-    // Filter low-relevance (threshold lowered to 40 for better recall)
+    output = normalizeWeChatOutput(output);
+
+    // Filter low-relevance and generic guide-like results.
     if (output.posts?.length) {
-      output.posts = output.posts.filter((p: WeChatPost) => p.relevanceScore >= 40);
+      output.posts = output.posts.filter((p: WeChatPost) =>
+        p.relevanceScore >= 55 &&
+        !p.summary.includes('진입 방법') &&
+        !p.summary.includes('찾는 방법') &&
+        !p.articleTitle.includes('계정 유형')
+      );
     }
 
     if (!output.posts?.length) {

@@ -55,9 +55,12 @@ export interface WeChatPost {
   summary: string;
   productKeywords: string[];
   contactHint: string;
+  productSpecs?: string;
+  productEvidence?: string;
   priceRange?: string;
   moq?: string;
   location?: string;
+  sourceType?: 'wechat_article' | 'web_search' | 'ai_estimated';
   relevanceScore: number;
 }
 
