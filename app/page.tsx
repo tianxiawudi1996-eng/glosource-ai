@@ -394,20 +394,21 @@ export default function HomePage() {
           sizes="100vw"
           className="absolute inset-0 -z-20 object-cover object-center"
         />
-        <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(7,17,31,0.96)_0%,rgba(13,27,42,0.88)_38%,rgba(13,27,42,0.46)_72%,rgba(13,27,42,0.22)_100%)]" />
+        <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(5,13,24,0.98)_0%,rgba(8,20,34,0.93)_36%,rgba(13,27,42,0.56)_72%,rgba(13,27,42,0.22)_100%)]" />
         <div className="absolute inset-x-0 bottom-0 -z-10 h-24 bg-gradient-to-t from-[#0D1B2A] to-transparent" />
         <div className="max-w-6xl mx-auto px-6 py-18 sm:py-20 lg:py-24">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 border border-white/20 bg-white/10 rounded-full px-3 py-1 text-xs text-slate-200 mb-6 backdrop-blur">
+            <div className="mb-4 inline-flex items-center gap-2 border border-white/20 bg-white/10 rounded-full px-3 py-1 text-xs font-semibold text-slate-100 backdrop-blur">
               <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-              1688.com · Alibaba · WeChat公众号 실시간 탐색
+              GloSource AI · 중국 현지 채널까지 탐색
             </div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black leading-[1.08] tracking-tight mb-4">
-              AI로 해외 자재를 직발굴,<br />
-              <span className="text-[#EA580C]">가격 협상력을 되찾으세요</span>
+            <h1 className="mb-5 max-w-2xl text-[2.9rem] font-black leading-[0.96] tracking-tight text-white drop-shadow-[0_3px_18px_rgba(0,0,0,0.42)] sm:text-6xl md:text-7xl">
+              GloSource AI<br />
+              <span className="mt-2 inline-block rounded-lg bg-[#EA580C] px-3 py-1 text-[0.72em] text-white shadow-2xl shadow-orange-950/40">해외 자재 60초 매칭</span>
             </h1>
-            <p className="text-slate-300 text-base md:text-lg leading-relaxed mb-8 max-w-xl">
-              한국 건설 현장 출신이 만든 해외 소싱 자동화 — 1688 · Alibaba · WeChat을 한 번에
+            <p className="mb-8 max-w-2xl text-lg font-semibold leading-relaxed text-slate-100 md:text-xl">
+              1688 · Baidu 爱采购 · Alibaba · WeChat 후보를 비교하고,
+              발주 전 공급자 검증 리포트와 RFQ를 바로 만듭니다.
             </p>
             <div className="flex flex-wrap items-center gap-3 mb-10">
               <a
@@ -515,7 +516,7 @@ export default function HomePage() {
         <div className="max-w-5xl mx-auto px-6 py-16">
           <div className="text-center mb-10">
             <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-3">How it works</p>
-            <h2 className="text-2xl font-black text-[#0D1B2A]">3단계로 완성되는 소싱 워크플로우</h2>
+            <h2 className="text-3xl font-black leading-tight text-[#0D1B2A]">3단계로 완성되는 소싱 워크플로우</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
@@ -523,6 +524,8 @@ export default function HomePage() {
                 step: '01',
                 title: '제품명 입력',
                 desc: '한국어·영어·중문 모두 지원. AI가 1688 최적화 중문 검색어로 자동 번역합니다.',
+                image: '/images/workflow-product-input.png',
+                imageAlt: '제품명 입력과 중국 소싱 키워드 변환 화면',
                 icon: (
                   <svg className="w-5 h-5 text-[#0D1B2A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
@@ -533,6 +536,8 @@ export default function HomePage() {
                 step: '02',
                 title: 'AI 공급자 분석',
                 desc: '신뢰도 0~100점 자동 채점. 예상 단가·MOQ·리드타임·KS인증 참고 여부까지 한 번에 추출합니다.',
+                image: '/images/workflow-supplier-analysis.png',
+                imageAlt: 'AI 공급자 신뢰도 분석 대시보드',
                 icon: (
                   <svg className="w-5 h-5 text-[#0D1B2A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
@@ -543,6 +548,8 @@ export default function HomePage() {
                 step: '03',
                 title: 'RFQ 매칭 준비',
                 desc: '영문·중문 RFQ와 공급자에게 확인할 질문을 자동 생성합니다. 이후 거래 실행은 사용자가 직접 결정합니다.',
+                image: '/images/workflow-rfq-match.png',
+                imageAlt: 'RFQ 문서와 공급자 질문 리스트 준비 화면',
                 icon: (
                   <svg className="w-5 h-5 text-[#0D1B2A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
@@ -550,17 +557,27 @@ export default function HomePage() {
                 ),
               },
             ].map(item => (
-              <div key={item.step} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-full bg-[#0D1B2A] text-white text-sm font-black flex items-center justify-center flex-shrink-0">
+              <div key={item.step} className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                <div className="relative h-36 bg-slate-100 sm:h-40">
+                  <Image
+                    src={item.image}
+                    alt={item.imageAlt}
+                    fill
+                    sizes="(min-width: 768px) 320px, 100vw"
+                    className="object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0D1B2A]/45 to-transparent" />
+                  <div className="absolute left-4 top-4 flex h-10 w-10 items-center justify-center rounded-lg bg-[#0D1B2A] text-sm font-black text-white shadow-lg">
                     {item.step}
                   </div>
-                  <div className="w-9 h-9 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center">
+                </div>
+                <div className="p-5">
+                  <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-slate-50">
                     {item.icon}
                   </div>
+                  <h3 className="mb-2 text-lg font-black leading-tight text-[#0D1B2A]">{item.title}</h3>
+                  <p className="text-sm leading-relaxed text-slate-500">{item.desc}</p>
                 </div>
-                <h3 className="font-bold text-[#0D1B2A] mb-2">{item.title}</h3>
-                <p className="text-xs text-slate-500 leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>
