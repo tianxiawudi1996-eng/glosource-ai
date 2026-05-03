@@ -49,11 +49,8 @@ function saveToHistory(entry: {
 }
 
 const COUNTRY_OPTIONS: { value: CountryPreference; label: string; desc: string }[] = [
-  { value: 'china',         label: '중국',     desc: '최대 공급망' },
-  { value: 'southeast_asia',label: '동남아',   desc: '베트남·태국' },
-  { value: 'europe',        label: '유럽',     desc: '고품질 특화' },
-  { value: 'japan',         label: '일본',     desc: '정밀 부품' },
-  { value: 'any',           label: '상관없음', desc: '전 세계' },
+  { value: 'china', label: '중국', desc: '1688·Alibaba 직접 탐색' },
+  { value: 'any',   label: '상관없음', desc: '중국 포함 전 세계' },
 ];
 
 const FREQUENCY_OPTIONS: { value: OrderFrequency; label: string; desc: string }[] = [
@@ -761,8 +758,9 @@ export default function HomePage() {
                     <label className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
                       <span className="w-5 h-5 rounded-full bg-[#0D1B2A] text-white flex items-center justify-center text-xs font-black">4</span>
                       원산지 선호
+                      <span className="ml-1 bg-slate-100 text-slate-400 text-[10px] px-2 py-0.5 rounded-full font-normal">현재 중국 집중 서비스</span>
                     </label>
-                    <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-5">
+                    <div className="grid grid-cols-2 gap-1.5">
                       {COUNTRY_OPTIONS.map(c => (
                         <button key={c.value} onClick={() => setForm({ ...form, countryPreference: c.value })}
                           className={`min-h-[44px] py-2.5 px-2 rounded-xl border text-center transition-all ${form.countryPreference === c.value ? 'bg-[#0D1B2A] border-[#0D1B2A] text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`}>

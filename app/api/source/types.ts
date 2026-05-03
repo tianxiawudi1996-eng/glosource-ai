@@ -1,4 +1,4 @@
-export type CountryPreference = 'china' | 'southeast_asia' | 'europe' | 'japan' | 'any';
+export type CountryPreference = 'china' | 'any';
 export type OrderFrequency = 'one_time' | 'monthly' | 'bimonthly_plus';
 export type QuantityUnit = '개' | 'kg' | 'ton' | 'm' | 'm2' | 'm3' | 'set';
 export type VerificationStatus = 'grounding_confirmed' | 'ai_estimated';
