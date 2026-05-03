@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { CATEGORIES, L1_META, CATEGORY_GROUPS, getCategoriesByL1 } from '../lib/categories';
+import { L1_META, CATEGORY_GROUPS, getCategoriesByL1 } from '../lib/categories';
 import type { Category, L1Code } from '../lib/categories';
 
 interface CategorySelectorProps {
@@ -23,13 +23,6 @@ export default function CategorySelector({ onSelect, selected }: CategorySelecto
       onSelect(cat);
       setOpenL1(null);
     }
-  };
-
-  const GROUP_ICONS: Record<string, string> = {
-    construction: '',
-    ai_robot: '',
-    it_hardware: '',
-    smart_mfg: '',
   };
 
   return (

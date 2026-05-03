@@ -430,10 +430,10 @@ export default function HomePage() {
             </div>
             <div className="flex flex-wrap gap-3 mb-12">
               {[
-                { icon: <Icon.Search className="w-3.5 h-3.5" />, text: '공급자 3~5개 자동 탐색' },
-                { icon: <Icon.Shield className="w-3.5 h-3.5" />, text: '신뢰도 AI 분석' },
+                { icon: <Icon.Search className="w-3.5 h-3.5" />, text: '공장 후보 3~5개 자동 탐색' },
+                { icon: <Icon.Shield className="w-3.5 h-3.5" />, text: '사업자·리스크 신뢰도 분석' },
                 { icon: <Icon.Mail className="w-3.5 h-3.5" />, text: 'RFQ 이메일 자동 생성' },
-                { icon: <Icon.Download className="w-3.5 h-3.5" />, text: '한국어 리포트 PDF' },
+                { icon: <Icon.Download className="w-3.5 h-3.5" />, text: '예상 원가·MOQ 비교 리포트' },
               ].map(b => (
                 <span key={b.text} className="inline-flex items-center gap-1.5 bg-white/10 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-slate-200 backdrop-blur">
                   {b.icon}{b.text}
@@ -444,8 +444,8 @@ export default function HomePage() {
               {[
                 { num: '3~5개', label: '공급자 자동 탐색' },
                 { num: '60초', label: '평균 분석 소요 시간' },
-                { num: '0~100', label: '신뢰도 점수 채점' },
-                { num: '2개국어', label: 'RFQ 이메일 자동화' },
+                { num: '0~100', label: '공급자 리스크 점수' },
+                { num: '3단계', label: '검색·검증·RFQ 매칭' },
               ].map(s => (
                 <div key={s.num}>
                   <p className="text-2xl font-black text-white">{s.num}</p>
@@ -473,6 +473,46 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── 전문 소싱 운영 범위 ── */}
+      <section className="bg-white">
+        <div className="max-w-6xl mx-auto px-6 py-16">
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+            <div>
+              <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-3">Sourcing Match Desk</p>
+              <h2 className="text-2xl font-black text-[#0D1B2A] leading-tight mb-4">
+                발주 전 공급자 매칭과 검증 판단을 빠르게 만듭니다
+              </h2>
+              <p className="text-sm leading-relaxed text-slate-500 mb-6 max-w-xl">
+                전문 소싱사는 가격표만 보지 않습니다. 사양 일치, 공급자 실체, MOQ, 리드타임, 인증 근거를 먼저 비교합니다.
+                GloSource AI는 이 중간 판단 자료를 리포트와 RFQ 형태로 정리해, 사용자가 직접 거래를 이어갈 수 있게 돕습니다.
+              </p>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {[
+                  { title: 'Cost Signal View', desc: '공장가, MOQ, 리드타임, 가격 이상치를 후보별로 비교' },
+                  { title: 'Supplier Reality Check', desc: '1688 诚信通, 플랫폼 이력, 레드플래그를 신뢰도 점수화' },
+                  { title: 'Spec & Certification Fit', desc: 'KS인증, 자재 규격, 현장 적용 조건을 의사결정 메모로 정리' },
+                  { title: 'RFQ Matching Kit', desc: '영문·중문 RFQ와 공급자에게 확인할 질문 리스트를 생성' },
+                ].map(item => (
+                  <div key={item.title} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                    <p className="text-sm font-bold text-[#0D1B2A] mb-1">{item.title}</p>
+                    <p className="text-xs leading-relaxed text-slate-500">{item.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="relative min-h-[300px] overflow-hidden rounded-lg border border-slate-200 bg-slate-100 shadow-sm">
+              <Image
+                src="/images/glosource-sourcing-workspace.png"
+                alt="건설 자재 소싱 분석 워크스페이스"
+                fill
+                sizes="(min-width: 1024px) 520px, 100vw"
+                className="object-cover"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── How it works ── */}
       <section className="bg-slate-50 border-b border-slate-100">
         <div className="max-w-5xl mx-auto px-6 py-16">
@@ -495,7 +535,7 @@ export default function HomePage() {
               {
                 step: '02',
                 title: 'AI 공급자 분석',
-                desc: '신뢰도 0~100점 자동 채점. 예상 단가·MOQ·리드타임·KS인증 여부까지 한 번에 추출합니다.',
+                desc: '신뢰도 0~100점 자동 채점. 예상 단가·MOQ·리드타임·KS인증 참고 여부까지 한 번에 추출합니다.',
                 icon: (
                   <svg className="w-5 h-5 text-[#0D1B2A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
@@ -504,8 +544,8 @@ export default function HomePage() {
               },
               {
                 step: '03',
-                title: 'RFQ 전송',
-                desc: '영문·중문 이메일 자동 생성. 내 명함 정보를 저장해 두면 발송 준비 완료까지 30초.',
+                title: 'RFQ 매칭 준비',
+                desc: '영문·중문 RFQ와 공급자에게 확인할 질문을 자동 생성합니다. 이후 거래 실행은 사용자가 직접 결정합니다.',
                 icon: (
                   <svg className="w-5 h-5 text-[#0D1B2A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
@@ -536,7 +576,7 @@ export default function HomePage() {
           <div className="mb-8 text-center">
             <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-3">Sourcing Intelligence</p>
             <h2 className="text-2xl font-black text-[#0D1B2A] leading-tight mb-2">가격 검색이 아니라, 거래 리스크까지 보는 소싱 워크플로우</h2>
-            <p className="text-sm text-slate-500 max-w-xl mx-auto">공급자 탐색부터 RFQ 전송까지 — 자재 발주의 전 과정을 한 화면에서</p>
+            <p className="text-sm text-slate-500 max-w-xl mx-auto">공급자 탐색부터 RFQ 전송까지 — 발주 전 판단 자료를 한 화면에서</p>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-6">
 
@@ -898,16 +938,30 @@ export default function HomePage() {
       {/* ── 요금제 ── */}
       <section id="pricing" className="bg-white border-t border-slate-200">
         <div className="max-w-5xl mx-auto px-6 py-16">
-          <div className="text-center mb-12">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">요금제</p>
-            <h2 className="text-2xl font-black text-[#0D1B2A] mb-3">규모에 맞는 플랜을 선택하세요</h2>
-            <p className="text-sm text-slate-500 mb-4">1회 = 공급자 3~5개 탐색 + 신뢰도 분석 + RFQ 이메일 + PDF 리포트</p>
-            <span className="inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold px-3 py-1.5 rounded-full">
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              연간 결제 시 2개월 무료
-            </span>
+          <div className="mb-12 grid grid-cols-1 gap-8 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
+            <div>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">요금제</p>
+              <h2 className="text-2xl font-black text-[#0D1B2A] mb-3">규모에 맞는 플랜을 선택하세요</h2>
+              <p className="text-sm leading-relaxed text-slate-500 mb-4">
+                1회 = 공급자 3~5개 탐색 + 신뢰도 분석 + RFQ 이메일 + PDF 리포트.
+                팀 플랜은 현장별 분류, 세금계산서, 한국어 문의 채널까지 발주 전 소싱 업무에 맞춰 확장합니다.
+              </p>
+              <span className="inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold px-3 py-1.5 rounded-full">
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                연간 결제 시 2개월 무료
+              </span>
+            </div>
+            <div className="relative min-h-[220px] overflow-hidden rounded-lg border border-slate-200 bg-slate-100 shadow-sm">
+              <Image
+                src="/images/glosource-enterprise-ops.png"
+                alt="건설 소싱 문서와 공급자 비교 데스크"
+                fill
+                sizes="(min-width: 1024px) 540px, 100vw"
+                className="object-cover"
+              />
+            </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {[
@@ -915,19 +969,19 @@ export default function HomePage() {
                 name: '스타터', tag: '소규모 발주',
                 price: '19만원', unit: '/ 월',
                 per: '분석 20회/월',
-                features: ['공급자 탐색 3~5개', 'KS인증 자동 매칭', '도착가 자동 계산', 'RFQ 이메일 자동화', 'PDF 리포트 저장'],
+                features: ['공급자 탐색 3~5개', 'KS인증 참고 매칭', '예상 원가 비교', 'RFQ 이메일 자동화', 'PDF 리포트 저장'],
                 highlight: false,
               }, {
                 name: '프로', tag: '가장 인기',
                 price: '49만원', unit: '/ 월',
                 per: '무제한 분석',
-                features: ['무제한 소싱 분석', 'KS인증·관세 자동 매칭', '세금계산서 발행 결제', '한국어 의사결정 PDF', '한국어 AS 채널'],
+                features: ['무제한 소싱 분석', 'KS인증·규격 참고 매칭', '세금계산서 발행', '한국어 의사결정 PDF', '한국어 문의 채널'],
                 highlight: true,
               }, {
                 name: '팀', tag: '기업용',
                 price: '99만원', unit: '/ 월',
                 per: '5계정 공유',
-                features: ['5계정 공유', '현장별 분류 관리', '전담 전화·카카오 지원', '하자 분쟁 중재', '세금계산서 발행'],
+                features: ['5계정 공유', '현장별 분류 관리', '전담 전화·카카오 지원', '공급자 검증 템플릿', '세금계산서 발행'],
                 highlight: false,
               },
             ].map(plan => (
@@ -993,7 +1047,7 @@ export default function HomePage() {
                 </div>
                 <span className="font-bold text-white">GloSource AI</span>
               </div>
-              <p className="text-xs text-slate-400 max-w-xs">한국 건설업계 전용 해외 자재 직소싱 AI. KS인증·관세·세금계산서까지 자동화합니다.</p>
+              <p className="text-xs text-slate-400 max-w-xs">한국 건설업계 전용 해외 자재 소싱 매칭 AI. 공급자 탐색·신뢰도 분석·RFQ 리포트까지 자동화합니다.</p>
             </div>
             <div className="text-right">
               <p className="text-xs text-slate-400">© 2026 GloSource AI. All rights reserved.</p>
