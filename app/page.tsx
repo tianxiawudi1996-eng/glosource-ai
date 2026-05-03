@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
 import CategorySelector from './components/CategorySelector';
 import EmptyState from './components/EmptyState';
@@ -331,18 +332,28 @@ export default function HomePage() {
       </nav>
 
       {/* ── 히어로 ── */}
-      <section className="bg-[#0D1B2A] text-white">
-        <div className="max-w-6xl mx-auto px-6 py-16">
+      <section className="relative isolate overflow-hidden bg-[#0D1B2A] text-white">
+        <Image
+          src="/images/glosource-hero-command-room.png"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="absolute inset-0 -z-20 object-cover object-center"
+        />
+        <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(7,17,31,0.96)_0%,rgba(13,27,42,0.88)_38%,rgba(13,27,42,0.46)_72%,rgba(13,27,42,0.22)_100%)]" />
+        <div className="absolute inset-x-0 bottom-0 -z-10 h-24 bg-gradient-to-t from-[#0D1B2A] to-transparent" />
+        <div className="max-w-6xl mx-auto px-6 py-18 sm:py-20 lg:py-24">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 border border-white/20 rounded-full px-3 py-1 text-xs text-slate-300 mb-6">
+            <div className="inline-flex items-center gap-2 border border-white/20 bg-white/10 rounded-full px-3 py-1 text-xs text-slate-200 mb-6 backdrop-blur">
               <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
               1688.com · Alibaba · WeChat公众号 실시간 탐색
             </div>
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-black leading-[1.15] tracking-tight mb-5">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black leading-[1.08] tracking-tight mb-5">
               한국 건설업계 전용<br />
               <span className="text-[#EA580C]">해외 자재 직소싱 AI</span>
             </h1>
-            <p className="text-slate-400 text-base md:text-lg leading-relaxed mb-8 max-w-xl">
+            <p className="text-slate-200 text-base md:text-lg leading-relaxed mb-8 max-w-xl">
               <strong className="text-white">기존 거래처를 끊지 마세요.</strong> GloSource는 협상 도구입니다.
               KS인증·관세·세금계산서·통관까지 한국 건설사가 필요한 모든 것을 자동화합니다.
               <strong className="text-white">한국 건설 현장 출신</strong>이 만들었습니다.
@@ -354,7 +365,7 @@ export default function HomePage() {
                 { icon: <Icon.Mail className="w-3.5 h-3.5" />, text: 'RFQ 이메일 자동 생성' },
                 { icon: <Icon.Download className="w-3.5 h-3.5" />, text: '한국어 리포트 PDF' },
               ].map(b => (
-                <span key={b.text} className="inline-flex items-center gap-1.5 bg-white/10 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-slate-300">
+                <span key={b.text} className="inline-flex items-center gap-1.5 bg-white/10 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-slate-200 backdrop-blur">
                   {b.icon}{b.text}
                 </span>
               ))}
@@ -368,7 +379,7 @@ export default function HomePage() {
               ].map(s => (
                 <div key={s.num}>
                   <p className="text-2xl font-black text-white">{s.num}</p>
-                  <p className="text-xs text-slate-400 mt-0.5">{s.label}</p>
+                  <p className="text-xs text-slate-300 mt-0.5">{s.label}</p>
                 </div>
               ))}
             </div>
@@ -379,6 +390,26 @@ export default function HomePage() {
       {/* ── 메인 툴 ── */}
       <section className="bg-slate-50">
         <div className="max-w-6xl mx-auto px-6 py-10">
+          <div className="mb-9 grid grid-cols-1 gap-6 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
+            <div>
+              <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-3">Sourcing Intelligence</p>
+              <h2 className="text-2xl font-black text-[#0D1B2A] leading-tight mb-3">가격 검색이 아니라, 거래 리스크까지 보는 소싱 워크플로우</h2>
+              <p className="text-sm leading-relaxed text-slate-500 max-w-xl">
+                자재 샘플, RFQ 문서, 공급자 검증 근거를 한 화면에서 비교하도록 설계했습니다.
+                단순 플랫폼 검색과 달리 한국 건설사의 발주 조건과 검증 흐름에 맞춰 결과를 정리합니다.
+              </p>
+            </div>
+            <div className="relative min-h-[220px] overflow-hidden rounded-lg border border-slate-200 bg-slate-200 shadow-sm">
+              <Image
+                src="/images/glosource-sourcing-workspace.png"
+                alt="건설 자재 소싱 분석 워크스페이스"
+                fill
+                sizes="(min-width: 1024px) 560px, 100vw"
+                className="object-cover"
+              />
+              <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(15,23,42,0.12),rgba(15,23,42,0))]" />
+            </div>
+          </div>
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-6">
 
             {/* 입력 폼 */}
@@ -658,10 +689,22 @@ export default function HomePage() {
       {/* ── 요금제 ── */}
       <section className="bg-white border-t border-slate-200">
         <div className="max-w-5xl mx-auto px-6 py-16">
-          <div className="text-center mb-12">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">요금제</p>
-            <h2 className="text-2xl font-black text-[#0D1B2A] mb-3">규모에 맞는 플랜을 선택하세요</h2>
-            <p className="text-sm text-slate-500">1회 = 공급자 3~5개 탐색 + 신뢰도 분석 + RFQ 이메일 + PDF 리포트</p>
+          <div className="mb-12 grid grid-cols-1 gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
+            <div>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">요금제</p>
+              <h2 className="text-2xl font-black text-[#0D1B2A] mb-3">규모에 맞는 플랜을 선택하세요</h2>
+              <p className="text-sm leading-relaxed text-slate-500">1회 = 공급자 3~5개 탐색 + 신뢰도 분석 + RFQ 이메일 + PDF 리포트. 세금계산서, 한국어 AS 채널, 현장별 분류까지 운영 흐름에 맞춰 확장합니다.</p>
+            </div>
+            <div className="relative min-h-[220px] overflow-hidden rounded-lg border border-slate-200 bg-slate-100 shadow-sm">
+              <Image
+                src="/images/glosource-enterprise-ops.png"
+                alt="건설 소싱 계약과 운영 지원 데스크"
+                fill
+                sizes="(min-width: 1024px) 520px, 100vw"
+                className="object-cover"
+              />
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,0.08))]" />
+            </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {[
