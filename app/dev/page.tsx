@@ -61,6 +61,8 @@ export default function DevPage() {
       setAuthed(true);
       loadHistory(saved);
     }
+    // loadHistory is stable for mount — key is always passed explicitly here
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const parseItems = (items: ApiResult[]): ApiResult[] =>
