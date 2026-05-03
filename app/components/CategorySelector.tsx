@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { CategoryGlyph, getCategoryGlyphKey } from './CategoryGlyph';
 import { L1_META, CATEGORY_GROUPS, getCategoriesByL1 } from '../lib/categories';
 import type { Category, L1Code, CategoryGroup } from '../lib/categories';
 
@@ -64,29 +65,6 @@ function IconRobot({ className }: { className?: string }) {
   );
 }
 
-function IconChip({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5M4.5 15.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9.75-9h10.5c.621 0 1.125-.504 1.125-1.125v-4.5c0-.621-.504-1.125-1.125-1.125H6.75c-.621 0-1.125.504-1.125 1.125v4.5c0 .621.504 1.125 1.125 1.125z" />
-    </svg>
-  );
-}
-
-function IconGear({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12a7.5 7.5 0 0015 0m-15 0a7.5 7.5 0 1115 0m-15 0H3m16.5 0H21m-1.5 0H12m-8.457 3.077l1.41-.513m14.095-5.13l1.41-.513M5.106 17.785l1.15-.964m11.49-9.642l1.149-.964M7.501 19.795l.75-1.3m7.5-12.99l.75-1.3m-6.063 16.658l.26-1.477m2.605-14.772l.26-1.477m0 17.726l-.26-1.477M10.698 4.614l-.26-1.477M16.5 19.794l-.75-1.299M7.5 4.205L12 12m6.894 5.785l-1.149-.964M6.256 7.178l-1.15-.964m15.352 8.864l-1.41-.513M4.954 9.435l-1.41-.514M12.002 12l-3.75 6.495" />
-    </svg>
-  );
-}
-
-const GROUP_ICON: Record<CategoryGroup, React.ReactNode> = {
-  construction: <IconBuilding className="w-3.5 h-3.5" />,
-  ai_robot:     <IconRobot className="w-3.5 h-3.5" />,
-  it_hardware:  <IconChip className="w-3.5 h-3.5" />,
-  smart_mfg:    <IconGear className="w-3.5 h-3.5" />,
-};
-
 const TECH_CARD_META: Record<Exclude<CategoryGroup, 'construction'>, { title: string; keywords: string }> = {
   ai_robot:    { title: 'AI · 로봇 · 자동화', keywords: '협동로봇 · 비전 · PLC · AGV' },
   it_hardware: { title: 'IT · 전자부품',       keywords: 'PCB · 서버 · 네트워크 · RF' },
@@ -127,6 +105,7 @@ export default function CategorySelector({ onSelect, selected }: CategorySelecto
       {/* ── Selected pill ── */}
       {selected && (
         <div className="flex items-center gap-2 px-3 py-2 bg-orange-50 border border-orange-200 rounded-lg text-xs">
+          <CategoryGlyph glyph={getCategoryGlyphKey(selected.code, selected.l1Code)} className="h-6 w-6" />
           <span className="font-semibold text-[#0D1B2A]">{selected.l1NameKo}</span>
           <span className="text-slate-300">›</span>
           <span className="text-orange-700 font-medium">{selected.l2NameKo}</span>
@@ -158,11 +137,14 @@ export default function CategorySelector({ onSelect, selected }: CategorySelecto
                 key={code}
                 type="button"
                 onClick={() => toggleL1(code)}
-                className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium transition-all border ${
+                className={`w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-xs font-medium transition-all border ${
                   isOpen ? cfg.openCls : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
                 }`}
               >
-                <span>{meta.nameKo}</span>
+                <span className="flex min-w-0 items-center gap-2">
+                  <CategoryGlyph glyph={getCategoryGlyphKey('', code)} className="h-6 w-6" />
+                  <span className="truncate">{meta.nameKo}</span>
+                </span>
                 <svg className={`w-3 h-3 flex-shrink-0 transition-transform ${isOpen ? 'rotate-180 opacity-70' : 'opacity-30'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                 </svg>
@@ -186,12 +168,13 @@ export default function CategorySelector({ onSelect, selected }: CategorySelecto
                       key={cat.code}
                       type="button"
                       onClick={() => pickL2(cat)}
-                      className={`px-2.5 py-1 rounded-full text-[11px] border transition-colors ${
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] border transition-colors ${
                         selected?.code === cat.code
                           ? cfg.chipSelected
                           : `bg-white text-slate-500 border-slate-200 ${cfg.chipHover}`
                       }`}
                     >
+                      <CategoryGlyph glyph={getCategoryGlyphKey(cat.code, cat.l1Code)} className="h-[18px] w-[18px]" />
                       {cat.l2NameKo}
                     </button>
                   );
@@ -234,7 +217,7 @@ export default function CategorySelector({ onSelect, selected }: CategorySelecto
                 }`}
               >
                 <div className={`flex items-center gap-1.5 mb-1 ${isOpen ? 'text-white' : ''}`}>
-                  {GROUP_ICON[group.id]}
+                  <CategoryGlyph glyph={getCategoryGlyphKey('', code)} className="h-7 w-7" />
                   <span className="text-[11px] font-bold leading-tight">{meta.title.split(' · ')[0]}</span>
                 </div>
                 <p className={`text-[10px] leading-snug ${isOpen ? 'text-white/70' : 'text-slate-400'}`}>
@@ -265,12 +248,13 @@ export default function CategorySelector({ onSelect, selected }: CategorySelecto
                       key={cat.code}
                       type="button"
                       onClick={() => pickL2(cat)}
-                      className={`px-2.5 py-1 rounded-full text-[11px] border transition-colors ${
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] border transition-colors ${
                         selected?.code === cat.code
                           ? cfg.chipSelected
                           : `bg-white text-slate-500 border-slate-200 ${cfg.chipHover}`
                       }`}
                     >
+                      <CategoryGlyph glyph={getCategoryGlyphKey(cat.code, cat.l1Code)} className="h-[18px] w-[18px]" />
                       {cat.l2NameKo}
                     </button>
                   );
