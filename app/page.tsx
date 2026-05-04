@@ -1021,6 +1021,79 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── 활용 사례 시뮬레이션 ── */}
+      <section className="bg-[#0D1B2A]">
+        <div className="max-w-6xl mx-auto px-6 py-16">
+          <div className="mb-10 text-center">
+            <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-3">Use Cases</p>
+            <h2 className="text-3xl font-black leading-tight text-white">실제 소싱 시뮬레이션</h2>
+            <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-slate-400">
+              GloSource AI가 실제 건자재·산업재 품목에서 어떤 결과를 도출했는지 확인하세요.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            {[
+              {
+                tag: '철강',
+                product: 'SD400 D16 철근 50ton',
+                suppliers: 4,
+                priceRange: '¥3,200~3,850/ton',
+                saving: 'Alibaba 대비 ~38% 절감',
+                moq: '20ton',
+                highlight: '诚信通 인증 공장 3개소, 韩国 수출 경험 포함',
+              },
+              {
+                tag: '알루미늄',
+                product: '알루미늄 커튼월 프레임 6063-T5',
+                suppliers: 3,
+                priceRange: '¥28~41/kg',
+                saving: '국내 수입 대비 ~45% 절감',
+                moq: '500kg',
+                highlight: 'OEM 가능 2개소, CE 인증 1개소',
+              },
+              {
+                tag: '스마트팩토리',
+                product: '협동로봇 6축 UR10e 동급',
+                suppliers: 5,
+                priceRange: '¥58,000~72,000/대',
+                saving: '유럽 브랜드 대비 ~52% 절감',
+                moq: '1대',
+                highlight: 'ISO 10218 인증 후보 2개사, 한국 A/S 파트너십 보유',
+              },
+            ].map(({ tag, product, suppliers, priceRange, saving, moq, highlight }) => (
+              <div key={tag} className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
+                <span className="inline-block rounded-full border border-[#EA580C]/40 bg-[#EA580C]/10 px-3 py-1 text-xs font-bold text-[#EA580C] mb-4">
+                  {tag}
+                </span>
+                <p className="text-xs text-slate-400 mb-1">검색어</p>
+                <h3 className="text-base font-black text-white mb-5 leading-snug">{product}</h3>
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">발굴 공급자</span>
+                    <span className="font-bold text-white">{suppliers}개사</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">가격 범위</span>
+                    <span className="font-bold text-white">{priceRange}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">최소 발주</span>
+                    <span className="font-bold text-white">{moq}</span>
+                  </div>
+                  <div className="rounded-lg bg-[#EA580C]/10 px-3 py-2 text-xs text-[#EA580C] font-semibold">
+                    {saving}
+                  </div>
+                  <p className="text-xs text-slate-500 leading-relaxed">{highlight}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <p className="mt-8 text-center text-xs text-slate-500">
+            * 위 수치는 GloSource AI 탐색 시뮬레이션 결과이며 실제 거래 조건은 공급자와 직접 협의 후 확정됩니다.
+          </p>
+        </div>
+      </section>
+
       {/* ── 결과물 미리보기 ── */}
       <section className="bg-slate-50 border-t border-slate-100">
         <div className="max-w-6xl mx-auto px-6 py-16">
