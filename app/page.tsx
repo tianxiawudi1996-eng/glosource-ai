@@ -499,14 +499,68 @@ export default function HomePage() {
               중국 내수 플랫폼의 가격 신호와 외국인 선호 플랫폼의 거래 조건을 함께 비교해, 발주 전 후보군을 좁히는 데 집중합니다.
             </p>
           </div>
-          <div className="relative min-h-[280px] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm sm:min-h-[360px] lg:min-h-[470px]">
-            <Image
-              src="/images/sourcing-channel-map.png"
-              alt="중국 현지 소싱 채널과 글로벌 수출 채널을 비교하는 GloSource AI 대시보드"
-              fill
-              sizes="(min-width: 1024px) 1120px, 100vw"
-              className="object-cover"
-            />
+          <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+            <div className="grid grid-cols-1 gap-0 lg:grid-cols-[1fr_260px_1fr]">
+              <div className="p-5 sm:p-6">
+                <div className="mb-4 flex items-center justify-between">
+                  <h3 className="text-sm font-black text-[#0D1B2A]">중국 현지 채널</h3>
+                  <span className="rounded-full bg-orange-50 px-2.5 py-1 text-[11px] font-bold text-[#EA580C]">가격 신호</span>
+                </div>
+                <div className="space-y-3">
+                  {[
+                    ['1688.com 诚信通', '공장가, MOQ, 청신통 연한 확인'],
+                    ['Baidu 爱采购', '중국어 검색 기반 공급자 후보'],
+                    ['供应商网 · 慧聪网', '현지 B2B 디렉터리 보조 확인'],
+                    ['WeChat 公众号', '공장 홍보글과 연락 힌트 확인'],
+                  ].map(([title, desc]) => (
+                    <div key={title} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                      <p className="text-sm font-bold text-[#0D1B2A]">{title}</p>
+                      <p className="mt-1 text-xs leading-relaxed text-slate-500">{desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex flex-col items-center justify-center gap-4 border-y border-slate-200 bg-[#0D1B2A] p-6 text-white lg:border-x lg:border-y-0">
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 ring-1 ring-white/20">
+                  <Icon.Search className="h-7 w-7 text-white" />
+                </div>
+                <div className="text-center">
+                  <p className="text-base font-black">GloSource AI 매칭</p>
+                  <p className="mt-1 text-xs leading-relaxed text-slate-300">후보 수집 · 리스크 정리 · RFQ 질문 생성</p>
+                </div>
+                <div className="grid w-full grid-cols-3 gap-2 text-center">
+                  {['검색', '비교', '질문'].map(step => (
+                    <span key={step} className="rounded-lg bg-white/10 px-2 py-2 text-[11px] font-bold text-slate-200">
+                      {step}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="p-5 sm:p-6">
+                <div className="mb-4 flex items-center justify-between">
+                  <h3 className="text-sm font-black text-[#0D1B2A]">글로벌 수출 채널</h3>
+                  <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-bold text-blue-700">수출 조건</span>
+                </div>
+                <div className="space-y-3">
+                  {[
+                    ['Alibaba.com', '수출 대응, MOQ, Trade Assurance 참고'],
+                    ['Made-in-China', 'Audited Supplier와 인증 키워드 확인'],
+                    ['Global Sources', '수출형 공급자와 카테고리 후보'],
+                    ['직접 RFQ', '영문·중문 문의 초안으로 직접 확인'],
+                  ].map(([title, desc]) => (
+                    <div key={title} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                      <p className="text-sm font-bold text-[#0D1B2A]">{title}</p>
+                      <p className="mt-1 text-xs leading-relaxed text-slate-500">{desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="border-t border-slate-100 bg-slate-50 px-5 py-3 text-xs leading-relaxed text-slate-500">
+              위 다이어그램은 실제 GloSource AI가 비교 대상으로 삼는 채널 구조를 설명한 것입니다. 특정 공급자나 거래 성사율을 보증하지 않습니다.
+            </div>
           </div>
         </div>
       </section>
