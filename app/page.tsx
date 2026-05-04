@@ -8,7 +8,7 @@ import ExportButton from './components/ExportButton';
 import PaywallModal from './components/PaywallModal';
 import ContactModal from './components/ContactModal';
 import WeChatCard from './components/WeChatCard';
-import { SupplierRow, SupplierDetail } from './components/SupplierCard';
+import { SupplierComparisonTable, SupplierDetail } from './components/SupplierCard';
 import RFQComposer from './components/RFQComposer';
 import { Icon } from './components/icons';
 import type { Category } from './lib/categories';
@@ -926,29 +926,17 @@ export default function HomePage() {
                     <p className="text-xs text-slate-500 bg-blue-50 border border-blue-100 rounded-lg px-3 py-2">{result.recommendation}</p>
                   </div>
 
-                  {/* 공급자 카드 리스트 */}
-                  <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div className="px-4 py-3 border-b border-slate-100 flex items-center gap-2">
-                      <Icon.Globe className="w-4 h-4 text-slate-400" />
-                      <p className="text-sm font-bold text-[#0D1B2A]">추천 공급자 {result.suppliers.length}개</p>
+                  {result.suppliers.length > 0 ? (
+                    <SupplierComparisonTable
+                      suppliers={result.suppliers}
+                      selectedRank={selectedSupplier?.rank}
+                      onSelect={setSelectedSupplier}
+                    />
+                  ) : (
+                    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
+                      <EmptyState type="no_results" />
                     </div>
-                    {result.suppliers.length > 0 ? (
-                      <div className="divide-y divide-slate-100">
-                        {result.suppliers.map(s => (
-                          <SupplierRow
-                            key={s.rank}
-                            supplier={s}
-                            isSelected={selectedSupplier?.rank === s.rank}
-                            onClick={() => setSelectedSupplier(s)}
-                          />
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="p-4">
-                        <EmptyState type="no_results" />
-                      </div>
-                    )}
-                  </div>
+                  )}
 
                   {/* 선택 공급자 상세 */}
                   {selectedSupplier && (
@@ -1108,16 +1096,30 @@ export default function HomePage() {
             <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
               <div className="border-b border-slate-100 p-5">
                 <h3 className="text-lg font-black text-[#0D1B2A]">공급자 후보 비교표</h3>
-                <p className="mt-1 text-sm text-slate-500">MOQ, 단가, 리드타임, 리스크 점수, RFQ 상태를 한 화면에서 비교합니다.</p>
+                <p className="mt-1 text-sm text-slate-500">실제 결과 화면과 같은 필드로 MOQ, 단가, 리드타임, 리스크, 확인 상태를 비교합니다.</p>
               </div>
-              <div className="relative min-h-[300px] bg-slate-100 sm:min-h-[380px]">
-                <Image
-                  src="/images/supplier-comparison-preview.png"
-                  alt="공급자 후보 비교표와 리스크 점수 대시보드"
-                  fill
-                  sizes="(min-width: 1024px) 560px, 100vw"
-                  className="object-cover"
-                />
+              <div className="p-5">
+                <div className="overflow-hidden rounded-lg border border-slate-200">
+                  <div className="grid grid-cols-[1.1fr_0.8fr_0.8fr_0.7fr] bg-[#0D1B2A] text-[11px] font-bold text-white">
+                    <div className="px-3 py-2">공급자</div>
+                    <div className="px-3 py-2">MOQ</div>
+                    <div className="px-3 py-2">예상 단가</div>
+                    <div className="px-3 py-2">리스크</div>
+                  </div>
+                  {[
+                    ['1688 후보 A', '500개', '¥45~60', '18/100'],
+                    ['Baidu 후보 B', '1,000개', '문의 필요', '34/100'],
+                    ['Alibaba 후보 C', '300개', 'USD 6~8', '42/100'],
+                  ].map(([name, moq, price, risk], idx) => (
+                    <div key={name} className={`grid grid-cols-[1.1fr_0.8fr_0.8fr_0.7fr] border-t border-slate-200 text-xs ${idx === 0 ? 'bg-orange-50/60' : 'bg-white'}`}>
+                      <div className="px-3 py-3 font-bold text-[#0D1B2A]">{name}</div>
+                      <div className="px-3 py-3 text-slate-600">{moq}</div>
+                      <div className="px-3 py-3 text-slate-600">{price}</div>
+                      <div className="px-3 py-3 font-bold text-emerald-700">{risk}</div>
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-3 text-xs text-slate-400">분석 후 실제 공급자 데이터로 채워지는 화면 예시입니다.</p>
               </div>
             </div>
             <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
@@ -1125,14 +1127,37 @@ export default function HomePage() {
                 <h3 className="text-lg font-black text-[#0D1B2A]">영문·중문 RFQ 초안</h3>
                 <p className="mt-1 text-sm text-slate-500">공급자에게 확인해야 할 사양, 샘플, 포장, 결제조건 질문을 정리합니다.</p>
               </div>
-              <div className="relative min-h-[300px] bg-slate-100 sm:min-h-[380px]">
-                <Image
-                  src="/images/rfq-document-preview.png"
-                  alt="영문 중문 RFQ 문서와 공급자 확인 질문 리스트"
-                  fill
-                  sizes="(min-width: 1024px) 560px, 100vw"
-                  className="object-cover"
-                />
+              <div className="grid gap-4 p-5 sm:grid-cols-[1fr_160px]">
+                <div className="rounded-lg border border-slate-200 bg-white p-4">
+                  <div className="mb-3 flex items-start justify-between border-b border-slate-200 pb-3">
+                    <div>
+                      <p className="text-lg font-black text-[#0D1B2A]">RFQ Draft</p>
+                      <p className="text-xs text-slate-400">영어 / 중국어 탭 전환</p>
+                    </div>
+                    <span className="rounded-md bg-[#EA580C] px-2 py-1 text-[10px] font-black text-white">DRAFT</span>
+                  </div>
+                  <div className="space-y-2 text-xs">
+                    <div className="grid grid-cols-[76px_1fr] rounded border border-slate-200">
+                      <span className="bg-slate-50 px-2 py-1.5 font-bold text-slate-500">Product</span>
+                      <span className="px-2 py-1.5 text-slate-600">[PRODUCT_NAME]</span>
+                    </div>
+                    <div className="grid grid-cols-[76px_1fr] rounded border border-slate-200">
+                      <span className="bg-slate-50 px-2 py-1.5 font-bold text-slate-500">Quantity</span>
+                      <span className="px-2 py-1.5 text-slate-600">[수량]</span>
+                    </div>
+                    <div className="rounded bg-slate-50 p-3 leading-relaxed text-slate-500">
+                      Unit price, MOQ, lead time, sample, certification, payment terms...
+                    </div>
+                  </div>
+                </div>
+                <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                  <p className="mb-2 text-xs font-black text-[#0D1B2A]">확인 질문</p>
+                  {['Certification', 'Sample', 'Packing', 'Payment', 'Lead Time'].map(item => (
+                    <div key={item} className="mb-2 rounded bg-white px-2 py-1.5 text-[11px] font-semibold text-slate-600">
+                      {item}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
