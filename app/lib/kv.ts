@@ -75,11 +75,18 @@ export function isKvConfigured(): boolean {
 }
 
 export function extractTrustedIp(headers: Headers): string {
-  // Vercel injects x-vercel-forwarded-for with its own signature — trust it over xff
+  // Vercel injects x-vercel-forwarded-for at the edge, so prefer it over
+  // client-controlled forwarding headers.
   const vercelIp = headers.get('x-vercel-forwarded-for');
-  if (vercelIp) return vercelIp.split(',')[0].trim();
+  if (vercelIp) return vercelIp.split(',')[0]?.trim() || 'unknown';
+
   const xff = headers.get('x-forwarded-for');
-  return xff?.split(',')[0]?.trim() ?? 'unknown';
+  if (xff) return xff.split(',')[0]?.trim() || 'unknown';
+
+  const realIp = headers.get('x-real-ip');
+  if (realIp) return realIp.trim() || 'unknown';
+
+  return 'unknown';
 }
 
 // Returns true if the IP is allowed (under free limit), false if blocked.

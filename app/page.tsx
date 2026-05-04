@@ -1139,6 +1139,32 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── 실제 사용 케이스 ── */}
+      <section className="bg-white border-t border-slate-100">
+        <div className="max-w-6xl mx-auto px-6 py-16">
+          <div className="mb-10 max-w-2xl">
+            <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-3">Use Cases</p>
+            <h2 className="text-3xl font-black leading-tight text-[#0D1B2A]">이런 상황에서 사용합니다</h2>
+            <p className="mt-3 text-sm leading-relaxed text-slate-500">
+              발주 실행 전에 후보군과 확인 질문을 정리해야 할 때, 소싱 담당자의 첫 판단 자료로 활용합니다.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {[
+              ['처음 중국 공급자를 찾을 때', '제품명은 있지만 어떤 중국어 키워드로 찾아야 할지 모를 때 후보 채널과 검색어를 정리합니다.'],
+              ['기존 공급자 견적이 비싼지 확인할 때', 'MOQ, 단가, 리드타임을 다른 후보와 비교해 협상 전 기준점을 만듭니다.'],
+              ['RFQ를 영어/중국어로 보내야 할 때', '사양, 샘플, 포장, 결제조건 질문을 영문·중문 초안으로 빠르게 정리합니다.'],
+              ['발주 전 판단 자료가 필요할 때', '거래 실행 전에 후보군, 리스크 신호, 직접 확인해야 할 항목을 분리합니다.'],
+            ].map(([title, desc]) => (
+              <div key={title} className="rounded-xl border border-slate-200 bg-slate-50 p-6">
+                <h3 className="mb-2 text-lg font-black text-[#0D1B2A]">{title}</h3>
+                <p className="text-sm leading-relaxed text-slate-500">{desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── 요금제 ── */}
       <section id="pricing" className="bg-white border-t border-slate-200">
         <div className="max-w-5xl mx-auto px-6 py-16">
