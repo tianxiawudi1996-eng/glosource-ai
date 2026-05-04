@@ -5,12 +5,22 @@ import { isValidLicenseKey, extractLicenseKey } from '../../../lib/licenseAuth';
 import { getCategoryByCode } from '../../../lib/categories';
 import type { Category } from '../../../lib/categories';
 import type { SourcingRequest, SourcingOutput } from '../types';
-import { kvSaveHistory, kvCheckFreeCredit } from '../../../lib/kv';
+import { kvSaveHistory, kvCheckFreeCredit, extractTrustedIp } from '../../../lib/kv';
 
 export const maxDuration = 60;
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 const GOOGLE_SEARCH_TOOLS: Tool[] = [{ googleSearchRetrieval: {} }];
+
+function sanitizeInput(raw: string): string {
+  return raw
+    .replace(/ignore\s+(all\s+)?(previous|prior|above)\s+(instructions?|prompts?|rules?|context)/gi, '[filtered]')
+    .replace(/you\s+(are|must|should|will)\s+(now|instead|act\s+as)/gi, '[filtered]')
+    .replace(/forget\s+(everything|all|prior|previous)/gi, '[filtered]')
+    .replace(/<\/?[^>]+(>|$)/g, '')
+    .trim()
+    .slice(0, 600);
+}
 
 function hasGroundingMetadata(response: EnhancedGenerateContentResponse): boolean {
   return response.candidates?.some(candidate => {
@@ -37,7 +47,7 @@ function build1688Prompt(req: SourcingRequest, categoryContext?: Category): stri
 Baidu 爱采购, 供应商网/中国供应商, 慧聪网, 搜了网, 马可波罗网은 중국 현지 구매자가 중국어 검색으로 공급자 후보를 찾을 때 함께 확인할 수 있는 B2B 디렉터리/검색 채널입니다.
 ${catSection}
 [소싱 요청]
-- 제품: ${req.productDescription}
+- 제품: ${sanitizeInput(req.productDescription)}
 - 수량: ${req.quantity}
 - 예산: ${req.budget || '미지정'}
 
@@ -131,7 +141,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'subscription_required' }, { status: 401 });
     }
     if (licenseKey === null) {
-      const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
+      const ip = extractTrustedIp(request.headers);
       const allowed = await kvCheckFreeCredit(ip);
       if (!allowed) {
         return NextResponse.json({ error: 'subscription_required' }, { status: 401 });

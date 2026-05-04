@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { kvSaveLead } from '../../lib/kv';
+import { kvSaveLead, extractTrustedIp } from '../../lib/kv';
 
 export const maxDuration = 10;
 
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '이름과 연락처를 입력해주세요.' }, { status: 400 });
     }
 
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
+    const ip = extractTrustedIp(request.headers);
     const userAgent = request.headers.get('user-agent') ?? '';
     const saved = await kvSaveLead({
       id: `${Date.now()}-${crypto.randomUUID()}`,

@@ -74,6 +74,14 @@ export function isKvConfigured(): boolean {
   return !!(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN);
 }
 
+export function extractTrustedIp(headers: Headers): string {
+  // Vercel injects x-vercel-forwarded-for with its own signature — trust it over xff
+  const vercelIp = headers.get('x-vercel-forwarded-for');
+  if (vercelIp) return vercelIp.split(',')[0].trim();
+  const xff = headers.get('x-forwarded-for');
+  return xff?.split(',')[0]?.trim() ?? 'unknown';
+}
+
 // Returns true if the IP is allowed (under free limit), false if blocked.
 // Development can run without Upstash; production must fail closed so the paywall
 // cannot be bypassed when Redis is missing or temporarily unavailable.

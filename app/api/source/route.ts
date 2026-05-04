@@ -5,12 +5,22 @@ import { isValidLicenseKey, extractLicenseKey } from '../../lib/licenseAuth';
 import { getCategoryByCode } from '../../lib/categories';
 import type { Category } from '../../lib/categories';
 import type { SourcingRequest, SourcingOutput } from './types';
-import { kvSaveHistory, kvCheckFreeCredit } from '../../lib/kv';
+import { kvSaveHistory, kvCheckFreeCredit, extractTrustedIp } from '../../lib/kv';
 
 export const maxDuration = 60;
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 const GOOGLE_SEARCH_TOOLS: Tool[] = [{ googleSearchRetrieval: {} }];
+
+function sanitizeInput(raw: string): string {
+  return raw
+    .replace(/ignore\s+(all\s+)?(previous|prior|above)\s+(instructions?|prompts?|rules?|context)/gi, '[filtered]')
+    .replace(/you\s+(are|must|should|will)\s+(now|instead|act\s+as)/gi, '[filtered]')
+    .replace(/forget\s+(everything|all|prior|previous)/gi, '[filtered]')
+    .replace(/<\/?[^>]+(>|$)/g, '')
+    .trim()
+    .slice(0, 600);
+}
 
 function hasGroundingMetadata(response: EnhancedGenerateContentResponse): boolean {
   return response.candidates?.some(candidate => {
@@ -68,7 +78,7 @@ function buildPrompt(req: SourcingRequest, categoryContext?: Category): string {
   return `당신은 20년 경력의 글로벌 소싱 전문가입니다. Google 검색을 통해 아래 소싱 요청에 맞는 해외 공급자를 실제로 탐색하고, 각 공급자의 신뢰도를 전문가 관점에서 분석해주세요.
 ${catSection}
 [소싱 요청]
-- 제품/자재: ${req.productDescription}
+- 제품/자재: ${sanitizeInput(req.productDescription)}
 - 필요 수량: ${req.quantity}${unitNote ? ' ' + unitNote : ''}
 - 예산 범위: ${req.budget || '미지정 (합리적 시세 기준으로 분석)'}
 - 원산지 선호: ${COUNTRY_LABELS[req.countryPreference]}
@@ -150,7 +160,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'subscription_required' }, { status: 401 });
     }
     if (licenseKey === null) {
-      const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
+      const ip = extractTrustedIp(request.headers);
       const allowed = await kvCheckFreeCredit(ip);
       if (!allowed) {
         return NextResponse.json({ error: 'subscription_required' }, { status: 401 });
