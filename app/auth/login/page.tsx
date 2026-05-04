@@ -77,22 +77,25 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="my-6 flex items-center gap-3">
-          <div className="h-px flex-1 bg-slate-200" />
-          <span className="text-xs font-bold text-slate-400">또는</span>
-          <div className="h-px flex-1 bg-slate-200" />
-        </div>
-
-        <button
-          type="button"
-          onClick={() => signIn('google', { redirectTo: '/' })}
-          className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-black text-[#0D1B2A] hover:bg-slate-50"
-        >
-          <span className="flex h-5 w-5 items-center justify-center rounded-full border border-slate-200 text-xs font-black text-blue-600">
-            G
-          </span>
-          Google로 로그인
-        </button>
+        {process.env.NEXT_PUBLIC_GOOGLE_OAUTH_ENABLED === 'true' && (
+          <>
+            <div className="my-6 flex items-center gap-3">
+              <div className="h-px flex-1 bg-slate-200" />
+              <span className="text-xs font-bold text-slate-400">또는</span>
+              <div className="h-px flex-1 bg-slate-200" />
+            </div>
+            <button
+              type="button"
+              onClick={() => signIn('google', { redirectTo: '/' })}
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-black text-[#0D1B2A] hover:bg-slate-50"
+            >
+              <span className="flex h-5 w-5 items-center justify-center rounded-full border border-slate-200 text-xs font-black text-blue-600">
+                G
+              </span>
+              Google로 로그인
+            </button>
+          </>
+        )}
 
         <p className="mt-6 text-center text-sm text-slate-500">
           계정이 없으신가요?{' '}

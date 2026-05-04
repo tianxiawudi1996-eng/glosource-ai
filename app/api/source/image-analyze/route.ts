@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
-import { isValidLicenseKey, extractLicenseKey } from '../../../lib/licenseAuth';
-import { kvCheckFreeCredit, extractTrustedIp } from '../../../lib/kv';
+import { extractTrustedIp } from '../../../lib/kv';
+import { checkAuthAndQuota, logUsage } from '../../../lib/authMiddleware';
 
 export const maxDuration = 30;
 
@@ -21,18 +21,12 @@ const VALID_MIME_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
 
 export async function POST(request: NextRequest) {
+  const start = Date.now();
   try {
-    const licenseKey = extractLicenseKey(request);
-    if (licenseKey !== null && !isValidLicenseKey(licenseKey)) {
-      return NextResponse.json({ error: 'subscription_required' }, { status: 401 });
-    }
-    if (licenseKey === null) {
-      const ip = extractTrustedIp(request.headers);
-      const allowed = await kvCheckFreeCredit(ip);
-      if (!allowed) {
-        return NextResponse.json({ error: 'subscription_required' }, { status: 401 });
-      }
-    }
+    const authResult = await checkAuthAndQuota(request, 'image_analyze');
+    if (!authResult.ok) return authResult.response;
+    const { userId } = authResult;
+    const ip = extractTrustedIp(request.headers);
 
     const formData = await request.formData();
     const file = formData.get('image') as File | null;
@@ -94,6 +88,8 @@ export async function POST(request: NextRequest) {
         { status: 422 }
       );
     }
+
+    logUsage(userId, ip, 'image_analyze', data.productNameKo, undefined, Date.now() - start).catch(() => {});
 
     return NextResponse.json({ success: true, data });
   } catch (e) {

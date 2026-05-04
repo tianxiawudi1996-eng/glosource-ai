@@ -1,11 +1,11 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import type { EnhancedGenerateContentResponse, Tool } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
-import { isValidLicenseKey, extractLicenseKey } from '../../lib/licenseAuth';
 import { getCategoryByCode } from '../../lib/categories';
 import type { Category } from '../../lib/categories';
 import type { SourcingRequest, SourcingOutput } from './types';
-import { kvSaveHistory, kvCheckFreeCredit, extractTrustedIp } from '../../lib/kv';
+import { kvSaveHistory, extractTrustedIp } from '../../lib/kv';
+import { checkAuthAndQuota, logUsage } from '../../lib/authMiddleware';
 
 export const maxDuration = 60;
 
@@ -160,19 +160,12 @@ ${catSection}
 
 
 export async function POST(request: NextRequest) {
+  const start = Date.now();
   try {
-    // License key validation
-    const licenseKey = extractLicenseKey(request);
-    if (licenseKey !== null && !isValidLicenseKey(licenseKey)) {
-      return NextResponse.json({ error: 'subscription_required' }, { status: 401 });
-    }
-    if (licenseKey === null) {
-      const ip = extractTrustedIp(request.headers);
-      const allowed = await kvCheckFreeCredit(ip);
-      if (!allowed) {
-        return NextResponse.json({ error: 'subscription_required' }, { status: 401 });
-      }
-    }
+    const authResult = await checkAuthAndQuota(request, 'source');
+    if (!authResult.ok) return authResult.response;
+    const { userId } = authResult;
+    const ip = extractTrustedIp(request.headers);
 
     const body = (await request.json()) as SourcingRequest;
     const { productDescription, quantity } = body;
@@ -267,7 +260,6 @@ export async function POST(request: NextRequest) {
 
     const output: SourcingOutput = { ...parsed, groundingUsed };
 
-    // Fire-and-forget KV save (don't block response)
     kvSaveHistory({
       id: `${Date.now()}-ai`,
       timestamp: new Date().toISOString(),
@@ -277,6 +269,8 @@ export async function POST(request: NextRequest) {
       supplierCount: output.suppliers?.length ?? 0,
       raw: output,
     }).catch(() => {});
+
+    logUsage(userId, ip, 'source', req.productDescription, output.suppliers?.length, Date.now() - start).catch(() => {});
 
     return NextResponse.json({ success: true, data: output });
   } catch (error) {

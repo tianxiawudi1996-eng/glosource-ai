@@ -1,11 +1,11 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import type { EnhancedGenerateContentResponse, Tool } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
-import { isValidLicenseKey, extractLicenseKey } from '../../../lib/licenseAuth';
 import { getCategoryByCode } from '../../../lib/categories';
 import type { Category } from '../../../lib/categories';
 import type { SourcingRequest, SourcingOutput } from '../types';
-import { kvSaveHistory, kvCheckFreeCredit, extractTrustedIp } from '../../../lib/kv';
+import { kvSaveHistory, extractTrustedIp } from '../../../lib/kv';
+import { checkAuthAndQuota, logUsage } from '../../../lib/authMiddleware';
 
 export const maxDuration = 60;
 
@@ -142,19 +142,12 @@ function extractJSON(text: string): string {
 }
 
 export async function POST(request: NextRequest) {
+  const start = Date.now();
   try {
-    // License key validation
-    const licenseKey = extractLicenseKey(request);
-    if (licenseKey !== null && !isValidLicenseKey(licenseKey)) {
-      return NextResponse.json({ error: 'subscription_required' }, { status: 401 });
-    }
-    if (licenseKey === null) {
-      const ip = extractTrustedIp(request.headers);
-      const allowed = await kvCheckFreeCredit(ip);
-      if (!allowed) {
-        return NextResponse.json({ error: 'subscription_required' }, { status: 401 });
-      }
-    }
+    const authResult = await checkAuthAndQuota(request, 'factory_direct');
+    if (!authResult.ok) return authResult.response;
+    const { userId } = authResult;
+    const ip = extractTrustedIp(request.headers);
 
     const body = (await request.json()) as Pick<SourcingRequest, 'productDescription' | 'quantity' | 'budget' | 'categoryCode'>;
 
@@ -236,6 +229,8 @@ export async function POST(request: NextRequest) {
       supplierCount: output.suppliers?.length ?? 0,
       raw: output,
     }).catch(() => {});
+
+    logUsage(userId, ip, 'factory_direct', body.productDescription, output.suppliers?.length, Date.now() - start).catch(() => {});
 
     return NextResponse.json({ success: true, data: output });
   } catch (error) {

@@ -1,9 +1,9 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { load } from 'cheerio';
 import { NextRequest, NextResponse } from 'next/server';
-import { isValidLicenseKey, extractLicenseKey } from '../../../lib/licenseAuth';
 import type { WeChatPost, WeChatSourcingOutput } from '../types';
-import { kvSaveHistory, kvCheckFreeCredit, extractTrustedIp } from '../../../lib/kv';
+import { kvSaveHistory, extractTrustedIp } from '../../../lib/kv';
+import { checkAuthAndQuota, logUsage } from '../../../lib/authMiddleware';
 
 export const maxDuration = 60;
 
@@ -348,18 +348,12 @@ function normalizeWeChatOutput(output: WeChatSourcingOutput): WeChatSourcingOutp
 }
 
 export async function POST(request: NextRequest) {
+  const start = Date.now();
   try {
-    const licenseKey = extractLicenseKey(request);
-    if (licenseKey !== null && !isValidLicenseKey(licenseKey)) {
-      return NextResponse.json({ error: 'subscription_required' }, { status: 401 });
-    }
-    if (licenseKey === null) {
-      const ip = extractTrustedIp(request.headers);
-      const allowed = await kvCheckFreeCredit(ip);
-      if (!allowed) {
-        return NextResponse.json({ error: 'subscription_required' }, { status: 401 });
-      }
-    }
+    const authResult = await checkAuthAndQuota(request, 'wechat');
+    if (!authResult.ok) return authResult.response;
+    const { userId } = authResult;
+    const ip = extractTrustedIp(request.headers);
 
     const body = (await request.json()) as { keyword: string };
     const keyword = body.keyword?.trim();
@@ -434,6 +428,8 @@ export async function POST(request: NextRequest) {
       supplierCount: output.posts?.length ?? 0,
       raw: output,
     }).catch(() => {});
+
+    logUsage(userId, ip, 'wechat', keyword, output.posts?.length, Date.now() - start).catch(() => {});
 
     return NextResponse.json({ success: true, data: output });
   } catch (error) {
