@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { signIn } from '@/auth';
+import { signIn } from 'next-auth/react';
 import { FormEvent, useState } from 'react';
 
 type RegisterResponse = {

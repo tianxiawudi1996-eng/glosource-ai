@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import { db, subscriptions, usageLogs, PLAN_LIMITS } from '@/app/lib/db';
+import { db, usageLogs, PLAN_LIMITS } from '@/app/lib/db';
 import { eq, and, gte, sql } from 'drizzle-orm';
 import { extractTrustedIp } from './kv';
 
@@ -14,6 +14,7 @@ export async function checkAuthAndQuota(
   request: NextRequest,
   action: ActionType,
 ): Promise<AuthResult> {
+  void action;
   const session = await auth();
   const ip = extractTrustedIp(request.headers);
 

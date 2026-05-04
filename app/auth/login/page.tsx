@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { signIn } from '@/auth';
+import { signIn } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
 import { FormEvent, useState } from 'react';
 
