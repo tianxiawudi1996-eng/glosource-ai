@@ -10,8 +10,8 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "GloSource AI | AI 글로벌 소싱 에이전트",
-  description: "해외 공장 직발주, 이제 안전하게 시작하세요. AI가 Alibaba·Made-in-China에서 검증된 공급자를 탐색하고 신뢰도를 한국어로 분석합니다. RFQ 이메일 자동 생성.",
-  keywords: "해외소싱, 공급자검증, 글로벌소싱, 수입직발주, AI소싱에이전트, 알리바바검증, 중국공장직거래",
+  description: "중국·해외 공급자 후보를 빠르게 찾고 RFQ 준비까지 돕는 AI 소싱 매칭 도구입니다. 1688, Baidu 爱采购, Alibaba 등 주요 채널을 비교해 발주 전 판단 자료를 정리합니다.",
+  keywords: "중국소싱, 해외소싱, 공급자후보, RFQ, 1688소싱, Baidu爱采购, Alibaba소싱, 소싱매칭, AI소싱",
 };
 
 export default function RootLayout({

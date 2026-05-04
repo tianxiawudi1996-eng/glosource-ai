@@ -417,11 +417,11 @@ export default function HomePage() {
             </div>
             <h1 className="mb-5 max-w-2xl text-[2.9rem] font-black leading-[0.96] tracking-tight text-white drop-shadow-[0_3px_18px_rgba(0,0,0,0.42)] sm:text-6xl md:text-7xl">
               GloSource AI<br />
-              <span className="mt-2 inline-block rounded-lg bg-[#EA580C] px-3 py-1 text-[0.72em] text-white shadow-2xl shadow-orange-950/40">해외 자재 60초 매칭</span>
+              <span className="mt-2 inline-block rounded-lg bg-[#EA580C] px-3 py-1 text-[0.72em] text-white shadow-2xl shadow-orange-950/40">공급자 후보 60초 매칭</span>
             </h1>
             <p className="mb-8 max-w-2xl text-lg font-semibold leading-relaxed text-slate-100 md:text-xl">
               1688 · Baidu 爱采购 · Alibaba · WeChat 후보를 비교하고,
-              발주 전 공급자 검증 리포트와 RFQ를 바로 만듭니다.
+              발주 전 공급자 리스크와 RFQ 질문 리스트를 정리합니다.
             </p>
             <div className="flex flex-wrap items-center gap-3 mb-10">
               <a
@@ -438,6 +438,9 @@ export default function HomePage() {
               >
                 요금제 보기
               </a>
+            </div>
+            <div className="mb-8 max-w-2xl rounded-xl border border-amber-300/30 bg-amber-500/10 px-4 py-3 text-sm font-semibold leading-relaxed text-amber-50 backdrop-blur">
+              GloSource AI는 납품 대행사가 아닙니다. 공급자 후보 발굴, 비교 분석, RFQ 준비까지 지원합니다.
             </div>
             <div className="flex flex-wrap gap-3 mb-12">
               {[
@@ -472,7 +475,7 @@ export default function HomePage() {
       <section className="bg-white border-y border-slate-100">
         <div className="max-w-6xl mx-auto px-6 py-5">
           <div className="flex flex-col sm:flex-row items-center gap-4">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap shrink-0">검증된 플랫폼 데이터 소스</p>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap shrink-0">분석 대상 소싱 채널</p>
             <div className="flex flex-wrap justify-center sm:justify-start gap-2">
               {(['1688.com 诚信通', 'Baidu 爱采购', 'Made-in-China · Global Sources', 'WeChat 公众号'] as const).map(name => (
                 <span key={name} className="border border-slate-200 rounded-lg px-4 py-2 text-xs font-semibold text-slate-600 bg-slate-50">
@@ -480,6 +483,30 @@ export default function HomePage() {
                 </span>
               ))}
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 채널 맵 ── */}
+      <section className="bg-slate-50 border-b border-slate-100">
+        <div className="max-w-6xl mx-auto px-6 py-14">
+          <div className="mb-7 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-3">Channel Intelligence</p>
+              <h2 className="text-2xl font-black leading-tight text-[#0D1B2A]">현지 채널과 글로벌 채널을 분리해서 비교합니다</h2>
+            </div>
+            <p className="max-w-xl text-sm leading-relaxed text-slate-500">
+              중국 내수 플랫폼의 가격 신호와 외국인 선호 플랫폼의 거래 조건을 함께 비교해, 발주 전 후보군을 좁히는 데 집중합니다.
+            </p>
+          </div>
+          <div className="relative min-h-[280px] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm sm:min-h-[360px] lg:min-h-[470px]">
+            <Image
+              src="/images/sourcing-channel-map.png"
+              alt="중국 현지 소싱 채널과 글로벌 수출 채널을 비교하는 GloSource AI 대시보드"
+              fill
+              sizes="(min-width: 1024px) 1120px, 100vw"
+              className="object-cover"
+            />
           </div>
         </div>
       </section>
@@ -963,6 +990,82 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── 발주 전 판단 항목 ── */}
+      <section className="bg-white border-t border-slate-100">
+        <div className="max-w-6xl mx-auto px-6 py-16">
+          <div className="mb-10 max-w-2xl">
+            <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-3">Decision Checklist</p>
+            <h2 className="text-3xl font-black leading-tight text-[#0D1B2A]">GloSource AI가 확인하는 발주 전 판단 항목</h2>
+            <p className="mt-3 text-sm leading-relaxed text-slate-500">
+              거래를 대신 보증하지 않고, 사용자가 직접 판단해야 할 핵심 질문을 구조화합니다.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {[
+              ['사업자/플랫폼 이력', '1688 诚信通, 플랫폼 활동 흔적, 업체명 일관성을 확인합니다.'],
+              ['MOQ/단가 이상치', '동일 품목 대비 지나치게 낮거나 높은 조건을 리스크 신호로 분류합니다.'],
+              ['인증/규격 키워드', 'KS, CE, RoHS, ISO 등 품목별 확인 키워드를 RFQ 질문에 반영합니다.'],
+              ['중문 검색 적합도', '한국어 제품명을 현지 구매자가 쓰는 중국어 검색어로 변환합니다.'],
+              ['RFQ 확인 질문', '가격, 샘플, 포장, 리드타임, 결제조건 질문을 자동 정리합니다.'],
+              ['직접 검증 필요 항목', '계약, 결제, 샘플, 공장 실사는 사용자가 직접 확인해야 할 항목으로 분리합니다.'],
+            ].map(([title, desc], idx) => (
+              <div key={title} className="rounded-xl border border-slate-200 bg-slate-50 p-5">
+                <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-lg bg-[#0D1B2A] text-xs font-black text-white">
+                  {String(idx + 1).padStart(2, '0')}
+                </div>
+                <h3 className="mb-2 text-base font-black text-[#0D1B2A]">{title}</h3>
+                <p className="text-sm leading-relaxed text-slate-500">{desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── 결과물 미리보기 ── */}
+      <section className="bg-slate-50 border-t border-slate-100">
+        <div className="max-w-6xl mx-auto px-6 py-16">
+          <div className="mb-10 text-center">
+            <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-3">Deliverables</p>
+            <h2 className="text-3xl font-black leading-tight text-[#0D1B2A]">받게 되는 결과물</h2>
+            <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-slate-500">
+              공급자 후보를 단순 목록으로 끝내지 않고, 비교표와 RFQ 초안으로 바로 실행 가능한 판단 자료를 만듭니다.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+              <div className="border-b border-slate-100 p-5">
+                <h3 className="text-lg font-black text-[#0D1B2A]">공급자 후보 비교표</h3>
+                <p className="mt-1 text-sm text-slate-500">MOQ, 단가, 리드타임, 리스크 점수, RFQ 상태를 한 화면에서 비교합니다.</p>
+              </div>
+              <div className="relative min-h-[300px] bg-slate-100 sm:min-h-[380px]">
+                <Image
+                  src="/images/supplier-comparison-preview.png"
+                  alt="공급자 후보 비교표와 리스크 점수 대시보드"
+                  fill
+                  sizes="(min-width: 1024px) 560px, 100vw"
+                  className="object-cover"
+                />
+              </div>
+            </div>
+            <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+              <div className="border-b border-slate-100 p-5">
+                <h3 className="text-lg font-black text-[#0D1B2A]">영문·중문 RFQ 초안</h3>
+                <p className="mt-1 text-sm text-slate-500">공급자에게 확인해야 할 사양, 샘플, 포장, 결제조건 질문을 정리합니다.</p>
+              </div>
+              <div className="relative min-h-[300px] bg-slate-100 sm:min-h-[380px]">
+                <Image
+                  src="/images/rfq-document-preview.png"
+                  alt="영문 중문 RFQ 문서와 공급자 확인 질문 리스트"
+                  fill
+                  sizes="(min-width: 1024px) 560px, 100vw"
+                  className="object-cover"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── 요금제 ── */}
       <section id="pricing" className="bg-white border-t border-slate-200">
         <div className="max-w-5xl mx-auto px-6 py-16">
@@ -971,8 +1074,8 @@ export default function HomePage() {
               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">요금제</p>
               <h2 className="text-2xl font-black text-[#0D1B2A] mb-3">규모에 맞는 플랜을 선택하세요</h2>
               <p className="text-sm leading-relaxed text-slate-500 mb-4">
-                1회 = 공급자 3~5개 탐색 + 신뢰도 분석 + RFQ 이메일 + PDF 리포트.
-                팀 플랜은 현장별 분류, 세금계산서, 한국어 문의 채널까지 발주 전 소싱 업무에 맞춰 확장합니다.
+                1회 = 공급자 후보 3~5개 탐색 + 리스크 분석 + RFQ 질문 리스트 + PDF 리포트.
+                GloSource AI는 거래 실행, 납품, 결제, 물류를 대행하지 않습니다.
               </p>
               <span className="inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold px-3 py-1.5 rounded-full">
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -1002,14 +1105,14 @@ export default function HomePage() {
               }, {
                 name: '프로', tag: '가장 인기',
                 price: '49만원', unit: '/ 월',
-                per: '무제한 분석',
-                features: ['무제한 소싱 분석', 'KS인증·규격 참고 매칭', '세금계산서 발행', '한국어 의사결정 PDF', '한국어 문의 채널'],
+                per: '분석 60회/월',
+                features: ['확장 소싱 분석', 'KS인증·규격 참고 매칭', '세금계산서 발행', '한국어 의사결정 PDF', '한국어 RFQ 작성 지원'],
                 highlight: true,
               }, {
                 name: '팀', tag: '기업용',
                 price: '99만원', unit: '/ 월',
                 per: '5계정 공유',
-                features: ['5계정 공유', '현장별 분류 관리', '전담 전화·카카오 지원', '공급자 검증 템플릿', '세금계산서 발행'],
+                features: ['5계정 공유', '프로젝트별 소싱 이력 관리', '우선 문의 지원', '공급자 검증 템플릿', '세금계산서 발행'],
                 highlight: false,
               },
             ].map(plan => (
@@ -1077,7 +1180,7 @@ export default function HomePage() {
                 </div>
                 <span className="font-bold text-white">GloSource AI</span>
               </div>
-              <p className="text-xs text-slate-400 max-w-xs">한국 건설업계 전용 해외 자재 소싱 매칭 AI. 공급자 탐색·신뢰도 분석·RFQ 리포트까지 자동화합니다.</p>
+              <p className="text-xs text-slate-400 max-w-xs">중국·해외 공급자 후보 발굴과 RFQ 준비를 돕는 AI 소싱 매칭 도구입니다. 거래 실행과 납품은 사용자가 직접 판단합니다.</p>
             </div>
             <div className="text-right">
               <p className="text-xs text-slate-400">© 2026 GloSource AI. All rights reserved.</p>
