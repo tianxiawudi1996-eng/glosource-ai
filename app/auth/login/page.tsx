@@ -3,14 +3,14 @@
 import Link from 'next/link';
 import { signIn } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
-import { FormEvent, useState } from 'react';
+import { FormEvent, Suspense, useState } from 'react';
 
 const errorMessages: Record<string, string> = {
   CredentialsSignin: '이메일 또는 비밀번호가 올바르지 않습니다.',
   OAuthAccountNotLinked: '이미 다른 로그인 방식으로 가입된 이메일입니다.',
 };
 
-export default function LoginPage() {
+function LoginContent() {
   const searchParams = useSearchParams();
   const error = searchParams.get('error');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -105,5 +105,13 @@ export default function LoginPage() {
         </p>
       </section>
     </main>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginContent />
+    </Suspense>
   );
 }
