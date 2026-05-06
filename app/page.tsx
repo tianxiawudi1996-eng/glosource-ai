@@ -5,8 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 import CategorySelector from './components/CategorySelector';
 import EmptyState from './components/EmptyState';
 import ExportButton from './components/ExportButton';
-import PaywallModal from './components/PaywallModal';
-import ContactModal from './components/ContactModal';
+import UpgradeModal from './components/UpgradeModal';
 import WeChatCard from './components/WeChatCard';
 import { SupplierComparisonTable, SupplierDetail } from './components/SupplierCard';
 import RFQComposer from './components/RFQComposer';
@@ -29,9 +28,6 @@ interface ImageAnalysis {
 /* ══════════════════════════════════════════════
    상수
 ══════════════════════════════════════════════ */
-const FREE_CREDITS = 5; // beta: 5 free analyses per user
-const CREDITS_KEY = 'glosource_credits_v1';
-const LICENSE_KEY_STORAGE = 'glosource_license_key';
 const HISTORY_KEY = 'glosource_search_history';
 const HISTORY_MAX = 50;
 
@@ -184,13 +180,10 @@ export default function HomePage() {
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
   const [companyName, setCompanyName] = useState('');
   const [reportDate, setReportDate] = useState(() => new Date().toISOString().split('T')[0]);
-  const [credits, setCredits] = useState(FREE_CREDITS);
   const [showPaywall, setShowPaywall] = useState(false);
-  const [contactPlan, setContactPlan] = useState<string | null>(null);
   const [activeSource, setActiveSource] = useState<SourceMode>('ai');
   const [wechatResult, setWechatResult] = useState<WeChatSourcingOutput | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
-  const [licenseKey, setLicenseKey] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
   const [imageAnalysis, setImageAnalysis] = useState<ImageAnalysis | null>(null);
@@ -200,17 +193,6 @@ export default function HomePage() {
   const resultRef = useRef<HTMLDivElement>(null);
   const loadingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  useEffect(() => {
-    const stored = localStorage.getItem(CREDITS_KEY);
-    if (stored === null) {
-      localStorage.setItem(CREDITS_KEY, String(FREE_CREDITS));
-      setCredits(FREE_CREDITS);
-    } else {
-      setCredits(Number(stored));
-    }
-    const lk = localStorage.getItem(LICENSE_KEY_STORAGE);
-    if (lk) setLicenseKey(lk);
-  }, []);
 
   const startLoading = () => {
     const msgs = LOADING_MESSAGES[activeSource];
@@ -224,13 +206,7 @@ export default function HomePage() {
     if (loadingRef.current) clearInterval(loadingRef.current);
   };
 
-  const handleLicenseActivated = (key: string) => {
-    localStorage.setItem(LICENSE_KEY_STORAGE, key);
-    setLicenseKey(key);
-  };
-
   const handleGenerate = async () => {
-    if (!licenseKey && credits <= 0) { setShowPaywall(true); return; }
     if (activeSource === 'image' && !imageAnalysis) { setError('먼저 제품 이미지를 업로드해주세요.'); return; }
     if (!form.productDescription.trim()) { setError('제품/자재명을 입력해주세요.'); return; }
     if (activeSource !== 'wechat' && activeSource !== 'image' && !form.quantity.trim()) { setError('필요 수량을 입력해주세요.'); return; }
@@ -239,7 +215,6 @@ export default function HomePage() {
     startLoading();
 
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-    if (licenseKey) headers['X-License-Key'] = licenseKey;
 
     const safeJson = async (res: Response) => {
       const text = await res.text();
@@ -275,11 +250,6 @@ export default function HomePage() {
         saveToHistory({ timestamp: new Date().toISOString(), source: activeSource, query: { productDescription: form.productDescription, quantity: form.quantity }, status: res.status, raw: json });
       }
 
-      if (!licenseKey) {
-        const nc = credits - 1;
-        setCredits(nc);
-        localStorage.setItem(CREDITS_KEY, String(nc));
-      }
       setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
     } catch (e) {
       const message = e instanceof Error ? e.message : '알 수 없는 오류';
@@ -355,20 +325,8 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-white" style={{ fontFamily: "'Pretendard','Inter','Apple SD Gothic Neo','Malgun Gothic',sans-serif" }}>
 
-      {/* ── 결제 모달 ── */}
-      {showPaywall && (
-        <PaywallModal
-          onClose={() => setShowPaywall(false)}
-          onLicenseActivated={handleLicenseActivated}
-          onContactPlan={setContactPlan}
-        />
-      )}
-      {contactPlan && (
-        <ContactModal
-          plan={contactPlan}
-          onClose={() => setContactPlan(null)}
-        />
-      )}
+      {/* ── 업그레이드 모달 ── */}
+      {showPaywall && <UpgradeModal onClose={() => setShowPaywall(false)} />}
 
       {/* ── 네비게이션 ── */}
       <nav className="border-b border-slate-200 bg-white sticky top-0 z-40">
@@ -387,12 +345,7 @@ export default function HomePage() {
               <Icon.Shield className="w-3 h-3" />
               <span>AI 공급자 신뢰도 검증</span>
             </div>
-            {licenseKey
-              ? <span className="text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1.5 rounded-full">구독 활성</span>
-              : credits > 0
-                ? <span className="text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-full">무료 체험 {credits}회 남음</span>
-                : <button onClick={() => setShowPaywall(true)} className="text-xs font-semibold bg-[#EA580C] text-white px-3 py-1.5 rounded-full hover:bg-[#DC4C00] transition-colors">크레딧 충전</button>
-            }
+            <span className="text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-full">무료 5회 체험</span>
           </div>
         </div>
       </nav>
@@ -906,15 +859,13 @@ export default function HomePage() {
                   className="w-full min-h-[44px] py-4 rounded-xl font-bold text-sm transition-all bg-[#EA580C] text-white hover:bg-[#DC4C00] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm">
                   {loading
                     ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />{LOADING_MESSAGES[activeSource][loadingMsg]}</>
-                    : credits > 0
-                      ? <>
-                          <Icon.Search className="w-4 h-4" />
-                          {activeSource === 'ai' && '공급자 탐색 · AI 신뢰도 분석 시작'}
-                          {activeSource === '1688' && '1688 공장직거래 탐색 시작'}
-                          {activeSource === 'wechat' && 'WeChat 공장 홍보 정보 탐색'}
-                          {activeSource === 'image' && (imageAnalysis ? '이미지 매칭 공급자 탐색 시작' : '이미지를 먼저 업로드해주세요')}
-                        </>
-                      : <><Icon.Zap className="w-4 h-4" />크레딧 충전 후 분석하기</>
+                    : <>
+                        <Icon.Search className="w-4 h-4" />
+                        {activeSource === 'ai' && '공급자 탐색 · AI 신뢰도 분석 시작'}
+                        {activeSource === '1688' && '1688 공장직거래 탐색 시작'}
+                        {activeSource === 'wechat' && 'WeChat 공장 홍보 정보 탐색'}
+                        {activeSource === 'image' && (imageAnalysis ? '이미지 매칭 공급자 탐색 시작' : '이미지를 먼저 업로드해주세요')}
+                      </>
                   }
                 </button>
 
@@ -1319,12 +1270,11 @@ export default function HomePage() {
                     </li>
                   ))}
                 </ul>
-                <button
-                  type="button"
-                  onClick={() => setContactPlan(plan.name)}
+                <a
+                  href="/billing"
                   className={`block w-full text-center py-3 rounded-xl font-semibold text-sm transition-all ${plan.highlight ? 'bg-white text-[#0D1B2A] hover:bg-slate-100' : 'bg-[#0D1B2A] text-white hover:bg-slate-800'}`}>
-                  도입 문의하기
-                </button>
+                  시작하기
+                </a>
               </div>
             ))}
           </div>
