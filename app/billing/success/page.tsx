@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { and, eq } from 'drizzle-orm';
 import { auth } from '@/auth';
 import { db, payments, subscriptions } from '@/app/lib/db';
-import { eq } from 'drizzle-orm';
 import { sendReceiptEmail } from '@/app/lib/email';
 
 interface Props {
@@ -14,14 +14,26 @@ export default async function BillingSuccessPage({ searchParams }: Props) {
   if (!session?.user?.id) redirect('/auth/login');
 
   const params = await searchParams;
-  const { paymentKey, orderId, amount } = params;
+  const { paymentKey, orderId } = params;
 
-  if (!paymentKey || !orderId || !amount) {
+  if (!paymentKey || !orderId) {
     redirect('/billing');
   }
 
+  // [C-2] orderId가 현재 로그인 유저 소유인지 검증
+  const [pendingPayment] = await db
+    .select()
+    .from(payments)
+    .where(and(eq(payments.tossOrderId, orderId), eq(payments.userId, session.user.id)))
+    .limit(1);
+
+  if (!pendingPayment) {
+    redirect('/billing/fail?code=INVALID_ORDER&message=유효하지 않은 주문입니다.');
+  }
+
+  // [C-1] amount는 URL 파라미터 대신 DB 레코드에서 읽음
+  const amountNum = pendingPayment.amount;
   const secretKey = process.env.TOSS_SECRET_KEY ?? '';
-  const amountNum = Number(amount);
 
   let confirmed = false;
   let planId = 'pro';
@@ -49,10 +61,10 @@ export default async function BillingSuccessPage({ searchParams }: Props) {
       await db
         .update(payments)
         .set({ status: 'done', tossPaymentKey: paymentKey, approvedAt: new Date() })
-        .where(eq(payments.tossOrderId, orderId));
+        .where(and(eq(payments.tossOrderId, orderId), eq(payments.userId, session.user.id)));
 
       const planMap: Record<number, string> = { 190000: 'starter', 490000: 'pro', 990000: 'enterprise' };
-      planId = planMap[amountNum] ?? 'pro';
+      planId = planMap[amountNum] ?? 'starter';
 
       const now = new Date();
       const periodEnd = new Date(now);
