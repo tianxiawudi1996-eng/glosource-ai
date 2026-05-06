@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import CategorySelector from './components/CategorySelector';
 import EmptyState from './components/EmptyState';
 import ExportButton from './components/ExportButton';
