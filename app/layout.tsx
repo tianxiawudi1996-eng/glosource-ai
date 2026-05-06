@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import Providers from "@/app/components/Providers";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -85,7 +86,7 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
         />
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

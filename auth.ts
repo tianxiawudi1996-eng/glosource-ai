@@ -8,7 +8,7 @@ import { eq } from 'drizzle-orm';
 
 async function verifyPassword(plain: string, hash: string): Promise<boolean> {
   const encoder = new TextEncoder();
-  const data = encoder.encode(plain);
+  const data = encoder.encode(plain + process.env.AUTH_SECRET);
   const hashBuffer = Buffer.from(hash, 'base64');
   const digest = await crypto.subtle.digest('SHA-256', data);
   const digestBuffer = Buffer.from(digest);
