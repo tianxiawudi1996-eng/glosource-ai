@@ -1,11 +1,17 @@
 import { Resend } from 'resend';
 import { welcomeEmail, receiptEmail } from '@/app/emails/templates';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM = process.env.RESEND_EMAIL_FROM ?? 'noreply@glosource.ai';
 
+function getResend(): Resend | null {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) return null;
+  return new Resend(key);
+}
+
 export async function sendWelcomeEmail(to: string, name: string): Promise<void> {
-  if (!process.env.RESEND_API_KEY) {
+  const resend = getResend();
+  if (!resend) {
     console.log('[email-mock] welcome →', to, name);
     return;
   }
@@ -24,7 +30,8 @@ export async function sendReceiptEmail(
   amount: number,
   date: Date,
 ): Promise<void> {
-  if (!process.env.RESEND_API_KEY) {
+  const resend = getResend();
+  if (!resend) {
     console.log('[email-mock] receipt →', to, planName, amount);
     return;
   }
