@@ -1,14 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db, users } from '@/app/lib/db';
 import { eq } from 'drizzle-orm';
+import { db, users } from '@/app/lib/db';
 import { hashPassword } from '@/auth';
 import { sendWelcomeEmail } from '@/app/lib/email';
+import { extractTrustedIp } from '@/app/lib/kv';
 
 function clean(v: unknown, max = 200): string {
   return typeof v === 'string' ? v.trim().slice(0, max) : '';
 }
 
+// [H-2] IP당 5회/분 레이트 리밋
+async function checkRegisterRateLimit(ip: string): Promise<boolean> {
+  try {
+    const { Redis } = await import('@upstash/redis');
+    if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) return true;
+    const redis = new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN,
+    });
+    const key = `register:rate:${ip}:${new Date().toISOString().slice(0, 16)}`;
+    const count = await redis.incr(key);
+    if (count === 1) await redis.expire(key, 60);
+    return count <= 5;
+  } catch {
+    return true;
+  }
+}
+
 export async function POST(request: NextRequest) {
+  const ip = extractTrustedIp(request.headers);
+  const allowed = await checkRegisterRateLimit(ip);
+  if (!allowed) {
+    return NextResponse.json({ error: '잠시 후 다시 시도해주세요. (1분 5회 제한)' }, { status: 429 });
+  }
+
   try {
     const body = await request.json() as Record<string, unknown>;
     const email = clean(body.email, 200).toLowerCase();
@@ -31,11 +56,7 @@ export async function POST(request: NextRequest) {
     }
 
     const passwordHash = await hashPassword(password);
-    await db.insert(users).values({
-      email,
-      name,
-      passwordHash,
-    });
+    await db.insert(users).values({ email, name, passwordHash });
 
     sendWelcomeEmail(email, name).catch(() => {});
 
