@@ -1,0 +1,39 @@
+import { Resend } from 'resend';
+import { welcomeEmail, receiptEmail } from '@/app/emails/templates';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+const FROM = process.env.RESEND_EMAIL_FROM ?? 'noreply@glosource.ai';
+
+export async function sendWelcomeEmail(to: string, name: string): Promise<void> {
+  if (!process.env.RESEND_API_KEY) {
+    console.log('[email-mock] welcome →', to, name);
+    return;
+  }
+  await resend.emails.send({
+    from: FROM,
+    to,
+    subject: 'GloSource AI 가입을 환영합니다',
+    html: welcomeEmail({ name }),
+  });
+}
+
+export async function sendReceiptEmail(
+  to: string,
+  name: string,
+  planName: string,
+  amount: number,
+  date: Date,
+): Promise<void> {
+  if (!process.env.RESEND_API_KEY) {
+    console.log('[email-mock] receipt →', to, planName, amount);
+    return;
+  }
+  const dateStr = new Intl.DateTimeFormat('ko-KR', { dateStyle: 'medium' }).format(date);
+  const amountStr = new Intl.NumberFormat('ko-KR').format(amount) + '원';
+  await resend.emails.send({
+    from: FROM,
+    to,
+    subject: '[GloSource AI] 결제 영수증',
+    html: receiptEmail({ name, plan: planName, amount: amountStr, date: dateStr }),
+  });
+}

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db, subscriptions, payments } from '@/app/lib/db';
+import { db, subscriptions, payments, users } from '@/app/lib/db';
 import { eq } from 'drizzle-orm';
+import { sendReceiptEmail } from '@/app/lib/email';
 
 export const maxDuration = 10;
 
@@ -47,6 +48,7 @@ export async function POST(request: NextRequest) {
       const method = data.method as string;
       const approvedAt = data.approvedAt ? new Date(data.approvedAt as string) : null;
 
+      const userId = (data.metadata as Record<string, string>)?.userId ?? '';
       await db.insert(payments).values({
         tossPaymentKey: paymentKey,
         tossOrderId: orderId,
@@ -54,7 +56,7 @@ export async function POST(request: NextRequest) {
         method,
         status: status === 'DONE' ? 'done' : status === 'CANCELED' ? 'canceled' : 'failed',
         approvedAt: approvedAt ?? undefined,
-        userId: (data.metadata as Record<string, string>)?.userId ?? '',
+        userId,
         subscriptionId: (data.metadata as Record<string, string>)?.subscriptionId ?? undefined,
       }).onConflictDoUpdate({
         target: payments.tossPaymentKey,
@@ -63,6 +65,14 @@ export async function POST(request: NextRequest) {
           approvedAt: approvedAt ?? undefined,
         },
       });
+
+      if (status === 'DONE' && userId) {
+        const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+        if (user?.email) {
+          const planName = (data.metadata as Record<string, string>)?.planName ?? 'Pro';
+          sendReceiptEmail(user.email, user.name ?? '', planName, amount, approvedAt ?? new Date()).catch(() => {});
+        }
+      }
     }
 
     if (type === 'BILLING_STATUS_CHANGED') {

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db, users } from '@/app/lib/db';
 import { eq } from 'drizzle-orm';
 import { hashPassword } from '@/auth';
+import { sendWelcomeEmail } from '@/app/lib/email';
 
 function clean(v: unknown, max = 200): string {
   return typeof v === 'string' ? v.trim().slice(0, max) : '';
@@ -35,6 +36,8 @@ export async function POST(request: NextRequest) {
       name,
       passwordHash,
     });
+
+    sendWelcomeEmail(email, name).catch(() => {});
 
     return NextResponse.json({ success: true });
   } catch {

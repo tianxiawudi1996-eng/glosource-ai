@@ -72,7 +72,7 @@ export default async function BillingPage() {
                 <p className="text-3xl font-black text-[#0D1B2A]">{plan.price}</p>
                 <p className="mt-2 text-sm font-bold text-slate-500">{plan.usage}</p>
                 <div className="mt-6">
-                  <UpgradeButton planName={plan.name} isCurrent={isCurrent} />
+                  <UpgradeButton planId={plan.id} planName={plan.name} isCurrent={isCurrent} />
                 </div>
               </article>
             );
