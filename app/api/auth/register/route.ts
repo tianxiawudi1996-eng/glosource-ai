@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { eq } from 'drizzle-orm';
-import { db, users } from '@/app/lib/db';
+import { db, users, verificationTokens } from '@/app/lib/db';
 import { hashPassword } from '@/auth';
-import { sendWelcomeEmail } from '@/app/lib/email';
+import { sendWelcomeEmail, sendVerificationEmail } from '@/app/lib/email';
 import { extractTrustedIp } from '@/app/lib/kv';
 
 function clean(v: unknown, max = 200): string {
@@ -59,6 +59,16 @@ export async function POST(request: NextRequest) {
     await db.insert(users).values({ email, name, passwordHash });
 
     sendWelcomeEmail(email, name).catch(() => {});
+
+    // 이메일 인증 토큰 생성 및 발송
+    const verifyToken = crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, '');
+    const verifyIdentifier = `email-verify:${email}`;
+    const verifyExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24h
+    await db.delete(verificationTokens).where(eq(verificationTokens.identifier, verifyIdentifier));
+    await db.insert(verificationTokens).values({ identifier: verifyIdentifier, token: verifyToken, expires: verifyExpires });
+    const base = process.env.AUTH_URL ?? 'https://glosource-ai.vercel.app';
+    const verifyLink = `${base}/api/auth/verify-email?token=${verifyToken}&email=${encodeURIComponent(email)}`;
+    sendVerificationEmail(email, name, verifyLink).catch(() => {});
 
     return NextResponse.json({ success: true });
   } catch {

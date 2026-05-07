@@ -40,6 +40,10 @@ export default function AccountPage() {
   const [pwLoading, setPwLoading] = useState(false);
   const [pwMsg, setPwMsg] = useState('');
 
+  const [deleteConfirm, setDeleteConfirm] = useState('');
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
+
   if (!session?.user) {
     router.replace('/auth/login');
     return null;
@@ -79,6 +83,19 @@ export default function AccountPage() {
       setPwMsg('비밀번호가 변경되었습니다.');
     } finally {
       setPwLoading(false);
+    }
+  };
+
+  const deleteAccount = async () => {
+    if (deleteConfirm !== '탈퇴') { setDeleteError('"탈퇴"를 정확히 입력해주세요.'); return; }
+    setDeleteLoading(true);
+    setDeleteError('');
+    try {
+      const res = await fetch('/api/account', { method: 'DELETE' });
+      if (!res.ok) { const j = await res.json() as { error?: string }; setDeleteError(j.error ?? '오류가 발생했습니다.'); return; }
+      router.replace('/');
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -180,6 +197,29 @@ export default function AccountPage() {
                 className="rounded-xl bg-[#0D1B2A] px-5 py-3 text-sm font-black text-white hover:bg-slate-800 disabled:opacity-50"
               >
                 {pwLoading ? '변경 중...' : '비밀번호 변경'}
+              </button>
+            </div>
+          </Section>
+          {/* 회원 탈퇴 */}
+          <Section title="회원 탈퇴">
+            <p className="mb-4 text-sm text-slate-500">계정을 삭제하면 모든 데이터가 영구 삭제되며 복구할 수 없습니다.</p>
+            <div className="space-y-3">
+              <Field label={`탈퇴하려면 아래에 "탈퇴"를 입력하세요`}>
+                <input
+                  className={inputCls}
+                  value={deleteConfirm}
+                  onChange={e => setDeleteConfirm(e.target.value)}
+                  placeholder='탈퇴'
+                />
+              </Field>
+              {deleteError && <p className="text-xs font-bold text-red-500">{deleteError}</p>}
+              <button
+                type="button"
+                onClick={deleteAccount}
+                disabled={deleteLoading || deleteConfirm !== '탈퇴'}
+                className="rounded-xl border border-red-200 bg-red-50 px-5 py-3 text-sm font-black text-red-700 hover:bg-red-100 disabled:opacity-40"
+              >
+                {deleteLoading ? '삭제 중...' : '계정 영구 삭제'}
               </button>
             </div>
           </Section>

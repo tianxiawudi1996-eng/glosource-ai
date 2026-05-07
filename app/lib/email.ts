@@ -1,5 +1,5 @@
 import { Resend } from 'resend';
-import { welcomeEmail, receiptEmail } from '@/app/emails/templates';
+import { welcomeEmail, receiptEmail, passwordResetEmail, verifyEmailTemplate } from '@/app/emails/templates';
 
 const FROM = process.env.RESEND_EMAIL_FROM ?? 'noreply@glosource.ai';
 
@@ -20,6 +20,34 @@ export async function sendWelcomeEmail(to: string, name: string): Promise<void> 
     to,
     subject: 'GloSource AI 가입을 환영합니다',
     html: welcomeEmail({ name }),
+  });
+}
+
+export async function sendPasswordResetEmail(to: string, resetLink: string): Promise<void> {
+  const resend = getResend();
+  if (!resend) {
+    console.log('[email-mock] password-reset →', to, resetLink);
+    return;
+  }
+  await resend.emails.send({
+    from: FROM,
+    to,
+    subject: '[GloSource AI] 비밀번호 재설정',
+    html: passwordResetEmail({ link: resetLink }),
+  });
+}
+
+export async function sendVerificationEmail(to: string, name: string, verifyLink: string): Promise<void> {
+  const resend = getResend();
+  if (!resend) {
+    console.log('[email-mock] verify →', to, verifyLink);
+    return;
+  }
+  await resend.emails.send({
+    from: FROM,
+    to,
+    subject: '[GloSource AI] 이메일 인증',
+    html: verifyEmailTemplate({ link: verifyLink, name }),
   });
 }
 

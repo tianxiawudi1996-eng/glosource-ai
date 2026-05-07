@@ -75,6 +75,12 @@ function LoginContent() {
           >
             {isSubmitting ? '로그인 중...' : '로그인'}
           </button>
+
+          <div className="text-center">
+            <Link href="/auth/reset-password" className="text-xs text-slate-400 hover:text-slate-600">
+              비밀번호를 잊으셨나요?
+            </Link>
+          </div>
         </form>
 
         {process.env.NEXT_PUBLIC_GOOGLE_OAUTH_ENABLED === 'true' && (

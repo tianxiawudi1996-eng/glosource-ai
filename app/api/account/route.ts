@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import bcrypt from 'bcryptjs';
 import { auth } from '@/auth';
 import { db, users } from '@/app/lib/db';
 import { eq } from 'drizzle-orm';
@@ -30,8 +31,9 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: '비밀번호 변경이 지원되지 않는 계정입니다.' }, { status: 400 });
     }
 
-    const currentHash = await hashPassword(body.currentPassword);
-    if (currentHash !== user.passwordHash) {
+    // bcrypt.compare 사용 (hashPassword는 새 salt 생성 → 절대 일치 안 함)
+    const valid = await bcrypt.compare(body.currentPassword, user.passwordHash);
+    if (!valid) {
       return NextResponse.json({ error: '현재 비밀번호가 올바르지 않습니다.' }, { status: 400 });
     }
 
@@ -41,4 +43,20 @@ export async function PATCH(request: NextRequest) {
   }
 
   return NextResponse.json({ error: '잘못된 요청입니다.' }, { status: 400 });
+}
+
+export async function DELETE(request: NextRequest) {
+  void request;
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 });
+  }
+
+  try {
+    // cascade로 accounts, sessions, subscriptions, payments, usageLogs 모두 삭제됨 (schema 참고)
+    await db.delete(users).where(eq(users.id, session.user.id));
+    return NextResponse.json({ success: true });
+  } catch {
+    return NextResponse.json({ error: '계정 삭제 중 오류가 발생했습니다.' }, { status: 500 });
+  }
 }

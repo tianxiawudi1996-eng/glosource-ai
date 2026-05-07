@@ -96,6 +96,27 @@ export function creditLowEmail(vars: TemplateVars = {}): string {
   `);
 }
 
+export function passwordResetEmail(vars: TemplateVars = {}): string {
+  const link = String(vars.link || '#');
+  return baseLayout('GloSource AI 비밀번호 재설정', `
+    <h1 style="margin:0 0 12px;font-size:24px;line-height:32px;color:#0D1B2A;">비밀번호 재설정</h1>
+    <p style="margin:0 0 20px;font-size:14px;line-height:24px;color:#475569;">아래 버튼을 클릭해 새 비밀번호를 설정하세요. 링크는 <strong>1시간</strong> 후 만료됩니다.</p>
+    <a href="${link}" style="display:inline-block;background:#EA580C;color:#ffffff;text-decoration:none;font-size:14px;font-weight:800;padding:12px 18px;border-radius:10px;">비밀번호 재설정하기</a>
+    <p style="margin:20px 0 0;font-size:12px;line-height:20px;color:#64748b;">본인이 요청하지 않은 경우 이 메일을 무시하셔도 됩니다. 비밀번호는 변경되지 않습니다.</p>
+  `);
+}
+
+export function verifyEmailTemplate(vars: TemplateVars = {}): string {
+  const link = String(vars.link || '#');
+  const name = String(vars.name || '고객');
+  return baseLayout('GloSource AI 이메일 인증', `
+    <h1 style="margin:0 0 12px;font-size:24px;line-height:32px;color:#0D1B2A;">${name}님, 이메일을 인증해주세요.</h1>
+    <p style="margin:0 0 20px;font-size:14px;line-height:24px;color:#475569;">아래 버튼을 클릭하면 이메일 인증이 완료됩니다.</p>
+    <a href="${link}" style="display:inline-block;background:#0D1B2A;color:#ffffff;text-decoration:none;font-size:14px;font-weight:800;padding:12px 18px;border-radius:10px;">이메일 인증하기</a>
+    <p style="margin:20px 0 0;font-size:12px;line-height:20px;color:#64748b;">본인이 가입하지 않은 경우 이 메일을 무시하셔도 됩니다.</p>
+  `);
+}
+
 export const emailTemplates = [
   { id: 'welcome', name: '가입 환영', subject: 'GloSource AI 가입을 환영합니다', html: welcomeEmail({ name: '홍길동' }) },
   { id: 'receipt', name: '결제 영수증', subject: '[GloSource AI] 결제 영수증', html: receiptEmail({ plan: 'Pro', amount: '490,000원', date: '2026-05-04' }) },
