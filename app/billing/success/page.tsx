@@ -31,6 +31,22 @@ export default async function BillingSuccessPage({ searchParams }: Props) {
     redirect('/billing/fail?code=INVALID_ORDER&message=유효하지 않은 주문입니다.');
   }
 
+  // [C-5] 이미 확정된 결제 재처리 방지
+  if (pendingPayment.status === 'done') {
+    const planMap: Record<number, string> = { 190000: 'starter', 490000: 'pro', 990000: 'enterprise' };
+    const existingPlan = planMap[pendingPayment.amount] ?? 'starter';
+    const planLabels: Record<string, string> = { starter: 'Starter', pro: 'Pro', enterprise: 'Enterprise' };
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-slate-50 px-6 py-10">
+        <section className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 shadow-sm text-center">
+          <h1 className="text-2xl font-black text-[#0D1B2A]">이미 처리된 결제</h1>
+          <p className="mt-2 text-sm text-slate-500">{planLabels[existingPlan] ?? 'Pro'} 플랜이 이미 활성화되어 있습니다.</p>
+          <a href="/dashboard" className="mt-6 block w-full rounded-xl bg-[#EA580C] px-4 py-3.5 text-center text-sm font-black text-white hover:bg-orange-600">대시보드 보기</a>
+        </section>
+      </main>
+    );
+  }
+
   // [C-1] amount는 URL 파라미터 대신 DB 레코드에서 읽음
   const amountNum = pendingPayment.amount;
   const secretKey = process.env.TOSS_SECRET_KEY ?? '';

@@ -102,7 +102,7 @@ export const payments = pgTable('payments', {
 // ── 플랜별 한도 ───────────────────────────────────────────────────────
 
 export const PLAN_LIMITS = {
-  free:       { monthly: 5,   label: '무료 체험' },
+  free:       { monthly: 10,  label: '무료 회원' }, // [C-4] 익명(일2회)보다 가입이 나은 구조
   starter:    { monthly: 30,  label: 'Starter' },
   pro:        { monthly: 60,  label: 'Pro' },
   enterprise: { monthly: 999, label: 'Enterprise' },

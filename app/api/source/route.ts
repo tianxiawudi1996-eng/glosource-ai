@@ -14,6 +14,8 @@ const GOOGLE_SEARCH_TOOLS: Tool[] = [{ googleSearchRetrieval: {} }];
 
 function sanitizeInput(raw: string): string {
   return raw
+    .replace(/[​-‍­﻿⁠]/g, '') // zero-width / soft-hyphen chars
+    .normalize('NFKC')
     .replace(/ignore\s+(all\s+)?(previous|prior|above)\s+(instructions?|prompts?|rules?|context)/gi, '[filtered]')
     .replace(/you\s+(are|must|should|will)\s+(now|instead|act\s+as)/gi, '[filtered]')
     .replace(/forget\s+(everything|all|prior|previous)/gi, '[filtered]')

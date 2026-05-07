@@ -26,7 +26,7 @@ const HISTORY_KEY = 'glosource:history';
 const LEADS_KEY = 'glosource:leads';
 const MAX_ENTRIES = 200;
 const MAX_LEADS = 500;
-const FREE_DAILY_LIMIT = 5;
+const FREE_DAILY_LIMIT = 2; // [C-4] 익명 일 2회 → 가입 시 월 10회로 가입 유도
 
 function getRedis(): Redis | null {
   if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
