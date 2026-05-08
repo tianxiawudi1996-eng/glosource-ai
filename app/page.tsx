@@ -232,7 +232,7 @@ export default function HomePage() {
           body: JSON.stringify({ keyword: form.productDescription }),
         });
         const json = await safeJson(res);
-        if (json.error === 'subscription_required') { stopLoading(); setShowPaywall(true); return; }
+        if (json.error === 'quota_exceeded' || json.error === 'subscription_required') { stopLoading(); setShowPaywall(true); return; }
         if (!res.ok) throw new Error(json.error || '오류가 발생했습니다.');
         setWechatResult(json.data as WeChatSourcingOutput);
         saveToHistory({ timestamp: new Date().toISOString(), source: 'wechat', query: { keyword: form.productDescription }, status: res.status, raw: json });
@@ -244,7 +244,7 @@ export default function HomePage() {
           body: JSON.stringify(form),
         });
         const json = await safeJson(res);
-        if (json.error === 'subscription_required') { stopLoading(); setShowPaywall(true); return; }
+        if (json.error === 'quota_exceeded' || json.error === 'subscription_required') { stopLoading(); setShowPaywall(true); return; }
         if (!res.ok) throw new Error(json.error || '오류가 발생했습니다.');
         const data = json.data as SourcingOutput;
         setResult(data);

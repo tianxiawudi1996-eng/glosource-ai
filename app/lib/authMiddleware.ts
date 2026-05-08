@@ -42,7 +42,12 @@ export async function checkAuthAndQuota(
       if (Number(count) >= limit) {
         return {
           ok: false,
-          response: NextResponse.json({ error: 'subscription_required' }, { status: 401 }),
+          response: NextResponse.json({
+            error: 'quota_exceeded',
+            type: 'monthly',
+            plan,
+            message: `이번 달 소싱 한도(${limit}회)를 모두 사용했습니다. 플랜을 업그레이드하면 더 많은 소싱을 이용할 수 있습니다.`,
+          }, { status: 401 }),
         };
       }
     }
@@ -56,7 +61,11 @@ export async function checkAuthAndQuota(
   if (!allowed) {
     return {
       ok: false,
-      response: NextResponse.json({ error: 'subscription_required' }, { status: 401 }),
+      response: NextResponse.json({
+        error: 'quota_exceeded',
+        type: 'anonymous',
+        message: '무료 체험 2회를 모두 사용했습니다. 회원가입하면 월 10회 무료로 이용할 수 있습니다.',
+      }, { status: 401 }),
     };
   }
 

@@ -164,11 +164,7 @@ ${catSection}
 export async function POST(request: NextRequest) {
   const start = Date.now();
   try {
-    const authResult = await checkAuthAndQuota(request, 'source');
-    if (!authResult.ok) return authResult.response;
-    const { userId } = authResult;
-    const ip = extractTrustedIp(request.headers);
-
+    // Validate body BEFORE quota check — malformed requests must not consume quota
     const body = (await request.json()) as SourcingRequest;
     const { productDescription, quantity } = body;
 
@@ -178,6 +174,11 @@ export async function POST(request: NextRequest) {
     if (!quantity?.trim()) {
       return NextResponse.json({ error: '필요 수량을 입력해주세요.' }, { status: 400 });
     }
+
+    const authResult = await checkAuthAndQuota(request, 'source');
+    if (!authResult.ok) return authResult.response;
+    const { userId } = authResult;
+    const ip = extractTrustedIp(request.headers);
 
     const req: SourcingRequest = {
       productDescription: body.productDescription,

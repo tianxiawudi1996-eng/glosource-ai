@@ -31,23 +31,30 @@ function clean(value: unknown, max = 500): string {
 
 export async function POST(request: NextRequest) {
   const ip = extractTrustedIp(request.headers);
+
+  // Validate body BEFORE consuming rate limit quota (invalid requests must not count)
+  let body: ContactRequest;
+  try {
+    body = await request.json() as ContactRequest;
+  } catch {
+    return NextResponse.json({ error: '잘못된 요청 형식입니다.' }, { status: 400 });
+  }
+  const name = clean(body.name, 80);
+  const company = clean(body.company, 120);
+  const contact = clean(body.contact, 160);
+  const message = clean(body.message, 1200);
+  const plan = clean(body.plan, 40) || '상담 문의';
+
+  if (!name || !contact) {
+    return NextResponse.json({ error: '이름과 연락처를 입력해주세요.' }, { status: 400 });
+  }
+
   const allowed = await checkContactRateLimit(ip);
   if (!allowed) {
     return NextResponse.json({ error: '잠시 후 다시 시도해주세요. (1시간 5회 제한)' }, { status: 429 });
   }
 
   try {
-    const body = await request.json() as ContactRequest;
-    const name = clean(body.name, 80);
-    const company = clean(body.company, 120);
-    const contact = clean(body.contact, 160);
-    const message = clean(body.message, 1200);
-    const plan = clean(body.plan, 40) || '상담 문의';
-
-    if (!name || !contact) {
-      return NextResponse.json({ error: '이름과 연락처를 입력해주세요.' }, { status: 400 });
-    }
-
     const userAgent = request.headers.get('user-agent') ?? '';
     const saved = await kvSaveLead({
       id: `${Date.now()}-${crypto.randomUUID()}`,
