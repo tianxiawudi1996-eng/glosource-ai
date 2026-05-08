@@ -51,7 +51,7 @@ export default async function BillingPage() {
           <CancelSubscriptionButton />
         </header>
 
-        <section className="grid gap-5 lg:grid-cols-3">
+        <section className="grid gap-4 sm:grid-cols-3">
           {planCards.map((plan) => {
             const isCurrent = currentPlan === plan.id;
             return (
@@ -83,8 +83,27 @@ export default async function BillingPage() {
           <div className="border-b border-slate-100 p-5">
             <h2 className="text-lg font-black text-[#0D1B2A]">결제 내역</h2>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[560px] text-left">
+          {/* 모바일 카드 뷰 */}
+          <div className="md:hidden divide-y divide-slate-100">
+            {paymentRows.length > 0 ? (
+              paymentRows.map((payment) => (
+                <div key={payment.id} className="px-5 py-4 flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-black text-[#0D1B2A]">{formatCurrency(payment.amount)}</p>
+                    <p className="text-xs text-slate-500 mt-0.5">{formatDate(payment.approvedAt ?? payment.createdAt)}</p>
+                  </div>
+                  <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${payment.status === 'done' ? 'bg-emerald-50 text-emerald-700' : payment.status === 'failed' ? 'bg-red-50 text-red-700' : 'bg-slate-100 text-slate-600'}`}>
+                    {payment.status === 'done' ? '완료' : payment.status === 'failed' ? '실패' : payment.status === 'canceled' ? '취소' : '처리중'}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <div className="px-5 py-10 text-center text-sm text-slate-500">결제 내역이 없습니다.</div>
+            )}
+          </div>
+          {/* 데스크톱 테이블 */}
+          <div className="hidden md:block overflow-x-auto">
+            <table className="w-full text-left">
               <thead className="bg-slate-50 text-xs font-bold text-slate-500">
                 <tr>
                   <th className="px-5 py-3">날짜</th>
@@ -101,8 +120,8 @@ export default async function BillingPage() {
                       </td>
                       <td className="px-5 py-4 text-sm font-bold text-[#0D1B2A]">{formatCurrency(payment.amount)}</td>
                       <td className="px-5 py-4">
-                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-700">
-                          {payment.status}
+                        <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${payment.status === 'done' ? 'bg-emerald-50 text-emerald-700' : payment.status === 'failed' ? 'bg-red-50 text-red-700' : 'bg-slate-100 text-slate-700'}`}>
+                          {payment.status === 'done' ? '완료' : payment.status === 'failed' ? '실패' : payment.status === 'canceled' ? '취소' : '처리중'}
                         </span>
                       </td>
                     </tr>

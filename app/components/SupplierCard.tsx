@@ -32,8 +32,61 @@ export function SupplierComparisonTable({ suppliers, selectedRank, onSelect }: S
         </div>
         <span className="text-xs text-slate-400">{suppliers.length}개 후보</span>
       </div>
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[760px] text-left">
+
+      {/* 모바일 카드 뷰 (< lg) */}
+      <div className="lg:hidden divide-y divide-slate-100">
+        {suppliers.map((s) => {
+          const risk = riskLabel(s.trustScore);
+          const selected = selectedRank === s.rank;
+          return (
+            <button
+              key={s.rank}
+              type="button"
+              onClick={() => onSelect(s)}
+              className={`w-full text-left px-4 py-4 transition-colors min-h-[72px] ${selected ? 'bg-orange-50/60' : 'hover:bg-slate-50'}`}
+            >
+              {/* 1행: 순위 + 공급자명 + 리스크 */}
+              <div className="flex items-start justify-between gap-2 mb-2.5">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md bg-[#0D1B2A] text-[11px] font-black text-white">
+                    {s.rank}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-[#0D1B2A] truncate">{s.name}</p>
+                    <p className="text-xs text-slate-400">{s.platform} · {s.country}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5 flex-shrink-0">
+                  <span className={`h-2 w-2 rounded-full flex-shrink-0 ${risk.dot}`} />
+                  <span className={`text-xs font-bold ${risk.color}`}>{risk.label}</span>
+                  <span className={`ml-1 text-[10px] font-bold px-1.5 py-0.5 rounded ${s.verificationStatus === 'grounding_confirmed' ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
+                    {s.verificationStatus === 'grounding_confirmed' ? '웹확인' : 'AI추정'}
+                  </span>
+                </div>
+              </div>
+              {/* 2행: 가격 · MOQ · 리드타임 */}
+              <div className="grid grid-cols-3 gap-2">
+                <div className="bg-slate-50 rounded-lg px-2.5 py-1.5">
+                  <p className="text-[10px] text-slate-400 font-medium">단가</p>
+                  <p className="text-xs font-bold text-[#0D1B2A] mt-0.5 truncate">{s.estimatedPrice || '문의'}</p>
+                </div>
+                <div className="bg-slate-50 rounded-lg px-2.5 py-1.5">
+                  <p className="text-[10px] text-slate-400 font-medium">MOQ</p>
+                  <p className="text-xs font-bold text-[#0D1B2A] mt-0.5 truncate">{s.moq || '문의'}</p>
+                </div>
+                <div className="bg-slate-50 rounded-lg px-2.5 py-1.5">
+                  <p className="text-[10px] text-slate-400 font-medium">리드타임</p>
+                  <p className="text-xs font-bold text-[#0D1B2A] mt-0.5 truncate">{s.leadTimeDays || '문의'}</p>
+                </div>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* 데스크톱 테이블 (≥ lg) */}
+      <div className="hidden lg:block overflow-x-auto">
+        <table className="w-full text-left">
           <thead className="bg-[#0D1B2A] text-white">
             <tr>
               <th className="px-4 py-3 text-xs font-bold">공급자</th>
@@ -87,8 +140,9 @@ export function SupplierComparisonTable({ suppliers, selectedRank, onSelect }: S
           </tbody>
         </table>
       </div>
+
       <div className="border-t border-slate-100 px-4 py-3 text-xs text-slate-400">
-        행을 선택하면 신뢰 근거와 주의사항을 아래에서 확인할 수 있습니다.
+        항목을 선택하면 신뢰 근거와 주의사항을 확인할 수 있습니다.
       </div>
     </div>
   );

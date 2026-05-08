@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useState, useRef } from 'react';
+import { useSession, signOut } from 'next-auth/react';
 import CategorySelector from './components/CategorySelector';
 import EmptyState from './components/EmptyState';
 import ExportButton from './components/ExportButton';
@@ -165,6 +166,7 @@ function generateReportHTML(result: SourcingOutput, req: SourcingRequest, compan
    메인 컴포넌트
 ══════════════════════════════════════════════ */
 export default function HomePage() {
+  const { data: session } = useSession();
   const [form, setForm] = useState<SourcingRequest>({
     productDescription: '',
     quantity: '',
@@ -330,22 +332,71 @@ export default function HomePage() {
 
       {/* ── 네비게이션 ── */}
       <nav className="border-b border-slate-200 bg-white sticky top-0 z-40">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-3">
+          {/* 로고 */}
+          <div className="flex items-center gap-2 flex-shrink-0">
             <div className="w-8 h-8 bg-[#0D1B2A] rounded-lg flex items-center justify-center flex-shrink-0">
               <Icon.Globe className="w-4 h-4 text-white" />
             </div>
-            <div>
-              <span className="font-bold text-[#0D1B2A] tracking-tight">GloSource AI</span>
+            <div className="leading-tight">
+              <span className="font-bold text-[#0D1B2A] tracking-tight text-sm sm:text-base">GloSource AI</span>
               <span className="hidden sm:inline text-xs text-slate-400 ml-2">AI 글로벌 소싱 에이전트</span>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="hidden md:flex items-center gap-1.5 text-xs text-slate-500 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-full">
+
+          {/* 우측 메뉴 */}
+          <div className="flex items-center gap-1.5 sm:gap-3">
+            <div className="hidden lg:flex items-center gap-1.5 text-xs text-slate-500 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-full">
               <Icon.Shield className="w-3 h-3" />
               <span>AI 공급자 신뢰도 검증</span>
             </div>
-            <span className="text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-full">무료 5회 체험</span>
+
+            {session?.user ? (
+              <>
+                {/* 플랜 뱃지 */}
+                <span className="hidden sm:inline-flex text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200 px-2.5 py-1.5 rounded-full capitalize">
+                  {session.user.plan ?? 'free'}
+                </span>
+                {/* 대시보드 */}
+                <a
+                  href="/dashboard"
+                  className="min-h-[44px] flex items-center px-3 py-2 text-xs font-bold text-[#0D1B2A] rounded-lg hover:bg-slate-50 hover:text-[#EA580C] transition-colors"
+                >
+                  대시보드
+                </a>
+                {/* 계정 */}
+                <a
+                  href="/account"
+                  className="min-h-[44px] hidden sm:flex items-center px-3 py-2 text-xs font-bold text-slate-500 rounded-lg hover:bg-slate-50 hover:text-[#0D1B2A] transition-colors"
+                >
+                  계정
+                </a>
+                {/* 로그아웃 */}
+                <button
+                  type="button"
+                  onClick={() => void signOut({ callbackUrl: '/' })}
+                  className="min-h-[44px] hidden md:flex items-center px-3 py-2 text-xs font-bold text-slate-400 rounded-lg hover:bg-slate-50 hover:text-red-500 transition-colors"
+                >
+                  로그아웃
+                </button>
+              </>
+            ) : (
+              <>
+                <span className="hidden sm:inline-flex text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-full">무료 5회 체험</span>
+                <a
+                  href="/auth/login"
+                  className="min-h-[44px] flex items-center px-3 py-2 text-xs font-bold text-[#0D1B2A] border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
+                >
+                  로그인
+                </a>
+                <a
+                  href="/auth/register"
+                  className="min-h-[44px] hidden sm:flex items-center px-4 py-2 text-xs font-bold bg-[#EA580C] text-white rounded-lg hover:bg-[#DC4C00] transition-colors"
+                >
+                  무료 시작
+                </a>
+              </>
+            )}
           </div>
         </div>
       </nav>
@@ -644,17 +695,17 @@ export default function HomePage() {
             {/* 입력 폼 */}
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm">
               {/* 소스 탭 */}
-              <div className="flex border-b border-slate-100">
+              <div className="flex overflow-x-auto scrollbar-none border-b border-slate-100">
                 {([
-                  { id: 'ai'     as SourceMode, label: 'AI 종합 소싱',    badge: '1688+Alibaba+WeChat' },
-                  { id: '1688'   as SourceMode, label: '1688 직거래',      badge: '원가 30~50% 절감' },
-                  { id: 'wechat' as SourceMode, label: 'WeChat 실시간',    badge: '공장 홍보 직접 탐색' },
-                  { id: 'image'  as SourceMode, label: '사진으로 찾기',    badge: 'AI 이미지 매칭' },
+                  { id: 'ai'     as SourceMode, label: 'AI 종합',    badge: '1688+Alibaba+WeChat' },
+                  { id: '1688'   as SourceMode, label: '1688 직거래',  badge: '원가 30~50% 절감' },
+                  { id: 'wechat' as SourceMode, label: 'WeChat',      badge: '공장 홍보 직접 탐색' },
+                  { id: 'image'  as SourceMode, label: '사진 검색',   badge: 'AI 이미지 매칭' },
                 ] as const).map(tab => (
                   <button key={tab.id} onClick={() => { setActiveSource(tab.id); setResult(null); setWechatResult(null); setError(''); setNoResults(false); }}
-                    className={`flex-1 py-3 px-1 text-center transition-all border-b-2 ${activeSource === tab.id ? 'border-[#EA580C] bg-orange-50/30' : 'border-transparent hover:bg-slate-50'}`}>
-                    <p className={`text-xs font-bold ${activeSource === tab.id ? 'text-[#0D1B2A]' : 'text-slate-400'}`}>{tab.label}</p>
-                    <p className="text-xs text-slate-400 font-normal mt-0.5 hidden sm:block">{tab.badge}</p>
+                    className={`flex-none min-w-[80px] sm:flex-1 py-3 px-2 sm:px-1 text-center transition-all border-b-2 min-h-[52px] ${activeSource === tab.id ? 'border-[#EA580C] bg-orange-50/30' : 'border-transparent hover:bg-slate-50'}`}>
+                    <p className={`text-xs font-bold whitespace-nowrap ${activeSource === tab.id ? 'text-[#0D1B2A]' : 'text-slate-400'}`}>{tab.label}</p>
+                    <p className="text-[10px] text-slate-400 font-normal mt-0.5 hidden sm:block truncate">{tab.badge}</p>
                   </button>
                 ))}
               </div>

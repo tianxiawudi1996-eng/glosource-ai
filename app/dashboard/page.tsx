@@ -107,16 +107,42 @@ export default async function DashboardPage() {
               <p className="mt-1 text-sm text-slate-500">최근 사용 5건을 표시합니다.</p>
             </div>
             <div className="flex gap-2">
-              <Link href="/#sourcing-tool" className="rounded-xl bg-[#0D1B2A] px-4 py-3 text-sm font-black text-white hover:bg-slate-800">
-                소싱 시작하기
+              <Link href="/#sourcing-tool" className="min-h-[44px] flex items-center rounded-xl bg-[#0D1B2A] px-4 py-2.5 text-sm font-black text-white hover:bg-slate-800 transition-colors">
+                소싱 시작 →
               </Link>
-              <Link href="/billing" className="rounded-xl border border-slate-300 px-4 py-3 text-sm font-black text-[#0D1B2A] hover:bg-slate-50">
+              <Link href="/billing" className="min-h-[44px] flex items-center rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-black text-[#0D1B2A] hover:bg-slate-50 transition-colors">
                 구독 관리
               </Link>
             </div>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[640px] text-left">
+          {/* 모바일 카드 뷰 */}
+          <div className="md:hidden divide-y divide-slate-100">
+            {recentLogs.length > 0 ? (
+              recentLogs.map((log) => (
+                <div key={log.id} className="px-5 py-4 flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="font-bold text-sm text-[#0D1B2A] truncate">{log.product ?? '–'}</p>
+                    <p className="text-xs text-slate-500 mt-0.5">{formatDate(log.createdAt)}</p>
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2 py-1 rounded-md">
+                      {actionLabels[log.action]}
+                    </span>
+                    <span className="text-xs font-black text-[#EA580C] bg-orange-50 border border-orange-100 px-2 py-1 rounded-md min-w-[32px] text-center">
+                      {log.supplierCount ?? 0}
+                    </span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="px-5 py-10 text-center text-sm text-slate-500">
+                아직 소싱 기록이 없습니다.
+              </div>
+            )}
+          </div>
+          {/* 데스크톱 테이블 */}
+          <div className="hidden md:block overflow-x-auto">
+            <table className="w-full text-left">
               <thead className="bg-slate-50 text-xs font-bold text-slate-500">
                 <tr>
                   <th className="px-5 py-3">날짜</th>
