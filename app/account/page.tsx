@@ -45,7 +45,6 @@ export default function AccountPage() {
   const [deleteError, setDeleteError] = useState('');
 
   if (!session?.user) {
-    router.replace('/auth/login');
     return null;
   }
 
