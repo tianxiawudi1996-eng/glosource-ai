@@ -301,16 +301,51 @@ export default function HomePage() {
       const json = await res.json() as { success?: boolean; data?: ImageAnalysis; error?: string };
       if (!res.ok || !json.data) throw new Error(json.error ?? '이미지 분석 실패');
       setImageAnalysis(json.data);
-      setForm(f => ({
-        ...f,
-        productDescription: [json.data!.productNameKo, json.data!.specs].filter(Boolean).join(' '),
-      }));
+      const productDescription = [json.data!.productNameKo, json.data!.specs].filter(Boolean).join(' ');
+      setForm(f => ({ ...f, productDescription, quantity: f.quantity || '1개' }));
+
+      // 이미지 분석 완료 즉시 자동 소싱 시작 (2단계 → 1단계 통합)
+      setImageAnalyzing(false);
+      await handleGenerateWithProduct(productDescription);
+      return;
     } catch (e) {
       setError(e instanceof Error ? e.message : '이미지 분석 중 오류가 발생했습니다.');
       setImageFile(null);
       setImagePreviewUrl(null);
     } finally {
       setImageAnalyzing(false);
+    }
+  };
+
+  const handleGenerateWithProduct = async (productDescription: string) => {
+    const currentForm: SourcingRequest = {
+      productDescription,
+      quantity: form.quantity || '1개',
+      budget: form.budget,
+      countryPreference: form.countryPreference,
+      orderFrequency: form.orderFrequency,
+      categoryCode: form.categoryCode,
+      categoryNameZh: form.categoryNameZh,
+      quantityUnit: form.quantityUnit,
+    };
+    startLoading();
+    try {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      const res = await fetch('/api/source', { method: 'POST', headers, body: JSON.stringify(currentForm) });
+      const json = await res.json() as { success?: boolean; data?: SourcingOutput; error?: string };
+      if (json.error === 'quota_exceeded' || json.error === 'subscription_required') { stopLoading(); setShowPaywall(true); return; }
+      if (!res.ok) throw new Error(json.error || '오류가 발생했습니다.');
+      const data = json.data as SourcingOutput;
+      setResult(data);
+      setSelectedSupplier(data.suppliers[0] ?? null);
+      saveToHistory({ timestamp: new Date().toISOString(), source: 'image', query: { productDescription, quantity: currentForm.quantity }, status: res.status, raw: json });
+      setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : '알 수 없는 오류';
+      if (message.includes('찾지 못했습니다')) { setNoResults(true); setError(''); }
+      else setError(message);
+    } finally {
+      stopLoading();
     }
   };
 
