@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import CategorySelector from './components/CategorySelector';
 import EmptyState from './components/EmptyState';
@@ -191,9 +191,26 @@ export default function HomePage() {
   const [imageAnalysis, setImageAnalysis] = useState<ImageAnalysis | null>(null);
   const [imageAnalyzing, setImageAnalyzing] = useState(false);
   const [imageDragOver, setImageDragOver] = useState(false);
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const resultRef = useRef<HTMLDivElement>(null);
   const loadingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (session?.user) {
+      fetch('/api/history/me')
+        .then(r => r.ok ? r.json() : null)
+        .then((json: { success: boolean; data: { product: string | null }[] } | null) => {
+          if (!json?.success) return;
+          const products = json.data
+            .map(d => d.product)
+            .filter((p): p is string => !!p && p.trim().length > 0);
+          const unique = [...new Set(products)].slice(0, 5);
+          setRecentSearches(unique);
+        })
+        .catch(() => {});
+    }
+  }, [session?.user]);
 
 
   const startLoading = () => {
@@ -816,6 +833,21 @@ export default function HomePage() {
                     onChange={e => setForm({ ...form, productDescription: e.target.value })}
                     className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm text-slate-700 focus:border-[#0D1B2A] focus:ring-2 focus:ring-slate-100 focus:outline-none resize-none"
                   />
+                  {recentSearches.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      <span className="text-[10px] font-bold text-slate-400 self-center">최근:</span>
+                      {recentSearches.map(q => (
+                        <button
+                          key={q}
+                          type="button"
+                          onClick={() => setForm(f => ({ ...f, productDescription: q }))}
+                          className="text-[11px] px-2.5 py-1 rounded-full border border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors truncate max-w-[160px]"
+                        >
+                          {q}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 {/* ① 카테고리 (AI/1688 모드만) */}

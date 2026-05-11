@@ -4,10 +4,10 @@ import { auth } from '@/auth';
 import { db, payments, subscriptions, usageLogs, users } from '@/app/lib/db';
 
 const actionLabels: Record<string, string> = {
-  source: 'source',
-  factory_direct: 'factory_direct',
-  wechat: 'wechat',
-  image_analyze: 'image_analyze',
+  source: '통합 검색',
+  factory_direct: '공장 직거래',
+  wechat: 'WeChat',
+  image_analyze: '이미지 분석',
 };
 
 function formatDate(date: Date | null): string {
@@ -21,7 +21,8 @@ function formatCurrency(amount: number): string {
 
 export default async function AdminPage() {
   const session = await auth();
-  if (!session?.user?.email || session.user.email !== process.env.ADMIN_EMAIL) redirect('/');
+  const adminEmails = (process.env.ADMIN_EMAILS ?? process.env.ADMIN_EMAIL ?? '').split(',').map(e => e.trim()).filter(Boolean);
+  if (!session?.user?.email || !adminEmails.includes(session.user.email)) redirect('/');
 
   const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
 
