@@ -10,8 +10,8 @@ import { checkAuthAndQuota, logUsage } from '../../lib/authMiddleware';
 export const maxDuration = 120;
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-// threshold: 0 = always trigger grounding (model never skips search)
-const GOOGLE_SEARCH_TOOLS: Tool[] = [{
+// Gemini 1.5: googleSearchRetrieval with dynamicThreshold:0 (always search)
+const GOOGLE_SEARCH_TOOLS_15: Tool[] = [{
   googleSearchRetrieval: {
     dynamicRetrievalConfig: {
       mode: DynamicRetrievalMode.MODE_DYNAMIC,
@@ -19,6 +19,9 @@ const GOOGLE_SEARCH_TOOLS: Tool[] = [{
     },
   },
 }];
+// Gemini 2.x: uses { googleSearch: {} } — different API from 1.5
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const GOOGLE_SEARCH_TOOLS_20: Tool[] = [{ googleSearch: {} } as any];
 
 function sanitizeInput(raw: string): string {
   return raw
@@ -275,12 +278,13 @@ export async function POST(request: NextRequest) {
     const categoryContext = req.categoryCode ? getCategoryByCode(req.categoryCode) : undefined;
     const prompt = buildPrompt(req, categoryContext);
 
-    // 전략: 1차(1.5-flash + grounding) → 2차(2.5-flash + grounding) → 3차(2.5-flash 55s) → 4차(2.0-flash)
-    const MODELS = [
-      { model: 'gemini-1.5-flash',      ms: 45000, grounding: true  },
-      { model: 'gemini-2.5-flash',      ms: 40000, grounding: true  },
-      { model: 'gemini-2.5-flash',      ms: 55000, grounding: false },
-      { model: 'gemini-2.0-flash',      ms: 15000, grounding: false },
+    // 전략: 1차(2.5-flash googleSearch) → 2차(1.5-flash-latest googleSearchRetrieval) → 3차(2.5-flash no-grounding) → 4차(2.0-flash)
+    type ModelConfig = { model: string; ms: number; tools: Tool[] | null };
+    const MODELS: ModelConfig[] = [
+      { model: 'gemini-2.5-flash',        ms: 45000, tools: GOOGLE_SEARCH_TOOLS_20 },
+      { model: 'gemini-1.5-flash-latest', ms: 40000, tools: GOOGLE_SEARCH_TOOLS_15 },
+      { model: 'gemini-2.5-flash',        ms: 55000, tools: null },
+      { model: 'gemini-2.0-flash',        ms: 15000, tools: null },
     ];
 
     let text = '';
@@ -293,7 +297,7 @@ export async function POST(request: NextRequest) {
       try {
         const model = genAI.getGenerativeModel({
           model: m.model,
-          ...(m.grounding ? { tools: GOOGLE_SEARCH_TOOLS } : {}),
+          ...(m.tools ? { tools: m.tools } : {}),
         });
         const result = await Promise.race([
           model.generateContent(prompt),
@@ -302,12 +306,12 @@ export async function POST(request: NextRequest) {
         ]);
         text = result.response.text().trim();
         groundingUsed = hasGroundingMetadata(result.response);
-        modelUsed = m.model + (m.grounding ? '+grounding' : '');
+        modelUsed = m.model + (m.tools ? '+grounding' : '');
         break;
       } catch (e) {
         lastError = e instanceof Error ? e : new Error(String(e));
         const msg = lastError.message;
-        modelErrors.push(`${m.model}(${m.grounding ? 'g' : '-'}): ${msg.slice(0, 200)}`);
+        modelErrors.push(`${m.model}(${m.tools ? 'g' : '-'}): ${msg.slice(0, 200)}`);
         const isRetryable =
           msg.includes('503') || msg.includes('Service Unavailable') ||
           msg.includes('429') || msg.includes('Too Many') ||
