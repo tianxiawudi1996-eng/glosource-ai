@@ -15,6 +15,13 @@ export async function checkAuthAndQuota(
   action: ActionType,
 ): Promise<AuthResult> {
   void action;
+
+  // Internal API key bypass (for admin automation / testing)
+  const internalKey = process.env.INTERNAL_API_KEY;
+  if (internalKey && request.headers.get('x-api-key') === internalKey) {
+    return { ok: true, userId: 'internal', plan: 'enterprise' };
+  }
+
   const session = await auth();
   const ip = extractTrustedIp(request.headers);
 
