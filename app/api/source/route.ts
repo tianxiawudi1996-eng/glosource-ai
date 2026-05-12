@@ -347,7 +347,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!parsed.suppliers || parsed.suppliers.length === 0) {
-      return NextResponse.json({ error: '공급자를 찾지 못했습니다. 제품 설명을 더 구체적으로 입력해주세요.', _debug: { modelUsed, modelErrors } }, { status: 500 });
+      return NextResponse.json({ error: '공급자를 찾지 못했습니다. 제품 설명을 더 구체적으로 입력해주세요.', _debug: { modelUsed, modelErrors, rawHead: text.slice(0, 300) } }, { status: 500 });
     }
 
     const output: SourcingOutput = { ...parsed, groundingUsed };
