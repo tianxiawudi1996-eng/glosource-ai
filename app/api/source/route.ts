@@ -278,13 +278,13 @@ export async function POST(request: NextRequest) {
     const categoryContext = req.categoryCode ? getCategoryByCode(req.categoryCode) : undefined;
     const prompt = buildPrompt(req, categoryContext);
 
-    // 전략: 1차(2.5-flash googleSearch) → 2차(1.5-flash-latest googleSearchRetrieval) → 3차(2.5-flash no-grounding) → 4차(2.0-flash)
+    // 전략: 1차(2.5-flash googleSearch 90s) → 2차(1.5-flash-002 googleSearchRetrieval 70s) → 3차(2.5-flash 55s) → 4차(2.0-flash)
     type ModelConfig = { model: string; ms: number; tools: Tool[] | null };
     const MODELS: ModelConfig[] = [
-      { model: 'gemini-2.5-flash',        ms: 45000, tools: GOOGLE_SEARCH_TOOLS_20 },
-      { model: 'gemini-1.5-flash-latest', ms: 40000, tools: GOOGLE_SEARCH_TOOLS_15 },
-      { model: 'gemini-2.5-flash',        ms: 55000, tools: null },
-      { model: 'gemini-2.0-flash',        ms: 15000, tools: null },
+      { model: 'gemini-2.5-flash',      ms: 90000, tools: GOOGLE_SEARCH_TOOLS_20 },
+      { model: 'gemini-1.5-flash-002',  ms: 70000, tools: GOOGLE_SEARCH_TOOLS_15 },
+      { model: 'gemini-2.5-flash',      ms: 55000, tools: null },
+      { model: 'gemini-2.0-flash',      ms: 15000, tools: null },
     ];
 
     let text = '';
