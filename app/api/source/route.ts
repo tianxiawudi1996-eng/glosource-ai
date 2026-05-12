@@ -286,6 +286,8 @@ export async function POST(request: NextRequest) {
     let text = '';
     let groundingUsed = false;
     let lastError: Error | null = null;
+    let modelUsed = '';
+    const modelErrors: string[] = [];
 
     for (const m of MODELS) {
       try {
@@ -300,10 +302,12 @@ export async function POST(request: NextRequest) {
         ]);
         text = result.response.text().trim();
         groundingUsed = hasGroundingMetadata(result.response);
+        modelUsed = m.model + (m.grounding ? '+grounding' : '');
         break;
       } catch (e) {
         lastError = e instanceof Error ? e : new Error(String(e));
         const msg = lastError.message;
+        modelErrors.push(`${m.model}(${m.grounding ? 'g' : '-'}): ${msg.slice(0, 80)}`);
         const isRetryable =
           msg.includes('503') || msg.includes('Service Unavailable') ||
           msg.includes('429') || msg.includes('Too Many') ||
@@ -356,7 +360,7 @@ export async function POST(request: NextRequest) {
 
     logUsage(userId, ip, 'source', req.productDescription, output.suppliers?.length, Date.now() - start).catch(() => {});
 
-    return NextResponse.json({ success: true, data: output });
+    return NextResponse.json({ success: true, data: output, _debug: { modelUsed, modelErrors } });
   } catch (error) {
     console.error('[GloSource API Error]', error);
     const message = error instanceof Error ? error.message : '소싱 분석 중 오류가 발생했습니다.';
