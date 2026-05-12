@@ -7,7 +7,7 @@ import type { SourcingRequest, SourcingOutput } from './types';
 import { kvSaveHistory, extractTrustedIp } from '../../lib/kv';
 import { checkAuthAndQuota, logUsage } from '../../lib/authMiddleware';
 
-export const maxDuration = 60;
+export const maxDuration = 120;
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 // threshold: 0 = always trigger grounding (model never skips search)
@@ -275,12 +275,12 @@ export async function POST(request: NextRequest) {
     const categoryContext = req.categoryCode ? getCategoryByCode(req.categoryCode) : undefined;
     const prompt = buildPrompt(req, categoryContext);
 
-    // 전략: 1차(2.5-flash + grounding) → 2차(2.5-flash no-grounding) → 3차(2.0-flash) → 4차(2.0-flash-lite)
+    // 전략: 1차(1.5-flash + grounding) → 2차(2.5-flash + grounding) → 3차(2.5-flash) → 4차(2.0-flash)
     const MODELS = [
-      { model: 'gemini-2.5-flash',      ms: 25000, grounding: true },
+      { model: 'gemini-1.5-flash',      ms: 45000, grounding: true  },
+      { model: 'gemini-2.5-flash',      ms: 40000, grounding: true  },
       { model: 'gemini-2.5-flash',      ms: 20000, grounding: false },
       { model: 'gemini-2.0-flash',      ms: 15000, grounding: false },
-      { model: 'gemini-2.0-flash-lite', ms: 12000, grounding: false },
     ];
 
     let text = '';
