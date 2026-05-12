@@ -146,7 +146,7 @@ SEARCH TERM 2: ${top4[1] ?? top4[0]}
 SEARCH TERM 3: ${top4[2] ?? top4[0]}
 1688 query: ${top4[0]} 厂家直销
 Baidu query: ${top4[0]} 生产厂家
-WARNING: Searching in Korean ("${productDescription.slice(0, 20)}") will return completely wrong products. Use ONLY the Chinese terms above.
+WARNING: Do NOT search in Korean. Use ONLY the Chinese terms listed above.
 [== END MANDATORY TERMS ==]
 `;
 }
