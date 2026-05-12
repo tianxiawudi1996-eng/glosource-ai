@@ -136,15 +136,15 @@ function buildConstructionTranslationHint(productDescription: string): string {
   if (terms.length === 0) return '';
   const top4 = terms.slice(0, 4);
   return `
-╔══════════════════════════════════════════════════════════════╗
-║  🚨 CRITICAL — 한국 건설 전문용어 중국어 강제 매핑            ║
-╚══════════════════════════════════════════════════════════════╝
-⛔ 절대 금지: 한국어 키워드("${productDescription.slice(0, 30)}")를 그대로 검색어로 사용 금지
-✅ 필수 검색어 (아래 중국어만 사용): ${top4.join(' | ')}
-1688 검색어: "${top4[0]} 厂家直销"
-Baidu 爱采购: "${top4[0]} 生产厂家"
-Alibaba 검색어: "${top4[0]} manufacturer supplier"
-이 중국어 검색어로만 공급자를 탐색하세요. 한국어 제품명으로 검색하면 전혀 다른 제품이 나옵니다.
+[== MANDATORY CHINESE SEARCH TERMS == DO NOT SEARCH IN KOREAN ==]
+This product is a Korean construction material. You MUST search using ONLY these Chinese terms:
+SEARCH TERM 1: ${top4[0]}
+SEARCH TERM 2: ${top4[1] ?? top4[0]}
+SEARCH TERM 3: ${top4[2] ?? top4[0]}
+1688 query: ${top4[0]} 厂家直销
+Baidu query: ${top4[0]} 生产厂家
+WARNING: Searching in Korean ("${productDescription.slice(0, 20)}") will return completely wrong products. Use ONLY the Chinese terms above.
+[== END MANDATORY TERMS ==]
 `;
 }
 
