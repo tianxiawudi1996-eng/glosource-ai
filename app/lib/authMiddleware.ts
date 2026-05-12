@@ -24,6 +24,13 @@ export async function checkAuthAndQuota(
     const plan = (session.user.plan ?? 'free') as keyof typeof PLAN_LIMITS;
     const limit = PLAN_LIMITS[plan].monthly;
 
+    // 어드민은 쿼터 제한 없음 (테스트/운영 목적)
+    const adminEmails = (process.env.ADMIN_EMAILS ?? process.env.ADMIN_EMAIL ?? '')
+      .split(',').map(e => e.trim()).filter(Boolean);
+    if (session.user.email && adminEmails.includes(session.user.email)) {
+      return { ok: true, userId, plan };
+    }
+
     if (plan !== 'enterprise') {
       const startOfMonth = new Date();
       startOfMonth.setDate(1);
