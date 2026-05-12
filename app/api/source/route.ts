@@ -60,13 +60,13 @@ const CONSTRUCTION_TERM_MAP: Array<{ ko: RegExp; zh: string[] }> = [
   { ko: /시스템 비계|반딧불 비계|비계 일반|scaffold/i,            zh: ['盘扣脚手架', '碗扣脚手架', '建筑脚手架厂家'] },
   { ko: /강관 비계|비계 파이프|Φ48/i,                            zh: ['φ48脚手架钢管', '建筑用钢管', '架管'] },
   { ko: /클램프|직교 클램프|회전 클램프|扣件/i,                   zh: ['脚手架扣件', '直角扣件', '旋转扣件'] },
-  { ko: /안전망|안전 네트|낙하물.{0,3}방지망|안전방망|방호망/i,      zh: ['建筑安全网', '防坠网', '安全防护网', '施工安全网'] },
+  { ko: /안전망|안전 네트|낙하물.{0,3}방지망|안전방망|방호망/i,      zh: ['建筑防坠网', '施工安全防护网', '建筑安全网片', '工地防护安全网'] },
   { ko: /작업 발판|강 발판|철 발판/i,                             zh: ['钢脚手板', '建筑跳板', '冲孔钢踏板'] },
   // 앵커/볼트류
   { ko: /케미컬.{0,3}앵커|케미칼.{0,3}앵커|식근 앵커|화학 앵커|앵카볼트.{0,5}화학|chemical anchor/i, zh: ['化学锚栓', '植筋胶', '锚固胶厂家', '植筋锚固剂'] },
   { ko: /확장 앵커|팽창 앵커|expansion anchor/i,                  zh: ['膨胀螺栓', '金属膨胀螺栓', '建筑膨胀螺丝'] },
   { ko: /세파타이|폼 타이|거푸집 관통 볼트|she bolt/i,             zh: ['对拉螺杆', '穿墙螺杆', '对拉螺栓套管'] },
-  { ko: /인서트|매립.{0,3}인서트|콘크리트.{0,3}인서트|슬래브.{0,3}인서트|매립철물/i, zh: ['预埋件', '混凝土预埋螺母', '预埋螺母', '建筑预埋件'] },
+  { ko: /인서트|매립.{0,3}인서트|콘크리트.{0,3}인서트|슬래브.{0,3}인서트|매립철물/i, zh: ['混凝土预埋螺母', '预埋件厂家', '预埋吊钉', '楼板预埋螺母'] },
   { ko: /고장력 볼트|고력 볼트|HTBS/i,                            zh: ['高强度螺栓', '大六角高强螺栓', '扭剪型高强螺栓'] },
   // 콘크리트 시공류
   { ko: /진동기|바이브레이터|vibrator|진동봉/i,                   zh: ['混凝土振动器', '插入式振捣棒', '振动棒厂家'] },
@@ -154,10 +154,10 @@ function buildPrompt(req: SourcingRequest, categoryContext?: Category): string {
   const unitNote = buildQuantityUnitNote(req);
   const productDescription = sanitizeInput(req.productDescription);
   const budget = sanitizeInput(req.budget || '');
-  // Put Chinese term FIRST so grounding searches in Chinese
+  // Use Chinese-only description so both grounding and non-grounding models use correct vocabulary
   const zhTerms = detectChineseTerms(req.productDescription);
   const productWithZh = zhTerms.length > 0
-    ? `${zhTerms[0]}${zhTerms[1] ? '/' + zhTerms[1] : ''} (Korean product: ${productDescription})`
+    ? `${zhTerms.slice(0, 3).join(' / ')}`
     : productDescription;
 
   return `당신은 20년 경력의 글로벌 소싱 전문가입니다. Google 검색을 통해 아래 소싱 요청에 맞는 해외 공급자를 실제로 탐색하고, 각 공급자의 신뢰도를 전문가 관점에서 분석해주세요.
