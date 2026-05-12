@@ -275,11 +275,11 @@ export async function POST(request: NextRequest) {
     const categoryContext = req.categoryCode ? getCategoryByCode(req.categoryCode) : undefined;
     const prompt = buildPrompt(req, categoryContext);
 
-    // 전략: 1차(1.5-flash + grounding) → 2차(2.5-flash + grounding) → 3차(2.5-flash) → 4차(2.0-flash)
+    // 전략: 1차(1.5-flash + grounding) → 2차(2.5-flash + grounding) → 3차(2.5-flash 55s) → 4차(2.0-flash)
     const MODELS = [
       { model: 'gemini-1.5-flash',      ms: 45000, grounding: true  },
       { model: 'gemini-2.5-flash',      ms: 40000, grounding: true  },
-      { model: 'gemini-2.5-flash',      ms: 20000, grounding: false },
+      { model: 'gemini-2.5-flash',      ms: 55000, grounding: false },
       { model: 'gemini-2.0-flash',      ms: 15000, grounding: false },
     ];
 
@@ -307,7 +307,7 @@ export async function POST(request: NextRequest) {
       } catch (e) {
         lastError = e instanceof Error ? e : new Error(String(e));
         const msg = lastError.message;
-        modelErrors.push(`${m.model}(${m.grounding ? 'g' : '-'}): ${msg.slice(0, 80)}`);
+        modelErrors.push(`${m.model}(${m.grounding ? 'g' : '-'}): ${msg.slice(0, 200)}`);
         const isRetryable =
           msg.includes('503') || msg.includes('Service Unavailable') ||
           msg.includes('429') || msg.includes('Too Many') ||
