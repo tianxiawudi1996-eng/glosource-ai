@@ -157,10 +157,10 @@ function buildPrompt(req: SourcingRequest, categoryContext?: Category): string {
   const unitNote = buildQuantityUnitNote(req);
   const productDescription = sanitizeInput(req.productDescription);
   const budget = sanitizeInput(req.budget || '');
-  // Use Chinese-only description so both grounding and non-grounding models use correct vocabulary
+  // Chinese terms first + Korean context → grounding generates Chinese search queries
   const zhTerms = detectChineseTerms(req.productDescription);
   const productWithZh = zhTerms.length > 0
-    ? `${zhTerms.slice(0, 3).join(' / ')}`
+    ? `${zhTerms[0]} ${zhTerms[1] ?? ''} (${productDescription})`
     : productDescription;
 
   return `당신은 20년 경력의 글로벌 소싱 전문가입니다. Google 검색을 통해 아래 소싱 요청에 맞는 해외 공급자를 실제로 탐색하고, 각 공급자의 신뢰도를 전문가 관점에서 분석해주세요.
@@ -347,7 +347,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!parsed.suppliers || parsed.suppliers.length === 0) {
-      return NextResponse.json({ error: '공급자를 찾지 못했습니다. 제품 설명을 더 구체적으로 입력해주세요.' }, { status: 500 });
+      return NextResponse.json({ error: '공급자를 찾지 못했습니다. 제품 설명을 더 구체적으로 입력해주세요.', _debug: { modelUsed, modelErrors } }, { status: 500 });
     }
 
     const output: SourcingOutput = { ...parsed, groundingUsed };
