@@ -300,8 +300,6 @@ export async function POST(request: NextRequest) {
     let text = '';
     let groundingUsed = false;
     let lastError: Error | null = null;
-    let modelUsed = '';
-    const modelErrors: string[] = [];
 
     for (const m of MODELS) {
       try {
@@ -316,12 +314,11 @@ export async function POST(request: NextRequest) {
         ]);
         text = result.response.text().trim();
         groundingUsed = hasGroundingMetadata(result.response);
-        modelUsed = m.model + (m.tools ? '+grounding' : '');
         break;
       } catch (e) {
         lastError = e instanceof Error ? e : new Error(String(e));
         const msg = lastError.message;
-        modelErrors.push(`${m.model}(${m.tools ? 'g' : '-'}): ${msg.slice(0, 200)}`);
+        console.warn(`[GloSource] attempt ${m.model}:`, msg.slice(0, 100));
         const isRetryable =
           msg.includes('503') || msg.includes('Service Unavailable') ||
           msg.includes('429') || msg.includes('Too Many') ||
