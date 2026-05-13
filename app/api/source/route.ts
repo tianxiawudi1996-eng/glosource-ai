@@ -43,43 +43,44 @@ function hasGroundingMetadata(response: EnhancedGenerateContentResponse): boolea
   }) ?? false;
 }
 
-// Korean construction terminology → Chinese search terms (철콘/골조/건축 특화)
-const CONSTRUCTION_TERM_MAP: Array<{ ko: RegExp; zh: string[] }> = [
+// Korean construction terminology → Chinese search terms + English keyword (철콘/골조/건축 특화)
+// en field: ASCII anchor so Gemini grounding can construct search queries (pure CJK causes encoding false-positive)
+const CONSTRUCTION_TERM_MAP: Array<{ ko: RegExp; zh: string[]; en: string }> = [
   // 철근류
-  { ko: /이형철근|철근|HD\d+|SD\d+|rebar|봉강/i,              zh: ['螺纹钢筋', 'HRB400钢筋', '建筑钢筋', '变形钢筋厂家'] },
-  { ko: /결속선|결속사|묶음 철사|binding wire/i,                 zh: ['扎丝', '绑扎铁丝', '建筑绑扎丝'] },
-  { ko: /스페이서|간격재|보호층 블록|cover block/i,              zh: ['钢筋保护层垫块', '砂浆垫块', '塑料垫块'] },
-  { ko: /쿠플러|커플러|기계식 이음|직결 이음|coupler/i,           zh: ['钢筋机械连接套筒', '直螺纹套筒', '钢筋连接器'] },
-  { ko: /용접 철망|와이어메쉬|wire mesh|溶接铁網/i,               zh: ['焊接钢丝网', '电焊网', '建筑焊接钢筋网'] },
+  { ko: /이형철근|철근|HD\d+|SD\d+|rebar|봉강/i,              zh: ['螺纹钢筋', 'HRB400钢筋', '建筑钢筋', '变形钢筋厂家'],            en: 'deformed steel rebar HRB400' },
+  { ko: /결속선|결속사|묶음 철사|binding wire/i,                 zh: ['扎丝', '绑扎铁丝', '建筑绑扎丝'],                              en: 'rebar binding wire tie wire' },
+  { ko: /스페이서|간격재|보호층 블록|cover block/i,              zh: ['钢筋保护层垫块', '砂浆垫块', '塑料垫块'],                        en: 'rebar spacer cover block concrete' },
+  { ko: /쿠플러|커플러|기계식 이음|직결 이음|coupler/i,           zh: ['钢筋机械连接套筒', '直螺纹套筒', '钢筋连接器'],                  en: 'rebar mechanical coupler splice sleeve' },
+  { ko: /용접 철망|와이어메쉬|wire mesh|溶接铁網/i,               zh: ['焊接钢丝网', '电焊网', '建筑焊接钢筋网'],                        en: 'welded wire mesh construction' },
   // 거푸집류
-  { ko: /유로폼|알폼|알루미늄 거푸집|폼웍|formwork/i,             zh: ['铝合金模板', '铝模板', '建筑铝模厂家'] },
-  { ko: /거푸집.{0,4}합판|거푸집용 합판|콘크리트 합판/i,           zh: ['建筑覆膜模板', '木模板', '清水模板'] },
-  { ko: /각재|방부목 각재|목재 각재/i,                            zh: ['建筑木方', '方木', '工程木方'] },
-  { ko: /동바리|시스템 동바리|서포트 시스템|shore|shoring/i,       zh: ['碗扣脚手架', '钢管支撑架', '独立支撑架'] },
-  { ko: /데크플레이트|deck plate|합성 슬래브/i,                   zh: ['楼承板', '压型钢板', '钢承板厂家'] },
-  { ko: /박리제|탈형제|거푸집.{0,4}오일|거푸집.{0,4}코팅|폼오일|form oil/i, zh: ['混凝土脱模剂', '模板脱模油', '混凝土脱模油', '水性脱模剂'] },
-  { ko: /갱폼|대형 거푸집|climbing form|gang form/i,              zh: ['爬升模板', '大钢模', '液压爬模系统'] },
+  { ko: /유로폼|알폼|알루미늄 거푸집|폼웍|formwork/i,             zh: ['铝合金模板', '铝模板', '建筑铝模厂家'],                          en: 'aluminum formwork panel construction' },
+  { ko: /거푸집.{0,4}합판|거푸집용 합판|콘크리트 합판/i,           zh: ['建筑覆膜模板', '木模板', '清水模板'],                            en: 'concrete formwork plywood film faced' },
+  { ko: /각재|방부목 각재|목재 각재/i,                            zh: ['建筑木方', '方木', '工程木方'],                                  en: 'timber square lumber construction' },
+  { ko: /동바리|시스템 동바리|서포트 시스템|shore|shoring/i,       zh: ['碗扣脚手架', '钢管支撑架', '独立支撑架'],                        en: 'scaffolding shoring support prop steel' },
+  { ko: /데크플레이트|deck plate|합성 슬래브/i,                   zh: ['楼承板', '压型钢板', '钢承板厂家'],                              en: 'deck plate composite floor steel' },
+  { ko: /박리제|탈형제|거푸집.{0,4}오일|거푸집.{0,4}코팅|폼오일|form oil/i, zh: ['混凝土脱模剂', '模板脱模油', '混凝土脱模油', '水性脱模剂'], en: 'concrete release agent formwork mold oil' },
+  { ko: /갱폼|대형 거푸집|climbing form|gang form/i,              zh: ['爬升模板', '大钢模', '液压爬模系统'],                            en: 'climbing gang form large formwork' },
   // 비계/안전류
-  { ko: /시스템 비계|반딧불 비계|비계 일반|scaffold/i,            zh: ['盘扣脚手架', '碗扣脚手架', '建筑脚手架厂家'] },
-  { ko: /강관 비계|비계 파이프|Φ48/i,                            zh: ['φ48脚手架钢管', '建筑用钢管', '架管'] },
-  { ko: /클램프|직교 클램프|회전 클램프|扣件/i,                   zh: ['脚手架扣件', '直角扣件', '旋转扣件'] },
-  { ko: /안전망|안전 네트|낙하물.{0,3}방지망|안전방망|방호망/i,      zh: ['施工安全网', '建筑安全网', '安全防护网片', '工地防坠网'] },
-  { ko: /작업 발판|강 발판|철 발판/i,                             zh: ['钢脚手板', '建筑跳板', '冲孔钢踏板'] },
+  { ko: /시스템 비계|반딧불 비계|비계 일반|scaffold/i,            zh: ['盘扣脚手架', '碗扣脚手架', '建筑脚手架厂家'],                    en: 'ringlock scaffolding system construction' },
+  { ko: /강관 비계|비계 파이프|Φ48/i,                            zh: ['φ48脚手架钢管', '建筑用钢管', '架管'],                          en: 'scaffolding steel pipe tube 48mm' },
+  { ko: /클램프|직교 클램프|회전 클램프|扣件/i,                   zh: ['脚手架扣件', '直角扣件', '旋转扣件'],                            en: 'scaffolding clamp coupler right angle swivel' },
+  { ko: /안전망|안전 네트|낙하물.{0,3}방지망|안전방망|방호망/i,      zh: ['施工安全网', '建筑安全网', '安全防护网片', '工地防坠网'],          en: 'construction safety net fall protection debris net' },
+  { ko: /작업 발판|강 발판|철 발판/i,                             zh: ['钢脚手板', '建筑跳板', '冲孔钢踏板'],                            en: 'scaffolding steel plank walkboard' },
   // 앵커/볼트류
-  { ko: /케미컬.{0,3}앵커|케미칼.{0,3}앵커|식근 앵커|화학 앵커|앵카볼트.{0,5}화학|chemical anchor/i, zh: ['化学锚栓', '植筋胶', '锚固胶厂家', '植筋锚固剂'] },
-  { ko: /확장 앵커|팽창 앵커|expansion anchor/i,                  zh: ['膨胀螺栓', '金属膨胀螺栓', '建筑膨胀螺丝'] },
-  { ko: /세파타이|폼 타이|거푸집 관통 볼트|she bolt/i,             zh: ['对拉螺杆', '穿墙螺杆', '对拉螺栓套管'] },
-  { ko: /인서트|매립.{0,3}인서트|콘크리트.{0,3}인서트|슬래브.{0,3}인서트|매립철물/i, zh: ['混凝土预埋螺母', '预埋件厂家', '预埋吊钉', '楼板预埋螺母'] },
-  { ko: /고장력 볼트|고력 볼트|HTBS/i,                            zh: ['高强度螺栓', '大六角高强螺栓', '扭剪型高强螺栓'] },
+  { ko: /케미컬.{0,3}앵커|케미칼.{0,3}앵커|식근 앵커|화학 앵커|앵카볼트.{0,5}화학|chemical anchor/i, zh: ['化学锚栓', '植筋胶', '锚固胶厂家', '植筋锚固剂'], en: 'chemical anchor epoxy anchor bolt injection' },
+  { ko: /확장 앵커|팽창 앵커|expansion anchor/i,                  zh: ['膨胀螺栓', '金属膨胀螺栓', '建筑膨胀螺丝'],                      en: 'expansion anchor bolt wall plug' },
+  { ko: /세파타이|폼 타이|거푸집 관통 볼트|she bolt/i,             zh: ['对拉螺杆', '穿墙螺杆', '对拉螺栓套管'],                          en: 'formwork tie rod through bolt she-bolt' },
+  { ko: /인서트|매립.{0,3}인서트|콘크리트.{0,3}인서트|슬래브.{0,3}인서트|매립철물/i, zh: ['混凝土预埋螺母', '预埋件厂家', '预埋吊钉', '楼板预埋螺母'], en: 'concrete embed insert anchor nut cast-in' },
+  { ko: /고장력 볼트|고력 볼트|HTBS/i,                            zh: ['高强度螺栓', '大六角高强螺栓', '扭剪型高强螺栓'],                en: 'high strength bolt structural steel connection' },
   // 콘크리트 시공류
-  { ko: /진동기|바이브레이터|vibrator|진동봉/i,                   zh: ['混凝土振动器', '插入式振捣棒', '振动棒厂家'] },
-  { ko: /펌프카 호스|콘크리트 호스|펌프 배관/i,                    zh: ['混凝土泵管软管', '布料机软管', '输送泵管'] },
-  { ko: /지수판|지수재|PVC 지수|waterstop/i,                      zh: ['PVC止水带', '橡胶止水带', '止水带厂家'] },
-  { ko: /팽창.{0,3}지수|수팽창.{0,3}지수|팽창.{0,3}조인트|팽창형.{0,5}지수재|벤토나이트.{0,3}지수/i, zh: ['遇水膨胀止水条', '遇水膨胀橡胶止水条', '嵌缝止水条', '遇水膨胀腻子条'] },
-  { ko: /양생제|콘크리트 양생|curing compound/i,                   zh: ['混凝土养护剂', '养护膜', '混凝土保湿养护'] },
+  { ko: /진동기|바이브레이터|vibrator|진동봉/i,                   zh: ['混凝土振动器', '插入式振捣棒', '振动棒厂家'],                    en: 'concrete vibrator poker immersion' },
+  { ko: /펌프카 호스|콘크리트 호스|펌프 배관/i,                    zh: ['混凝土泵管软管', '布料机软管', '输送泵管'],                      en: 'concrete pump hose pipeline' },
+  { ko: /지수판|지수재|PVC 지수|waterstop/i,                      zh: ['PVC止水带', '橡胶止水带', '止水带厂家'],                          en: 'PVC waterstop rubber water stop strip' },
+  { ko: /팽창.{0,3}지수|수팽창.{0,3}지수|팽창.{0,3}조인트|팽창형.{0,5}지수재|벤토나이트.{0,3}지수/i, zh: ['遇水膨胀止水条', '遇水膨胀橡胶止水条', '嵌缝止水条', '遇水膨胀腻子条'], en: 'hydrophilic swelling waterstop strip bentonite' },
+  { ko: /양생제|콘크리트 양생|curing compound/i,                   zh: ['混凝土养护剂', '养护膜', '混凝土保湿养护'],                      en: 'concrete curing compound membrane' },
   // 방수/지하층
-  { ko: /방수시트|방수 시트|waterproof sheet|방수막/i,             zh: ['防水卷材', 'SBS防水卷材', '建筑防水材料厂家'] },
-  { ko: /방수 도막|방수 코팅|도막 방수/i,                          zh: ['防水涂料', '聚氨酯防水涂料', '水泥基防水涂料'] },
+  { ko: /방수시트|방수 시트|waterproof sheet|방수막/i,             zh: ['防水卷材', 'SBS防水卷材', '建筑防水材料厂家'],                    en: 'waterproof membrane sheet SBS bitumen' },
+  { ko: /방수 도막|방수 코팅|도막 방수/i,                          zh: ['防水涂料', '聚氨酯防水涂料', '水泥基防水涂料'],                  en: 'waterproof coating liquid membrane polyurethane' },
 ];
 
 function detectChineseTerms(productDescription: string): string[] {
@@ -89,8 +90,16 @@ function detectChineseTerms(productDescription: string): string[] {
       found.push(...entry.zh);
     }
   }
-  // deduplicate
   return [...new Set(found)];
+}
+
+function detectEnglishTerm(productDescription: string): string {
+  for (const entry of CONSTRUCTION_TERM_MAP) {
+    if (entry.ko.test(productDescription)) {
+      return entry.en;
+    }
+  }
+  return '';
 }
 
 const COUNTRY_LABELS: Record<string, string> = {
@@ -158,11 +167,10 @@ function buildPrompt(req: SourcingRequest, categoryContext?: Category): string {
   const productDescription = sanitizeInput(req.productDescription);
   const budget = sanitizeInput(req.budget || '');
   const zhTerms = detectChineseTerms(req.productDescription);
-  // For construction materials: show Korean name + Chinese search directive on separate line
-  // (Chinese-only caused Gemini to report "encoding error" due to Korean/Chinese mismatch in prompt)
-  const zhSearch = zhTerms.slice(0, 3).join(' ');
+  const enTerm = detectEnglishTerm(req.productDescription);
+  // English + Chinese: ASCII anchor prevents Gemini grounding encoding false-positive on pure CJK input
   const productWithZh = zhTerms.length > 0
-    ? `${productDescription}\n└→ 반드시 아래 중국어로 탐색 (MANDATORY CHINESE): ${zhSearch}`
+    ? `${enTerm} ${zhTerms.slice(0, 3).join(' ')}`
     : productDescription;
 
   return `당신은 20년 경력의 글로벌 소싱 전문가입니다. Google 검색을 통해 아래 소싱 요청에 맞는 해외 공급자를 실제로 탐색하고, 각 공급자의 신뢰도를 전문가 관점에서 분석해주세요.
