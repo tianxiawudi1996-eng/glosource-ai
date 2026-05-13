@@ -374,7 +374,7 @@ export async function POST(request: NextRequest) {
 
     logUsage(userId, ip, 'source', req.productDescription, output.suppliers?.length, Date.now() - start).catch(() => {});
 
-    return NextResponse.json({ success: true, data: output, _debug: { modelUsed, modelErrors } });
+    return NextResponse.json({ success: true, data: output, _debug: { modelUsed, modelErrors, _v: 'en-field-v1' } });
   } catch (error) {
     console.error('[GloSource API Error]', error);
     const message = error instanceof Error ? error.message : '소싱 분석 중 오류가 발생했습니다.';
