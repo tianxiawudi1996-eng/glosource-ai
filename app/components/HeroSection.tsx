@@ -1,5 +1,7 @@
 'use client';
 
+import Image from 'next/image';
+
 interface HeroSectionProps {
   lang?: 'ko' | 'en';
 }
@@ -217,9 +219,26 @@ export default function HeroSection({ lang = 'ko' }: HeroSectionProps) {
             </div>
           </div>
 
-          {/* RIGHT — mockup panel */}
+          {/* RIGHT — hero visual */}
           <div className="hidden lg:block">
-            <MockPreviewPanel c={c} />
+            {lang === 'en' ? (
+              <div className="relative w-full rounded-2xl overflow-hidden shadow-2xl shadow-black/60" style={{ aspectRatio: '16/10' }}>
+                <Image
+                  src="/images/k-hero-products.png"
+                  alt="Korean products — K-beauty skincare, K-food, K-fashion, electronics ready for global sourcing"
+                  fill
+                  className="object-cover"
+                  priority
+                  sizes="420px"
+                />
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent px-5 py-4">
+                  <p className="text-white text-xs font-bold tracking-wide">K-beauty · K-food · K-fashion · Electronics</p>
+                  <p className="text-slate-300 text-[10px] mt-0.5">Verified Korean manufacturers, sourced in 60s</p>
+                </div>
+              </div>
+            ) : (
+              <MockPreviewPanel c={c} />
+            )}
           </div>
 
         </div>

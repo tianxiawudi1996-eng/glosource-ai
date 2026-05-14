@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import HeroSection from '@/app/components/HeroSection';
 import KSourceWrapper from './KSourceWrapper';
 import ScrollCTA from './ScrollCTA';
@@ -339,6 +340,28 @@ export default function EnPage() {
       {/* ── WHY KOREA ──────────────────────────────────────── */}
       <section id="why-korea" className="bg-white border-b border-slate-100">
         <div className="max-w-5xl mx-auto px-6 py-16">
+          {/* Image C — K-Wave demand visual with overlay */}
+          <div className="relative w-full rounded-2xl overflow-hidden mb-12 h-56 sm:h-72 shadow-md">
+            <Image
+              src="/images/k-wave-demand.png"
+              alt="K-wave — K-drama, K-pop, and K-fashion driving global demand for Korean products"
+              fill
+              className="object-cover object-center"
+              sizes="(max-width: 1024px) 100vw, 1024px"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#0D1B2A]/90 via-[#0D1B2A]/60 to-transparent flex items-center">
+              <div className="px-8 sm:px-12 max-w-lg">
+                <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-2">K-Wave × Global Trade</p>
+                <h3 className="text-white font-black text-2xl sm:text-3xl leading-tight mb-3">
+                  K-drama, K-pop, K-food.<br />The demand is real.
+                </h3>
+                <p className="text-slate-300 text-sm leading-relaxed">
+                  Korean content has created unprecedented global consumer demand. Buyers who source Korean products today are capturing markets before competition catches up.
+                </p>
+              </div>
+            </div>
+          </div>
+
           <div className="mb-10 text-center">
             <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-3">Why source from Korea?</p>
             <h2 className="text-2xl font-black text-[#0D1B2A] mb-3">Three reasons Korean suppliers are different</h2>
@@ -436,6 +459,20 @@ export default function EnPage() {
             <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-3">How it works</p>
             <h2 className="text-2xl font-black text-[#0D1B2A]">From product idea to verified Korean supplier in 60 seconds</h2>
           </div>
+          {/* Image D — supplier verification process visual */}
+          <div className="relative w-full rounded-2xl overflow-hidden mb-10 shadow-sm border border-slate-100">
+            <Image
+              src="/images/k-supplier-process.png"
+              alt="Buyer reviewing Korean supplier samples — beauty serum, K-food snacks, electronics, fabric"
+              width={1024}
+              height={683}
+              className="w-full object-cover"
+            />
+            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#0D1B2A]/75 to-transparent px-6 py-4">
+              <p className="text-white text-xs font-bold">How buyers evaluate Korean supplier samples — this is the process GloSource AI prepares you for.</p>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {HOW_IT_WORKS.map((item, idx) => (
               <div key={item.step} className="relative bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">

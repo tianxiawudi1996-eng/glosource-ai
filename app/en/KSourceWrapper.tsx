@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import EnSourcingTool from '@/app/components/EnSourcingTool';
 
 const QUICK_CATEGORIES = [
@@ -60,6 +61,21 @@ export default function KSourceWrapper() {
 
   return (
     <div>
+      {/* Image B — product category visual intro */}
+      <div className="relative w-full rounded-2xl overflow-hidden mb-8 shadow-sm border border-slate-100">
+        <Image
+          src="/images/k-product-grid.png"
+          alt="Source Korean products: K-beauty, K-food, K-fashion, electronics, industrial goods and more"
+          width={896}
+          height={597}
+          className="w-full object-cover"
+        />
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#0D1B2A]/80 via-[#0D1B2A]/30 to-transparent px-6 py-5">
+          <p className="text-white font-black text-sm mb-0.5">What can you source from Korea?</p>
+          <p className="text-slate-300 text-xs">K-beauty · K-food · K-fashion · Electronics · Industrial · Home goods</p>
+        </div>
+      </div>
+
       {/* Category quick-select */}
       <div className="mb-10">
         <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-5 text-center">
