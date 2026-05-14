@@ -5,10 +5,10 @@ import type { SourcingOutput, Supplier } from '@/app/api/source/types';
 
 type SourceRegion = 'china' | 'korea' | 'both';
 
-const REGION_BUTTONS: { value: SourceRegion; label: string }[] = [
-  { value: 'china', label: '🇨🇳 China' },
-  { value: 'korea', label: '🇰🇷 Korea' },
-  { value: 'both', label: '🌏 Both' },
+const REGION_BUTTONS: { value: SourceRegion; label: string; sub: string }[] = [
+  { value: 'korea', label: 'Korea', sub: 'EC21 · BuyKorea · KOTRA' },
+  { value: 'both', label: 'Korea + China', sub: 'All channels combined' },
+  { value: 'china', label: 'China only', sub: '1688 · Alibaba · WeChat' },
 ];
 
 function TrustBar({ score }: { score: number }) {
@@ -133,7 +133,7 @@ export default function EnSourcingTool() {
   const [product, setProduct] = useState('');
   const [quantity, setQuantity] = useState('');
   const [budget, setBudget] = useState('');
-  const [region, setRegion] = useState<SourceRegion>('china');
+  const [region, setRegion] = useState<SourceRegion>('korea');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<SourcingOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -181,18 +181,19 @@ export default function EnSourcingTool() {
           <label className="block text-xs font-bold text-[#0D1B2A] uppercase tracking-wide mb-2">Product description</label>
           <input
             type="text" value={product} onChange={e => setProduct(e.target.value)} required
-            placeholder="e.g. Korean moisturizer with hyaluronic acid, MOQ 500 units"
+            placeholder="e.g. Korean collagen serum OEM, K-beauty sheet mask, Korean instant noodles bulk"
             className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-[#0D1B2A] placeholder:text-slate-400 focus:border-[#EA580C] focus:outline-none focus:ring-2 focus:ring-[#EA580C]/10 transition-all"
           />
         </div>
 
         <div className="mb-4">
           <label className="block text-xs font-bold text-[#0D1B2A] uppercase tracking-wide mb-2">Source region</label>
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             {REGION_BUTTONS.map(btn => (
               <button key={btn.value} type="button" onClick={() => setRegion(btn.value)}
-                className={`flex-1 py-2.5 px-3 rounded-xl text-sm font-semibold border transition-all ${region === btn.value ? 'bg-[#0D1B2A] border-[#0D1B2A] text-white shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'}`}>
-                {btn.label}
+                className={`flex-1 py-2.5 px-3 rounded-xl text-sm border transition-all text-left sm:text-center ${region === btn.value ? 'bg-[#0D1B2A] border-[#0D1B2A] text-white shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'}`}>
+                <span className="font-bold block">{btn.label}</span>
+                <span className={`text-[10px] font-normal ${region === btn.value ? 'text-slate-300' : 'text-slate-400'}`}>{btn.sub}</span>
               </button>
             ))}
           </div>

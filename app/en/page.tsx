@@ -32,7 +32,7 @@ const PLANS = [
       'Extended sourcing analysis',
       'Compliance & certification matching',
       'Priority support',
-      'English & Chinese RFQ drafts',
+      'English RFQ draft + KC/KFDA cert filter',
       'Full PDF sourcing report',
     ],
     highlight: true,
@@ -60,25 +60,25 @@ const PLANS = [
 const HOW_IT_WORKS = [
   {
     step: '01',
-    title: 'Enter your product',
-    desc: 'Type a product name in English or Chinese. Optionally set order quantity, preferred region, and budget.',
+    title: 'Describe what you need',
+    desc: 'Type a product in English — e.g. "K-beauty collagen serum OEM 1,000 units" or "Korean instant noodles bulk 10 tons". Include quantity and any certification requirements.',
   },
   {
     step: '02',
-    title: 'AI scans 4 channels',
-    desc: '1688 · Baidu Aicaigou · Alibaba · WeChat are searched simultaneously. Each supplier gets a risk score (0–100).',
+    title: 'AI scans Korean & global channels',
+    desc: 'EC21 · BuyKorea · KOTRA · tradeKorea are searched first. Optionally extend to Chinese channels. Every supplier is scored 0–100 for trust & export experience.',
   },
   {
     step: '03',
-    title: 'Compare & contact',
-    desc: 'Review the 3–5 shortlisted candidates side-by-side. Use the auto-generated RFQ draft to reach out immediately.',
+    title: 'Get your shortlist & RFQ draft',
+    desc: 'Review 3–5 verified Korean (or global) suppliers side-by-side with certifications, MOQ, and unit price. One click generates an English RFQ email ready to send.',
   },
 ];
 
 const FAQ = [
   {
-    q: 'What languages does GloSource AI support?',
-    a: 'You can enter queries in English, Korean, or Chinese. Results include the original Chinese supplier names with English/Korean summaries.',
+    q: 'What kinds of Korean products can I source?',
+    a: 'K-beauty (skincare, cosmetics, OEM), K-food (instant noodles, snacks, sauces, ingredients), K-fashion (clothing, accessories), electronics, industrial parts, and more. If it is manufactured in Korea, GloSource AI can find suppliers for it.',
   },
   {
     q: 'Do I need to create an account?',
@@ -128,7 +128,7 @@ const JSON_LD_ORGANIZATION = {
   '@type': 'Organization',
   name: 'GloSource AI',
   url: 'https://glosource-ai.vercel.app/en',
-  description: 'AI-powered global sourcing assistant for international buyers. Find verified suppliers from China and Korea in 60 seconds.',
+  description: 'AI-powered sourcing assistant for international buyers. Find verified Korean suppliers (K-beauty, K-food, K-fashion) and Chinese manufacturers in 60 seconds.',
   contactPoint: {
     '@type': 'ContactPoint',
     email: 'like2buyglobal@gmail.com',
@@ -197,7 +197,7 @@ export default function EnPage() {
           <div className="flex flex-col sm:flex-row items-center gap-4">
             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap shrink-0">Sourced from</p>
             <div className="flex flex-wrap justify-center sm:justify-start gap-2">
-              {['1688.com 诚信通', 'Baidu 爱采购', 'Alibaba.com', 'WeChat 公众号', 'Made-in-China'].map(name => (
+              {['EC21.com', 'BuyKorea (KOTRA)', 'tradeKorea', '1688.com', 'Alibaba.com'].map(name => (
                 <span key={name} className="border border-slate-200 rounded-lg px-4 py-2 text-xs font-semibold text-slate-600 bg-slate-50">
                   {name}
                 </span>
@@ -213,7 +213,7 @@ export default function EnPage() {
           <div className="mb-8 text-center">
             <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-3">Try it now</p>
             <h2 className="text-2xl font-black text-[#0D1B2A] mb-2">Find your next supplier</h2>
-            <p className="text-sm text-slate-500">Search China &amp; Korea simultaneously. AI-powered in 60 seconds.</p>
+            <p className="text-sm text-slate-500">Source from Korea first — K-beauty, K-food, K-fashion & more. Add China if needed. AI-ranked in 60 seconds.</p>
           </div>
           <EnSourcingTool />
         </div>
@@ -224,7 +224,7 @@ export default function EnPage() {
         <div className="max-w-5xl mx-auto px-6 py-16">
           <div className="mb-10 text-center">
             <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-3">How it works</p>
-            <h2 className="text-2xl font-black text-[#0D1B2A]">From product name to supplier shortlist in 60 seconds</h2>
+            <h2 className="text-2xl font-black text-[#0D1B2A]">From product idea to verified Korean supplier in 60 seconds</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {HOW_IT_WORKS.map(item => (
@@ -259,7 +259,7 @@ export default function EnPage() {
             </p>
             {!polarReady && (
               <div className="mt-4 inline-flex items-center gap-2 border border-amber-200 bg-amber-50 rounded-full px-4 py-2 text-xs font-semibold text-amber-700">
-                🚧 Payment integration launching soon — try it free in the meantime
+                Payment integration launching soon — try it free in the meantime
               </div>
             )}
           </div>
@@ -334,9 +334,9 @@ export default function EnPage() {
       {/* bottom CTA */}
       <section className="bg-[#0D1B2A] text-white">
         <div className="max-w-3xl mx-auto px-6 py-16 text-center">
-          <h2 className="text-2xl font-black mb-4">Start sourcing smarter today</h2>
+          <h2 className="text-2xl font-black mb-4">Find your Korean supplier today</h2>
           <p className="text-slate-300 text-sm mb-8 leading-relaxed">
-            5 free searches, no credit card required. Get supplier candidates, risk scores, and RFQ drafts in under a minute.
+            5 free searches, no credit card required. Get verified Korean supplier candidates with trust scores and a ready-to-send RFQ draft in under a minute.
           </p>
           <ScrollCTA
             targetId="sourcing-tool"
