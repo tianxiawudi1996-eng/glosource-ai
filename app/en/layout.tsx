@@ -20,20 +20,11 @@ export const metadata: Metadata = {
     siteName: 'GloSource AI',
     type: 'website',
     locale: 'en_US',
-    images: [
-      {
-        url: 'https://glosource-ai.vercel.app/og-image.png',
-        width: 1200,
-        height: 630,
-        alt: 'GloSource AI — AI-powered supplier sourcing in 60 seconds',
-      },
-    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'GloSource AI — Match Chinese Suppliers in 60 Seconds',
     description: 'Compare 1688 · Alibaba · WeChat suppliers with AI risk scoring and auto-generated RFQ emails.',
-    images: ['https://glosource-ai.vercel.app/og-image.png'],
   },
 };
 

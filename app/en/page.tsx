@@ -1,5 +1,6 @@
 import HeroSection from '@/app/components/HeroSection';
 import EnSourcingTool from '@/app/components/EnSourcingTool';
+import ScrollCTA from './ScrollCTA';
 import Link from 'next/link';
 
 const PLANS = [
@@ -177,13 +178,12 @@ export default function EnPage() {
             >
               Pricing
             </a>
-            <a
-              href="#sourcing-tool"
-              onClick={(e) => { e.preventDefault(); document.getElementById('sourcing-tool')?.scrollIntoView({ behavior: 'smooth' }); }}
+            <ScrollCTA
+              targetId="sourcing-tool"
               className="text-xs font-bold bg-[#EA580C] text-white px-4 py-2 rounded-lg hover:bg-[#DC4C00] transition-colors"
             >
               Try Free →
-            </a>
+            </ScrollCTA>
           </div>
         </div>
       </nav>
@@ -238,13 +238,12 @@ export default function EnPage() {
             ))}
           </div>
           <div className="mt-8 text-center">
-            <a
-              href="#sourcing-tool"
-              onClick={(e) => { e.preventDefault(); document.getElementById('sourcing-tool')?.scrollIntoView({ behavior: 'smooth' }); }}
+            <ScrollCTA
+              targetId="sourcing-tool"
               className="inline-flex items-center gap-2 bg-[#EA580C] hover:bg-[#DC4C00] text-white font-bold text-sm px-6 py-3 rounded-xl transition-all shadow-lg shadow-orange-900/30"
             >
               Try it now — 5 free searches →
-            </a>
+            </ScrollCTA>
           </div>
         </div>
       </section>
@@ -339,13 +338,12 @@ export default function EnPage() {
           <p className="text-slate-300 text-sm mb-8 leading-relaxed">
             5 free searches, no credit card required. Get supplier candidates, risk scores, and RFQ drafts in under a minute.
           </p>
-          <a
-            href="#sourcing-tool"
-            onClick={(e) => { e.preventDefault(); document.getElementById('sourcing-tool')?.scrollIntoView({ behavior: 'smooth' }); }}
+          <ScrollCTA
+            targetId="sourcing-tool"
             className="inline-flex items-center gap-2 bg-[#EA580C] hover:bg-[#DC4C00] text-white font-bold px-8 py-4 rounded-xl transition-all shadow-lg shadow-orange-900/30 text-sm"
           >
             Start 5 free searches →
-          </a>
+          </ScrollCTA>
           <p className="mt-4 text-xs text-slate-500">No signup required for free tier</p>
         </div>
       </section>

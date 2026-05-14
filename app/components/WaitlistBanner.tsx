@@ -33,7 +33,6 @@ export default function WaitlistBanner() {
   if (status === 'done') {
     return (
       <div className="bg-gradient-to-r from-[#0D1B2A] to-[#1a2f44] border border-[#EA580C]/30 rounded-2xl p-6 text-center">
-        <div className="text-2xl mb-2">🎉</div>
         <p className="font-bold text-white text-sm">{msg}</p>
         <p className="text-slate-400 text-xs mt-1">오픈 알림 + 첫 달 무료 혜택을 이메일로 보내드릴게요.</p>
       </div>
@@ -42,12 +41,9 @@ export default function WaitlistBanner() {
 
   return (
     <div className="bg-gradient-to-r from-[#0D1B2A] to-[#1a2f44] border border-[#EA580C]/20 rounded-2xl p-6">
-      <div className="flex items-start gap-3 mb-4">
-        <span className="text-2xl">🚀</span>
-        <div>
-          <p className="font-black text-white text-sm">유료 플랜 오픈 예정 — 지금 베타 신청하면 첫 달 무료</p>
-          <p className="text-slate-400 text-xs mt-0.5">사업자 등록 후 Toss 결제 연동 예정. 사전 신청자 우선 혜택.</p>
-        </div>
+      <div className="mb-4">
+        <p className="font-black text-white text-sm">유료 플랜 오픈 예정 — 지금 베타 신청하면 첫 달 무료</p>
+        <p className="text-slate-400 text-xs mt-0.5">사업자 등록 후 Toss 결제 연동 예정. 사전 신청자 우선 혜택.</p>
       </div>
       <form onSubmit={handleSubmit} className="flex gap-2">
         <input
