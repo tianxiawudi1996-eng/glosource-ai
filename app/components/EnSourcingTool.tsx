@@ -113,7 +113,8 @@ async function callAPI(product: string, quantity: string, budget: string, countr
     const err = await res.json().catch(() => ({})) as { error?: string };
     throw new Error(err.error ?? `Server error ${res.status}`);
   }
-  return res.json() as Promise<SourcingOutput>;
+  const json = await res.json() as { success: boolean; data: SourcingOutput };
+  return json.data;
 }
 
 function mergeResults(a: SourcingOutput, b: SourcingOutput): SourcingOutput {
@@ -141,7 +142,7 @@ export default function EnSourcingTool() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!product.trim()) return;
+    if (!product.trim() || !quantity.trim()) return;
     setLoading(true);
     setError(null);
     setResult(null);
@@ -201,8 +202,10 @@ export default function EnSourcingTool() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
           <div>
-            <label className="block text-xs font-bold text-[#0D1B2A] uppercase tracking-wide mb-2">Quantity</label>
-            <input type="text" value={quantity} onChange={e => setQuantity(e.target.value)} placeholder="e.g. 500 units"
+            <label className="block text-xs font-bold text-[#0D1B2A] uppercase tracking-wide mb-2">
+              Quantity <span className="text-[#EA580C]">*</span>
+            </label>
+            <input type="text" value={quantity} onChange={e => setQuantity(e.target.value)} placeholder="e.g. 500 units" required
               className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-[#0D1B2A] placeholder:text-slate-400 focus:border-[#EA580C] focus:outline-none focus:ring-2 focus:ring-[#EA580C]/10 transition-all" />
           </div>
           <div>
@@ -214,7 +217,7 @@ export default function EnSourcingTool() {
           </div>
         </div>
 
-        <button type="submit" disabled={loading || !product.trim()}
+        <button type="submit" disabled={loading || !product.trim() || !quantity.trim()}
           className="w-full py-3 px-6 rounded-xl font-bold text-sm text-white bg-[#EA580C] hover:bg-[#DC4C00] disabled:opacity-60 disabled:cursor-not-allowed transition-all shadow-lg shadow-orange-900/20 flex items-center justify-center gap-2">
           {loading ? (
             <>

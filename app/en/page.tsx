@@ -1,7 +1,29 @@
+import type { Metadata } from 'next';
 import HeroSection from '@/app/components/HeroSection';
 import EnSourcingTool from '@/app/components/EnSourcingTool';
 import ScrollCTA from './ScrollCTA';
 import Link from 'next/link';
+
+export const metadata: Metadata = {
+  title: 'GloSource AI — Source Korean Suppliers in 60 Seconds',
+  description: 'Find verified Korean manufacturers for K-beauty, K-food, K-fashion & more. AI-ranked suppliers from EC21 · BuyKorea · KOTRA · tradeKorea with trust scores and English RFQ drafts. 5 free searches.',
+  openGraph: {
+    title: 'GloSource AI — Source Korean Suppliers in 60 Seconds',
+    description: 'Find verified Korean manufacturers for K-beauty, K-food, K-fashion & more. EC21 · BuyKorea · KOTRA · tradeKorea channels. AI trust scores + English RFQ.',
+    url: 'https://glosource-ai.vercel.app/en',
+    siteName: 'GloSource AI',
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'GloSource AI — Source Korean Suppliers in 60 Seconds',
+    description: 'Find verified Korean manufacturers for K-beauty, K-food, K-fashion & more. 5 free searches.',
+  },
+  alternates: {
+    canonical: 'https://glosource-ai.vercel.app/en',
+  },
+};
 
 const PLANS = [
   {
