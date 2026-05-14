@@ -1,9 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { SourcingOutput, Supplier } from '@/app/api/source/types';
 
 type SourceRegion = 'china' | 'korea' | 'both';
+
+interface EnSourcingToolProps {
+  initialProduct?: string;
+}
 
 const REGION_BUTTONS: { value: SourceRegion; label: string; sub: string }[] = [
   { value: 'korea', label: 'Korea', sub: 'EC21 · BuyKorea · KOTRA' },
@@ -11,27 +15,60 @@ const REGION_BUTTONS: { value: SourceRegion; label: string; sub: string }[] = [
   { value: 'china', label: 'China only', sub: '1688 · Alibaba · WeChat' },
 ];
 
+const LOADING_STEPS = [
+  'Scanning EC21.com...',
+  'Scanning BuyKorea (KOTRA)...',
+  'Scanning tradeKorea...',
+  'Checking certifications...',
+  'Ranking by trust score...',
+  'Generating RFQ draft...',
+];
+
+// Known certification patterns → display label + color class
+const CERT_PATTERNS: { re: RegExp; label: string; cls: string }[] = [
+  { re: /KFDA|MFDS|식약처/i,          label: 'KFDA',      cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+  { re: /HACCP/i,                     label: 'HACCP',     cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+  { re: /\bKC\b|Korea Certification/i,label: 'KC',        cls: 'bg-blue-50 text-blue-700 border-blue-200' },
+  { re: /\bKS\b|Korean Standard/i,    label: 'KS',        cls: 'bg-blue-50 text-blue-700 border-blue-200' },
+  { re: /ISO 22716/i,                 label: 'ISO 22716', cls: 'bg-slate-100 text-slate-600 border-slate-200' },
+  { re: /ISO 22000/i,                 label: 'ISO 22000', cls: 'bg-slate-100 text-slate-600 border-slate-200' },
+  { re: /ISO 9001/i,                  label: 'ISO 9001',  cls: 'bg-slate-100 text-slate-600 border-slate-200' },
+  { re: /HALAL/i,                     label: 'HALAL',     cls: 'bg-green-50 text-green-700 border-green-200' },
+  { re: /KOTRA\s*[Vv]erified/i,       label: 'KOTRA Verified', cls: 'bg-blue-50 text-blue-700 border-blue-200' },
+  { re: /\bCE\b/,                     label: 'CE',        cls: 'bg-slate-100 text-slate-600 border-slate-200' },
+  { re: /\bSGS\b/i,                   label: 'SGS',       cls: 'bg-slate-100 text-slate-600 border-slate-200' },
+];
+
+function extractCerts(evidence: string[]): { label: string; cls: string }[] {
+  const joined = evidence.join(' ');
+  return CERT_PATTERNS.filter(p => p.re.test(joined)).map(p => ({ label: p.label, cls: p.cls }));
+}
+
 function TrustBar({ score }: { score: number }) {
   const bar = score >= 75 ? 'bg-emerald-500' : score >= 50 ? 'bg-yellow-400' : 'bg-red-500';
   const txt = score >= 75 ? 'text-emerald-600' : score >= 50 ? 'text-yellow-600' : 'text-red-600';
   return (
     <div className="flex items-center gap-2">
       <div className="h-1.5 flex-1 rounded-full bg-slate-100 overflow-hidden">
-        <div className={`h-full rounded-full ${bar}`} style={{ width: `${score}%` }} />
+        <div className={`h-full rounded-full transition-all duration-700 ${bar}`} style={{ width: `${score}%` }} />
       </div>
       <span className={`text-xs font-bold tabular-nums ${txt}`}>{score}/100</span>
     </div>
   );
 }
 
-function SupplierCard({ s }: { s: Supplier }) {
+function SupplierCard({ s, rank }: { s: Supplier; rank: number }) {
   const isVerified = s.verificationStatus === 'grounding_confirmed';
+  const certs = extractCerts(s.trustEvidence);
+
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex flex-col gap-3">
+    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex flex-col gap-3 hover:shadow-md hover:border-slate-300 transition-all">
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3 min-w-0 flex-1">
-          <span className="flex-shrink-0 flex h-7 w-7 items-center justify-center rounded-lg bg-[#0D1B2A] text-xs font-black text-white">{s.rank}</span>
+          <span className={`flex-shrink-0 flex h-7 w-7 items-center justify-center rounded-lg text-xs font-black text-white ${rank === 1 ? 'bg-[#EA580C]' : rank === 2 ? 'bg-[#0D1B2A]' : 'bg-slate-500'}`}>
+            {rank}
+          </span>
           <div className="min-w-0">
             <p className="font-bold text-sm text-[#0D1B2A] truncate">{s.name}</p>
             <p className="text-xs text-slate-400 mt-0.5">{s.platform} · {s.country}</p>
@@ -43,6 +80,17 @@ function SupplierCard({ s }: { s: Supplier }) {
         </span>
       </div>
 
+      {/* Cert badges */}
+      {certs.length > 0 && (
+        <div className="flex flex-wrap gap-1">
+          {certs.map(c => (
+            <span key={c.label} className={`text-[10px] font-bold border rounded-full px-1.5 py-0.5 ${c.cls}`}>
+              {c.label}
+            </span>
+          ))}
+        </div>
+      )}
+
       {/* Trust */}
       <div>
         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">Trust score</p>
@@ -51,7 +99,7 @@ function SupplierCard({ s }: { s: Supplier }) {
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-2">
-        {[['Price', s.estimatedPrice || 'Inquire'], ['MOQ', s.moq || 'Inquire'], ['Lead time', s.leadTimeDays || 'TBD']].map(([label, val]) => (
+        {[['Price', s.estimatedPrice || 'Inquire'], ['MOQ', s.moq || 'Inquire'], ['Lead time', s.leadTimeDays ? `${s.leadTimeDays}d` : 'TBD']].map(([label, val]) => (
           <div key={label} className="bg-slate-50 rounded-lg px-2.5 py-2">
             <p className="text-[10px] text-slate-400 font-medium">{label}</p>
             <p className="text-xs font-bold text-[#0D1B2A] mt-0.5 truncate">{val}</p>
@@ -65,9 +113,11 @@ function SupplierCard({ s }: { s: Supplier }) {
       {/* Trust evidence */}
       {s.trustEvidence.length > 0 && (
         <ul className="space-y-0.5">
-          {s.trustEvidence.map((e, i) => (
+          {s.trustEvidence.slice(0, 4).map((e, i) => (
             <li key={i} className="flex items-center gap-1.5 text-[11px] text-slate-600">
-              <svg className="w-3 h-3 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+              <svg className="w-3 h-3 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+              </svg>
               {e}
             </li>
           ))}
@@ -86,9 +136,12 @@ function SupplierCard({ s }: { s: Supplier }) {
 
       {/* URL */}
       {s.url && (
-        <a href={s.url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:text-blue-800 transition-colors inline-flex items-center gap-1">
+        <a href={s.url} target="_blank" rel="noopener noreferrer"
+          className="text-xs text-blue-600 hover:text-blue-800 transition-colors inline-flex items-center gap-1">
           View supplier page
-          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
         </a>
       )}
     </div>
@@ -130,15 +183,34 @@ function mergeResults(a: SourcingOutput, b: SourcingOutput): SourcingOutput {
   };
 }
 
-export default function EnSourcingTool() {
-  const [product, setProduct] = useState('');
+export default function EnSourcingTool({ initialProduct = '' }: EnSourcingToolProps) {
+  const [product, setProduct] = useState(initialProduct);
   const [quantity, setQuantity] = useState('');
   const [budget, setBudget] = useState('');
   const [region, setRegion] = useState<SourceRegion>('korea');
   const [loading, setLoading] = useState(false);
+  const [loadingStep, setLoadingStep] = useState(0);
   const [result, setResult] = useState<SourcingOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [rfqCopied, setRfqCopied] = useState(false);
+
+  // Sync prefill from parent category clicks
+  useEffect(() => {
+    if (initialProduct) {
+      setProduct(initialProduct);
+      setResult(null);
+      setError(null);
+    }
+  }, [initialProduct]);
+
+  // Cycle through loading steps
+  useEffect(() => {
+    if (!loading) { setLoadingStep(0); return; }
+    const iv = setInterval(() => {
+      setLoadingStep(prev => (prev + 1) % LOADING_STEPS.length);
+    }, 8000);
+    return () => clearInterval(iv);
+  }, [loading]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -179,7 +251,9 @@ export default function EnSourcingTool() {
       {/* Form */}
       <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-6">
         <div className="mb-4">
-          <label className="block text-xs font-bold text-[#0D1B2A] uppercase tracking-wide mb-2">Product description</label>
+          <label className="block text-xs font-bold text-[#0D1B2A] uppercase tracking-wide mb-2">
+            Product description <span className="text-[#EA580C]">*</span>
+          </label>
           <input
             type="text" value={product} onChange={e => setProduct(e.target.value)} required
             placeholder="e.g. Korean collagen serum OEM, K-beauty sheet mask, Korean instant noodles bulk"
@@ -218,23 +292,33 @@ export default function EnSourcingTool() {
         </div>
 
         <button type="submit" disabled={loading || !product.trim() || !quantity.trim()}
-          className="w-full py-3 px-6 rounded-xl font-bold text-sm text-white bg-[#EA580C] hover:bg-[#DC4C00] disabled:opacity-60 disabled:cursor-not-allowed transition-all shadow-lg shadow-orange-900/20 flex items-center justify-center gap-2">
+          className="w-full py-3.5 px-6 rounded-xl font-bold text-sm text-white bg-[#EA580C] hover:bg-[#DC4C00] disabled:opacity-60 disabled:cursor-not-allowed transition-all shadow-lg shadow-orange-900/20 flex items-center justify-center gap-2">
           {loading ? (
             <>
-              <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 animate-spin flex-shrink-0" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
               </svg>
-              Searching... (up to 60s)
+              <span className="transition-all">{LOADING_STEPS[loadingStep]}</span>
             </>
-          ) : 'Find Suppliers →'}
+          ) : 'Find Korean Suppliers →'}
         </button>
+
+        {loading && (
+          <div className="mt-3 flex items-center justify-center gap-1.5">
+            {LOADING_STEPS.map((_, i) => (
+              <span key={i} className={`w-1.5 h-1.5 rounded-full transition-all duration-500 ${i === loadingStep ? 'bg-[#EA580C] scale-125' : 'bg-slate-200'}`} />
+            ))}
+          </div>
+        )}
       </form>
 
       {/* Error */}
       {error && (
         <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-5 flex items-start gap-3">
-          <svg className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          <svg className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
           <div>
             <p className="text-sm font-bold text-red-800 mb-1">Search failed</p>
             <p className="text-sm text-red-600">{error}</p>
@@ -244,10 +328,12 @@ export default function EnSourcingTool() {
 
       {/* Empty state */}
       {!loading && !result && !error && (
-        <div className="text-center py-10 text-slate-400">
-          <svg className="w-10 h-10 mx-auto mb-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-          <p className="text-sm font-semibold">Enter a product to find suppliers</p>
-          <p className="text-xs mt-1">Get 3–5 ranked candidates with risk scores and RFQ drafts</p>
+        <div className="text-center py-12 text-slate-400">
+          <svg className="w-12 h-12 mx-auto mb-4 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <p className="text-sm font-semibold text-slate-500">Enter a product and quantity above</p>
+          <p className="text-xs mt-1.5 text-slate-400">AI searches EC21 · BuyKorea · KOTRA · tradeKorea in 60 seconds</p>
         </div>
       )}
 
@@ -256,15 +342,18 @@ export default function EnSourcingTool() {
         <div className="space-y-6">
           <div>
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-black text-[#0D1B2A]">{result.suppliers.length} supplier{result.suppliers.length !== 1 ? 's' : ''} found</p>
+              <p className="text-sm font-black text-[#0D1B2A]">
+                {result.suppliers.length} supplier{result.suppliers.length !== 1 ? 's' : ''} found
+              </p>
               {result.groundingUsed && (
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 border border-blue-200 px-3 py-1 text-[11px] font-bold text-blue-700">
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />Web-grounded
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                  Web-verified
                 </span>
               )}
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {result.suppliers.map(s => <SupplierCard key={s.rank} s={s} />)}
+              {result.suppliers.map((s, i) => <SupplierCard key={s.rank} s={s} rank={i + 1} />)}
             </div>
           </div>
 
@@ -278,9 +367,9 @@ export default function EnSourcingTool() {
           {result.rfqEmail.en && (
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
               <div className="flex items-center justify-between mb-3">
-                <p className="text-xs font-bold text-[#0D1B2A] uppercase tracking-wide">RFQ Email Draft (English)</p>
+                <p className="text-xs font-bold text-[#0D1B2A] uppercase tracking-wide">RFQ Email Draft — Ready to Send</p>
                 <button type="button" onClick={handleCopyRFQ}
-                  className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all border ${rfqCopied ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200'}`}>
+                  className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all border ${rfqCopied ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-[#EA580C] border-[#EA580C] text-white hover:bg-[#DC4C00]'}`}>
                   {rfqCopied ? (
                     <><svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>Copied!</>
                   ) : (
