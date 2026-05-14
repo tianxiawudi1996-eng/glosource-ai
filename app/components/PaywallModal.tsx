@@ -76,7 +76,7 @@ export default function PaywallModal({ onClose, onLicenseActivated, onContactPla
             <span className="text-xs text-slate-500 leading-relaxed">
               구독 결제 시 디지털 서비스가 즉시 제공되므로{' '}
               <strong className="text-slate-700">청약철회권이 제한</strong>됨을 이해합니다.{' '}
-              <a href="/terms#section-3-4" target="_blank" rel="noopener noreferrer" className="text-[#0D1B2A] underline hover:text-slate-700">환불 정책 보기</a>
+              <a href="/terms#section-3-5" target="_blank" rel="noopener noreferrer" className="text-[#0D1B2A] underline hover:text-slate-700">청약철회권 제한 보기</a>
               {' '}(전자상거래법 제17조)
             </span>
           </label>

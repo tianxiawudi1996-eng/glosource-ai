@@ -25,6 +25,7 @@ const copy = {
     mockQuery: '스테인리스 볼밸브 DN50',
     mockDone: 'AI 분석 완료 · 58초',
     mockRfq: 'RFQ 초안 생성됨',
+    aiSignalNote: 'AI 신호 · 검증된 인증 아님',
     supplier1: { name: '上海机械制造有限公司', platform: '1688.com', score: 87, moq: 'MOQ 500개 · ¥12.8/개', lead: '납기 7일 · HS 8481.80' },
     supplier2: { name: 'Hangzhou Trade Co., Ltd', platform: 'Alibaba', score: 74, moq: 'MOQ 200개 · ¥15.2/개', lead: '납기 14일 · 한국 수출 ✓' },
   },
@@ -46,12 +47,13 @@ const copy = {
     mockQuery: 'Korean collagen serum OEM 1000 units',
     mockDone: 'Analysis complete · 54s',
     mockRfq: 'RFQ draft ready',
+    aiSignalNote: 'AI signal · not a verified certification',
     supplier1: { name: 'Seoulchem Cosmetics Co., Ltd', platform: 'BuyKorea', score: 91, moq: 'MOQ 1,000 pcs · $8.50/pc', lead: 'Lead time: 21 days · MFDS signal' },
     supplier2: { name: 'Incheon Beauty Factory Inc.', platform: 'EC21', score: 83, moq: 'MOQ 500 pcs · $11.20/pc', lead: 'Lead time: 28 days · Export history' },
   },
 };
 
-function TrustBar({ score, showAiNote }: { score: number; showAiNote?: boolean }) {
+function TrustBar({ score, aiSignalNote }: { score: number; aiSignalNote?: string }) {
   const color = score >= 80 ? 'bg-emerald-400' : score >= 65 ? 'bg-amber-400' : 'bg-red-400';
   return (
     <div>
@@ -61,8 +63,8 @@ function TrustBar({ score, showAiNote }: { score: number; showAiNote?: boolean }
         </div>
         <span className="text-[10px] font-bold text-slate-200">{score}/100</span>
       </div>
-      {showAiNote && (
-        <p className="text-[9px] text-amber-400/80 mt-0.5">AI signal · not a verified certification</p>
+      {aiSignalNote && (
+        <p className="text-[9px] text-amber-400/80 mt-0.5">{aiSignalNote}</p>
       )}
     </div>
   );
@@ -109,7 +111,7 @@ function MockPreviewPanel({ c }: { c: typeof copy.ko }) {
             </div>
             <span className="shrink-0 rounded-full bg-orange-500/20 px-2 py-0.5 text-[10px] font-bold text-orange-300">{c.supplier1.platform}</span>
           </div>
-          <TrustBar score={c.supplier1.score} showAiNote />
+          <TrustBar score={c.supplier1.score} aiSignalNote={c.aiSignalNote} />
           <p className="text-[10px] text-slate-400">{c.supplier1.moq}</p>
           <p className="text-[10px] text-slate-500">{c.supplier1.lead}</p>
         </div>
@@ -123,7 +125,7 @@ function MockPreviewPanel({ c }: { c: typeof copy.ko }) {
             </div>
             <span className="shrink-0 rounded-full bg-blue-500/20 px-2 py-0.5 text-[10px] font-bold text-blue-300">{c.supplier2.platform}</span>
           </div>
-          <TrustBar score={c.supplier2.score} showAiNote />
+          <TrustBar score={c.supplier2.score} aiSignalNote={c.aiSignalNote} />
           <p className="text-[10px] text-slate-400">{c.supplier2.moq}</p>
           <p className="text-[10px] text-slate-500">{c.supplier2.lead}</p>
         </div>

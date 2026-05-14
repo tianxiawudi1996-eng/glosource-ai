@@ -39,9 +39,14 @@ export async function POST(request: NextRequest) {
     const email = clean(body.email, 200).toLowerCase();
     const password = clean(body.password, 200);
     const name = clean(body.name, 80);
+    const tosConsent = body.tosConsent === true;
+    const dataConsent = body.dataConsent === true;
 
     if (!email || !password || !name) {
       return NextResponse.json({ error: '이름, 이메일, 비밀번호를 모두 입력해주세요.' }, { status: 400 });
+    }
+    if (!tosConsent || !dataConsent) {
+      return NextResponse.json({ error: '필수 약관 및 개인정보 수집·이용 동의가 필요합니다.' }, { status: 400 });
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json({ error: '유효한 이메일 주소를 입력해주세요.' }, { status: 400 });

@@ -86,27 +86,34 @@ export default async function BillingSuccessPage({ searchParams }: Props) {
       const periodEnd = new Date(now);
       periodEnd.setMonth(periodEnd.getMonth() + 1);
 
-      await db
-        .insert(subscriptions)
-        .values({
-          userId: session.user.id,
-          plan: planId as 'starter' | 'pro' | 'enterprise',
-          status: 'active',
-          tossOrderId: orderId,
-          currentPeriodStart: now,
-          currentPeriodEnd: periodEnd,
-        })
-        .onConflictDoUpdate({
-          target: subscriptions.userId,
-          set: {
+      const existingSubscriptions = await db
+        .select({ id: subscriptions.id })
+        .from(subscriptions)
+        .where(eq(subscriptions.userId, session.user.id))
+        .limit(1);
+
+      if (existingSubscriptions[0]) {
+        await db
+          .update(subscriptions)
+          .set({
             plan: planId as 'starter' | 'pro' | 'enterprise',
             status: 'active',
             tossOrderId: orderId,
             currentPeriodStart: now,
             currentPeriodEnd: periodEnd,
             updatedAt: now,
-          },
+          })
+          .where(eq(subscriptions.id, existingSubscriptions[0].id));
+      } else {
+        await db.insert(subscriptions).values({
+          userId: session.user.id,
+          plan: planId as 'starter' | 'pro' | 'enterprise',
+          status: 'active',
+          tossOrderId: orderId,
+          currentPeriodStart: now,
+          currentPeriodEnd: periodEnd,
         });
+      }
 
       const planNames: Record<string, string> = { starter: 'Starter', pro: 'Pro', enterprise: 'Enterprise' };
       if (session.user.email) {
@@ -121,6 +128,7 @@ export default async function BillingSuccessPage({ searchParams }: Props) {
     }
   } catch (e) {
     console.error('[billing/success]', e);
+    redirect('/billing/fail?code=SUBSCRIPTION_ACTIVATION_FAILED&message=구독 활성화에 실패했습니다.');
   }
 
   if (!confirmed) {

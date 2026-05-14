@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'GloSource AI — Match Chinese Suppliers in 60 Seconds',
+  title: 'GloSource AI — Source Korean Suppliers in 60 Seconds',
   description:
-    'AI-powered global sourcing assistant. Compare 1688 · Alibaba · Baidu Aicaigou · WeChat candidates, get supplier risk scores, and auto-generate RFQ emails — in 60 seconds.',
+    'AI-powered sourcing assistant for international buyers. Find Korean manufacturers for K-beauty, K-food, K-fashion, electronics, and more with supplier risk scores and RFQ drafts.',
   metadataBase: new URL('https://glosource-ai.vercel.app'),
   alternates: {
     canonical: '/en',
@@ -13,9 +13,9 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: 'GloSource AI — Match Chinese Suppliers in 60 Seconds',
+    title: 'GloSource AI — Source Korean Suppliers in 60 Seconds',
     description:
-      'AI sourcing assistant for global buyers. Find 3–5 verified supplier candidates from 1688, Alibaba, and WeChat with risk scores and RFQ drafts.',
+      'Find Korean supplier candidates from EC21, BuyKorea, KOTRA, tradeKorea, and direct factory search with AI trust scoring and RFQ drafts.',
     url: 'https://glosource-ai.vercel.app/en',
     siteName: 'GloSource AI',
     type: 'website',
@@ -23,11 +23,20 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'GloSource AI — Match Chinese Suppliers in 60 Seconds',
-    description: 'Compare 1688 · Alibaba · WeChat suppliers with AI risk scoring and auto-generated RFQ emails.',
+    title: 'GloSource AI — Source Korean Suppliers in 60 Seconds',
+    description: 'Source K-beauty, K-food, K-fashion, electronics, and more from Korean suppliers with AI risk scoring and RFQ drafts.',
   },
 };
 
 export default function EnLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
+  return (
+    <>
+      <script
+        dangerouslySetInnerHTML={{
+          __html: "document.documentElement.lang='en';document.getElementById('root-json-ld')?.remove();",
+        }}
+      />
+      {children}
+    </>
+  );
 }

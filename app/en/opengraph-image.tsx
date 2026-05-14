@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og';
 
 export const runtime = 'edge';
-export const alt = 'GloSource AI — Match Chinese & Korean Suppliers in 60 Seconds';
+export const alt = 'GloSource AI — Source Korean Suppliers in 60 Seconds';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -66,17 +66,17 @@ export default function EnOgImage() {
               letterSpacing: '-2px',
             }}
           >
-            Match Suppliers in{' '}
+            Source Korean Suppliers in{' '}
             <span style={{ color: '#EA580C' }}>60 Seconds</span>
           </div>
           <div style={{ fontSize: '28px', color: '#94a3b8', fontWeight: '400' }}>
-            1688 · Alibaba · BuyKorea · WeChat — AI-powered, all in one search
+            EC21 · BuyKorea · KOTRA · tradeKorea — AI-powered sourcing
           </div>
         </div>
 
         {/* bottom: feature tags */}
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-          {['3–5 verified suppliers', 'Risk score 0–100', 'Auto RFQ draft'].map((tag) => (
+          {['3–5 supplier candidates', 'Risk score 0–100', 'Auto RFQ draft'].map((tag) => (
             <div
               key={tag}
               style={{

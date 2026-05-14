@@ -68,7 +68,7 @@ export default function TermsPage() {
           {/* 3 */}
           <section>
             <h2 className="text-lg font-bold text-white mb-3">3. Subscription and Payment Terms</h2>
-            <h3 className="font-semibold text-white mb-2">3.1 Plans</h3>
+            <h3 id="section-3-1" className="font-semibold text-white mb-2 scroll-mt-24">3.1 Plans</h3>
             <p className="mb-3">
               Subscriptions are billed monthly in the currency listed at checkout. Korean plans are priced in KRW; international (English) plans are priced in USD. Both plan tiers provide equivalent AI model quality and sourcing output — pricing differences reflect regional market conditions only.
               Access is activated immediately upon payment confirmation.
@@ -83,7 +83,7 @@ export default function TermsPage() {
               Subscriptions renew automatically each billing period unless cancelled before the renewal date.
               You may cancel at any time from your account settings.
             </p>
-            <h3 className="font-semibold text-white mb-2">3.4 Refund Policy</h3>
+            <h3 id="section-3-4" className="font-semibold text-white mb-2 scroll-mt-24">3.4 Refund Policy</h3>
             <p className="mb-3">
               Because GloSource AI delivers digital access immediately upon payment, <strong className="text-white">subscriptions are generally non-refundable</strong> once the billing period has started and searches have been used.
             </p>
@@ -98,13 +98,13 @@ export default function TermsPage() {
               To request a refund, email <a href="mailto:like2buyglobal@gmail.com" className="underline text-[#EA580C] hover:text-orange-400">like2buyglobal@gmail.com</a> with your account email and order reference.
               We aim to respond within 3 business days.
             </p>
-            <h3 className="font-semibold text-white mb-2">3.5 EU Consumer Withdrawal Rights</h3>
+            <h3 id="section-3-5" className="font-semibold text-white mb-2 scroll-mt-24">3.5 EU Consumer Withdrawal Rights</h3>
             <p className="mb-3">
               If you are a consumer resident in the EU/EEA, you normally have a 14-day right of withdrawal under the EU Consumer Rights Directive.
               However, by subscribing and receiving immediate digital access to the Service, you expressly request that performance of the contract begin before the withdrawal period expires and you acknowledge that you thereby <strong className="text-white">lose your right of withdrawal</strong> once the service has been fully performed, or once you have made your first search.
               This acknowledgement is collected as a separate consent step during checkout.
             </p>
-            <h3 className="font-semibold text-white mb-2">3.6 California Consumer Privacy (CCPA)</h3>
+            <h3 id="section-3-6" className="font-semibold text-white mb-2 scroll-mt-24">3.6 California Consumer Privacy (CCPA)</h3>
             <p>
               California residents have the right to know what personal information is collected, to request deletion, and to opt out of the sale of personal information.
               We do <strong className="text-white">not</strong> sell personal information.

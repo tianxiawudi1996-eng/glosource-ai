@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     description: "중국·해외 공급자 후보를 AI로 60초 만에 찾고 RFQ 준비까지. 1688, Baidu 爱采购, Alibaba 동시 비교.",
     images: [
       {
-        url: "/og-image.png",
+        url: "/opengraph-image",
         width: 1200,
         height: 630,
         alt: "GloSource AI — 공급자 후보 60초 매칭",
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "GloSource AI | 공급자 후보 60초 매칭",
     description: "중국·해외 공급자 후보를 AI로 60초 만에 찾고 RFQ 준비까지. 1688, Baidu, Alibaba 동시 비교.",
-    images: ["/og-image.png"],
+    images: ["/opengraph-image"],
   },
   robots: {
     index: true,
@@ -117,10 +117,10 @@ export default function RootLayout({
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css"
         />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-        <link rel="icon" href="/favicon.ico" sizes="any" />
       </head>
       <body className="min-h-full flex flex-col bg-slate-50" style={{ fontFamily: "'Pretendard', 'Inter', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif" }}>
         <script
+          id="root-json-ld"
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
         />

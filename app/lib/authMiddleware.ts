@@ -84,7 +84,7 @@ export async function checkAuthAndQuota(
             type: 'monthly',
             plan,
             message,
-          }, { status: 401 }),
+          }, { status: 429 }),
         };
       }
     }
@@ -105,7 +105,7 @@ export async function checkAuthAndQuota(
         error: 'quota_exceeded',
         type: 'anonymous',
         message,
-      }, { status: 401 }),
+      }, { status: 429 }),
     };
   }
 
