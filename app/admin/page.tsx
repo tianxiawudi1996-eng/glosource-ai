@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { count, desc, eq, gte, sql } from 'drizzle-orm';
 import { auth } from '@/auth';
-import { db, payments, subscriptions, usageLogs, users } from '@/app/lib/db';
+import { db, payments, subscriptions, usageLogs, users, waitlist } from '@/app/lib/db';
 
 const actionLabels: Record<string, string> = {
   source: '통합 검색',
@@ -34,6 +34,7 @@ export default async function AdminPage() {
     recentUsers,
     recentPayments,
     channelUsage,
+    waitlistCountRows,
   ] = await Promise.all([
     db.select({ value: count() }).from(users),
     db.select({ value: count() }).from(subscriptions).where(eq(subscriptions.status, 'active')),
@@ -67,6 +68,7 @@ export default async function AdminPage() {
       .select({ action: usageLogs.action, value: count() })
       .from(usageLogs)
       .groupBy(usageLogs.action),
+    db.select({ value: count() }).from(waitlist),
   ]);
 
   const metrics = [
@@ -74,6 +76,7 @@ export default async function AdminPage() {
     ['유료 구독자 수', String(paidSubscribersRows[0]?.value ?? 0)],
     ['이번달 총 API 사용 횟수', String(monthlyUsageRows[0]?.value ?? 0)],
     ['이번달 결제 총액', formatCurrency(Number(monthlyPaymentRows[0]?.value ?? 0))],
+    ['베타 웨이트리스트', `${waitlistCountRows[0]?.value ?? 0}명`],
   ];
 
   return (

@@ -10,15 +10,35 @@ export type AuthResult =
 
 export type ActionType = 'source' | 'factory_direct' | 'wechat' | 'image_analyze';
 
+function detectLang(request: NextRequest): 'en' | 'ko' {
+  const url = request.nextUrl?.pathname ?? request.url ?? '';
+  if (url.startsWith('/en')) return 'en';
+  const accept = request.headers.get('accept-language') ?? '';
+  return accept.toLowerCase().startsWith('ko') ? 'ko' : 'en';
+}
+
 export async function checkAuthAndQuota(
   request: NextRequest,
   action: ActionType,
 ): Promise<AuthResult> {
   void action;
+  const lang = detectLang(request);
 
   // Internal API key bypass (for admin automation / testing)
+  // Restricted to allowlisted IPs when INTERNAL_API_ALLOWED_IPS is set.
   const internalKey = process.env.INTERNAL_API_KEY;
   if (internalKey && request.headers.get('x-api-key') === internalKey) {
+    const allowedIps = (process.env.INTERNAL_API_ALLOWED_IPS ?? '')
+      .split(',').map(s => s.trim()).filter(Boolean);
+    if (allowedIps.length > 0) {
+      const callerIp = extractTrustedIp(request.headers);
+      if (!allowedIps.includes(callerIp)) {
+        return {
+          ok: false,
+          response: NextResponse.json({ error: 'forbidden' }, { status: 403 }),
+        };
+      }
+    }
     return { ok: true, userId: 'internal', plan: 'enterprise' };
   }
 
@@ -34,7 +54,7 @@ export async function checkAuthAndQuota(
     // 어드민은 쿼터 제한 없음 (테스트/운영 목적)
     const adminEmails = (process.env.ADMIN_EMAILS ?? process.env.ADMIN_EMAIL ?? '')
       .split(',').map(e => e.trim()).filter(Boolean);
-    if (session.user.email && adminEmails.includes(session.user.email)) {
+    if (session.user.email && adminEmails.map(e => e.toLowerCase()).includes(session.user.email.toLowerCase())) {
       return { ok: true, userId, plan };
     }
 
@@ -54,13 +74,16 @@ export async function checkAuthAndQuota(
         );
 
       if (Number(count) >= limit) {
+        const message = lang === 'en'
+          ? `Monthly quota reached (${limit} searches). Upgrade your plan to continue.`
+          : `이번 달 소싱 한도(${limit}회)를 모두 사용했습니다. 플랜을 업그레이드하면 더 많은 소싱을 이용할 수 있습니다.`;
         return {
           ok: false,
           response: NextResponse.json({
             error: 'quota_exceeded',
             type: 'monthly',
             plan,
-            message: `이번 달 소싱 한도(${limit}회)를 모두 사용했습니다. 플랜을 업그레이드하면 더 많은 소싱을 이용할 수 있습니다.`,
+            message,
           }, { status: 401 }),
         };
       }
@@ -73,12 +96,15 @@ export async function checkAuthAndQuota(
   const { kvCheckFreeCredit } = await import('./kv');
   const allowed = await kvCheckFreeCredit(ip);
   if (!allowed) {
+    const message = lang === 'en'
+      ? 'Free trial limit reached (5 searches). Sign up to get 10 free searches per month.'
+      : '무료 체험 5회를 모두 사용했습니다. 회원가입하면 월 10회 무료로 이용할 수 있습니다.';
     return {
       ok: false,
       response: NextResponse.json({
         error: 'quota_exceeded',
         type: 'anonymous',
-        message: '무료 체험 2회를 모두 사용했습니다. 회원가입하면 월 10회 무료로 이용할 수 있습니다.',
+        message,
       }, { status: 401 }),
     };
   }

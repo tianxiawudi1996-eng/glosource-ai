@@ -99,6 +99,16 @@ export const payments = pgTable('payments', {
   createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
 });
 
+// ── 베타 웨이트리스트 ─────────────────────────────────────────────────
+
+export const waitlist = pgTable('waitlist', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  email: text('email').unique().notNull(),
+  source: text('source').default('landing').notNull(),
+  ip: text('ip'),
+  createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
+});
+
 // ── 플랜별 한도 ───────────────────────────────────────────────────────
 
 export const PLAN_LIMITS = {

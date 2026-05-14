@@ -50,7 +50,7 @@ export default function PaywallModal({ onClose, onLicenseActivated, onContactPla
         </div>
         <div className="space-y-2 mb-6">
           {[
-            { name: '스타터', detail: '분석 20회/월', price: '19만원/월', per: '공급자 탐색 · PDF 저장 · RFQ 이메일', hot: false },
+            { name: '스타터', detail: '분석 30회/월', price: '19만원/월', per: '공급자 탐색 · PDF 저장 · RFQ 이메일', hot: false },
             { name: '프로', detail: '분석 60회/월', price: '49만원/월', per: '확장 분석 · 세금계산서 · 한국어 RFQ 지원', hot: true },
             { name: '팀', detail: '5계정', price: '99만원/월', per: '5계정 공유 · 프로젝트 이력 · 우선 문의 지원', hot: false },
           ].map(p => (

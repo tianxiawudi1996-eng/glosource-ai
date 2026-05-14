@@ -6,8 +6,11 @@ import { useSession, signOut } from 'next-auth/react';
 import CategorySelector from './components/CategorySelector';
 import EmptyState from './components/EmptyState';
 import ExportButton from './components/ExportButton';
+import WaitlistBanner from './components/WaitlistBanner';
+import ShareButton from './components/ShareButton';
 import UpgradeModal from './components/UpgradeModal';
 import WeChatCard from './components/WeChatCard';
+import HeroSection from './components/HeroSection';
 import { SupplierComparisonTable, SupplierDetail } from './components/SupplierCard';
 import RFQComposer from './components/RFQComposer';
 import { Icon } from './components/icons';
@@ -454,77 +457,11 @@ export default function HomePage() {
       </nav>
 
       {/* ── 히어로 ── */}
-      <section className="relative isolate overflow-hidden bg-[#0D1B2A] text-white">
-        <Image
-          src="/images/glosource-hero-command-room.png"
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="absolute inset-0 -z-20 object-cover object-center"
-        />
-        <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(5,13,24,0.98)_0%,rgba(8,20,34,0.93)_36%,rgba(13,27,42,0.56)_72%,rgba(13,27,42,0.22)_100%)]" />
-        <div className="absolute inset-x-0 bottom-0 -z-10 h-24 bg-gradient-to-t from-[#0D1B2A] to-transparent" />
-        <div className="max-w-6xl mx-auto px-6 py-18 sm:py-20 lg:py-24">
-          <div className="max-w-3xl">
-            <div className="mb-4 inline-flex items-center gap-2 border border-white/20 bg-white/10 rounded-full px-3 py-1 text-xs font-semibold text-slate-100 backdrop-blur">
-              <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-              GloSource AI · 중국 현지 채널까지 탐색
-            </div>
-            <h1 className="mb-5 max-w-2xl text-[2.9rem] font-black leading-[0.96] tracking-tight text-white drop-shadow-[0_3px_18px_rgba(0,0,0,0.42)] sm:text-6xl md:text-7xl">
-              GloSource AI<br />
-              <span className="mt-2 inline-block rounded-lg bg-[#EA580C] px-3 py-1 text-[0.72em] text-white shadow-2xl shadow-orange-950/40">공급자 후보 60초 매칭</span>
-            </h1>
-            <p className="mb-8 max-w-2xl text-lg font-semibold leading-relaxed text-slate-100 md:text-xl">
-              1688 · Baidu 爱采购 · Alibaba · WeChat 후보를 비교하고,
-              발주 전 공급자 리스크와 RFQ 질문 리스트를 정리합니다.
-            </p>
-            <div className="flex flex-wrap items-center gap-3 mb-10">
-              <a
-                href="#sourcing-tool"
-                onClick={(e) => { e.preventDefault(); document.getElementById('sourcing-tool')?.scrollIntoView({ behavior: 'smooth' }); }}
-                className="inline-flex items-center gap-2 bg-[#EA580C] hover:bg-[#DC4C00] text-white font-bold text-sm px-6 py-3 rounded-xl transition-all shadow-lg shadow-orange-900/30"
-              >
-                무료 5회 체험 시작 →
-              </a>
-              <a
-                href="#pricing"
-                onClick={(e) => { e.preventDefault(); document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' }); }}
-                className="inline-flex items-center border border-white/30 text-white font-semibold text-sm px-6 py-3 rounded-xl hover:bg-white/10 transition-all backdrop-blur"
-              >
-                요금제 보기
-              </a>
-            </div>
-            <div className="mb-8 max-w-2xl rounded-xl border border-amber-300/30 bg-amber-500/10 px-4 py-3 text-sm font-semibold leading-relaxed text-amber-50 backdrop-blur">
-              GloSource AI는 납품 대행사가 아닙니다. 공급자 후보 발굴, 비교 분석, RFQ 준비까지 지원합니다.
-            </div>
-            <div className="flex flex-wrap gap-3 mb-12">
-              {[
-                { icon: <Icon.Search className="w-3.5 h-3.5" />, text: '공장 후보 3~5개 자동 탐색' },
-                { icon: <Icon.Shield className="w-3.5 h-3.5" />, text: '사업자·리스크 신뢰도 분석' },
-                { icon: <Icon.Mail className="w-3.5 h-3.5" />, text: 'RFQ 이메일 자동 생성' },
-                { icon: <Icon.Download className="w-3.5 h-3.5" />, text: '예상 원가·MOQ 비교 리포트' },
-              ].map(b => (
-                <span key={b.text} className="inline-flex items-center gap-1.5 bg-white/10 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-slate-200 backdrop-blur">
-                  {b.icon}{b.text}
-                </span>
-              ))}
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 border-t border-white/10 pt-8">
-              {[
-                { num: '3~5개', label: '공급자 자동 탐색' },
-                { num: '60초', label: '평균 분석 소요 시간' },
-                { num: '0~100', label: '공급자 리스크 점수' },
-                { num: '3단계', label: '검색·검증·RFQ 매칭' },
-              ].map(s => (
-                <div key={s.num}>
-                  <p className="text-2xl font-black text-white">{s.num}</p>
-                  <p className="text-xs text-slate-300 mt-0.5">{s.label}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+      <HeroSection lang="ko" />
+
+      {/* ── 베타 웨이트리스트 배너 ── */}
+      <section className="max-w-2xl mx-auto w-full px-6 py-4">
+        <WaitlistBanner />
       </section>
 
       {/* ── 신뢰 배지 바 ── */}
@@ -1045,6 +982,7 @@ export default function HomePage() {
                         {result.groundingUsed ? '실시간 웹 검색 기반' : 'AI 지식 기반 분석'}
                       </span>
                       <ExportButton suppliers={result.suppliers} keyword={form.productDescription} />
+                      <ShareButton keyword={form.productDescription} supplierCount={result.suppliers.length} />
                     </div>
                     <p className="text-xs text-slate-500 bg-blue-50 border border-blue-100 rounded-lg px-3 py-2">{result.recommendation}</p>
                   </div>

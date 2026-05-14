@@ -1,6 +1,7 @@
 import { Icon } from './icons';
 import TrustScoreGauge from './TrustScoreGauge';
 import type { Supplier } from '../api/source/types';
+import { getVerdict, getVerdictStyle, getPilotCost } from '../lib/sourcing-verdict';
 
 interface SupplierRowProps {
   supplier: Supplier;
@@ -37,6 +38,8 @@ export function SupplierComparisonTable({ suppliers, selectedRank, onSelect }: S
       <div className="lg:hidden divide-y divide-slate-100">
         {suppliers.map((s) => {
           const risk = riskLabel(s.trustScore);
+          const verdict = getVerdict(s);
+          const vs = getVerdictStyle(verdict);
           const selected = selectedRank === s.rank;
           return (
             <button
@@ -45,7 +48,7 @@ export function SupplierComparisonTable({ suppliers, selectedRank, onSelect }: S
               onClick={() => onSelect(s)}
               className={`w-full text-left px-4 py-4 transition-colors min-h-[72px] ${selected ? 'bg-orange-50/60' : 'hover:bg-slate-50'}`}
             >
-              {/* 1행: 순위 + 공급자명 + 리스크 */}
+              {/* 1행: 순위 + 공급자명 + 리스크 + 판정 */}
               <div className="flex items-start justify-between gap-2 mb-2.5">
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md bg-[#0D1B2A] text-[11px] font-black text-white">
@@ -56,11 +59,13 @@ export function SupplierComparisonTable({ suppliers, selectedRank, onSelect }: S
                     <p className="text-xs text-slate-400">{s.platform} · {s.country}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-1.5 flex-shrink-0">
-                  <span className={`h-2 w-2 rounded-full flex-shrink-0 ${risk.dot}`} />
-                  <span className={`text-xs font-bold ${risk.color}`}>{risk.label}</span>
-                  <span className={`ml-1 text-[10px] font-bold px-1.5 py-0.5 rounded ${s.verificationStatus === 'grounding_confirmed' ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
-                    {s.verificationStatus === 'grounding_confirmed' ? '웹확인' : 'AI추정'}
+                <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className={`h-2 w-2 rounded-full flex-shrink-0 ${risk.dot}`} />
+                    <span className={`text-xs font-bold ${risk.color}`}>{risk.label}</span>
+                  </div>
+                  <span className={`text-[10px] font-black px-2 py-0.5 rounded-full border ${vs.bg} ${vs.text} ${vs.border}`}>
+                    {verdict}
                   </span>
                 </div>
               </div>
@@ -96,11 +101,14 @@ export function SupplierComparisonTable({ suppliers, selectedRank, onSelect }: S
               <th className="px-4 py-3 text-xs font-bold">리드타임</th>
               <th className="px-4 py-3 text-xs font-bold">리스크</th>
               <th className="px-4 py-3 text-xs font-bold">확인 상태</th>
+              <th className="px-4 py-3 text-xs font-bold">판정</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
             {suppliers.map((s) => {
               const risk = riskLabel(s.trustScore);
+              const verdict = getVerdict(s);
+              const vs = getVerdictStyle(verdict);
               const selected = selectedRank === s.rank;
               return (
                 <tr
@@ -134,6 +142,12 @@ export function SupplierComparisonTable({ suppliers, selectedRank, onSelect }: S
                       {s.verificationStatus === 'grounding_confirmed' ? '웹 확인' : 'AI 추정'}
                     </span>
                   </td>
+                  <td className="px-4 py-3">
+                    <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-black ${vs.bg} ${vs.text} ${vs.border}`}>
+                      <span className={`h-1.5 w-1.5 rounded-full ${vs.dot}`} />
+                      {verdict}
+                    </span>
+                  </td>
                 </tr>
               );
             })}
@@ -149,6 +163,8 @@ export function SupplierComparisonTable({ suppliers, selectedRank, onSelect }: S
 }
 
 export function SupplierRow({ supplier: s, isSelected, onClick }: SupplierRowProps) {
+  const verdict = getVerdict(s);
+  const vs = getVerdictStyle(verdict);
   return (
     <button onClick={onClick}
       className={`w-full text-left px-4 py-3 transition-all ${isSelected ? 'bg-slate-50' : 'hover:bg-slate-50/50'}`}>
@@ -158,7 +174,13 @@ export function SupplierRow({ supplier: s, isSelected, onClick }: SupplierRowPro
             {s.rank}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-sm text-[#0D1B2A] truncate">{s.name}</p>
+            <div className="flex items-center gap-2 flex-wrap">
+              <p className="font-semibold text-sm text-[#0D1B2A] truncate">{s.name}</p>
+              <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-black flex-shrink-0 ${vs.bg} ${vs.text} ${vs.border}`}>
+                <span className={`h-1.5 w-1.5 rounded-full ${vs.dot}`} />
+                {verdict}
+              </span>
+            </div>
             <p className="text-xs text-slate-400">{s.platform} · {s.country}</p>
             {s.redFlags.length > 0 && (
               <p className="text-xs text-red-500 mt-0.5 flex items-center gap-1">
@@ -182,20 +204,33 @@ interface SupplierDetailProps {
 }
 
 export function SupplierDetail({ supplier: s }: SupplierDetailProps) {
+  const verdict = getVerdict(s);
+  const vs = getVerdictStyle(verdict);
+  const pilot = getPilotCost(s);
+
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
+      {/* 헤더: 공급자명 + 판정 뱃지 */}
       <div className="flex items-start justify-between mb-3">
-        <div>
-          <p className="font-bold text-[#0D1B2A] text-sm">{s.name}</p>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap mb-1">
+            <p className="font-bold text-[#0D1B2A] text-sm">{s.name}</p>
+            <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-black ${vs.bg} ${vs.text} ${vs.border}`}>
+              <span className={`h-1.5 w-1.5 rounded-full ${vs.dot}`} />
+              {verdict}
+            </span>
+          </div>
           <p className="text-xs text-slate-400">{s.platform} · {s.country}</p>
         </div>
         {s.url && (
           <a href={s.url} target="_blank" rel="noopener noreferrer"
-            className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 transition-colors border border-blue-200 rounded-lg px-2.5 py-1.5">
+            className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 transition-colors border border-blue-200 rounded-lg px-2.5 py-1.5 flex-shrink-0 ml-2">
             <Icon.ExternalLink className="w-3 h-3" />공급자 페이지
           </a>
         )}
       </div>
+
+      {/* 단가 + MOQ */}
       <div className="grid grid-cols-2 gap-3 mb-3">
         <div className="bg-slate-50 rounded-lg p-3">
           <p className="text-xs font-medium text-slate-500 mb-1">예상 단가</p>
@@ -206,6 +241,46 @@ export function SupplierDetail({ supplier: s }: SupplierDetailProps) {
           <p className="text-sm font-bold text-[#0D1B2A]">{s.moq}</p>
         </div>
       </div>
+
+      {/* 파일럿 예산 위젯 */}
+      {pilot ? (
+        <div className="mb-3 rounded-xl border border-[#EA580C]/20 bg-orange-50/50 p-3">
+          <p className="text-xs font-black text-[#EA580C] mb-2">1차 파일럿 예산 추정</p>
+          <div className="space-y-1">
+            <div className="flex justify-between text-xs">
+              <span className="text-slate-500">샘플 수량</span>
+              <span className="font-bold text-[#0D1B2A]">{pilot.sampleQty}개</span>
+            </div>
+            <div className="flex justify-between text-xs">
+              <span className="text-slate-500">제품비</span>
+              <span className="font-bold text-[#0D1B2A]">{pilot.currency} {pilot.productCost.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between text-xs">
+              <span className="text-slate-500">배송 버퍼 (35%)</span>
+              <span className="font-bold text-[#0D1B2A]">{pilot.currency} {pilot.freightBuffer.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between text-xs">
+              <span className="text-slate-500">검증 버퍼</span>
+              <span className="font-bold text-[#0D1B2A]">{pilot.currency} {pilot.inspectionBuffer.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between text-xs pt-1.5 mt-1 border-t border-orange-200">
+              <span className="font-black text-[#0D1B2A]">예상 총 비용</span>
+              <span className="font-black text-[#EA580C] text-sm">{pilot.currency} {pilot.total.toLocaleString()}</span>
+            </div>
+          </div>
+          <p className="text-[10px] text-slate-400 mt-2">* 실제 비용은 환율·운임·세관에 따라 달라질 수 있습니다</p>
+        </div>
+      ) : (
+        <div className="mb-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
+          <p className="text-xs font-black text-slate-500 mb-1">1차 파일럿 예산</p>
+          <p className="text-xs text-slate-400 leading-5">
+            단가 정보가 부족해 자동 계산이 어렵습니다.<br />
+            공급사에 <span className="font-bold text-[#0D1B2A]">FOB 단가 + MOQ 견적</span>을 먼저 요청하세요.
+          </p>
+        </div>
+      )}
+
+      {/* 신뢰 근거 */}
       {s.trustEvidence.length > 0 && (
         <div className="mb-2">
           <p className="text-xs font-bold text-emerald-700 mb-1.5">신뢰 근거</p>
@@ -218,6 +293,8 @@ export function SupplierDetail({ supplier: s }: SupplierDetailProps) {
           </ul>
         </div>
       )}
+
+      {/* 주의사항 */}
       {s.redFlags.length > 0 && (
         <div className="mt-2 bg-red-50 border border-red-200 rounded-lg p-3">
           <p className="text-xs font-bold text-red-700 mb-1">주의사항</p>

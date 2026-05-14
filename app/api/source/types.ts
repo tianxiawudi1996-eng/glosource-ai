@@ -1,8 +1,12 @@
-export type CountryPreference = 'china' | 'any';
+export type CountryPreference = 'china' | 'korea' | 'both' | 'any';
 export type OrderFrequency = 'one_time' | 'monthly' | 'bimonthly_plus';
 export type QuantityUnit = '개' | 'kg' | 'ton' | 'm' | 'm2' | 'm3' | 'set';
 export type VerificationStatus = 'grounding_confirmed' | 'ai_estimated';
 export type ProductStage = 'raw_material' | 'semi_finished' | 'finished_product';
+export type BuyerCountry = 'KR' | 'US' | 'EU' | 'JP' | 'SG' | 'AU' | 'GLOBAL';
+export type OutputLanguage = 'ko' | 'en';
+export type CurrencyCode = 'KRW' | 'USD' | 'EUR' | 'JPY' | 'SGD' | 'AUD';
+export type UnitSystem = 'metric' | 'imperial';
 
 export interface SourcingRequest {
   productDescription: string;
@@ -13,6 +17,11 @@ export interface SourcingRequest {
   categoryCode?: string;
   categoryNameZh?: string;
   quantityUnit?: QuantityUnit;
+  buyerCountry?: BuyerCountry;
+  outputLanguage?: OutputLanguage;
+  currency?: CurrencyCode;
+  unitSystem?: UnitSystem;
+  destinationPort?: string;
 }
 
 export interface Supplier {
