@@ -480,6 +480,30 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── ROI 스트립 ── */}
+      <section className="bg-[#0D1B2A] border-b border-white/10">
+        <div className="max-w-5xl mx-auto px-6 py-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:divide-x sm:divide-white/10">
+            {[
+              { before: '평균 47분', after: '90초', label: '공급자 후보 3~5개 확보까지' },
+              { before: '5개+ 탭', after: '검색 1번', label: '1688 · Alibaba · WeChat 동시 탐색' },
+              { before: '직접 작성', after: '자동 생성', label: '영문·중문 RFQ 초안 즉시 준비' },
+            ].map(({ before, after, label }) => (
+              <div key={label} className="flex items-center gap-4 sm:px-6 first:pl-0 last:pr-0">
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="text-slate-500 text-sm font-semibold line-through">{before}</span>
+                  <svg className="w-4 h-4 text-[#EA580C] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                  <span className="text-white text-sm font-black">{after}</span>
+                </div>
+                <p className="text-[11px] text-slate-400 leading-tight">{label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── 채널 맵 ── */}
       <section className="bg-slate-50 border-b border-slate-100">
         <div className="max-w-6xl mx-auto px-6 py-14">

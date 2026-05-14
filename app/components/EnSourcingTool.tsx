@@ -5,6 +5,9 @@ import type { SourcingOutput, Supplier } from '@/app/api/source/types';
 
 type SourceRegion = 'china' | 'korea';
 
+const FREE_LIMIT = 5;
+const FREE_COUNT_KEY = 'glosource_en_free_count';
+
 interface EnSourcingToolProps {
   initialProduct?: string;
   initialQuantity?: string;
@@ -202,8 +205,19 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
   const [result, setResult] = useState<SourcingOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [rfqCopied, setRfqCopied] = useState(false);
+  const [freeCount, setFreeCount] = useState(0);
+  const [showUpgrade, setShowUpgrade] = useState(false);
   const loadingSteps = region === 'china' ? CHINA_LOADING_STEPS : KOREA_LOADING_STEPS;
   const submitLabel = region === 'china' ? 'Find China Suppliers →' : 'Find Korean Suppliers →';
+  const searchesLeft = Math.max(0, FREE_LIMIT - freeCount);
+
+  // Load free count from localStorage
+  useEffect(() => {
+    try {
+      const c = parseInt(localStorage.getItem(FREE_COUNT_KEY) ?? '0', 10);
+      setFreeCount(isNaN(c) ? 0 : c);
+    } catch { /* ignore */ }
+  }, []);
 
   // Sync prefill from parent category clicks
   useEffect(() => {
@@ -212,6 +226,7 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
       setQuantity(initialQuantity);
       setResult(null);
       setError(null);
+      setShowUpgrade(false);
     }
   }, [initialProduct, initialQuantity]);
 
@@ -230,11 +245,21 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
     setLoading(true);
     setError(null);
     setResult(null);
+    setShowUpgrade(false);
     try {
       const output = await callAPI(product, quantity, budget, region);
       setResult(output);
+      // Increment free search counter
+      const newCount = freeCount + 1;
+      setFreeCount(newCount);
+      try { localStorage.setItem(FREE_COUNT_KEY, String(newCount)); } catch { /* ignore */ }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+      const msg = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
+      if (/quota|subscription|limit/i.test(msg)) {
+        setShowUpgrade(true);
+      } else {
+        setError(msg);
+      }
     } finally {
       setLoading(false);
     }
@@ -294,6 +319,17 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
           </div>
         </div>
 
+        {/* Searches-left counter — shown when 1–2 searches remain */}
+        {searchesLeft > 0 && searchesLeft <= 2 && (
+          <div className="mb-3 flex items-center justify-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-700">
+            <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {searchesLeft} free search{searchesLeft !== 1 ? 'es' : ''} remaining ·{' '}
+            <a href="#pricing" className="underline hover:text-amber-900">Upgrade for more</a>
+          </div>
+        )}
+
         <button type="submit" disabled={loading || !product.trim() || !quantity.trim()}
           className="w-full py-3.5 px-6 rounded-xl font-bold text-sm text-white bg-[#EA580C] hover:bg-[#DC4C00] disabled:opacity-60 disabled:cursor-not-allowed transition-all shadow-lg shadow-orange-900/20 flex items-center justify-center gap-2">
           {loading ? (
@@ -329,8 +365,65 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
         </div>
       )}
 
+      {/* Upgrade panel — shown when free quota is exhausted */}
+      {showUpgrade && !loading && (
+        <div className="rounded-2xl border border-[#EA580C]/30 bg-white shadow-lg overflow-hidden">
+          {/* Header */}
+          <div className="bg-[#0D1B2A] px-6 py-5 text-center">
+            <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-1">Free tier complete</p>
+            <h3 className="text-xl font-black text-white mb-1">You&apos;ve used all 5 free searches</h3>
+            <p className="text-xs text-slate-400">Upgrade to keep finding Korean suppliers</p>
+          </div>
+
+          {/* Blurred mock suppliers — visual hint of what Pro unlocks */}
+          <div className="px-6 py-4 bg-slate-50 border-b border-slate-100">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-3">Your next search would return results like these:</p>
+            <div className="space-y-2 select-none pointer-events-none">
+              {[
+                { rank: 1, name: 'Korean Supplier A', score: 88, platform: 'BuyKorea' },
+                { rank: 2, name: 'Korean Supplier B', score: 74, platform: 'EC21' },
+              ].map(m => (
+                <div key={m.rank} className="bg-white rounded-xl border border-slate-200 p-3 flex items-center gap-3 blur-[3px]">
+                  <span className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black text-white flex-shrink-0 ${m.rank === 1 ? 'bg-[#EA580C]' : 'bg-[#0D1B2A]'}`}>{m.rank}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-[#0D1B2A] truncate">{m.name}</p>
+                    <p className="text-xs text-slate-400">{m.platform} · Trust {m.score}/100</p>
+                  </div>
+                  <span className="text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 rounded-full px-2 py-0.5">AI evidence</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Pricing CTA */}
+          <div className="px-6 py-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+              {[
+                { name: 'Starter', price: '$9.90/mo', searches: '30 searches/month', highlight: false },
+                { name: 'Pro', price: '$29/mo', searches: '60 searches + HACCP/KS signals', highlight: true },
+              ].map(p => (
+                <div key={p.name} className={`rounded-xl border p-4 ${p.highlight ? 'border-[#EA580C] bg-orange-50' : 'border-slate-200 bg-white'}`}>
+                  <div className="flex items-center justify-between mb-1">
+                    <p className={`font-bold text-sm ${p.highlight ? 'text-[#EA580C]' : 'text-[#0D1B2A]'}`}>{p.name}</p>
+                    {p.highlight && <span className="text-[10px] font-bold bg-[#EA580C] text-white px-2 py-0.5 rounded-full">Popular</span>}
+                  </div>
+                  <p className="text-lg font-black text-[#0D1B2A]">{p.price}</p>
+                  <p className="text-xs text-slate-500 mt-0.5">{p.searches}</p>
+                </div>
+              ))}
+            </div>
+            <a href="mailto:like2buyglobal@gmail.com?subject=GloSource%20AI%20English%20Plan%20Access"
+              target="_blank" rel="noopener noreferrer"
+              className="block w-full text-center py-3.5 rounded-xl font-bold text-sm text-white bg-[#EA580C] hover:bg-[#DC4C00] transition-all shadow-lg shadow-orange-900/20">
+              Request access → like2buyglobal@gmail.com
+            </a>
+            <p className="text-[10px] text-slate-400 text-center mt-2">Reply within 1 business day · No Korean entity required</p>
+          </div>
+        </div>
+      )}
+
       {/* Empty state */}
-      {!loading && !result && !error && (
+      {!loading && !result && !error && !showUpgrade && (
         <div className="text-center py-12 text-slate-400">
           <svg className="w-12 h-12 mx-auto mb-4 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />

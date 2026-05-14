@@ -312,6 +312,30 @@ export default function EnPage() {
         </div>
       </section>
 
+      {/* ── ROI STRIP ──────────────────────────────────────── */}
+      <section className="bg-[#0D1B2A] border-b border-white/10">
+        <div className="max-w-5xl mx-auto px-6 py-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:divide-x sm:divide-white/10">
+            {[
+              { before: '47 min', after: '90 sec', label: 'Avg. time to supplier shortlist' },
+              { before: '5+ tabs', after: '1 search', label: 'EC21 · BuyKorea · tradeKorea · more' },
+              { before: 'Manual RFQ', after: 'Auto-drafted', label: 'English RFQ template, ready to edit' },
+            ].map(({ before, after, label }) => (
+              <div key={label} className="flex items-center gap-4 sm:px-6 first:pl-0 last:pr-0">
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="text-slate-500 text-sm font-semibold line-through">{before}</span>
+                  <svg className="w-4 h-4 text-[#EA580C] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                  <span className="text-white text-sm font-black">{after}</span>
+                </div>
+                <p className="text-[11px] text-slate-400 leading-tight">{label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── SOURCING TOOL ──────────────────────────────────── */}
       <section id="sourcing-tool" className="bg-slate-50 border-b border-slate-100">
         <div className="max-w-4xl mx-auto px-6 py-16">
