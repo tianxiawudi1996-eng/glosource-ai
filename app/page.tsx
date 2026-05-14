@@ -1367,6 +1367,10 @@ export default function HomePage() {
               <p className="text-xs text-slate-400 max-w-xs">중국·해외 공급자 후보 발굴과 RFQ 준비를 돕는 AI 소싱 매칭 도구입니다. 거래 실행과 납품은 사용자가 직접 판단합니다.</p>
             </div>
             <div className="text-right">
+              <div className="flex items-center justify-end gap-4 mb-1.5 text-xs">
+                <a href="/terms" className="text-slate-500 hover:text-slate-300 transition-colors">이용약관</a>
+                <a href="/privacy" className="text-slate-500 hover:text-slate-300 transition-colors">개인정보처리방침</a>
+              </div>
               <p className="text-xs text-slate-400">© 2026 GloSource AI. All rights reserved.</p>
               <p className="text-xs text-slate-500 mt-1">like2buyglobal@gmail.com</p>
             </div>

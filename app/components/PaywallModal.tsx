@@ -12,6 +12,7 @@ interface PaywallModalProps {
 export default function PaywallModal({ onClose, onLicenseActivated, onContactPlan }: PaywallModalProps) {
   const [licenseKeyInput, setLicenseKeyInput] = useState('');
   const [status, setStatus] = useState<'idle' | 'verifying' | 'valid' | 'invalid'>('idle');
+  const [tosAccepted, setTosAccepted] = useState(false);
 
   const verifyKey = async () => {
     if (!licenseKeyInput.trim()) return;
@@ -48,6 +49,21 @@ export default function PaywallModal({ onClose, onLicenseActivated, onContactPla
           <h2 className="text-xl font-bold text-[#0D1B2A] mb-1">무료 체험 횟수 소진</h2>
           <p className="text-slate-500 text-sm">AI 글로벌 소싱 분석을 계속 이용하려면 플랜을 선택하세요.</p>
         </div>
+        {/* ToS consent */}
+        <label className="flex items-start gap-2 mb-4 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={tosAccepted}
+            onChange={e => setTosAccepted(e.target.checked)}
+            className="mt-0.5 accent-[#0D1B2A]"
+          />
+          <span className="text-xs text-slate-500 leading-relaxed">
+            <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-[#0D1B2A] font-semibold underline hover:text-slate-700">이용약관</a>
+            {' '}및{' '}
+            <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-[#0D1B2A] font-semibold underline hover:text-slate-700">개인정보처리방침</a>
+            에 동의합니다. (구독 결제 전 반드시 확인하세요)
+          </span>
+        </label>
         <div className="space-y-2 mb-6">
           {[
             { name: '스타터', detail: '분석 30회/월', price: '19만원/월', per: '공급자 탐색 · PDF 저장 · RFQ 이메일', hot: false },
@@ -58,10 +74,12 @@ export default function PaywallModal({ onClose, onLicenseActivated, onContactPla
               key={p.name}
               type="button"
               onClick={() => {
+                if (!tosAccepted) return;
                 onClose();
                 onContactPlan(p.name);
               }}
-              className={`flex items-center justify-between p-4 rounded-xl border transition-all cursor-pointer ${p.hot ? 'border-[#0D1B2A] bg-slate-50' : 'border-slate-200 hover:border-slate-300'}`}>
+              disabled={!tosAccepted}
+              className={`flex items-center justify-between p-4 rounded-xl border transition-all ${!tosAccepted ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} ${p.hot ? 'border-[#0D1B2A] bg-slate-50' : 'border-slate-200 hover:border-slate-300'}`}>
               <div>
                 <p className="font-semibold text-sm text-[#0D1B2A]">{p.name} <span className="font-normal text-slate-400 text-xs">· {p.detail}</span></p>
                 <p className="text-xs text-slate-400 mt-0.5">{p.per}</p>

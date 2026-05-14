@@ -7,10 +7,10 @@ import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'GloSource AI — Source Korean Suppliers in 60 Seconds',
-  description: 'Find Korean manufacturer candidates for K-beauty, K-food, K-fashion & more. AI-ranked suppliers from EC21 · BuyKorea · KOTRA · tradeKorea with trust scores and English RFQ drafts. 5 free searches.',
+  description: 'Find Korean manufacturer candidates for K-beauty, K-food, K-fashion & more. AI-ranked suppliers from EC21 · BuyKorea (KOTRA) · tradeKorea with trust scores and English RFQ drafts. 5 free searches.',
   openGraph: {
     title: 'GloSource AI — Source Korean Suppliers in 60 Seconds',
-    description: 'Find Korean manufacturer candidates for K-beauty, K-food, K-fashion & more. EC21 · BuyKorea · KOTRA · tradeKorea channels. AI trust scores + English RFQ.',
+    description: 'Find Korean manufacturer candidates for K-beauty, K-food, K-fashion & more. EC21 · BuyKorea (KOTRA) · tradeKorea channels. AI trust scores + English RFQ.',
     url: 'https://glosource-ai.vercel.app/en',
     siteName: 'GloSource AI',
     locale: 'en_US',
@@ -84,7 +84,7 @@ const HOW_IT_WORKS = [
   {
     step: '01',
     title: 'Describe what you need',
-    desc: 'Type a product in English — e.g. "K-beauty collagen serum OEM 1,000 units". Use the category shortcuts below for instant examples.',
+    desc: 'Type a product in English — e.g. "K-beauty collagen serum OEM". Use the category shortcuts below to prefill realistic examples and quantities.',
   },
   {
     step: '02',
@@ -100,8 +100,8 @@ const HOW_IT_WORKS = [
 
 const WHY_KOREA = [
   {
-    title: 'KOTRA-Backed Export Marketplace',
-    desc: 'KOTRA (Korea Trade-Investment Promotion Agency) operates BuyKorea — a government-backed marketplace focused on registered Korean exporters. Compared with open platforms where anyone can list, it gives buyers a stronger starting point for supplier screening.',
+    title: 'BuyKorea — KOTRA-Operated Export Marketplace',
+    desc: 'BuyKorea is operated by KOTRA (Korea Trade-Investment Promotion Agency), a Korean government agency. It focuses on registered, export-oriented Korean companies. Compared to open marketplaces where anyone can list, it can be a useful starting point for supplier screening — but buyers should still verify each supplier independently.',
     badge: 'Listed on BuyKorea (KOTRA)',
     badgeColor: 'bg-blue-50 text-blue-700 border-blue-200',
     icon: (
@@ -172,7 +172,7 @@ const CERTS = [
 const CHANNELS = [
   {
     name: 'EC21.com',
-    sub: 'Korea\'s Largest B2B Export Marketplace',
+    sub: 'Korea-Based B2B Export Marketplace',
     desc: 'A major Korea-based B2B marketplace used by international buyers looking for Korean manufacturers and traders across many product categories.',
     badge: 'Priority channel',
     badgeColor: 'bg-[#EA580C]/10 text-[#EA580C] border-[#EA580C]/20',
@@ -203,11 +203,11 @@ const CHANNELS = [
 const FAQ = [
   {
     q: 'What kinds of Korean products can I source?',
-    a: 'K-beauty (skincare, cosmetics, OEM), K-food (instant noodles, snacks, sauces, beverages), K-fashion (clothing, accessories, streetwear), electronics (components, wearables), supplements, industrial parts, and more. If it is manufactured in Korea and sold globally, GloSource AI can find suppliers for it.',
+    a: 'K-beauty (skincare, cosmetics, OEM), K-food (instant noodles, snacks, sauces, beverages), K-fashion (clothing, accessories, streetwear), electronics (components, wearables), supplements, industrial parts, and more. If it is manufactured in Korea and sold globally, GloSource AI can usually build a supplier shortlist for it.',
   },
   {
     q: 'How is BuyKorea (KOTRA) different from Alibaba?',
-    a: 'BuyKorea is operated by KOTRA, a Korean government agency. Only registered, export-ready Korean companies are listed — there is no anonymous seller or open registration. Alibaba and similar platforms allow anyone to list. For Korean products specifically, KOTRA-listed suppliers offer a higher baseline of legitimacy.',
+    a: 'BuyKorea is operated by KOTRA, a Korean government agency. It focuses on registered, export-oriented Korean companies, giving buyers more structured company information than a fully open marketplace. For Korean products specifically, KOTRA-listed suppliers can be a stronger starting point for due diligence.',
   },
   {
     q: 'What certifications do Korean suppliers typically hold?',
@@ -222,7 +222,7 @@ const FAQ = [
     a: 'No. We are a research and preparation tool — we surface, compare, score, and prepare RFQ drafts. You contact suppliers and negotiate directly. We do not handle transactions, logistics, or payments on your behalf.',
   },
   {
-    q: 'What payment methods are accepted?',
+    q: 'How do paid plans work during beta?',
     a: 'Online subscription activation is launching soon. During beta, email us for plan access and team setup. No Korean business registration is required on your end.',
   },
 ];
@@ -345,7 +345,7 @@ export default function EnPage() {
                   K-drama, K-pop, K-food.<br />The demand is real.
                 </h3>
                 <p className="text-slate-300 text-sm leading-relaxed">
-                  Korean content has created unprecedented global consumer demand. Buyers who source Korean products today are capturing markets before competition catches up.
+                  Korean content has created measurable global consumer demand. Buyers who source Korean products early can test markets before competition catches up.
                 </p>
               </div>
             </div>
@@ -355,7 +355,7 @@ export default function EnPage() {
             <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-3">Why source from Korea?</p>
             <h2 className="text-2xl font-black text-[#0D1B2A] mb-3">Three reasons Korean suppliers are different</h2>
             <p className="text-sm text-slate-500 max-w-xl mx-auto">
-              Not all sourcing channels are equal. Here is what sets Korean suppliers apart from typical Alibaba searches.
+              Not all sourcing channels are equal. Here is what makes Korea a stronger starting point for many K-product buyers.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -413,7 +413,7 @@ export default function EnPage() {
             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Where we search</p>
             <h2 className="text-2xl font-black text-[#0D1B2A] mb-3">Korean export channels, searched simultaneously</h2>
             <p className="text-sm text-slate-500 max-w-xl mx-auto">
-              GloSource AI covers every major Korean export channel in one search — no manual browsing required.
+              GloSource AI covers the main Korean export channels and direct factory sources in one search — no manual browsing required.
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -446,7 +446,7 @@ export default function EnPage() {
         <div className="max-w-5xl mx-auto px-6 py-16">
           <div className="mb-10 text-center">
             <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-3">How it works</p>
-          <h2 className="text-2xl font-black text-[#0D1B2A]">From product idea to Korean supplier shortlist in 60 seconds</h2>
+            <h2 className="text-2xl font-black text-[#0D1B2A]">From product idea to Korean supplier shortlist in 60 seconds</h2>
           </div>
           {/* Image D — supplier verification process visual */}
           <div className="relative w-full rounded-2xl overflow-hidden mb-10 shadow-sm border border-slate-100">
@@ -591,9 +591,11 @@ export default function EnPage() {
             GloSource AI is a sourcing research tool, not a trade agent. Contact:{' '}
             <a href="mailto:like2buyglobal@gmail.com" className="underline hover:text-slate-400">like2buyglobal@gmail.com</a>
           </p>
-          <Link href="/" className="text-xs text-slate-600 hover:text-slate-400 transition-colors">
-            Korean version →
-          </Link>
+          <div className="flex items-center gap-4 text-xs text-slate-600">
+            <Link href="/terms" className="hover:text-slate-400 transition-colors">Terms</Link>
+            <Link href="/privacy" className="hover:text-slate-400 transition-colors">Privacy</Link>
+            <Link href="/" className="hover:text-slate-400 transition-colors">Korean version →</Link>
+          </div>
         </div>
       </footer>
     </div>

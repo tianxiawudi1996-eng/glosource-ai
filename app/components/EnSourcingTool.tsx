@@ -7,6 +7,7 @@ type SourceRegion = 'china' | 'korea';
 
 interface EnSourcingToolProps {
   initialProduct?: string;
+  initialQuantity?: string;
 }
 
 const REGION_BUTTONS: { value: SourceRegion; label: string; sub: string }[] = [
@@ -14,10 +15,19 @@ const REGION_BUTTONS: { value: SourceRegion; label: string; sub: string }[] = [
   { value: 'china', label: 'China add-on', sub: '1688 · Alibaba · WeChat' },
 ];
 
-const LOADING_STEPS = [
+const KOREA_LOADING_STEPS = [
   'Searching Korean export channels...',
   'Querying AI knowledge base...',
   'Evaluating certification signals...',
+  'Ranking by trust score...',
+  'Generating English RFQ draft...',
+  'Compiling supplier shortlist...',
+];
+
+const CHINA_LOADING_STEPS = [
+  'Searching China supplier channels...',
+  'Checking factory-direct signals...',
+  'Comparing export platform evidence...',
   'Ranking by trust score...',
   'Generating English RFQ draft...',
   'Compiling supplier shortlist...',
@@ -54,6 +64,12 @@ function TrustBar({ score }: { score: number }) {
       <span className={`text-xs font-bold tabular-nums ${txt}`}>{score}/100</span>
     </div>
   );
+}
+
+function formatLeadTime(value: string): string {
+  const trimmed = value?.trim();
+  if (!trimmed) return 'TBD';
+  return /^\d+$/.test(trimmed) ? `${trimmed} days` : trimmed;
 }
 
 function SupplierCard({ s, rank }: { s: Supplier; rank: number }) {
@@ -102,7 +118,7 @@ function SupplierCard({ s, rank }: { s: Supplier; rank: number }) {
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-2">
-        {[['Price', s.estimatedPrice || 'Inquire'], ['MOQ', s.moq || 'Inquire'], ['Lead time', s.leadTimeDays ? `${s.leadTimeDays}d` : 'TBD']].map(([label, val]) => (
+        {[['Price', s.estimatedPrice || 'Inquire'], ['MOQ', s.moq || 'Inquire'], ['Lead time', formatLeadTime(s.leadTimeDays)]].map(([label, val]) => (
           <div key={label} className="bg-slate-50 rounded-lg px-2.5 py-2">
             <p className="text-[10px] text-slate-400 font-medium">{label}</p>
             <p className="text-xs font-bold text-[#0D1B2A] mt-0.5 truncate">{val}</p>
@@ -176,7 +192,7 @@ async function callAPI(product: string, quantity: string, budget: string, countr
   return json.data;
 }
 
-export default function EnSourcingTool({ initialProduct = '' }: EnSourcingToolProps) {
+export default function EnSourcingTool({ initialProduct = '', initialQuantity = '' }: EnSourcingToolProps) {
   const [product, setProduct] = useState(initialProduct);
   const [quantity, setQuantity] = useState('');
   const [budget, setBudget] = useState('');
@@ -186,25 +202,27 @@ export default function EnSourcingTool({ initialProduct = '' }: EnSourcingToolPr
   const [result, setResult] = useState<SourcingOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [rfqCopied, setRfqCopied] = useState(false);
+  const loadingSteps = region === 'china' ? CHINA_LOADING_STEPS : KOREA_LOADING_STEPS;
   const submitLabel = region === 'china' ? 'Find China Suppliers →' : 'Find Korean Suppliers →';
 
   // Sync prefill from parent category clicks
   useEffect(() => {
     if (initialProduct) {
       setProduct(initialProduct);
+      setQuantity(initialQuantity);
       setResult(null);
       setError(null);
     }
-  }, [initialProduct]);
+  }, [initialProduct, initialQuantity]);
 
   // Cycle through loading steps
   useEffect(() => {
     if (!loading) { setLoadingStep(0); return; }
     const iv = setInterval(() => {
-      setLoadingStep(prev => (prev + 1) % LOADING_STEPS.length);
+      setLoadingStep(prev => (prev + 1) % loadingSteps.length);
     }, 8000);
     return () => clearInterval(iv);
-  }, [loading]);
+  }, [loading, loadingSteps.length]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -284,14 +302,14 @@ export default function EnSourcingTool({ initialProduct = '' }: EnSourcingToolPr
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
               </svg>
-              <span className="transition-all">{LOADING_STEPS[loadingStep]}</span>
+              <span className="transition-all">{loadingSteps[loadingStep]}</span>
             </>
           ) : submitLabel}
         </button>
 
         {loading && (
           <div className="mt-3 flex items-center justify-center gap-1.5">
-            {LOADING_STEPS.map((_, i) => (
+            {loadingSteps.map((_, i) => (
               <span key={i} className={`w-1.5 h-1.5 rounded-full transition-all duration-500 ${i === loadingStep ? 'bg-[#EA580C] scale-125' : 'bg-slate-200'}`} />
             ))}
           </div>
@@ -318,13 +336,33 @@ export default function EnSourcingTool({ initialProduct = '' }: EnSourcingToolPr
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
           <p className="text-sm font-semibold text-slate-500">Enter a product and quantity above</p>
-          <p className="text-xs mt-1.5 text-slate-400">AI searches EC21 · BuyKorea (KOTRA) · tradeKorea · direct factories in 60 seconds</p>
+          <p className="text-xs mt-1.5 text-slate-400">
+            {region === 'china'
+              ? 'AI searches China supplier channels and prepares an English RFQ draft'
+              : 'AI searches EC21 · BuyKorea (KOTRA) · tradeKorea · direct factories in 60 seconds'}
+          </p>
         </div>
       )}
 
       {/* Results */}
       {result && (
         <div className="space-y-6">
+          {/* Grounding warning — shown when AI could not confirm results via live search */}
+          {!result.groundingUsed && (
+            <div className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 flex items-start gap-2.5">
+              <svg className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+              </svg>
+              <div>
+                <p className="text-xs font-bold text-amber-800">AI knowledge base only — live search not available</p>
+                <p className="text-xs text-amber-700 mt-0.5 leading-relaxed">
+                  These results could not be confirmed via live web search. Supplier names, pricing, and MOQ are AI estimates only.
+                  Independently verify all details before outreach.
+                </p>
+              </div>
+            </div>
+          )}
+
           <div>
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-black text-[#0D1B2A]">
@@ -351,6 +389,16 @@ export default function EnSourcingTool({ initialProduct = '' }: EnSourcingToolPr
 
           {result.rfqEmail?.en && (
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+              {/* Amber warning: RFQ is an AI template, not confirmed data */}
+              <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 mb-4 flex items-start gap-2">
+                <svg className="w-3.5 h-3.5 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p className="text-[11px] text-amber-800 leading-relaxed">
+                  <strong>AI-generated template.</strong> MOQ, pricing, and lead times are <strong>estimates only</strong> — they may not reflect actual supplier terms.
+                  Review every line and confirm details with the supplier before sending.
+                </p>
+              </div>
               <div className="flex items-center justify-between mb-3">
                 <p className="text-xs font-bold text-[#0D1B2A] uppercase tracking-wide">RFQ Email Draft — Review Before Sending</p>
                 <button type="button" onClick={handleCopyRFQ}
