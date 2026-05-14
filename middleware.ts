@@ -1,15 +1,7 @@
-import { NextResponse } from 'next/server';
-import { auth } from './auth';
+import NextAuth from 'next-auth';
+import { authConfig } from './auth.config';
 
-export default auth((request) => {
-  if (!request.auth) {
-    const loginUrl = new URL('/auth/login', request.nextUrl);
-    loginUrl.searchParams.set('callbackUrl', request.nextUrl.pathname);
-    return NextResponse.redirect(loginUrl);
-  }
-
-  return NextResponse.next();
-});
+export default NextAuth(authConfig).auth;
 
 export const config = {
   matcher: ['/dashboard/:path*', '/billing/:path*', '/admin/:path*', '/account/:path*'],

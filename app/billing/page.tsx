@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { desc, eq } from 'drizzle-orm';
+import Link from 'next/link';
 import { auth } from '@/auth';
 import { db, payments, subscriptions } from '@/app/lib/db';
 import { CancelSubscriptionButton, UpgradeButton } from './BillingActions';
@@ -46,17 +47,17 @@ export default async function BillingPage() {
         {/* Toss 미연동 안내 배너 */}
         {!tossReady && (
           <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4">
-            <p className="text-sm font-black text-amber-800">🚧 결제 시스템 연동 준비 중</p>
+            <p className="text-sm font-black text-amber-800">결제 시스템 연동 준비 중</p>
             <p className="mt-1 text-xs text-amber-700 leading-5">
               현재 베타 운영 중으로 결제 시스템을 준비하고 있습니다.<br />
               사전 신청하시면 오픈 즉시 알림 + <strong>첫 달 무료</strong> 혜택을 드립니다.
             </p>
-            <a
+            <Link
               href="/#waitlist"
               className="mt-3 inline-block rounded-lg bg-amber-600 px-4 py-2 text-xs font-black text-white hover:bg-amber-700 transition-colors"
             >
               베타 사전 신청 →
-            </a>
+            </Link>
           </div>
         )}
 
