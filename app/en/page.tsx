@@ -7,10 +7,10 @@ import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'GloSource AI — Source Korean Suppliers in 60 Seconds',
-  description: 'Find verified Korean manufacturers for K-beauty, K-food, K-fashion & more. AI-ranked suppliers from EC21 · BuyKorea · KOTRA · tradeKorea with trust scores and English RFQ drafts. 5 free searches.',
+  description: 'Find Korean manufacturer candidates for K-beauty, K-food, K-fashion & more. AI-ranked suppliers from EC21 · BuyKorea · KOTRA · tradeKorea with trust scores and English RFQ drafts. 5 free searches.',
   openGraph: {
     title: 'GloSource AI — Source Korean Suppliers in 60 Seconds',
-    description: 'Find verified Korean manufacturers for K-beauty, K-food, K-fashion & more. EC21 · BuyKorea · KOTRA · tradeKorea channels. AI trust scores + English RFQ.',
+    description: 'Find Korean manufacturer candidates for K-beauty, K-food, K-fashion & more. EC21 · BuyKorea · KOTRA · tradeKorea channels. AI trust scores + English RFQ.',
     url: 'https://glosource-ai.vercel.app/en',
     siteName: 'GloSource AI',
     locale: 'en_US',
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'GloSource AI — Source Korean Suppliers in 60 Seconds',
-    description: 'Find verified Korean manufacturers for K-beauty, K-food, K-fashion & more. 5 free searches.',
+    description: 'Find Korean manufacturer candidates for K-beauty, K-food, K-fashion & more. 5 free searches.',
   },
   alternates: {
     canonical: 'https://glosource-ai.vercel.app/en',
@@ -31,15 +31,15 @@ const PLANS = [
     id: 'starter',
     name: 'Starter',
     tag: 'For small buyers',
-    price: '$9.9',
-    unit: '/ mo',
-    per: '30 analyses / month',
+    price: '$9.90',
+    unit: '/mo',
+    per: '30 searches / month',
     features: [
       '3–5 Korean supplier candidates per search',
       'Trust & risk scoring 0–100',
       'Unit price & MOQ comparison',
       'Auto-generated English RFQ email',
-      'KC / KFDA certification check',
+      'MFDS / KC certification signal check',
     ],
     highlight: false,
     envKey: 'NEXT_PUBLIC_POLAR_STARTER_LINK',
@@ -49,12 +49,12 @@ const PLANS = [
     name: 'Pro',
     tag: 'Most popular',
     price: '$29',
-    unit: '/ mo',
-    per: '60 analyses / month',
+    unit: '/mo',
+    per: '60 searches / month',
     features: [
       'All Starter features',
-      'HACCP / KS / ISO certification filter',
-      'Korea + China combined sourcing',
+      'HACCP / KS / ISO certification signals',
+      'China supplier add-on when needed',
       'Priority support',
       'Full PDF sourcing report',
     ],
@@ -66,8 +66,8 @@ const PLANS = [
     name: 'Agency',
     tag: 'For teams',
     price: '$79',
-    unit: '/ mo',
-    per: 'Unlimited analyses',
+    unit: '/mo',
+    per: 'Unlimited searches',
     features: [
       'Unlimited searches',
       '5-seat team access',
@@ -88,21 +88,21 @@ const HOW_IT_WORKS = [
   },
   {
     step: '02',
-    title: 'AI scans 4 Korean channels',
-    desc: 'EC21 · BuyKorea (KOTRA) · tradeKorea · direct factory search — all at once. Every supplier is scored 0–100 for trust, certifications, and export experience.',
+    title: 'AI scans Korean export channels',
+    desc: 'EC21 · BuyKorea (KOTRA) · tradeKorea · direct factory search — all in one search. Every supplier candidate is scored 0–100 for trust signals, certification evidence, and export readiness.',
   },
   {
     step: '03',
     title: 'Get your shortlist + RFQ in 60s',
-    desc: '3–5 verified Korean suppliers ranked side-by-side with KFDA/HACCP/KC certs, MOQ, and unit price. One click copies a ready-to-send English RFQ email.',
+    desc: '3–5 Korean supplier candidates ranked side-by-side with MFDS/HACCP/KC signals, MOQ, and unit price. One click copies an English RFQ draft for review.',
   },
 ];
 
 const WHY_KOREA = [
   {
-    title: 'Government-Verified Exporters',
-    desc: 'KOTRA (Korea Trade-Investment Promotion Agency) operates BuyKorea — a government-backed marketplace where only export-ready Korean companies are listed. Unlike open marketplaces, KOTRA pre-screens every supplier for export compliance.',
-    badge: 'KOTRA Verified',
+    title: 'KOTRA-Backed Export Marketplace',
+    desc: 'KOTRA (Korea Trade-Investment Promotion Agency) operates BuyKorea — a government-backed marketplace focused on registered Korean exporters. Compared with open platforms where anyone can list, it gives buyers a stronger starting point for supplier screening.',
+    badge: 'Listed on BuyKorea (KOTRA)',
     badgeColor: 'bg-blue-50 text-blue-700 border-blue-200',
     icon: (
       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -112,8 +112,8 @@ const WHY_KOREA = [
   },
   {
     title: 'World-Class Certifications',
-    desc: 'Korean manufacturers hold KFDA (Korea\'s FDA equivalent), HACCP (international food safety gold standard), KC (mandatory electronics safety mark), and KS (industrial standards) — the same bar as US/EU compliance. Documentation is already prepared for import.',
-    badge: 'KFDA · HACCP · KC · KS',
+    desc: 'Many Korean manufacturers provide MFDS, HACCP, KC, KS, ISO, or category-specific documentation. These are useful screening signals, but buyers still need to confirm destination-market requirements before import.',
+    badge: 'MFDS · HACCP · KC · KS',
     badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
     icon: (
       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -123,7 +123,7 @@ const WHY_KOREA = [
   },
   {
     title: 'K-Wave Is a Real Opportunity',
-    desc: 'K-beauty, K-food, and K-fashion are the fastest-growing import categories in the US, EU, and Southeast Asia. Korean exports in beauty alone reached $8.5B in 2023. Sourcing now means entering markets ahead of the competition.',
+    desc: 'K-beauty, K-food, and K-fashion continue to show strong global demand across the US, EU, and Southeast Asia. Korean beauty exports reached $8.5B in 2023 — importers who source Korean products now are positioning themselves ahead of growing global competition.',
     badge: '$8.5B K-beauty exports (2023)',
     badgeColor: 'bg-orange-50 text-orange-700 border-orange-200',
     icon: (
@@ -136,9 +136,9 @@ const WHY_KOREA = [
 
 const CERTS = [
   {
-    label: 'KFDA',
-    full: 'Korea Food & Drug Administration',
-    desc: 'Korean equivalent of the US FDA. Mandatory for cosmetics, food supplements, and medical devices. KFDA-certified products can be imported to most markets with minimal additional compliance steps.',
+    label: 'MFDS',
+    full: 'Ministry of Food and Drug Safety',
+    desc: 'Korea\'s food, drug, cosmetics, and medical-device regulator. MFDS records and related documents help screen suppliers, but importers must still verify labeling, ingredients, and destination-market rules.',
     products: 'K-Beauty · Skincare OEM · Supplements · K-Food',
     color: 'border-emerald-200 bg-emerald-50',
     labelColor: 'bg-emerald-600 text-white',
@@ -146,7 +146,7 @@ const CERTS = [
   {
     label: 'HACCP',
     full: 'Hazard Analysis Critical Control Points',
-    desc: 'International gold standard for food safety, recognized by Codex Alimentarius (UN). Korean food manufacturers widely hold HACCP for export. Required by EU, US, and most importers for processed food.',
+    desc: 'Internationally recognized food-safety management system. Many Korean food manufacturers hold HACCP for export, and importers can use it as an important due-diligence signal.',
     products: 'Instant Noodles · Snacks · Sauces · Beverages',
     color: 'border-emerald-200 bg-emerald-50',
     labelColor: 'bg-emerald-600 text-white',
@@ -154,7 +154,7 @@ const CERTS = [
   {
     label: 'KC',
     full: 'Korea Certification',
-    desc: "Mandatory Korean safety certification for electronics and electrical appliances. Export models also carry CE and/or FCC marks. KC-certified products from Korea are ready for EU and US markets.",
+    desc: "Mandatory Korean safety certification for electronics and electrical appliances sold in Korea. Export buyers should still confirm CE, FCC, UKCA, or other destination-market requirements separately.",
     products: 'Electronics · Appliances · Components · Wearables',
     color: 'border-blue-200 bg-blue-50',
     labelColor: 'bg-blue-600 text-white',
@@ -173,21 +173,21 @@ const CHANNELS = [
   {
     name: 'EC21.com',
     sub: 'Korea\'s Largest B2B Export Marketplace',
-    desc: 'Over 1 million Korean companies listed. EC21 is the primary destination for international buyers looking for Korean manufacturers and traders across all product categories.',
+    desc: 'A major Korea-based B2B marketplace used by international buyers looking for Korean manufacturers and traders across many product categories.',
     badge: 'Priority channel',
     badgeColor: 'bg-[#EA580C]/10 text-[#EA580C] border-[#EA580C]/20',
   },
   {
     name: 'BuyKorea (KOTRA)',
     sub: 'Korean Government Trade Agency',
-    desc: 'Operated by KOTRA, Korea\'s official trade promotion agency. Only verified, export-ready Korean exporters are listed. The most trusted channel for compliance-conscious international buyers.',
+    desc: 'Operated by KOTRA, Korea\'s official trade promotion agency. Useful for finding Korean exporters and starting supplier due diligence with more structured company information.',
     badge: 'Government backed',
     badgeColor: 'bg-blue-50 text-blue-700 border-blue-200',
   },
   {
     name: 'tradeKorea (KITA)',
     sub: 'Korea International Trade Association',
-    desc: 'KITA operates tradeKorea for Korean SME manufacturers seeking international partnerships. Strong in manufacturing, materials, and industrial products alongside consumer goods.',
+    desc: 'KITA operates tradeKorea for Korean SME manufacturers seeking international partnerships. Particularly strong in manufacturing, materials, and industrial products, as well as consumer goods.',
     badge: 'SME manufacturers',
     badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
   },
@@ -207,11 +207,11 @@ const FAQ = [
   },
   {
     q: 'How is BuyKorea (KOTRA) different from Alibaba?',
-    a: 'BuyKorea is operated by KOTRA, a Korean government agency. Only verified, export-ready Korean companies are listed — there is no anonymous seller or open registration. Alibaba and similar platforms allow anyone to list. For Korean products specifically, KOTRA-verified suppliers offer a higher baseline of trust.',
+    a: 'BuyKorea is operated by KOTRA, a Korean government agency. Only registered, export-ready Korean companies are listed — there is no anonymous seller or open registration. Alibaba and similar platforms allow anyone to list. For Korean products specifically, KOTRA-listed suppliers offer a higher baseline of legitimacy.',
   },
   {
     q: 'What certifications do Korean suppliers typically hold?',
-    a: 'KFDA for cosmetics and food supplements (Korean equivalent of US FDA), HACCP for food safety (UN-recognized international standard), KC for electronics (mandatory Korean safety mark, equivalent to CE), and KS for industrial products. Most export-oriented Korean manufacturers hold multiple certifications.',
+    a: 'MFDS-related documentation for cosmetics, food, and health products, HACCP for food safety, KC for Korean electronics safety, and KS for industrial standards. These are useful screening signals, but buyers must still confirm destination-market compliance.',
   },
   {
     q: 'Do I need to create an account?',
@@ -223,25 +223,16 @@ const FAQ = [
   },
   {
     q: 'What payment methods are accepted?',
-    a: 'We use Polar.sh as our payment processor, which accepts all major credit cards and handles VAT/tax compliance globally. No Korean business registration required on your end.',
+    a: 'Online subscription activation is launching soon. During beta, email us for plan access and team setup. No Korean business registration is required on your end.',
   },
 ];
 
-function PolarButton({ envKey, children }: { envKey: string; children: React.ReactNode }) {
-  const link = process.env[envKey];
-  if (!link) {
-    return (
-      <button disabled
-        className="block w-full text-center py-3 rounded-xl font-semibold text-sm bg-slate-100 text-slate-400 cursor-not-allowed"
-        title="Payment coming soon">
-        Coming soon
-      </button>
-    );
-  }
+function PolarButton({ envKey, label }: { envKey: string; label: string }) {
+  void envKey;
   return (
-    <a href={link} target="_blank" rel="noopener noreferrer"
+    <a href="mailto:like2buyglobal@gmail.com?subject=GloSource%20AI%20English%20Plan%20Access" target="_blank" rel="noopener noreferrer"
       className="block w-full text-center py-3 rounded-xl font-semibold text-sm transition-all bg-[#EA580C] text-white hover:bg-[#DC4C00] shadow-lg shadow-orange-900/20">
-      {children}
+      {label}
     </a>
   );
 }
@@ -251,7 +242,7 @@ const JSON_LD_ORGANIZATION = {
   '@type': 'Organization',
   name: 'GloSource AI',
   url: 'https://glosource-ai.vercel.app/en',
-  description: 'AI-powered sourcing assistant for international buyers. Find verified Korean suppliers (K-beauty, K-food, K-fashion) from EC21, BuyKorea, KOTRA, and tradeKorea in 60 seconds.',
+  description: 'AI-powered sourcing assistant for international buyers. Find Korean supplier candidates (K-beauty, K-food, K-fashion) from EC21, BuyKorea, KOTRA, and tradeKorea in 60 seconds.',
   contactPoint: {
     '@type': 'ContactPoint',
     email: 'like2buyglobal@gmail.com',
@@ -270,8 +261,6 @@ const JSON_LD_FAQ = {
 };
 
 export default function EnPage() {
-  const polarReady = PLANS.some(p => Boolean(process.env[p.envKey]));
-
   return (
     <div className="min-h-screen bg-white">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD_ORGANIZATION) }} />
@@ -307,11 +296,11 @@ export default function EnPage() {
             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap shrink-0">Sourced from</p>
             <div className="flex flex-wrap justify-center sm:justify-start gap-2">
               {[
-                { name: 'EC21.com', note: 'Korea #1 B2B' },
+                { name: 'EC21.com', note: 'Korea B2B' },
                 { name: 'BuyKorea', note: 'KOTRA Gov.' },
                 { name: 'tradeKorea', note: 'KITA' },
-                { name: '1688.com', note: 'China factory' },
-                { name: 'Alibaba.com', note: 'Global' },
+                { name: 'Direct factories', note: 'Korea web' },
+                { name: 'NAVER directories', note: 'Korea local' },
               ].map(({ name, note }) => (
                 <span key={name} className="border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-600 bg-slate-50 flex items-center gap-1.5">
                   {name}
@@ -330,7 +319,7 @@ export default function EnPage() {
             <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-3">Try it free — 5 searches</p>
             <h2 className="text-2xl font-black text-[#0D1B2A] mb-2">Find your Korean supplier now</h2>
             <p className="text-sm text-slate-500 max-w-lg mx-auto">
-              Select a category below or type your own product. AI scans EC21 · BuyKorea · KOTRA · tradeKorea and returns ranked suppliers with certifications, MOQ, and a ready-to-send RFQ in under 60 seconds.
+              Select a category below or type your own product. AI scans EC21 · BuyKorea · tradeKorea and direct Korean factory sources, then returns ranked suppliers with certification evidence, MOQ, and an RFQ draft in under 60 seconds.
             </p>
           </div>
           <KSourceWrapper />
@@ -395,7 +384,7 @@ export default function EnPage() {
             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Certification guide</p>
             <h2 className="text-2xl font-black text-[#0D1B2A] mb-3">What Korean certifications actually mean</h2>
             <p className="text-sm text-slate-500 max-w-xl mx-auto">
-              GloSource AI checks and displays these certifications for each supplier — so you know before you send an RFQ.
+              GloSource AI looks for certification signals and displays them for each supplier candidate — giving you a head start before you reach out.
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -422,7 +411,7 @@ export default function EnPage() {
         <div className="max-w-5xl mx-auto px-6 py-16">
           <div className="mb-10 text-center">
             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Where we search</p>
-            <h2 className="text-2xl font-black text-[#0D1B2A] mb-3">4 Korean channels, searched simultaneously</h2>
+            <h2 className="text-2xl font-black text-[#0D1B2A] mb-3">Korean export channels, searched simultaneously</h2>
             <p className="text-sm text-slate-500 max-w-xl mx-auto">
               GloSource AI covers every major Korean export channel in one search — no manual browsing required.
             </p>
@@ -457,15 +446,15 @@ export default function EnPage() {
         <div className="max-w-5xl mx-auto px-6 py-16">
           <div className="mb-10 text-center">
             <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-3">How it works</p>
-            <h2 className="text-2xl font-black text-[#0D1B2A]">From product idea to verified Korean supplier in 60 seconds</h2>
+          <h2 className="text-2xl font-black text-[#0D1B2A]">From product idea to Korean supplier shortlist in 60 seconds</h2>
           </div>
           {/* Image D — supplier verification process visual */}
           <div className="relative w-full rounded-2xl overflow-hidden mb-10 shadow-sm border border-slate-100">
             <Image
               src="/images/k-supplier-process.png"
-              alt="Buyer reviewing Korean supplier samples — beauty serum, K-food snacks, electronics, fabric"
-              width={1024}
-              height={683}
+              alt="Buyer reviewing Korean supplier samples, packaging, inspection notes, and fabric swatches"
+              width={1448}
+              height={1086}
               className="w-full object-cover"
             />
             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#0D1B2A]/75 to-transparent px-6 py-4">
@@ -503,13 +492,11 @@ export default function EnPage() {
             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Pricing</p>
             <h2 className="text-2xl font-black text-[#0D1B2A] mb-3">Simple, transparent pricing</h2>
             <p className="text-sm text-slate-500 max-w-xl mx-auto">
-              1 search = 3–5 Korean supplier candidates + trust scoring + certification check + English RFQ email. No contracts, cancel anytime.
+              1 search = 3–5 Korean supplier candidates + trust scoring + certification evidence + English RFQ draft. No contracts, cancel anytime.
             </p>
-            {!polarReady && (
-              <div className="mt-4 inline-flex items-center gap-2 border border-amber-200 bg-amber-50 rounded-full px-4 py-2 text-xs font-semibold text-amber-700">
-                Payment integration launching soon — try it free in the meantime
-              </div>
-            )}
+            <div className="mt-4 inline-flex items-center gap-2 border border-amber-200 bg-amber-50 rounded-full px-4 py-2 text-xs font-semibold text-amber-700">
+              Online subscription activation is launching soon — email us for early access
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -544,15 +531,13 @@ export default function EnPage() {
                     </li>
                   ))}
                 </ul>
-                <PolarButton envKey={plan.envKey}>Get started</PolarButton>
+                <PolarButton envKey={plan.envKey} label="Request Early Access" />
               </div>
             ))}
           </div>
 
           <p className="mt-6 text-center text-xs text-slate-400">
-            Payments processed by{' '}
-            <a href="https://polar.sh" target="_blank" rel="noopener noreferrer" className="underline hover:text-slate-600">Polar.sh</a>
-            {' '}· Global tax & VAT handled · All major credit cards accepted
+            Plan activation is currently handled manually during beta · Contact us for team access
           </p>
         </div>
       </section>
@@ -580,16 +565,16 @@ export default function EnPage() {
         <div className="max-w-3xl mx-auto px-6 py-20 text-center">
           <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-4">Start sourcing today</p>
           <h2 className="text-3xl font-black mb-5 leading-tight">
-            Find your verified Korean supplier<br className="hidden sm:block" /> in the next 60 seconds
+            Find your Korean supplier shortlist<br className="hidden sm:block" /> in the next 60 seconds
           </h2>
           <p className="text-slate-300 text-sm mb-8 leading-relaxed max-w-lg mx-auto">
-            5 free searches, no credit card required. Get ranked Korean supplier candidates with KFDA/HACCP/KC certification status and a ready-to-send English RFQ draft — in under a minute.
+            5 free searches, no credit card required. Get ranked Korean supplier candidates with MFDS/HACCP/KC certification signals and an English RFQ draft — in under a minute.
           </p>
           <ScrollCTA targetId="sourcing-tool"
             className="inline-flex items-center gap-2 bg-[#EA580C] hover:bg-[#DC4C00] text-white font-bold px-8 py-4 rounded-xl transition-all shadow-lg shadow-orange-900/30 text-sm">
             Start 5 free searches →
           </ScrollCTA>
-          <p className="mt-4 text-xs text-slate-500">No signup required · No credit card</p>
+          <p className="mt-4 text-xs text-slate-500">No signup required · No credit card required</p>
         </div>
       </section>
 

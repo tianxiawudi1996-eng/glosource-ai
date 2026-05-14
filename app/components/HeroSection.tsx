@@ -32,22 +32,22 @@ const copy = {
     badge: 'K-Beauty · K-Food · K-Fashion · Global Sourcing AI',
     h1: 'Source Korean',
     h1sub: 'Suppliers in 60s',
-    desc: 'Find verified Korean manufacturers on EC21 · BuyKorea · KOTRA · tradeKorea. AI-ranked with KC/KFDA certifications, risk scores, and RFQ drafts.',
+    desc: 'Find Korean manufacturer candidates via EC21, BuyKorea (KOTRA), tradeKorea, and more. AI-ranked with MFDS / KC / HACCP signals, trust scores, and an English RFQ draft.',
     cta1: 'Start Free — 5 Searches →',
     cta2: 'See Pricing',
-    note: 'GloSource AI is a research assistant, not a sourcing agent. We surface, score, and prepare — you contact and negotiate directly.',
-    features: ['K-beauty, K-food, K-fashion & more', 'KC · KFDA · HACCP certification check', 'Auto-generated English RFQ draft', 'Trust score 0–100 per supplier'],
+    note: 'GloSource AI is a research assistant, not a sourcing agent. We find supplier candidates, score risks, and prepare RFQ drafts — you contact suppliers and negotiate directly.',
+    features: ['K-beauty, K-food, K-fashion & more', 'MFDS / KC / HACCP certification signals', 'Auto-generated English RFQ draft', 'Trust score 0–100 per supplier'],
     stats: [
       { num: '3–5', label: 'Korean suppliers per search' },
       { num: '60s', label: 'Avg. analysis time' },
       { num: '0–100', label: 'Supplier trust score' },
-      { num: '4 channels', label: 'EC21 · BuyKorea · KOTRA · more' },
+      { num: '4 channels', label: 'EC21 · BuyKorea · tradeKorea · more' },
     ],
     mockQuery: 'Korean collagen serum OEM 1000 units',
     mockDone: 'Analysis complete · 54s',
     mockRfq: 'RFQ draft ready',
-    supplier1: { name: 'Cosmax Korea Co., Ltd', platform: 'BuyKorea', score: 91, moq: 'MOQ 1,000 pcs · $8.50/pc', lead: 'Lead 21d · KFDA certified' },
-    supplier2: { name: 'Kolmar Korea Holdings', platform: 'EC21', score: 83, moq: 'MOQ 500 pcs · $11.20/pc', lead: 'Lead 28d · Export to 40+ countries' },
+    supplier1: { name: 'Seoulchem Cosmetics Co., Ltd', platform: 'BuyKorea', score: 91, moq: 'MOQ 1,000 pcs · $8.50/pc', lead: 'Lead time: 21 days · MFDS signal' },
+    supplier2: { name: 'Incheon Beauty Factory Inc.', platform: 'EC21', score: 83, moq: 'MOQ 500 pcs · $11.20/pc', lead: 'Lead time: 28 days · Export history' },
   },
 };
 
@@ -220,12 +220,12 @@ export default function HeroSection({ lang = 'ko' }: HeroSectionProps) {
           </div>
 
           {/* RIGHT — hero visual */}
-          <div className="hidden lg:block">
+          <div className="block">
             {lang === 'en' ? (
-              <div className="relative w-full rounded-2xl overflow-hidden shadow-2xl shadow-black/60" style={{ aspectRatio: '16/10' }}>
+              <div className="relative w-full rounded-2xl overflow-hidden shadow-2xl shadow-black/60" style={{ aspectRatio: '16/9' }}>
                 <Image
                   src="/images/k-hero-products.png"
-                  alt="Korean products — K-beauty skincare, K-food, K-fashion, electronics ready for global sourcing"
+                  alt="Korean product samples including skincare, packaged food, fashion, electronics, and export boxes"
                   fill
                   className="object-cover"
                   priority
@@ -233,7 +233,7 @@ export default function HeroSection({ lang = 'ko' }: HeroSectionProps) {
                 />
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent px-5 py-4">
                   <p className="text-white text-xs font-bold tracking-wide">K-beauty · K-food · K-fashion · Electronics</p>
-                  <p className="text-slate-300 text-[10px] mt-0.5">Verified Korean manufacturers, sourced in 60s</p>
+                  <p className="text-slate-300 text-[10px] mt-0.5">Korean manufacturer candidates, sourced in 60s</p>
                 </div>
               </div>
             ) : (

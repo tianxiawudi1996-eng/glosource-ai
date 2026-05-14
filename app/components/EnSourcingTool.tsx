@@ -3,30 +3,29 @@
 import { useState, useEffect } from 'react';
 import type { SourcingOutput, Supplier } from '@/app/api/source/types';
 
-type SourceRegion = 'china' | 'korea' | 'both';
+type SourceRegion = 'china' | 'korea';
 
 interface EnSourcingToolProps {
   initialProduct?: string;
 }
 
 const REGION_BUTTONS: { value: SourceRegion; label: string; sub: string }[] = [
-  { value: 'korea', label: 'Korea', sub: 'EC21 · BuyKorea · KOTRA' },
-  { value: 'both', label: 'Korea + China', sub: 'All channels combined' },
-  { value: 'china', label: 'China only', sub: '1688 · Alibaba · WeChat' },
+  { value: 'korea', label: 'Korea', sub: 'EC21 · BuyKorea · tradeKorea' },
+  { value: 'china', label: 'China add-on', sub: '1688 · Alibaba · WeChat' },
 ];
 
 const LOADING_STEPS = [
-  'Scanning EC21.com...',
-  'Scanning BuyKorea (KOTRA)...',
-  'Scanning tradeKorea...',
-  'Checking certifications...',
+  'Searching Korean export channels...',
+  'Querying AI knowledge base...',
+  'Evaluating certification signals...',
   'Ranking by trust score...',
-  'Generating RFQ draft...',
+  'Generating English RFQ draft...',
+  'Compiling supplier shortlist...',
 ];
 
 // Known certification patterns → display label + color class
 const CERT_PATTERNS: { re: RegExp; label: string; cls: string }[] = [
-  { re: /KFDA|MFDS|식약처/i,          label: 'KFDA',      cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+  { re: /KFDA|MFDS|식약처/i,          label: 'MFDS',      cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
   { re: /HACCP/i,                     label: 'HACCP',     cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
   { re: /\bKC\b|Korea Certification/i,label: 'KC',        cls: 'bg-blue-50 text-blue-700 border-blue-200' },
   { re: /\bKS\b|Korean Standard/i,    label: 'KS',        cls: 'bg-blue-50 text-blue-700 border-blue-200' },
@@ -34,13 +33,13 @@ const CERT_PATTERNS: { re: RegExp; label: string; cls: string }[] = [
   { re: /ISO 22000/i,                 label: 'ISO 22000', cls: 'bg-slate-100 text-slate-600 border-slate-200' },
   { re: /ISO 9001/i,                  label: 'ISO 9001',  cls: 'bg-slate-100 text-slate-600 border-slate-200' },
   { re: /HALAL/i,                     label: 'HALAL',     cls: 'bg-green-50 text-green-700 border-green-200' },
-  { re: /KOTRA\s*[Vv]erified/i,       label: 'KOTRA Verified', cls: 'bg-blue-50 text-blue-700 border-blue-200' },
+  { re: /KOTRA\s*[Ll]isted|BuyKorea/i, label: 'On BuyKorea', cls: 'bg-blue-50 text-blue-700 border-blue-200' },
   { re: /\bCE\b/,                     label: 'CE',        cls: 'bg-slate-100 text-slate-600 border-slate-200' },
   { re: /\bSGS\b/i,                   label: 'SGS',       cls: 'bg-slate-100 text-slate-600 border-slate-200' },
 ];
 
 function extractCerts(evidence: string[]): { label: string; cls: string }[] {
-  const joined = evidence.join(' ');
+  const joined = (Array.isArray(evidence) ? evidence : []).join(' ');
   return CERT_PATTERNS.filter(p => p.re.test(joined)).map(p => ({ label: p.label, cls: p.cls }));
 }
 
@@ -59,7 +58,9 @@ function TrustBar({ score }: { score: number }) {
 
 function SupplierCard({ s, rank }: { s: Supplier; rank: number }) {
   const isVerified = s.verificationStatus === 'grounding_confirmed';
-  const certs = extractCerts(s.trustEvidence);
+  const trustEvidence = Array.isArray(s.trustEvidence) ? s.trustEvidence : [];
+  const redFlags = Array.isArray(s.redFlags) ? s.redFlags : [];
+  const certs = extractCerts(trustEvidence);
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex flex-col gap-3 hover:shadow-md hover:border-slate-300 transition-all">
@@ -76,7 +77,7 @@ function SupplierCard({ s, rank }: { s: Supplier; rank: number }) {
         </div>
         <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold border flex-shrink-0 ${isVerified ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-slate-100 border-slate-200 text-slate-500'}`}>
           <span className={`w-1.5 h-1.5 rounded-full ${isVerified ? 'bg-emerald-500' : 'bg-slate-400'}`} />
-          {isVerified ? 'Web verified' : 'AI estimated'}
+          {isVerified ? 'AI search evidence' : 'AI estimate only'}
         </span>
       </div>
 
@@ -93,7 +94,9 @@ function SupplierCard({ s, rank }: { s: Supplier; rank: number }) {
 
       {/* Trust */}
       <div>
-        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">Trust score</p>
+        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">
+          Trust score <span className="font-normal normal-case text-slate-400">(AI signal · not a guarantee)</span>
+        </p>
         <TrustBar score={s.trustScore} />
       </div>
 
@@ -111,9 +114,9 @@ function SupplierCard({ s, rank }: { s: Supplier; rank: number }) {
       {s.summary && <p className="text-xs text-slate-500 leading-relaxed">{s.summary}</p>}
 
       {/* Trust evidence */}
-      {s.trustEvidence.length > 0 && (
+      {trustEvidence.length > 0 && (
         <ul className="space-y-0.5">
-          {s.trustEvidence.slice(0, 4).map((e, i) => (
+          {trustEvidence.slice(0, 4).map((e, i) => (
             <li key={i} className="flex items-center gap-1.5 text-[11px] text-slate-600">
               <svg className="w-3 h-3 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
@@ -125,17 +128,17 @@ function SupplierCard({ s, rank }: { s: Supplier; rank: number }) {
       )}
 
       {/* Red flags */}
-      {s.redFlags.length > 0 && (
+      {redFlags.length > 0 && (
         <div className="bg-red-50 border border-red-200 rounded-lg px-3 py-2">
           <p className="text-[10px] font-bold text-red-700 uppercase tracking-wide mb-1">Caution</p>
-          {s.redFlags.map((f, i) => (
+          {redFlags.map((f, i) => (
             <p key={i} className="text-[11px] text-red-600">{f}</p>
           ))}
         </div>
       )}
 
-      {/* URL */}
-      {s.url && (
+      {/* URL — only show for AI-search-evidence suppliers; AI estimates may have unverified links */}
+      {s.url && isVerified && (
         <a href={s.url} target="_blank" rel="noopener noreferrer"
           className="text-xs text-blue-600 hover:text-blue-800 transition-colors inline-flex items-center gap-1">
           View supplier page
@@ -143,6 +146,9 @@ function SupplierCard({ s, rank }: { s: Supplier; rank: number }) {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
           </svg>
         </a>
+      )}
+      {s.url && !isVerified && (
+        <p className="text-[11px] text-slate-400 italic">Verify supplier contact details independently before outreach.</p>
       )}
     </div>
   );
@@ -163,24 +169,11 @@ async function callAPI(product: string, quantity: string, budget: string, countr
     }),
   });
   if (!res.ok) {
-    const err = await res.json().catch(() => ({})) as { error?: string };
-    throw new Error(err.error ?? `Server error ${res.status}`);
+    const err = await res.json().catch(() => ({})) as { error?: string; message?: string };
+    throw new Error(err.message ?? err.error ?? `Server error ${res.status}`);
   }
   const json = await res.json() as { success: boolean; data: SourcingOutput };
   return json.data;
-}
-
-function mergeResults(a: SourcingOutput, b: SourcingOutput): SourcingOutput {
-  const combined = [...a.suppliers, ...b.suppliers]
-    .sort((x, y) => y.trustScore - x.trustScore)
-    .map((s, idx) => ({ ...s, rank: idx + 1 }));
-  return {
-    suppliers: combined,
-    recommendation: [a.recommendation, b.recommendation].filter(Boolean).join('\n\n'),
-    rfqEmail: { en: a.rfqEmail.en, zh: a.rfqEmail.zh },
-    disclaimer: a.disclaimer,
-    groundingUsed: a.groundingUsed || b.groundingUsed,
-  };
 }
 
 export default function EnSourcingTool({ initialProduct = '' }: EnSourcingToolProps) {
@@ -193,6 +186,7 @@ export default function EnSourcingTool({ initialProduct = '' }: EnSourcingToolPr
   const [result, setResult] = useState<SourcingOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [rfqCopied, setRfqCopied] = useState(false);
+  const submitLabel = region === 'china' ? 'Find China Suppliers →' : 'Find Korean Suppliers →';
 
   // Sync prefill from parent category clicks
   useEffect(() => {
@@ -219,16 +213,7 @@ export default function EnSourcingTool({ initialProduct = '' }: EnSourcingToolPr
     setError(null);
     setResult(null);
     try {
-      let output: SourcingOutput;
-      if (region === 'both') {
-        const [a, b] = await Promise.all([
-          callAPI(product, quantity, budget, 'china'),
-          callAPI(product, quantity, budget, 'korea'),
-        ]);
-        output = mergeResults(a, b);
-      } else {
-        output = await callAPI(product, quantity, budget, region);
-      }
+      const output = await callAPI(product, quantity, budget, region);
       setResult(output);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
@@ -301,7 +286,7 @@ export default function EnSourcingTool({ initialProduct = '' }: EnSourcingToolPr
               </svg>
               <span className="transition-all">{LOADING_STEPS[loadingStep]}</span>
             </>
-          ) : 'Find Korean Suppliers →'}
+          ) : submitLabel}
         </button>
 
         {loading && (
@@ -333,7 +318,7 @@ export default function EnSourcingTool({ initialProduct = '' }: EnSourcingToolPr
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
           <p className="text-sm font-semibold text-slate-500">Enter a product and quantity above</p>
-          <p className="text-xs mt-1.5 text-slate-400">AI searches EC21 · BuyKorea · KOTRA · tradeKorea in 60 seconds</p>
+          <p className="text-xs mt-1.5 text-slate-400">AI searches EC21 · BuyKorea (KOTRA) · tradeKorea · direct factories in 60 seconds</p>
         </div>
       )}
 
@@ -348,7 +333,7 @@ export default function EnSourcingTool({ initialProduct = '' }: EnSourcingToolPr
               {result.groundingUsed && (
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 border border-blue-200 px-3 py-1 text-[11px] font-bold text-blue-700">
                   <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                  Web-verified
+                  AI search evidence found
                 </span>
               )}
             </div>
@@ -364,10 +349,10 @@ export default function EnSourcingTool({ initialProduct = '' }: EnSourcingToolPr
             </div>
           )}
 
-          {result.rfqEmail.en && (
+          {result.rfqEmail?.en && (
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
               <div className="flex items-center justify-between mb-3">
-                <p className="text-xs font-bold text-[#0D1B2A] uppercase tracking-wide">RFQ Email Draft — Ready to Send</p>
+                <p className="text-xs font-bold text-[#0D1B2A] uppercase tracking-wide">RFQ Email Draft — Review Before Sending</p>
                 <button type="button" onClick={handleCopyRFQ}
                   className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all border ${rfqCopied ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-[#EA580C] border-[#EA580C] text-white hover:bg-[#DC4C00]'}`}>
                   {rfqCopied ? (
