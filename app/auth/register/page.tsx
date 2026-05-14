@@ -12,6 +12,8 @@ type RegisterResponse = {
 export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [tosConsent, setTosConsent] = useState(false);
+  const [dataConsent, setDataConsent] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -118,9 +120,41 @@ export default function RegisterPage() {
             />
           </label>
 
+          {/* 약관 동의 (약관규제법 제3조 + 개인정보보호법 제22조) */}
+          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-3">
+            <label className="flex items-start gap-2.5 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={tosConsent}
+                onChange={e => setTosConsent(e.target.checked)}
+                className="mt-0.5 accent-[#0D1B2A] flex-shrink-0"
+              />
+              <span className="text-xs text-slate-600 leading-relaxed">
+                <strong className="text-[#0D1B2A]">[필수]</strong>{' '}
+                <Link href="/terms" target="_blank" rel="noopener noreferrer" className="text-[#0D1B2A] font-semibold underline hover:text-slate-700">이용약관</Link>
+                {' '}및{' '}
+                <Link href="/privacy" target="_blank" rel="noopener noreferrer" className="text-[#0D1B2A] font-semibold underline hover:text-slate-700">개인정보처리방침</Link>
+                에 동의합니다.
+              </span>
+            </label>
+            <label className="flex items-start gap-2.5 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={dataConsent}
+                onChange={e => setDataConsent(e.target.checked)}
+                className="mt-0.5 accent-[#0D1B2A] flex-shrink-0"
+              />
+              <span className="text-xs text-slate-600 leading-relaxed">
+                <strong className="text-[#0D1B2A]">[필수]</strong>{' '}
+                개인정보(이름, 이메일) 수집·이용에 동의합니다.{' '}
+                <span className="text-slate-400">구독 관리, 서비스 제공 목적으로만 사용됩니다.</span>
+              </span>
+            </label>
+          </div>
+
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !tosConsent || !dataConsent}
             className="w-full rounded-xl bg-[#0D1B2A] px-4 py-3.5 text-sm font-black text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting ? '가입 처리 중...' : '회원가입'}

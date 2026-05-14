@@ -113,7 +113,7 @@ export default function PrivacyPage() {
             <p className="mb-3">We share data with the following processors solely to operate the Service:</p>
             <div className="space-y-3">
               {[
-                { name: 'Google (Gemini API)', purpose: 'AI supplier analysis and search grounding', location: 'US', policy: 'https://policies.google.com/privacy' },
+                { name: 'Google (Gemini API)', purpose: 'AI supplier analysis and search grounding — your search queries are processed to generate results. Google does not use these queries to train its models under its API terms.', location: 'US', policy: 'https://policies.google.com/privacy' },
                 { name: 'Vercel', purpose: 'Hosting and serverless infrastructure', location: 'US / EU', policy: 'https://vercel.com/legal/privacy-policy' },
                 { name: 'Neon (PostgreSQL)', purpose: 'Account and usage log storage', location: 'US (AWS us-east-1)', policy: 'https://neon.tech/privacy' },
                 { name: 'Resend', purpose: 'Transactional email delivery', location: 'US', policy: 'https://resend.com/legal/privacy-policy' },
@@ -149,13 +149,20 @@ export default function PrivacyPage() {
               <li><strong className="text-white">Restriction:</strong> Ask us to pause processing while a dispute is resolved.</li>
               <li><strong className="text-white">Objection:</strong> Object to processing based on our legitimate interests.</li>
             </ul>
-            <p>
+            <p className="mb-3">
               To exercise any right, email{' '}
               <a href="mailto:like2buyglobal@gmail.com" className="underline text-[#EA580C] hover:text-orange-400">
                 like2buyglobal@gmail.com
               </a>{' '}
               with the subject line <em>&ldquo;Privacy Request — [Your Right]&rdquo;</em>.
               We will respond within 30 days (GDPR standard).
+            </p>
+            <p className="text-xs text-slate-400">
+              <strong className="text-slate-300">Supervisory authorities:</strong>{' '}
+              EU/EEA users may lodge a complaint with their national data protection authority via{' '}
+              <a href="https://www.edpb.europa.eu/about-edpb/about-edpb/members_en" target="_blank" rel="noopener noreferrer" className="underline text-[#EA580C] hover:text-orange-400">edpb.europa.eu</a>.
+              {' '}Korean users may contact the Personal Information Protection Commission at{' '}
+              <a href="https://www.pipc.go.kr" target="_blank" rel="noopener noreferrer" className="underline text-[#EA580C] hover:text-orange-400">pipc.go.kr</a>.
             </p>
           </section>
 

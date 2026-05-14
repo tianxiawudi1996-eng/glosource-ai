@@ -31,7 +31,7 @@ const copy = {
   en: {
     badge: 'K-Beauty · K-Food · K-Fashion · Global Sourcing AI',
     h1: 'Source Korean',
-    h1sub: 'Suppliers in 60s',
+    h1sub: 'Supplier Candidates in 60s',
     desc: 'Find Korean manufacturer candidates via EC21, BuyKorea (KOTRA), tradeKorea, and more. AI-ranked with MFDS / KC / HACCP signals, trust scores, and an English RFQ draft.',
     cta1: 'Start Free — 5 Searches →',
     cta2: 'See Pricing',
@@ -51,14 +51,19 @@ const copy = {
   },
 };
 
-function TrustBar({ score }: { score: number }) {
+function TrustBar({ score, showAiNote }: { score: number; showAiNote?: boolean }) {
   const color = score >= 80 ? 'bg-emerald-400' : score >= 65 ? 'bg-amber-400' : 'bg-red-400';
   return (
-    <div className="flex items-center gap-1.5">
-      <div className="h-1.5 w-20 rounded-full bg-white/10 overflow-hidden">
-        <div className={`h-full rounded-full ${color}`} style={{ width: `${score}%` }} />
+    <div>
+      <div className="flex items-center gap-1.5">
+        <div className="h-1.5 w-20 rounded-full bg-white/10 overflow-hidden">
+          <div className={`h-full rounded-full ${color}`} style={{ width: `${score}%` }} />
+        </div>
+        <span className="text-[10px] font-bold text-slate-200">{score}/100</span>
       </div>
-      <span className="text-[10px] font-bold text-slate-200">{score}/100</span>
+      {showAiNote && (
+        <p className="text-[9px] text-amber-400/80 mt-0.5">AI signal · not a verified certification</p>
+      )}
     </div>
   );
 }
@@ -104,7 +109,7 @@ function MockPreviewPanel({ c }: { c: typeof copy.ko }) {
             </div>
             <span className="shrink-0 rounded-full bg-orange-500/20 px-2 py-0.5 text-[10px] font-bold text-orange-300">{c.supplier1.platform}</span>
           </div>
-          <TrustBar score={c.supplier1.score} />
+          <TrustBar score={c.supplier1.score} showAiNote />
           <p className="text-[10px] text-slate-400">{c.supplier1.moq}</p>
           <p className="text-[10px] text-slate-500">{c.supplier1.lead}</p>
         </div>
@@ -118,7 +123,7 @@ function MockPreviewPanel({ c }: { c: typeof copy.ko }) {
             </div>
             <span className="shrink-0 rounded-full bg-blue-500/20 px-2 py-0.5 text-[10px] font-bold text-blue-300">{c.supplier2.platform}</span>
           </div>
-          <TrustBar score={c.supplier2.score} />
+          <TrustBar score={c.supplier2.score} showAiNote />
           <p className="text-[10px] text-slate-400">{c.supplier2.moq}</p>
           <p className="text-[10px] text-slate-500">{c.supplier2.lead}</p>
         </div>

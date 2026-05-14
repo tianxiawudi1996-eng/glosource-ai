@@ -13,6 +13,7 @@ export default function PaywallModal({ onClose, onLicenseActivated, onContactPla
   const [licenseKeyInput, setLicenseKeyInput] = useState('');
   const [status, setStatus] = useState<'idle' | 'verifying' | 'valid' | 'invalid'>('idle');
   const [tosAccepted, setTosAccepted] = useState(false);
+  const [withdrawalAccepted, setWithdrawalAccepted] = useState(false);
 
   const verifyKey = async () => {
     if (!licenseKeyInput.trim()) return;
@@ -50,20 +51,36 @@ export default function PaywallModal({ onClose, onLicenseActivated, onContactPla
           <p className="text-slate-500 text-sm">AI 글로벌 소싱 분석을 계속 이용하려면 플랜을 선택하세요.</p>
         </div>
         {/* ToS consent */}
-        <label className="flex items-start gap-2 mb-4 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={tosAccepted}
-            onChange={e => setTosAccepted(e.target.checked)}
-            className="mt-0.5 accent-[#0D1B2A]"
-          />
-          <span className="text-xs text-slate-500 leading-relaxed">
-            <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-[#0D1B2A] font-semibold underline hover:text-slate-700">이용약관</a>
-            {' '}및{' '}
-            <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-[#0D1B2A] font-semibold underline hover:text-slate-700">개인정보처리방침</a>
-            에 동의합니다. (구독 결제 전 반드시 확인하세요)
-          </span>
-        </label>
+        <div className="space-y-2 mb-4">
+          <label className="flex items-start gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={tosAccepted}
+              onChange={e => setTosAccepted(e.target.checked)}
+              className="mt-0.5 accent-[#0D1B2A] flex-shrink-0"
+            />
+            <span className="text-xs text-slate-500 leading-relaxed">
+              <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-[#0D1B2A] font-semibold underline hover:text-slate-700">이용약관</a>
+              {' '}및{' '}
+              <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-[#0D1B2A] font-semibold underline hover:text-slate-700">개인정보처리방침</a>
+              에 동의합니다.
+            </span>
+          </label>
+          <label className="flex items-start gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={withdrawalAccepted}
+              onChange={e => setWithdrawalAccepted(e.target.checked)}
+              className="mt-0.5 accent-[#0D1B2A] flex-shrink-0"
+            />
+            <span className="text-xs text-slate-500 leading-relaxed">
+              구독 결제 시 디지털 서비스가 즉시 제공되므로{' '}
+              <strong className="text-slate-700">청약철회권이 제한</strong>됨을 이해합니다.{' '}
+              <a href="/terms#section-3-4" target="_blank" rel="noopener noreferrer" className="text-[#0D1B2A] underline hover:text-slate-700">환불 정책 보기</a>
+              {' '}(전자상거래법 제17조)
+            </span>
+          </label>
+        </div>
         <div className="space-y-2 mb-6">
           {[
             { name: '스타터', detail: '분석 30회/월', price: '19만원/월', per: '공급자 탐색 · PDF 저장 · RFQ 이메일', hot: false },
@@ -74,12 +91,12 @@ export default function PaywallModal({ onClose, onLicenseActivated, onContactPla
               key={p.name}
               type="button"
               onClick={() => {
-                if (!tosAccepted) return;
+                if (!tosAccepted || !withdrawalAccepted) return;
                 onClose();
                 onContactPlan(p.name);
               }}
-              disabled={!tosAccepted}
-              className={`flex items-center justify-between p-4 rounded-xl border transition-all ${!tosAccepted ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} ${p.hot ? 'border-[#0D1B2A] bg-slate-50' : 'border-slate-200 hover:border-slate-300'}`}>
+              disabled={!tosAccepted || !withdrawalAccepted}
+              className={`flex items-center justify-between p-4 rounded-xl border transition-all ${!tosAccepted || !withdrawalAccepted ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} ${p.hot ? 'border-[#0D1B2A] bg-slate-50' : 'border-slate-200 hover:border-slate-300'}`}>
               <div>
                 <p className="font-semibold text-sm text-[#0D1B2A]">{p.name} <span className="font-normal text-slate-400 text-xs">· {p.detail}</span></p>
                 <p className="text-xs text-slate-400 mt-0.5">{p.per}</p>

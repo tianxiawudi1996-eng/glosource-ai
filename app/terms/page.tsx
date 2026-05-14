@@ -70,7 +70,7 @@ export default function TermsPage() {
             <h2 className="text-lg font-bold text-white mb-3">3. Subscription and Payment Terms</h2>
             <h3 className="font-semibold text-white mb-2">3.1 Plans</h3>
             <p className="mb-3">
-              Subscriptions are billed monthly in the currency listed at checkout (USD for international plans, KRW for Korean plans).
+              Subscriptions are billed monthly in the currency listed at checkout. Korean plans are priced in KRW; international (English) plans are priced in USD. Both plan tiers provide equivalent AI model quality and sourcing output — pricing differences reflect regional market conditions only.
               Access is activated immediately upon payment confirmation.
             </p>
             <h3 className="font-semibold text-white mb-2">3.2 Free Tier</h3>
@@ -94,9 +94,23 @@ export default function TermsPage() {
               <li>You request a refund within 48 hours of your first payment <em>and</em> have used fewer than 3 searches.</li>
               <li>A verified technical failure on our side prevented service delivery for more than 72 consecutive hours.</li>
             </ul>
-            <p>
+            <p className="mb-3">
               To request a refund, email <a href="mailto:like2buyglobal@gmail.com" className="underline text-[#EA580C] hover:text-orange-400">like2buyglobal@gmail.com</a> with your account email and order reference.
               We aim to respond within 3 business days.
+            </p>
+            <h3 className="font-semibold text-white mb-2">3.5 EU Consumer Withdrawal Rights</h3>
+            <p className="mb-3">
+              If you are a consumer resident in the EU/EEA, you normally have a 14-day right of withdrawal under the EU Consumer Rights Directive.
+              However, by subscribing and receiving immediate digital access to the Service, you expressly request that performance of the contract begin before the withdrawal period expires and you acknowledge that you thereby <strong className="text-white">lose your right of withdrawal</strong> once the service has been fully performed, or once you have made your first search.
+              This acknowledgement is collected as a separate consent step during checkout.
+            </p>
+            <h3 className="font-semibold text-white mb-2">3.6 California Consumer Privacy (CCPA)</h3>
+            <p>
+              California residents have the right to know what personal information is collected, to request deletion, and to opt out of the sale of personal information.
+              We do <strong className="text-white">not</strong> sell personal information.
+              To exercise your rights, email{' '}
+              <a href="mailto:like2buyglobal@gmail.com" className="underline text-[#EA580C] hover:text-orange-400">like2buyglobal@gmail.com</a>{' '}
+              with subject line &ldquo;CCPA Request&rdquo;.
             </p>
           </section>
 
@@ -177,7 +191,9 @@ export default function TermsPage() {
             <div className="bg-white/5 border border-white/10 rounded-xl p-5 space-y-3 text-slate-300">
               <p><strong className="text-white">서비스 범위:</strong> GloSource AI는 공급자 후보 탐색과 RFQ 초안 생성을 돕는 AI 리서치 도구입니다. 납품 보증, 계약 대리, 물류 서비스는 제공하지 않습니다.</p>
               <p><strong className="text-white">AI 정보 면책:</strong> 신뢰도 점수, 가격, MOQ, 인증 정보는 AI 추정값이며 보증하지 않습니다. 계약 전 직접 검증 필수입니다.</p>
+              <p><strong className="text-white">요금제:</strong> 한국어 플랜(KRW)과 영어 글로벌 플랜(USD)의 가격은 다르지만, AI 모델 품질과 소싱 결과는 동일합니다. 가격 차이는 지역 시장 상황을 반영한 것입니다.</p>
               <p><strong className="text-white">환불 정책:</strong> 첫 결제 후 48시간 이내 + 3회 미만 사용 시 전액 환불. 이후 환불은 서비스 장애가 72시간 이상 지속된 경우에만 가능합니다.</p>
+              <p><strong className="text-white">청약철회권:</strong> 구독 결제 시 즉시 디지털 서비스가 제공되므로, 최초 검색 사용 후에는 전자상거래법 제17조에 따른 청약철회권이 제한됩니다. 결제 시 별도 동의를 받습니다.</p>
               <p><strong className="text-white">준거법:</strong> 대한민국 법률 적용, 관할 법원은 서울중앙지방법원.</p>
               <p><strong className="text-white">문의:</strong> like2buyglobal@gmail.com</p>
             </div>

@@ -485,7 +485,7 @@ export default function HomePage() {
         <div className="max-w-5xl mx-auto px-6 py-6">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:divide-x sm:divide-white/10">
             {[
-              { before: '평균 47분', after: '90초', label: '공급자 후보 3~5개 확보까지' },
+              { before: '수동 검색', after: '~90초', label: '공급자 후보 3~5개 확보까지 (AI 보조)' },
               { before: '5개+ 탭', after: '검색 1번', label: '1688 · Alibaba · WeChat 동시 탐색' },
               { before: '직접 작성', after: '자동 생성', label: '영문·중문 RFQ 초안 즉시 준비' },
             ].map(({ before, after, label }) => (
@@ -1282,10 +1282,11 @@ export default function HomePage() {
             <div>
               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">요금제</p>
               <h2 className="text-2xl font-black text-[#0D1B2A] mb-3">규모에 맞는 플랜을 선택하세요</h2>
-              <p className="text-sm leading-relaxed text-slate-500 mb-4">
+              <p className="text-sm leading-relaxed text-slate-500 mb-2">
                 1회 = 공급자 후보 3~5개 탐색 + 리스크 분석 + RFQ 질문 리스트 + PDF 리포트.
                 GloSource AI는 거래 실행, 납품, 결제, 물류를 대행하지 않습니다.
               </p>
+              <p className="text-xs text-slate-400 mb-4">한국 바이어 전용 · 원화(KRW) 결제 · 해외 바이어는 <a href="/en#pricing" className="underline text-[#0D1B2A] hover:text-slate-700">영어 플랜(USD)</a>을 이용하세요</p>
               <span className="inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold px-3 py-1.5 rounded-full">
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />

@@ -38,8 +38,8 @@ const CHINA_LOADING_STEPS = [
 
 // Known certification patterns → display label + color class
 const CERT_PATTERNS: { re: RegExp; label: string; cls: string }[] = [
-  { re: /KFDA|MFDS|식약처/i,          label: 'MFDS',      cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-  { re: /HACCP/i,                     label: 'HACCP',     cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+  { re: /KFDA|MFDS|식약처/i,          label: 'MFDS',      cls: 'bg-amber-50 text-amber-700 border-amber-200' },
+  { re: /HACCP/i,                     label: 'HACCP',     cls: 'bg-amber-50 text-amber-700 border-amber-200' },
   { re: /\bKC\b|Korea Certification/i,label: 'KC',        cls: 'bg-blue-50 text-blue-700 border-blue-200' },
   { re: /\bKS\b|Korean Standard/i,    label: 'KS',        cls: 'bg-blue-50 text-blue-700 border-blue-200' },
   { re: /ISO 22716/i,                 label: 'ISO 22716', cls: 'bg-slate-100 text-slate-600 border-slate-200' },
@@ -102,12 +102,15 @@ function SupplierCard({ s, rank }: { s: Supplier; rank: number }) {
 
       {/* Cert badges */}
       {certs.length > 0 && (
-        <div className="flex flex-wrap gap-1">
-          {certs.map(c => (
-            <span key={c.label} className={`text-[10px] font-bold border rounded-full px-1.5 py-0.5 ${c.cls}`}>
-              {c.label}
-            </span>
-          ))}
+        <div>
+          <p className="text-[9px] font-bold text-amber-600 uppercase tracking-wide mb-1">AI-detected signals — verify independently</p>
+          <div className="flex flex-wrap gap-1">
+            {certs.map(c => (
+              <span key={c.label} className={`text-[10px] font-bold border rounded-full px-1.5 py-0.5 ${c.cls}`}>
+                {c.label}
+              </span>
+            ))}
+          </div>
         </div>
       )}
 
@@ -187,8 +190,14 @@ async function callAPI(product: string, quantity: string, budget: string, countr
       buyerCountry: 'GLOBAL' as const,
     }),
   });
+  if (res.status === 429) {
+    throw new Error('__quota_exceeded__');
+  }
   if (!res.ok) {
-    const err = await res.json().catch(() => ({})) as { error?: string; message?: string };
+    const err = await res.json().catch(() => ({})) as { error?: string; message?: string; code?: string };
+    if (err.code === 'quota_exceeded' || err.error === 'quota_exceeded') {
+      throw new Error('__quota_exceeded__');
+    }
     throw new Error(err.message ?? err.error ?? `Server error ${res.status}`);
   }
   const json = await res.json() as { success: boolean; data: SourcingOutput };
@@ -255,7 +264,7 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
       try { localStorage.setItem(FREE_COUNT_KEY, String(newCount)); } catch { /* ignore */ }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
-      if (/quota|subscription|limit/i.test(msg)) {
+      if (msg === '__quota_exceeded__' || /quota|subscription|limit/i.test(msg)) {
         setShowUpgrade(true);
       } else {
         setError(msg);
@@ -319,8 +328,8 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
           </div>
         </div>
 
-        {/* Searches-left counter — shown when 1–2 searches remain */}
-        {searchesLeft > 0 && searchesLeft <= 2 && (
+        {/* Searches-left counter — shown for all remaining free searches */}
+        {searchesLeft > 0 && (
           <div className="mb-3 flex items-center justify-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-700">
             <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -377,7 +386,7 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
 
           {/* Blurred mock suppliers — visual hint of what Pro unlocks */}
           <div className="px-6 py-4 bg-slate-50 border-b border-slate-100">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-3">Your next search would return results like these:</p>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-3">Upgrade to unlock your actual results:</p>
             <div className="space-y-2 select-none pointer-events-none">
               {[
                 { rank: 1, name: 'Korean Supplier A', score: 88, platform: 'BuyKorea' },
@@ -469,14 +478,26 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
               )}
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {result.suppliers.map((s, i) => <SupplierCard key={s.rank} s={s} rank={i + 1} />)}
+              {result.suppliers.map((s, i) => (
+                <div key={s.rank} className={!result.groundingUsed ? 'rounded-2xl ring-1 ring-amber-300/60' : ''}>
+                  <SupplierCard s={s} rank={i + 1} />
+                </div>
+              ))}
             </div>
           </div>
 
           {result.recommendation && (
             <div className="bg-white rounded-2xl border border-[#EA580C]/20 shadow-sm p-5">
-              <p className="text-xs font-bold text-[#EA580C] uppercase tracking-wide mb-3">AI Recommendation</p>
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-xs font-bold text-[#EA580C] uppercase tracking-wide">AI Sourcing Notes</p>
+                <span className="text-[10px] text-slate-400 italic">AI-generated · not a purchase recommendation</span>
+              </div>
               <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-line">{result.recommendation}</p>
+              {!result.disclaimer && (
+                <p className="mt-3 text-[11px] text-slate-400 border-t border-slate-100 pt-3">
+                  AI-generated sourcing notes for research purposes only. Independently verify all supplier information before outreach or any purchasing decision.
+                </p>
+              )}
             </div>
           )}
 
