@@ -258,10 +258,12 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
     try {
       const output = await callAPI(product, quantity, budget, region);
       setResult(output);
-      // Increment free search counter
-      const newCount = freeCount + 1;
-      setFreeCount(newCount);
-      try { localStorage.setItem(FREE_COUNT_KEY, String(newCount)); } catch { /* ignore */ }
+      // Only increment free counter when grounding was used (mirrors server-side quota logic)
+      if (output.groundingUsed) {
+        const newCount = freeCount + 1;
+        setFreeCount(newCount);
+        try { localStorage.setItem(FREE_COUNT_KEY, String(newCount)); } catch { /* ignore */ }
+      }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
       if (msg === '__quota_exceeded__' || /quota|subscription|limit/i.test(msg)) {
