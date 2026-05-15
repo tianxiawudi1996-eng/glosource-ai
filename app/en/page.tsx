@@ -302,6 +302,7 @@ export default async function EnPage() {
             <Link href="/" className="text-xs font-semibold text-slate-400 hover:text-white transition-colors">KO</Link>
             <a href="#why-korea" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden sm:block">Why Korea</a>
             <a href="#pricing" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden sm:block">Pricing</a>
+            <Link href="/en/blog" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden sm:block">Blog</Link>
             {isLoggedIn ? (
               <Link href="/en/dashboard" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors">
                 My Account

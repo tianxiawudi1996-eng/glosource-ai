@@ -1,0 +1,89 @@
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
+import { getAllPosts, getPost } from '@/app/lib/blog-posts';
+
+export async function generateStaticParams() {
+  return getAllPosts().map(post => ({ slug: post.slug }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const post = getPost(slug);
+  if (!post) return {};
+  return {
+    title: post.title,
+    description: post.description,
+    alternates: { canonical: `https://glosource-ai.vercel.app/en/blog/${post.slug}` },
+    openGraph: { title: post.title, description: post.description, type: 'article', publishedTime: post.publishedAt },
+  };
+}
+
+export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const post = getPost(slug);
+  if (!post) notFound();
+
+  return (
+    <div className="min-h-screen bg-white">
+      {/* Nav */}
+      <nav className="sticky top-0 z-30 bg-[#0D1B2A]/95 backdrop-blur border-b border-white/10">
+        <div className="max-w-5xl mx-auto px-6 py-3 flex items-center justify-between gap-4">
+          <Link href="/en" className="flex items-center gap-2">
+            <div className="w-7 h-7 bg-[#EA580C] rounded-lg flex items-center justify-center">
+              <span className="text-white font-black text-xs">G</span>
+            </div>
+            <span className="font-black text-white text-sm">GloSource AI</span>
+          </Link>
+          <Link href="/en/blog" className="text-xs font-semibold text-slate-300 hover:text-white">← All articles</Link>
+        </div>
+      </nav>
+
+      <main className="max-w-2xl mx-auto px-6 py-16">
+        <div className="flex items-center gap-2 mb-6">
+          <span className="text-[11px] font-bold text-[#EA580C] bg-orange-50 border border-orange-100 rounded-full px-2.5 py-1">{post.category}</span>
+          <span className="text-xs text-slate-400">{new Date(post.publishedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+          <span className="text-xs text-slate-300">·</span>
+          <span className="text-xs text-slate-400">{post.readingTimeMin} min read</span>
+        </div>
+
+        <h1 className="text-3xl font-black text-[#0D1B2A] mb-6 leading-tight">{post.title}</h1>
+        <p className="text-slate-500 text-sm leading-relaxed border-l-4 border-[#EA580C] pl-4 mb-10">{post.description}</p>
+
+        <div
+          className="prose prose-slate max-w-none prose-headings:font-black prose-headings:text-[#0D1B2A] prose-a:text-[#EA580C] prose-strong:text-[#0D1B2A] prose-li:text-slate-600 prose-p:text-slate-600 prose-p:leading-relaxed prose-table:text-sm"
+          dangerouslySetInnerHTML={{ __html: post.content }}
+        />
+
+        {/* CTA */}
+        <div className="mt-16 rounded-2xl bg-[#0D1B2A] p-8 text-center">
+          <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-3">Ready to source?</p>
+          <h2 className="text-xl font-black text-white mb-3">Find Korean suppliers in 90 seconds</h2>
+          <p className="text-slate-300 text-sm mb-6">5 free searches. No credit card. No signup required for first search.</p>
+          <Link
+            href="/en#sourcing-tool"
+            className="inline-flex items-center gap-2 bg-[#EA580C] hover:bg-[#DC4C00] text-white font-bold px-6 py-3 rounded-xl transition-all text-sm"
+          >
+            Try GloSource AI free →
+          </Link>
+        </div>
+      </main>
+
+      <footer className="border-t border-slate-100 mt-8">
+        <div className="max-w-5xl mx-auto px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <Link href="/en" className="flex items-center gap-2">
+            <div className="w-6 h-6 bg-[#EA580C] rounded-md flex items-center justify-center">
+              <span className="text-white font-black text-[10px]">G</span>
+            </div>
+            <span className="font-black text-slate-700 text-xs">GloSource AI</span>
+          </Link>
+          <div className="flex gap-4 text-xs text-slate-500">
+            <Link href="/en/blog" className="hover:text-slate-700">Blog</Link>
+            <Link href="/terms" className="hover:text-slate-700">Terms</Link>
+            <Link href="/privacy" className="hover:text-slate-700">Privacy</Link>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
