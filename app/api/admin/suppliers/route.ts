@@ -11,7 +11,7 @@ function isAdmin(email: string | null | undefined): boolean {
 }
 
 // GET — 전체 목록
-export async function GET(_request: NextRequest): Promise<NextResponse> {
+export async function GET(): Promise<NextResponse> {
   const session = await auth();
   if (!isAdmin(session?.user?.email)) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
