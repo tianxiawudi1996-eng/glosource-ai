@@ -99,6 +99,14 @@ export default async function AdminPage() {
           ))}
         </section>
 
+        {/* 관리 메뉴 */}
+        <div className="mt-6 flex flex-wrap gap-3">
+          <a href="/admin/suppliers"
+            className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-[#0D1B2A] shadow-sm hover:bg-slate-50 transition-colors">
+            🏭 검증 공급자 DB →
+          </a>
+        </div>
+
         <section className="mt-6 rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="border-b border-slate-100 p-5">
             <h2 className="text-lg font-black text-[#0D1B2A]">최근 가입자</h2>

@@ -114,6 +114,27 @@ export const waitlist = pgTable('waitlist', {
   createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
 });
 
+// ── 검증 공급자 DB (수동 검증된 실제 공급자) ─────────────────────────
+export const verifiedSuppliers = pgTable('verified_suppliers', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  name: text('name').notNull(),
+  nameEn: text('name_en'),
+  platform: text('platform').notNull(), // EC21, BuyKorea, tradeKorea, Direct
+  url: text('url'),
+  category: text('category').notNull(), // K-Beauty, K-Food, K-Fashion, Electronics, Industrial
+  country: text('country').default('KR').notNull(),
+  moqMin: integer('moq_min'),
+  leadTimeDays: integer('lead_time_days'),
+  certifications: text('certifications'), // comma-separated: MFDS,HACCP,KC,KS,ISO
+  trustScore: integer('trust_score'), // 수동 검증 점수 0-100
+  notes: text('notes'),
+  active: boolean('active').default(true).notNull(),
+  verifiedAt: timestamp('verified_at', { mode: 'date' }).defaultNow().notNull(),
+  addedBy: text('added_by'), // admin email
+  createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { mode: 'date' }).defaultNow().notNull(),
+});
+
 // ── 플랜별 한도 ───────────────────────────────────────────────────────
 
 export const PLAN_LIMITS = {
@@ -124,3 +145,5 @@ export const PLAN_LIMITS = {
 } as const;
 
 export type PlanTier = keyof typeof PLAN_LIMITS;
+
+export type VerifiedSupplier = typeof verifiedSuppliers.$inferSelect;

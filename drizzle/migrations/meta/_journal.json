@@ -15,6 +15,13 @@
       "when": 1778842865536,
       "tag": "0001_tiresome_manta",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1778847253751,
+      "tag": "0002_spotty_zaladane",
+      "breakpoints": true
     }
   ]
 }

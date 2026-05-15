@@ -4,6 +4,7 @@ import HeroSection from '@/app/components/HeroSection';
 import KSourceWrapper from './KSourceWrapper';
 import ScrollCTA from './ScrollCTA';
 import Link from 'next/link';
+import { auth } from '@/auth';
 
 export const metadata: Metadata = {
   title: 'GloSource AI — Source Korean Suppliers with AI',
@@ -270,7 +271,10 @@ const JSON_LD_FAQ = {
   })),
 };
 
-export default function EnPage() {
+export default async function EnPage() {
+  const session = await auth();
+  const isLoggedIn = !!session?.user;
+
   return (
     <div className="min-h-screen bg-white">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD_ORGANIZATION) }} />
@@ -289,7 +293,15 @@ export default function EnPage() {
             <Link href="/" className="text-xs font-semibold text-slate-400 hover:text-white transition-colors">KO</Link>
             <a href="#why-korea" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden sm:block">Why Korea</a>
             <a href="#pricing" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden sm:block">Pricing</a>
-            <Link href="/en/login" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors">Sign in</Link>
+            {isLoggedIn ? (
+              <Link href="/en/dashboard" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors">
+                My Account
+              </Link>
+            ) : (
+              <Link href="/en/login" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors">
+                Sign in
+              </Link>
+            )}
             <ScrollCTA targetId="sourcing-tool" className="text-xs font-bold bg-[#EA580C] text-white px-4 py-2 rounded-lg hover:bg-[#DC4C00] transition-colors">
               Try Free →
             </ScrollCTA>

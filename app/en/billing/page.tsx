@@ -48,7 +48,14 @@ function formatAmount(amount: number, currency: string): string {
   return `${amount} ${c}`;
 }
 
-export default async function EnBillingPage() {
+export default async function EnBillingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ polar?: string }>;
+}) {
+  const params = await searchParams;
+  const showSuccess = params.polar === 'success';
+
   const session = await auth();
   if (!session?.user?.id) redirect('/en/login?callbackUrl=/en/billing');
 
@@ -71,6 +78,18 @@ export default async function EnBillingPage() {
   return (
     <main className="min-h-screen bg-slate-50">
       <div className="mx-auto max-w-4xl px-6 py-10">
+
+        {showSuccess && (
+          <div className="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4">
+            <p className="text-sm font-black text-emerald-800">🎉 Payment successful! Your plan is now active.</p>
+            <p className="mt-1 text-xs text-emerald-700 leading-5">
+              Your account has been upgraded. Start searching below — your new quota is ready.
+            </p>
+            <a href="/en#sourcing-tool" className="mt-3 inline-block rounded-lg bg-emerald-600 px-4 py-2 text-xs font-black text-white hover:bg-emerald-700 transition-colors">
+              Start sourcing →
+            </a>
+          </div>
+        )}
 
         {/* Nav */}
         <div className="mb-8 flex items-center gap-3">
