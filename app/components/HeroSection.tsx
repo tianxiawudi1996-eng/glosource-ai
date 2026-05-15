@@ -26,8 +26,8 @@ const copy = {
     mockDone: 'AI 분석 완료 · 58초',
     mockRfq: 'RFQ 초안 생성됨',
     aiSignalNote: 'AI 신호 · 검증된 인증 아님',
-    supplier1: { name: '上海机械制造有限公司', platform: '1688.com', score: 87, moq: 'MOQ 500개 · ¥12.8/개', lead: '납기 7일 · HS 8481.80' },
-    supplier2: { name: 'Hangzhou Trade Co., Ltd', platform: 'Alibaba', score: 74, moq: 'MOQ 200개 · ¥15.2/개', lead: '납기 14일 · 한국 수출 ✓' },
+    supplier1: { name: '공급사 A (샘플 데이터)', platform: '1688.com', score: 87, moq: 'MOQ 500개 · ¥12.8/개', lead: '납기 7일 · HS 8481.80' },
+    supplier2: { name: '공급사 B (샘플 데이터)', platform: 'Alibaba', score: 74, moq: 'MOQ 200개 · ¥15.2/개', lead: '납기 14일 · 한국 수출 ✓' },
   },
   en: {
     badge: 'K-Beauty · K-Food · K-Fashion · Global Sourcing AI',
@@ -48,8 +48,8 @@ const copy = {
     mockDone: 'Analysis complete · 54s',
     mockRfq: 'RFQ draft ready',
     aiSignalNote: 'AI signal · not a verified certification',
-    supplier1: { name: 'Seoulchem Cosmetics Co., Ltd', platform: 'BuyKorea', score: 91, moq: 'MOQ 1,000 pcs · $8.50/pc', lead: 'Lead time: 21 days · MFDS signal' },
-    supplier2: { name: 'Incheon Beauty Factory Inc.', platform: 'EC21', score: 83, moq: 'MOQ 500 pcs · $11.20/pc', lead: 'Lead time: 28 days · Export history' },
+    supplier1: { name: 'Supplier A (sample data)', platform: 'BuyKorea', score: 91, moq: 'MOQ 1,000 pcs · $8.50/pc', lead: 'Lead time: 21 days · MFDS signal' },
+    supplier2: { name: 'Supplier B (sample data)', platform: 'EC21', score: 83, moq: 'MOQ 500 pcs · $11.20/pc', lead: 'Lead time: 28 days · Export history' },
   },
 };
 
@@ -78,7 +78,7 @@ function MockPreviewPanel({ c }: { c: typeof copy.ko }) {
         <span className="w-2.5 h-2.5 rounded-full bg-red-500/70" />
         <span className="w-2.5 h-2.5 rounded-full bg-yellow-500/70" />
         <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/70" />
-        <span className="ml-2 text-[11px] font-bold text-slate-400">GloSource AI — Analysis</span>
+        <span className="ml-2 text-[11px] font-bold text-slate-400">GloSource AI — Sample Preview</span>
         <span className="ml-auto flex items-center gap-1 text-[10px] text-emerald-400 font-semibold">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
           live

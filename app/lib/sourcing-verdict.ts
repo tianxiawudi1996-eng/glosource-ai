@@ -1,6 +1,6 @@
 import type { Supplier } from '../api/source/types';
 
-export type Verdict = '샘플 요청' | '조건부 검토' | 'RFQ 먼저' | '보류';
+export type Verdict = '검토 추천' | '조건부 검토' | 'RFQ 먼저' | '보류';
 
 export interface PilotCost {
   sampleQty: number;
@@ -41,8 +41,8 @@ export function getVerdict(supplier: Supplier): Verdict {
     return 'RFQ 먼저';
   }
 
-  // 웹 확인 기준: 신뢰도 78+ AND 레드플래그 없어야 샘플 요청
-  if (trustScore >= 78 && redFlags.length === 0) return '샘플 요청';
+  // 웹 확인 기준: 신뢰도 78+ AND 레드플래그 없어야 검토 추천
+  if (trustScore >= 78 && redFlags.length === 0) return '검토 추천';
   if (trustScore >= 65) return '조건부 검토';
   return 'RFQ 먼저';
 }
@@ -54,7 +54,7 @@ export function getVerdictStyle(verdict: Verdict): {
   dot: string;
 } {
   switch (verdict) {
-    case '샘플 요청':
+    case '검토 추천':
       return { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200', dot: 'bg-emerald-500' };
     case '조건부 검토':
       return { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200', dot: 'bg-blue-500' };

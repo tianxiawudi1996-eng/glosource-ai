@@ -70,7 +70,7 @@ export default function TermsPage() {
             <h2 className="text-lg font-bold text-white mb-3">3. Subscription and Payment Terms</h2>
             <h3 id="section-3-1" className="font-semibold text-white mb-2 scroll-mt-24">3.1 Plans</h3>
             <p className="mb-3">
-              Subscriptions are billed monthly in the currency listed at checkout. Korean plans are priced in KRW; international (English) plans are priced in USD. Both plan tiers provide equivalent AI model quality and sourcing output — pricing differences reflect regional market conditions only.
+              Subscriptions are billed monthly in the currency listed at checkout. Korean plans are priced in KRW; international (English) plans are priced in USD. Both plan tiers use the same underlying AI engine (Google Gemini with Search Grounding); pricing differences reflect the number of monthly searches included per plan and regional market conditions.
               Access is activated immediately upon payment confirmation.
             </p>
             <h3 className="font-semibold text-white mb-2">3.2 Free Tier</h3>
@@ -174,9 +174,25 @@ export default function TermsPage() {
             </p>
           </section>
 
-          {/* 9 */}
+          {/* 9 — Business Information (전자상거래법 §10) */}
           <section>
-            <h2 className="text-lg font-bold text-white mb-3">9. Contact</h2>
+            <h2 className="text-lg font-bold text-white mb-3">9. Business Information (사업자 정보)</h2>
+            <div className="bg-white/5 border border-white/10 rounded-xl p-5 space-y-1.5 text-slate-300 text-sm">
+              <p><strong className="text-white">서비스 운영자 / Operator:</strong> Vision Kim (김무빈)</p>
+              <p><strong className="text-white">연락처 / Contact:</strong>{' '}
+                <a href="mailto:like2buyglobal@gmail.com" className="underline text-[#EA580C] hover:text-orange-400">like2buyglobal@gmail.com</a>
+              </p>
+              <p><strong className="text-white">서비스명 / Service:</strong> GloSource AI</p>
+              <p className="text-xs text-slate-400 pt-1">
+                통신판매업 신고 진행 중 · 신고번호 취득 후 업데이트 예정<br />
+                Mail-order business registration in progress — registration number will be updated upon issuance.
+              </p>
+            </div>
+          </section>
+
+          {/* Contact (renumbered) */}
+          <section>
+            <h2 className="text-lg font-bold text-white mb-3">10. Contact</h2>
             <p>
               Questions about these Terms?{' '}
               <a href="mailto:like2buyglobal@gmail.com" className="underline text-[#EA580C] hover:text-orange-400">
@@ -194,7 +210,9 @@ export default function TermsPage() {
               <p><strong className="text-white">요금제:</strong> 한국어 플랜(KRW)과 영어 글로벌 플랜(USD)의 가격은 다르지만, AI 모델 품질과 소싱 결과는 동일합니다. 가격 차이는 지역 시장 상황을 반영한 것입니다.</p>
               <p><strong className="text-white">환불 정책:</strong> 첫 결제 후 48시간 이내 + 3회 미만 사용 시 전액 환불. 이후 환불은 서비스 장애가 72시간 이상 지속된 경우에만 가능합니다.</p>
               <p><strong className="text-white">청약철회권:</strong> 구독 결제 시 즉시 디지털 서비스가 제공되므로, 최초 검색 사용 후에는 전자상거래법 제17조에 따른 청약철회권이 제한됩니다. 결제 시 별도 동의를 받습니다.</p>
+              <p><strong className="text-white">요금제:</strong> 한국어 플랜과 영어 플랜은 동일한 AI 엔진을 사용하며, 가격 차이는 포함된 월간 검색 횟수와 지역 시장 여건을 반영합니다.</p>
               <p><strong className="text-white">준거법:</strong> 대한민국 법률 적용, 관할 법원은 서울중앙지방법원.</p>
+              <p><strong className="text-white">사업자 정보:</strong> 통신판매업 신고 진행 중. 운영자: 김무빈, 연락처: like2buyglobal@gmail.com</p>
               <p><strong className="text-white">문의:</strong> like2buyglobal@gmail.com</p>
             </div>
           </section>

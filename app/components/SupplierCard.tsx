@@ -191,7 +191,10 @@ export function SupplierRow({ supplier: s, isSelected, onClick }: SupplierRowPro
           </div>
         </div>
         <div className="w-full flex-shrink-0 text-left sm:w-auto sm:text-right">
-          <TrustScoreGauge score={s.trustScore} size="sm" />
+          <TrustScoreGauge score={s.trustScore} size="sm" muted={s.verificationStatus === 'ai_estimated' && !s.url} />
+          {s.verificationStatus === 'ai_estimated' && !s.url && (
+            <p className="text-[10px] text-amber-500 mt-0.5">AI 추정 · 웹 미확인</p>
+          )}
           <p className="text-xs text-slate-400 mt-1">{s.estimatedPrice}</p>
         </div>
       </div>
@@ -245,14 +248,15 @@ export function SupplierDetail({ supplier: s }: SupplierDetailProps) {
       {/* 파일럿 예산 위젯 */}
       {pilot ? (
         <div className="mb-3 rounded-xl border border-[#EA580C]/20 bg-orange-50/50 p-3">
-          <p className="text-xs font-black text-[#EA580C] mb-2">1차 파일럿 예산 추정</p>
+          <p className="text-xs font-black text-[#EA580C] mb-0.5">1차 파일럿 예산 참고</p>
+          <p className="text-[10px] text-slate-400 mb-2">AI 자동 산출 · 공급자 직접 견적 후 반드시 재확인</p>
           <div className="space-y-1">
             <div className="flex justify-between text-xs">
               <span className="text-slate-500">샘플 수량</span>
               <span className="font-bold text-[#0D1B2A]">{pilot.sampleQty}개</span>
             </div>
             <div className="flex justify-between text-xs">
-              <span className="text-slate-500">제품비</span>
+              <span className="text-slate-500">제품비 (AI 추정)</span>
               <span className="font-bold text-[#0D1B2A]">{pilot.currency} {pilot.productCost.toLocaleString()}</span>
             </div>
             <div className="flex justify-between text-xs">
@@ -264,11 +268,11 @@ export function SupplierDetail({ supplier: s }: SupplierDetailProps) {
               <span className="font-bold text-[#0D1B2A]">{pilot.currency} {pilot.inspectionBuffer.toLocaleString()}</span>
             </div>
             <div className="flex justify-between text-xs pt-1.5 mt-1 border-t border-orange-200">
-              <span className="font-black text-[#0D1B2A]">예상 총 비용</span>
+              <span className="font-black text-[#0D1B2A]">AI 추정 총액</span>
               <span className="font-black text-[#EA580C] text-sm">{pilot.currency} {pilot.total.toLocaleString()}</span>
             </div>
           </div>
-          <p className="text-[10px] text-slate-400 mt-2">* 실제 비용은 환율·운임·세관에 따라 달라질 수 있습니다</p>
+          <p className="text-[10px] text-amber-600 mt-2 font-medium">⚠ 투자 권유가 아닙니다. 환율·운임·세관·실제 단가는 공급자 견적에서만 확인 가능합니다.</p>
         </div>
       ) : (
         <div className="mb-3 rounded-xl border border-slate-200 bg-slate-50 p-3">

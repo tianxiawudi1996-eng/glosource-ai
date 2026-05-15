@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getCategoryByCode } from '../../lib/categories';
 import type { Category } from '../../lib/categories';
 import type { SourcingRequest, SourcingOutput, Supplier } from './types';
-import { kvSaveHistory, extractTrustedIp } from '../../lib/kv';
+import { kvConsumeFreeCredit, kvSaveHistory, extractTrustedIp } from '../../lib/kv';
 import { checkAuthAndQuota, logUsage } from '../../lib/authMiddleware';
 
 export const maxDuration = 120;
@@ -483,11 +483,15 @@ export async function POST(request: NextRequest) {
     const body = (await request.json()) as SourcingRequest;
     const { productDescription, quantity } = body;
 
+    const lang: 'ko' | 'en' = body.outputLanguage === 'en' ? 'en' : 'ko';
+
     if (!productDescription?.trim()) {
-      return NextResponse.json({ error: '제품/자재명을 입력해주세요.' }, { status: 400 });
+      const message = lang === 'en' ? 'Please enter a product description.' : '제품/자재명을 입력해주세요.';
+      return NextResponse.json({ error: message }, { status: 400 });
     }
     if (!quantity?.trim()) {
-      return NextResponse.json({ error: '필요 수량을 입력해주세요.' }, { status: 400 });
+      const message = lang === 'en' ? 'Please enter the required quantity.' : '필요 수량을 입력해주세요.';
+      return NextResponse.json({ error: message }, { status: 400 });
     }
 
     const authResult = await checkAuthAndQuota(request, 'source');
@@ -509,9 +513,12 @@ export async function POST(request: NextRequest) {
     };
 
     if (req.countryPreference === 'both' || req.countryPreference === 'any') {
+      const message = lang === 'en'
+        ? 'Combined sourcing is not available in one request yet. Please choose Korea or China.'
+        : '한 번의 요청에서 복수 원산지 소싱은 아직 지원하지 않습니다. 중국 또는 한국을 선택해주세요.';
       return NextResponse.json({
         error: 'unsupported_country_preference',
-        message: 'Combined or origin-agnostic sourcing is not available in one request yet. Please choose Korea or China.',
+        message,
       }, { status: 400 });
     }
 
@@ -573,8 +580,8 @@ export async function POST(request: NextRequest) {
       const lastMsg = lastError?.message ?? '';
       const isRateLimit = lastMsg.includes('429') || lastMsg.includes('Too Many');
       const friendlyMsg = isRateLimit
-        ? 'AI가 잠시 바쁩니다. 30초 후 다시 시도해주세요.'
-        : '모든 AI 모델이 응답하지 않습니다. 잠시 후 다시 시도해주세요.';
+        ? (lang === 'en' ? 'AI is temporarily busy. Please try again in 30 seconds.' : 'AI가 잠시 바쁩니다. 30초 후 다시 시도해주세요.')
+        : (lang === 'en' ? 'All AI models are unavailable. Please try again shortly.' : '모든 AI 모델이 응답하지 않습니다. 잠시 후 다시 시도해주세요.');
       throw new Error(friendlyMsg);
     }
 
@@ -593,11 +600,17 @@ export async function POST(request: NextRequest) {
       parsed = JSON.parse(jsonText) as Omit<SourcingOutput, 'groundingUsed'>;
     } catch {
       console.error('[GloSource] JSON parse failed:', jsonText.slice(0, 200));
-      return NextResponse.json({ error: 'AI 응답을 파싱하는 데 실패했습니다. 다시 시도해주세요.' }, { status: 500 });
+      const message = lang === 'en'
+        ? 'Failed to parse the AI response. Please try again.'
+        : 'AI 응답을 파싱하는 데 실패했습니다. 다시 시도해주세요.';
+      return NextResponse.json({ error: message }, { status: 500 });
     }
 
     if (!parsed.suppliers || parsed.suppliers.length === 0) {
-      return NextResponse.json({ error: '공급자를 찾지 못했습니다. 제품 설명을 더 구체적으로 입력해주세요.' }, { status: 500 });
+      const message = lang === 'en'
+        ? 'No suppliers were found. Please make the product description more specific.'
+        : '공급자를 찾지 못했습니다. 제품 설명을 더 구체적으로 입력해주세요.';
+      return NextResponse.json({ error: message }, { status: 500 });
     }
 
     const output = normalizeSourcingOutput(parsed, groundingUsed);
@@ -612,7 +625,11 @@ export async function POST(request: NextRequest) {
       raw: output,
     }).catch(() => {});
 
-    logUsage(userId, ip, 'source', req.productDescription, output.suppliers?.length, Date.now() - start).catch(() => {});
+    // Only charge quota when grounding was actually used — ai_estimated-only results don't consume a credit
+    if (output.groundingUsed) {
+      logUsage(userId, ip, 'source', req.productDescription, output.suppliers?.length, Date.now() - start).catch(() => {});
+      if (!userId) kvConsumeFreeCredit(ip).catch(() => {});
+    };
 
     return NextResponse.json({ success: true, data: output });
   } catch (error) {
