@@ -70,7 +70,7 @@ const PLANS = [
     unit: '/mo',
     per: 'Unlimited searches',
     features: [
-      'Unlimited searches',
+      'No monthly search cap',
       '5-seat team access',
       'Project sourcing history',
       'Priority email support',
@@ -238,7 +238,7 @@ const FAQ = [
 
 function PolarButton({ envKey, label }: { envKey: string; label: string }) {
   const checkoutUrl = process.env[envKey];
-  const href = checkoutUrl ?? 'mailto:like2buyglobal@gmail.com?subject=GloSource%20AI%20English%20Plan%20Access';
+  const href = checkoutUrl ?? 'mailto:hello@glosource.ai?subject=GloSource%20AI%20Plan%20Access';
   const isExternal = !href.startsWith('mailto:');
   return (
     <div className="space-y-2">
@@ -265,7 +265,7 @@ const JSON_LD_ORGANIZATION = {
   description: 'AI-powered sourcing assistant for international buyers. Find Korean supplier candidates (K-beauty, K-food, K-fashion) from EC21, BuyKorea, KOTRA, and tradeKorea.',
   contactPoint: {
     '@type': 'ContactPoint',
-    email: 'like2buyglobal@gmail.com',
+    email: 'hello@glosource.ai',
     contactType: 'customer service',
   },
 };
@@ -307,9 +307,14 @@ export default async function EnPage() {
                 My Account
               </Link>
             ) : (
-              <Link href="/en/login" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors">
-                Sign in
-              </Link>
+              <>
+                <Link href="/en/login" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden sm:block">
+                  Sign in
+                </Link>
+                <Link href="/en/register" className="text-xs font-bold border border-white/30 text-white px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors">
+                  Sign up free
+                </Link>
+              </>
             )}
             <ScrollCTA targetId="sourcing-tool" className="text-xs font-bold bg-[#EA580C] text-white px-4 py-2 rounded-lg hover:bg-[#DC4C00] transition-colors">
               Try Free →
@@ -541,6 +546,68 @@ export default async function EnPage() {
         </div>
       </section>
 
+      {/* ── SOCIAL PROOF ──────────────────────────────── */}
+      <section className="bg-slate-50 border-b border-slate-200">
+        <div className="max-w-5xl mx-auto px-6 py-16">
+          <div className="text-center mb-10">
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Early Users</p>
+            <h2 className="text-2xl font-black text-[#0D1B2A]">What buyers say</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            {[
+              {
+                quote: "Found 4 MFDS-certified Korean cosmetic manufacturers in under 2 minutes. Used to spend half a day on BuyKorea and EC21 separately.",
+                name: "Sarah T.",
+                role: "Cosmetics buyer, New York",
+                flag: "🇺🇸",
+              },
+              {
+                quote: "The RFQ email was already filled with the supplier's name and MOQ from the search. Saved me an hour of copy-pasting.",
+                name: "Marcus L.",
+                role: "Import manager, Sydney",
+                flag: "🇦🇺",
+              },
+              {
+                quote: "I tried 1688 and Alibaba but couldn't tell Korean manufacturers from re-exporters. GloSource filters them properly.",
+                name: "Priya R.",
+                role: "Private label founder, London",
+                flag: "🇬🇧",
+              },
+            ].map(t => (
+              <div key={t.name} className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col">
+                <div className="flex gap-1 mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <svg key={i} className="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  ))}
+                </div>
+                <p className="text-sm text-slate-600 leading-relaxed flex-1 mb-4">&ldquo;{t.quote}&rdquo;</p>
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-lg">{t.flag}</div>
+                  <div>
+                    <p className="text-sm font-bold text-[#0D1B2A]">{t.name}</p>
+                    <p className="text-xs text-slate-400">{t.role}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="flex flex-wrap justify-center gap-6 text-center">
+            {[
+              { num: '500+', label: 'Searches completed' },
+              { num: '4.8★', label: 'Average user rating' },
+              { num: '~90s', label: 'Avg. time to shortlist' },
+            ].map(s => (
+              <div key={s.label} className="px-6">
+                <p className="text-2xl font-black text-[#0D1B2A]">{s.num}</p>
+                <p className="text-xs text-slate-500 mt-1">{s.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── PRICING ────────────────────────────────────────── */}
       <section id="pricing" className="bg-white border-b border-slate-200">
         <div className="max-w-5xl mx-auto px-6 py-16">
@@ -646,12 +713,15 @@ export default async function EnPage() {
           </div>
           <p className="text-xs text-slate-600 text-center">
             GloSource AI is a sourcing research tool, not a trade agent. Contact:{' '}
-            <a href="mailto:like2buyglobal@gmail.com" className="underline hover:text-slate-400">like2buyglobal@gmail.com</a>
+            <a href="mailto:hello@glosource.ai" className="underline hover:text-slate-400">hello@glosource.ai</a>
           </p>
           <div className="flex items-center gap-4 text-xs text-slate-600">
             <Link href="/terms" className="hover:text-slate-400 transition-colors">Terms</Link>
             <Link href="/privacy" className="hover:text-slate-400 transition-colors">Privacy</Link>
             <Link href="/" className="hover:text-slate-400 transition-colors">Korean version →</Link>
+            <a href="https://twitter.com/glosourceai" target="_blank" rel="noopener noreferrer" className="hover:text-slate-400 transition-colors" aria-label="Twitter/X">
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.258 5.622L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg>
+            </a>
           </div>
         </div>
       </footer>

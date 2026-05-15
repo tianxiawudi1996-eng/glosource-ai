@@ -426,12 +426,18 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
                 </div>
               ))}
             </div>
-            <a href="mailto:like2buyglobal@gmail.com?subject=GloSource%20AI%20English%20Plan%20Access"
-              target="_blank" rel="noopener noreferrer"
-              className="block w-full text-center py-3.5 rounded-xl font-bold text-sm text-white bg-[#EA580C] hover:bg-[#DC4C00] transition-all shadow-lg shadow-orange-900/20">
-              Request access → like2buyglobal@gmail.com
-            </a>
-            <p className="text-[10px] text-slate-400 text-center mt-2">Reply within 1 business day · No Korean entity required</p>
+            <div className="space-y-2">
+              <a href={process.env.NEXT_PUBLIC_POLAR_STARTER_LINK ?? '/en/billing'}
+                target="_blank" rel="noopener noreferrer"
+                className="block w-full text-center py-3.5 rounded-xl font-bold text-sm text-white bg-[#EA580C] hover:bg-[#DC4C00] transition-all shadow-lg shadow-orange-900/20">
+                Get Starter — $9.90/mo →
+              </a>
+              <a href="/en/billing"
+                className="block w-full text-center py-2.5 rounded-xl font-semibold text-sm text-[#0D1B2A] bg-slate-100 hover:bg-slate-200 transition-all">
+                View all plans →
+              </a>
+            </div>
+            <p className="text-[10px] text-slate-400 text-center mt-2">Secure checkout via Polar.sh · Cancel anytime · No Korean entity required</p>
           </div>
         </div>
       )}

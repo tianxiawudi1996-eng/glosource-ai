@@ -70,7 +70,7 @@ const jsonLd = [
     "@type": "Organization",
     name: "GloSource AI",
     url: BASE_URL,
-    email: "like2buyglobal@gmail.com",
+    email: "hello@glosource.ai",
   },
   {
     "@context": "https://schema.org",
