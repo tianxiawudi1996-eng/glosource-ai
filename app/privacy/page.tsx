@@ -131,7 +131,17 @@ export default function PrivacyPage() {
             <h2 className="text-lg font-bold text-white mb-3">5. Cookies and Tracking</h2>
             <p className="mb-3">
               We use session cookies for authentication only. We do <strong className="text-white">not</strong> use
-              advertising cookies, cross-site tracking pixels, or third-party analytics SDKs.
+              advertising cookies, cross-site tracking pixels, or behavioral profiling SDKs.
+            </p>
+            <p className="mb-3">
+              We use <strong className="text-white">Vercel Analytics</strong>, a cookieless, privacy-first analytics
+              service. It collects only aggregate page-view counts and Web Vitals — no cookies, no fingerprinting,
+              no personal identifiers. Query parameters (which could contain search terms) are stripped before any
+              data is sent. See{' '}
+              <a href="https://vercel.com/docs/analytics/privacy-policy" target="_blank" rel="noopener noreferrer"
+                className="text-orange-400 hover:underline">
+                vercel.com/docs/analytics/privacy-policy
+              </a>.
             </p>
           </section>
 

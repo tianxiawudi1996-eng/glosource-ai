@@ -96,7 +96,7 @@ function SupplierCard({ s, rank }: { s: Supplier; rank: number }) {
         </div>
         <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold border flex-shrink-0 ${isVerified ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-slate-100 border-slate-200 text-slate-500'}`}>
           <span className={`w-1.5 h-1.5 rounded-full ${isVerified ? 'bg-emerald-500' : 'bg-slate-400'}`} />
-          {isVerified ? 'Verified source URL' : 'Blocked by quality gate'}
+          {isVerified ? 'URL found via Google Search' : 'AI Estimate — Not Search-Verified'}
         </span>
       </div>
 
@@ -117,14 +117,14 @@ function SupplierCard({ s, rank }: { s: Supplier; rank: number }) {
       {/* Trust */}
       <div>
         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">
-          Trust score <span className="font-normal normal-case text-slate-400">(source signal · not a guarantee)</span>
+          Trust score <span className="font-normal normal-case text-slate-400">(AI-estimated signal · not an audit · not a guarantee)</span>
         </p>
         <TrustBar score={s.trustScore} />
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-2">
-        {[['Price', s.estimatedPrice || 'Inquire'], ['MOQ', s.moq || 'Inquire'], ['Lead time', formatLeadTime(s.leadTimeDays)]].map(([label, val]) => (
+        {[['Est. Price', s.estimatedPrice || 'Inquire'], ['Est. MOQ', s.moq || 'Inquire'], ['Lead time', formatLeadTime(s.leadTimeDays)]].map(([label, val]) => (
           <div key={label} className="bg-slate-50 rounded-lg px-2.5 py-2">
             <p className="text-[10px] text-slate-400 font-medium">{label}</p>
             <p className="text-xs font-bold text-[#0D1B2A] mt-0.5 truncate">{val}</p>
@@ -163,7 +163,7 @@ function SupplierCard({ s, rank }: { s: Supplier; rank: number }) {
       {s.url && isVerified && (
         <a href={s.url} target="_blank" rel="noopener noreferrer"
           className="text-xs text-blue-600 hover:text-blue-800 transition-colors inline-flex items-center gap-1">
-          View supplier page
+          Visit search result URL (not live-verified)
           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
           </svg>
@@ -388,8 +388,11 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
 
           {/* Blurred mock suppliers — visual hint of what Pro unlocks */}
           <div className="px-6 py-4 bg-slate-50 border-b border-slate-100">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-3">Upgrade to unlock your actual results:</p>
-            <div className="space-y-2 select-none pointer-events-none">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-3">Subscribe to unlock your actual search results:</p>
+            <div className="space-y-2 select-none pointer-events-none relative">
+              <div className="absolute inset-0 flex items-center justify-center z-10">
+                <span className="bg-slate-700 text-white text-[10px] font-black px-3 py-1 rounded-full tracking-wide">SAMPLE PREVIEW — NOT YOUR RESULTS</span>
+              </div>
               {[
                 { rank: 1, name: 'Korean Supplier A', score: 88, platform: 'BuyKorea' },
                 { rank: 2, name: 'Korean Supplier B', score: 74, platform: 'EC21' },
@@ -458,7 +461,7 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
               </p>
               <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 border border-blue-200 px-3 py-1 text-[11px] font-bold text-blue-700">
                 <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                Verified source URLs only
+                Google Search-confirmed URLs
               </span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

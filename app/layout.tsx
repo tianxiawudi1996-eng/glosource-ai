@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Providers from "@/app/components/Providers";
-import { Analytics } from "@vercel/analytics/react";
+import { ConsentAnalytics } from "@/app/components/ConsentAnalytics";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -125,7 +125,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
         />
         <Providers>{children}</Providers>
-        <Analytics />
+        <ConsentAnalytics />
       </body>
     </html>
   );

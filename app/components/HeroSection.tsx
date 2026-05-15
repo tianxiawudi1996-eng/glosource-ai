@@ -33,10 +33,10 @@ const copy = {
     badge: 'K-Beauty · K-Food · K-Fashion · Global Sourcing AI',
     h1: 'Source Korean',
     h1sub: 'AI-Ranked Supplier Candidates',
-    desc: 'Find Korean manufacturer candidates via EC21, BuyKorea (KOTRA), tradeKorea, and more. AI-ranked with MFDS / KC / HACCP signals, trust scores, and an English RFQ draft.',
+    desc: 'Skip 5 open tabs and hours of manual research. Get 3–5 Korean manufacturer candidates AI-ranked by trust score and certification signals — with an English RFQ draft ready to send in ~90 seconds.',
     cta1: 'Start Free — 5 Searches →',
     cta2: 'See Pricing',
-    note: 'GloSource AI is a research assistant, not a sourcing agent. We find supplier candidates, score risks, and prepare RFQ drafts — you contact suppliers and negotiate directly.',
+    note: 'Research tool, not a middleman. GloSource AI finds and ranks Korean supplier candidates — you contact them directly, no commission, no intermediary fees.',
     features: ['K-beauty, K-food, K-fashion & more', 'MFDS / KC / HACCP certification signals', 'Auto-generated English RFQ draft', 'Trust score 0–100 per supplier'],
     stats: [
       { num: '3–5', label: 'Korean suppliers per search' },

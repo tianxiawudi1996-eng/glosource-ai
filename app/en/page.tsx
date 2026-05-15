@@ -34,7 +34,7 @@ const PLANS = [
     tag: 'For small buyers',
     price: '$9.90',
     unit: '/mo',
-    per: '30 searches / month',
+    per: '30 searches / month · $0.33 per search',
     features: [
       '3–5 Korean supplier candidates per search',
       'Trust & risk scoring 0–100',
@@ -51,7 +51,7 @@ const PLANS = [
     tag: 'Most popular',
     price: '$29',
     unit: '/mo',
-    per: '60 searches / month',
+    per: '60 searches / month · $0.48 per search',
     features: [
       'All Starter features',
       'HACCP / KS / ISO certification signals',
@@ -90,12 +90,12 @@ const HOW_IT_WORKS = [
   {
     step: '02',
     title: 'AI scans Korean export channels',
-    desc: 'EC21 · BuyKorea (KOTRA) · tradeKorea · direct factory search — all in one search. Every supplier candidate is scored 0–100 for trust signals, certification evidence, and export readiness.',
+    desc: 'Instead of opening EC21 · BuyKorea · tradeKorea in separate tabs, GloSource AI searches all channels via Google Search simultaneously. Every candidate is AI-scored 0–100 for trust signals and certification evidence (AI-estimated, not independently audited).',
   },
   {
     step: '03',
     title: 'Get your shortlist + RFQ draft',
-    desc: '3–5 Korean supplier candidates ranked side-by-side with MFDS/HACCP/KC signals, MOQ, and unit price. One click copies an English RFQ draft for review.',
+    desc: '3–5 Korean supplier candidates ranked side-by-side with MFDS/HACCP/KC signals, estimated MOQ, and unit price. Unlike a generic ChatGPT template, the RFQ draft is pre-filled with the specific supplier name, platform, and detected certification signals from your search.',
   },
 ];
 
@@ -207,6 +207,10 @@ const FAQ = [
     a: 'K-beauty (skincare, cosmetics, OEM), K-food (instant noodles, snacks, sauces, beverages), K-fashion (clothing, accessories, streetwear), electronics (components, wearables), supplements, industrial parts, and more. If it is manufactured in Korea and sold globally, GloSource AI can usually build a supplier shortlist for it.',
   },
   {
+    q: 'Why not just search Alibaba for Korean suppliers?',
+    a: 'Alibaba includes Korean traders, re-exporters, and resellers mixed together with manufacturers — it\'s hard to tell them apart. GloSource specifically filters for Korean manufacturers with MFDS/HACCP/KC certification signals, which Alibaba does not surface. You also get an English RFQ pre-filled with supplier-specific details, saving hours of manual cross-referencing across BuyKorea, EC21, and tradeKorea.',
+  },
+  {
     q: 'How is BuyKorea (KOTRA) different from Alibaba?',
     a: 'BuyKorea is operated by KOTRA, a Korean government agency. It focuses on registered, export-oriented Korean companies, giving buyers more structured company information than a fully open marketplace. For Korean products specifically, KOTRA-listed suppliers can be a stronger starting point for due diligence.',
   },
@@ -237,14 +241,19 @@ function PolarButton({ envKey, label }: { envKey: string; label: string }) {
   const href = checkoutUrl ?? 'mailto:like2buyglobal@gmail.com?subject=GloSource%20AI%20English%20Plan%20Access';
   const isExternal = !href.startsWith('mailto:');
   return (
-    <a
-      href={href}
-      target={isExternal ? '_blank' : undefined}
-      rel={isExternal ? 'noopener noreferrer' : undefined}
-      className="block w-full text-center py-3 rounded-xl font-semibold text-sm transition-all bg-[#EA580C] text-white hover:bg-[#DC4C00] shadow-lg shadow-orange-900/20"
-    >
-      {label}
-    </a>
+    <div className="space-y-2">
+      <p className="text-[10px] text-slate-500 text-center leading-relaxed">
+        By subscribing, you request immediate service access and acknowledge that your 14-day right of withdrawal (EU Consumer Rights Directive Art. 16(m)) ends upon your first search.
+      </p>
+      <a
+        href={href}
+        target={isExternal ? '_blank' : undefined}
+        rel={isExternal ? 'noopener noreferrer' : undefined}
+        className="block w-full text-center py-3 rounded-xl font-semibold text-sm transition-all bg-[#EA580C] text-white hover:bg-[#DC4C00] shadow-lg shadow-orange-900/20"
+      >
+        {label}
+      </a>
+    </div>
   );
 }
 
@@ -316,7 +325,7 @@ export default async function EnPage() {
       <section className="bg-white border-y border-slate-100">
         <div className="max-w-6xl mx-auto px-6 py-5">
           <div className="flex flex-col sm:flex-row items-center gap-4">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap shrink-0">Sourced from</p>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap shrink-0">AI searches via Google</p>
             <div className="flex flex-wrap justify-center sm:justify-start gap-2">
               {[
                 { name: 'EC21.com', note: 'Korea B2B' },
@@ -539,11 +548,11 @@ export default async function EnPage() {
             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Pricing</p>
             <h2 className="text-2xl font-black text-[#0D1B2A] mb-3">Simple, transparent pricing</h2>
             <p className="text-sm text-slate-500 max-w-xl mx-auto">
-              1 search = 3–5 Korean supplier candidates + trust scoring + certification evidence + English RFQ draft. During beta, plan activation is handled manually by email.
+              1 search = 3–5 Korean supplier candidates + AI trust signals + certification evidence + English RFQ draft.
             </p>
             <p className="mt-2 text-xs text-slate-400">For international buyers · Priced in USD · Korean-market plans available at <Link href="/" className="underline text-[#0D1B2A] hover:text-slate-700">glosource-ai.vercel.app</Link></p>
-            <div className="mt-4 inline-flex items-center gap-2 border border-amber-200 bg-amber-50 rounded-full px-4 py-2 text-xs font-semibold text-amber-700">
-              Online subscription activation is launching soon — email us for early access
+            <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-500 max-w-lg mx-auto text-left">
+              <strong className="text-slate-700">Research tool disclaimer:</strong> GloSource AI provides AI-generated supplier research only. We do not verify suppliers, guarantee product quality, or handle transactions. Trust scores are AI-estimated signals — always conduct independent due diligence before signing any contract.
             </div>
           </div>
 
@@ -579,13 +588,13 @@ export default async function EnPage() {
                     </li>
                   ))}
                 </ul>
-                <PolarButton envKey={plan.envKey} label="Request Early Access" />
+                <PolarButton envKey={plan.envKey} label={`Get ${plan.name} →`} />
               </div>
             ))}
           </div>
 
           <p className="mt-6 text-center text-xs text-slate-400">
-            Plan activation is currently handled manually during beta · Contact us for team access
+            Secure checkout via Polar.sh · Cancel anytime · No Korean entity required
           </p>
         </div>
       </section>

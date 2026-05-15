@@ -70,7 +70,7 @@ export default function TermsPage() {
             <h2 className="text-lg font-bold text-white mb-3">3. Subscription and Payment Terms</h2>
             <h3 id="section-3-1" className="font-semibold text-white mb-2 scroll-mt-24">3.1 Plans</h3>
             <p className="mb-3">
-              Subscriptions are billed monthly in the currency listed at checkout. Korean plans are priced in KRW; international (English) plans are priced in USD. Both plan tiers use the same underlying AI engine (Google Gemini with Search Grounding); pricing differences reflect the number of monthly searches included per plan and regional market conditions.
+              Subscriptions are billed monthly in the currency listed at checkout. Korean plans are priced in KRW; international (English) plans are priced in USD. All plan tiers use the same underlying AI model (Google Gemini); pricing differences reflect the number of monthly searches included per plan and regional market conditions. Higher-tier plans also include sourcing history and additional export features.
               Access is activated immediately upon payment confirmation.
             </p>
             <h3 className="font-semibold text-white mb-2">3.2 Free Tier</h3>
