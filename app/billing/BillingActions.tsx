@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 type UpgradeButtonProps = {
   planId: string;
@@ -86,6 +87,26 @@ export function UpgradeButton({ planId, planName, isCurrent }: UpgradeButtonProp
 
 export function CancelSubscriptionButton() {
   const [isOpen, setIsOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  const cancelSubscription = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/billing/cancel', { method: 'POST' });
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({})) as { error?: string };
+        alert(json.error ?? '구독 취소 처리에 실패했습니다.');
+        return;
+      }
+      setIsOpen(false);
+      router.refresh();
+    } catch {
+      alert('구독 취소 처리 중 오류가 발생했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
@@ -114,10 +135,11 @@ export function CancelSubscriptionButton() {
               </button>
               <button
                 type="button"
-                onClick={() => setIsOpen(false)}
+                onClick={cancelSubscription}
+                disabled={loading}
                 className="rounded-xl bg-red-600 px-4 py-3 text-sm font-black text-white hover:bg-red-700"
               >
-                취소 확인
+                {loading ? '처리 중...' : '취소 확인'}
               </button>
             </div>
           </section>

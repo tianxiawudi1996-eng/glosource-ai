@@ -23,11 +23,6 @@ const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
 export async function POST(request: NextRequest) {
   const start = Date.now();
   try {
-    const authResult = await checkAuthAndQuota(request, 'image_analyze');
-    if (!authResult.ok) return authResult.response;
-    const { userId } = authResult;
-    const ip = extractTrustedIp(request.headers);
-
     const formData = await request.formData();
     const file = formData.get('image') as File | null;
 
@@ -40,6 +35,11 @@ export async function POST(request: NextRequest) {
     if (file.size > MAX_SIZE_BYTES) {
       return NextResponse.json({ error: '이미지 크기는 10MB 이하여야 합니다.' }, { status: 400 });
     }
+
+    const authResult = await checkAuthAndQuota(request, 'image_analyze');
+    if (!authResult.ok) return authResult.response;
+    const { userId } = authResult;
+    const ip = extractTrustedIp(request.headers);
 
     const bytes = await file.arrayBuffer();
     const base64 = Buffer.from(bytes).toString('base64');

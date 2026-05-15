@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { db, usageLogs, PLAN_LIMITS } from '@/app/lib/db';
-import { eq, and, gte, sql } from 'drizzle-orm';
+import { eq, and, gte, sql, inArray } from 'drizzle-orm';
 import { extractTrustedIp } from './kv';
 
 export type AuthResult =
@@ -9,6 +9,7 @@ export type AuthResult =
   | { ok: false; response: NextResponse };
 
 export type ActionType = 'source' | 'factory_direct' | 'wechat' | 'image_analyze';
+const BILLABLE_ACTIONS: ActionType[] = ['source', 'factory_direct', 'wechat'];
 
 function detectLang(request: NextRequest): 'en' | 'ko' {
   const url = request.nextUrl?.pathname ?? request.url ?? '';
@@ -21,7 +22,6 @@ export async function checkAuthAndQuota(
   request: NextRequest,
   action: ActionType,
 ): Promise<AuthResult> {
-  void action;
   const lang = detectLang(request);
 
   // Internal API key bypass (for admin automation / testing)
@@ -58,7 +58,7 @@ export async function checkAuthAndQuota(
       return { ok: true, userId, plan };
     }
 
-    if (plan !== 'enterprise') {
+    if (plan !== 'enterprise' && BILLABLE_ACTIONS.includes(action)) {
       const startOfMonth = new Date();
       startOfMonth.setDate(1);
       startOfMonth.setHours(0, 0, 0, 0);
@@ -70,6 +70,7 @@ export async function checkAuthAndQuota(
           and(
             eq(usageLogs.userId, userId),
             gte(usageLogs.createdAt, startOfMonth),
+            inArray(usageLogs.action, BILLABLE_ACTIONS),
           ),
         );
 

@@ -20,7 +20,7 @@ const REGION_BUTTONS: { value: SourceRegion; label: string; sub: string }[] = [
 
 const KOREA_LOADING_STEPS = [
   'Searching Korean export channels...',
-  'Querying AI knowledge base...',
+  'Checking verified source channels...',
   'Evaluating certification signals...',
   'Ranking by trust score...',
   'Generating English RFQ draft...',
@@ -96,14 +96,14 @@ function SupplierCard({ s, rank }: { s: Supplier; rank: number }) {
         </div>
         <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold border flex-shrink-0 ${isVerified ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-slate-100 border-slate-200 text-slate-500'}`}>
           <span className={`w-1.5 h-1.5 rounded-full ${isVerified ? 'bg-emerald-500' : 'bg-slate-400'}`} />
-          {isVerified ? 'AI search evidence' : 'AI estimate only'}
+          {isVerified ? 'Verified source URL' : 'Blocked by quality gate'}
         </span>
       </div>
 
       {/* Cert badges */}
       {certs.length > 0 && (
         <div>
-          <p className="text-[9px] font-bold text-amber-600 uppercase tracking-wide mb-1">AI-detected signals — verify independently</p>
+          <p className="text-[9px] font-bold text-amber-600 uppercase tracking-wide mb-1">Detected source signals — verify independently</p>
           <div className="flex flex-wrap gap-1">
             {certs.map(c => (
               <span key={c.label} className={`text-[10px] font-bold border rounded-full px-1.5 py-0.5 ${c.cls}`}>
@@ -117,7 +117,7 @@ function SupplierCard({ s, rank }: { s: Supplier; rank: number }) {
       {/* Trust */}
       <div>
         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">
-          Trust score <span className="font-normal normal-case text-slate-400">(AI signal · not a guarantee)</span>
+          Trust score <span className="font-normal normal-case text-slate-400">(source signal · not a guarantee)</span>
         </p>
         <TrustBar score={s.trustScore} />
       </div>
@@ -159,7 +159,7 @@ function SupplierCard({ s, rank }: { s: Supplier; rank: number }) {
         </div>
       )}
 
-      {/* URL — only show for AI-search-evidence suppliers; AI estimates may have unverified links */}
+      {/* URL — only show for suppliers that passed the server quality gate */}
       {s.url && isVerified && (
         <a href={s.url} target="_blank" rel="noopener noreferrer"
           className="text-xs text-blue-600 hover:text-blue-800 transition-colors inline-flex items-center gap-1">
@@ -443,7 +443,7 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
           <p className="text-xs mt-1.5 text-slate-400">
             {region === 'china'
               ? 'AI searches China supplier channels and prepares an English RFQ draft'
-              : 'AI searches EC21 · BuyKorea (KOTRA) · tradeKorea · direct factories in 60 seconds'}
+              : 'AI searches EC21 · BuyKorea (KOTRA) · tradeKorea · direct factories and returns a ranked shortlist'}
           </p>
         </div>
       )}
@@ -451,37 +451,19 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
       {/* Results */}
       {result && (
         <div className="space-y-6">
-          {/* Grounding warning — shown when AI could not confirm results via live search */}
-          {!result.groundingUsed && (
-            <div className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 flex items-start gap-2.5">
-              <svg className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
-              </svg>
-              <div>
-                <p className="text-xs font-bold text-amber-800">AI knowledge base only — live search not available</p>
-                <p className="text-xs text-amber-700 mt-0.5 leading-relaxed">
-                  These results could not be confirmed via live web search. Supplier names, pricing, and MOQ are AI estimates only.
-                  Independently verify all details before outreach.
-                </p>
-              </div>
-            </div>
-          )}
-
           <div>
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-black text-[#0D1B2A]">
                 {result.suppliers.length} supplier{result.suppliers.length !== 1 ? 's' : ''} found
               </p>
-              {result.groundingUsed && (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 border border-blue-200 px-3 py-1 text-[11px] font-bold text-blue-700">
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                  AI search evidence found
-                </span>
-              )}
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 border border-blue-200 px-3 py-1 text-[11px] font-bold text-blue-700">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                Verified source URLs only
+              </span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {result.suppliers.map((s, i) => (
-                <div key={s.rank} className={!result.groundingUsed ? 'rounded-2xl ring-1 ring-amber-300/60' : ''}>
+                <div key={s.rank}>
                   <SupplierCard s={s} rank={i + 1} />
                 </div>
               ))}

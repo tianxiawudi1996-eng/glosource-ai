@@ -6,6 +6,7 @@ import type { Category } from '../../lib/categories';
 import type { SourcingRequest, SourcingOutput, Supplier } from './types';
 import { kvConsumeFreeCredit, kvSaveHistory, extractTrustedIp } from '../../lib/kv';
 import { checkAuthAndQuota, logUsage } from '../../lib/authMiddleware';
+import { enforceVerifiedSupplierQualityGate, verifiedSupplierUnavailableMessage } from '../../lib/supplier-verification';
 
 export const maxDuration = 120;
 
@@ -613,7 +614,28 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: message }, { status: 500 });
     }
 
-    const output = normalizeSourcingOutput(parsed, groundingUsed);
+    const normalizedOutput = normalizeSourcingOutput(parsed, groundingUsed);
+    const qualityGate = enforceVerifiedSupplierQualityGate(normalizedOutput);
+
+    if (!qualityGate.ok) {
+      kvSaveHistory({
+        id: `${Date.now()}-ai-rejected`,
+        timestamp: new Date().toISOString(),
+        source: 'ai',
+        query: { product: req.productDescription, quantity: req.quantity, budget: req.budget ?? '' },
+        status: 424,
+        supplierCount: 0,
+        raw: qualityGate.output,
+      }).catch(() => {});
+
+      return NextResponse.json({
+        error: 'verified_supplier_unavailable',
+        message: verifiedSupplierUnavailableMessage(lang),
+        qualityGate: qualityGate.output.qualityGate,
+      }, { status: 424 });
+    }
+
+    const output = qualityGate.output;
 
     kvSaveHistory({
       id: `${Date.now()}-ai`,

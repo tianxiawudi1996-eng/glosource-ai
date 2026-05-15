@@ -53,6 +53,12 @@ export interface SourcingOutput {
   };
   disclaimer: string;
   groundingUsed: boolean;
+  qualityGate?: {
+    policy: 'verified_suppliers_only';
+    acceptedCount: number;
+    rejectedCount: number;
+    rejectionReasons: string[];
+  };
 }
 
 export interface WeChatPost {

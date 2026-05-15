@@ -15,10 +15,10 @@ const BASE_URL = "https://glosource-ai.vercel.app";
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
-    default: "GloSource AI | 공급자 후보 60초 매칭",
+    default: "GloSource AI | 공급자 후보 AI 매칭",
     template: "%s | GloSource AI",
   },
-  description: "중국·해외 공급자 후보를 AI로 60초 만에 찾고 RFQ 준비까지. 1688, Baidu 爱采购, Alibaba 동시 비교. 신뢰도 점수·가격·MOQ 한눈에 확인.",
+  description: "중국·해외 공급자 후보를 AI로 찾고 RFQ 준비까지. 1688, Baidu 爱采购, Alibaba 동시 비교. 신뢰도 점수·가격·MOQ 한눈에 확인.",
   keywords: "중국소싱, 해외소싱, 공급자후보, RFQ, 1688소싱, Alibaba소싱, 소싱매칭, AI소싱, 건자재소싱, 중국공급자",
   authors: [{ name: "GloSource AI" }],
   creator: "GloSource AI",
@@ -27,21 +27,21 @@ export const metadata: Metadata = {
     locale: "ko_KR",
     url: BASE_URL,
     siteName: "GloSource AI",
-    title: "GloSource AI | 공급자 후보 60초 매칭",
-    description: "중국·해외 공급자 후보를 AI로 60초 만에 찾고 RFQ 준비까지. 1688, Baidu 爱采购, Alibaba 동시 비교.",
+    title: "GloSource AI | 공급자 후보 AI 매칭",
+    description: "중국·해외 공급자 후보를 AI로 찾고 RFQ 준비까지. 1688, Baidu 爱采购, Alibaba 동시 비교.",
     images: [
       {
         url: "/opengraph-image",
         width: 1200,
         height: 630,
-        alt: "GloSource AI — 공급자 후보 60초 매칭",
+        alt: "GloSource AI — 공급자 후보 AI 매칭",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "GloSource AI | 공급자 후보 60초 매칭",
-    description: "중국·해외 공급자 후보를 AI로 60초 만에 찾고 RFQ 준비까지. 1688, Baidu, Alibaba 동시 비교.",
+    title: "GloSource AI | 공급자 후보 AI 매칭",
+    description: "중국·해외 공급자 후보를 AI로 찾고 RFQ 준비까지. 1688, Baidu, Alibaba 동시 비교.",
     images: ["/opengraph-image"],
   },
   robots: {
@@ -61,7 +61,7 @@ const jsonLd = [
     name: "GloSource AI",
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
-    description: "중국·해외 공급자 후보를 AI로 60초 만에 찾고 RFQ 준비까지 돕는 소싱 매칭 도구.",
+    description: "중국·해외 공급자 후보를 AI로 찾고 RFQ 준비까지 돕는 소싱 매칭 도구.",
     url: BASE_URL,
     offers: { "@type": "Offer", priceCurrency: "KRW", price: "9900" },
   },

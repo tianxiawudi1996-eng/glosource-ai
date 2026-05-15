@@ -3,9 +3,10 @@ import type { EnhancedGenerateContentResponse, Tool } from '@google/generative-a
 import { NextRequest, NextResponse } from 'next/server';
 import { getCategoryByCode } from '../../../lib/categories';
 import type { Category } from '../../../lib/categories';
-import type { SourcingRequest, SourcingOutput } from '../types';
-import { kvSaveHistory, extractTrustedIp } from '../../../lib/kv';
+import type { SourcingRequest, SourcingOutput, Supplier } from '../types';
+import { kvConsumeFreeCredit, kvSaveHistory, extractTrustedIp } from '../../../lib/kv';
 import { checkAuthAndQuota, logUsage } from '../../../lib/authMiddleware';
+import { enforceVerifiedSupplierQualityGate, verifiedSupplierUnavailableMessage } from '../../../lib/supplier-verification';
 
 export const maxDuration = 60;
 
@@ -105,12 +106,17 @@ ${catSection}
       "platform": "1688 | Baidu AiCaigou | 供应商网 | 慧聪网 | 搜了网 | 马可波罗",
       "country": "중국",
       "url": "https://detail.1688.com/...",
+      "verificationStatus": "grounding_confirmed | ai_estimated",
+      "productStage": "raw_material | semi_finished | finished_product",
       "trustScore": 85,
       "trustEvidence": ["诚信通 8년", "실력상가 인증", "재구매율 92%", "거래 리뷰 4,500건"],
       "redFlags": [],
       "productMatch": "공장 직접 제조, OEM 최소 200개",
       "estimatedPrice": "¥38~55/unit ≈ USD 5.3~7.6/unit (Alibaba 대비 약 40% 저렴)",
       "moq": "200개",
+      "leadTimeDays": "15~20일",
+      "hscode": "${categoryContext ? categoryContext.hsCodes[0] : ''}",
+      "exportToKoreaExperience": true,
       "summary": "광동성 소재 10년 이상 운영 공장. 诚信通 인증 보유. 소량 OEM 가능하며 한국 바이어 거래 경험 있음."
     }
   ],
@@ -141,14 +147,48 @@ function extractJSON(text: string): string {
   return clean;
 }
 
+function normalizeFactoryOutput(parsed: Omit<SourcingOutput, 'groundingUsed'>, groundingUsed: boolean): SourcingOutput {
+  const suppliers: Supplier[] = Array.isArray(parsed.suppliers) ? parsed.suppliers.map((supplier, index) => {
+    const productStage = ['raw_material', 'semi_finished', 'finished_product'].includes(supplier.productStage)
+      ? supplier.productStage
+      : 'finished_product';
+
+    return {
+      rank: typeof supplier.rank === 'number' ? supplier.rank : index + 1,
+      name: supplier.name || `Supplier ${index + 1}`,
+      platform: supplier.platform || '1688',
+      country: supplier.country || '중국',
+      url: supplier.url || '',
+      trustScore: typeof supplier.trustScore === 'number' ? Math.max(0, Math.min(100, supplier.trustScore)) : 0,
+      trustEvidence: Array.isArray(supplier.trustEvidence) ? supplier.trustEvidence : [],
+      redFlags: Array.isArray(supplier.redFlags) ? supplier.redFlags : [],
+      productMatch: supplier.productMatch || '',
+      estimatedPrice: supplier.estimatedPrice || '',
+      moq: supplier.moq || '',
+      summary: supplier.summary || '',
+      verificationStatus: supplier.verificationStatus === 'grounding_confirmed' ? 'grounding_confirmed' : 'ai_estimated',
+      productStage,
+      leadTimeDays: supplier.leadTimeDays || '',
+      hscode: supplier.hscode || '',
+      exportToKoreaExperience: Boolean(supplier.exportToKoreaExperience),
+    };
+  }) : [];
+
+  return {
+    suppliers,
+    recommendation: parsed.recommendation || '',
+    rfqEmail: {
+      en: parsed.rfqEmail?.en || '',
+      zh: parsed.rfqEmail?.zh || '',
+    },
+    disclaimer: parsed.disclaimer || '1688.com은 중국 내수용 플랫폼입니다. 국제 배송 및 통관은 포워딩 업체를 통해 진행하시기 바랍니다. 본 분석은 AI 참고용 자료입니다.',
+    groundingUsed,
+  };
+}
+
 export async function POST(request: NextRequest) {
   const start = Date.now();
   try {
-    const authResult = await checkAuthAndQuota(request, 'factory_direct');
-    if (!authResult.ok) return authResult.response;
-    const { userId } = authResult;
-    const ip = extractTrustedIp(request.headers);
-
     const body = (await request.json()) as Pick<SourcingRequest, 'productDescription' | 'quantity' | 'budget' | 'categoryCode'>;
 
     if (!body.productDescription?.trim()) {
@@ -157,6 +197,11 @@ export async function POST(request: NextRequest) {
     if (!body.quantity?.trim()) {
       return NextResponse.json({ error: '필요 수량을 입력해주세요.' }, { status: 400 });
     }
+
+    const authResult = await checkAuthAndQuota(request, 'factory_direct');
+    if (!authResult.ok) return authResult.response;
+    const { userId } = authResult;
+    const ip = extractTrustedIp(request.headers);
 
     const req: SourcingRequest = {
       productDescription: body.productDescription,
@@ -218,7 +263,28 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '1688에서 공급자를 찾지 못했습니다. 제품 설명을 더 구체적으로 입력해주세요.' }, { status: 500 });
     }
 
-    const output = { ...parsed, groundingUsed };
+    const normalizedOutput = normalizeFactoryOutput(parsed, groundingUsed);
+    const qualityGate = enforceVerifiedSupplierQualityGate(normalizedOutput);
+
+    if (!qualityGate.ok) {
+      kvSaveHistory({
+        id: `${Date.now()}-1688-rejected`,
+        timestamp: new Date().toISOString(),
+        source: '1688',
+        query: { product: body.productDescription, quantity: body.quantity, budget: body.budget ?? '' },
+        status: 424,
+        supplierCount: 0,
+        raw: qualityGate.output,
+      }).catch(() => {});
+
+      return NextResponse.json({
+        error: 'verified_supplier_unavailable',
+        message: verifiedSupplierUnavailableMessage('ko'),
+        qualityGate: qualityGate.output.qualityGate,
+      }, { status: 424 });
+    }
+
+    const output = qualityGate.output;
 
     kvSaveHistory({
       id: `${Date.now()}-1688`,
@@ -231,6 +297,7 @@ export async function POST(request: NextRequest) {
     }).catch(() => {});
 
     logUsage(userId, ip, 'factory_direct', body.productDescription, output.suppliers?.length, Date.now() - start).catch(() => {});
+    if (!userId) kvConsumeFreeCredit(ip).catch(() => {});
 
     return NextResponse.json({ success: true, data: output });
   } catch (error) {

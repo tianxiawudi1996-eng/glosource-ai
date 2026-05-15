@@ -2,7 +2,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { load } from 'cheerio';
 import { NextRequest, NextResponse } from 'next/server';
 import type { WeChatPost, WeChatSourcingOutput } from '../types';
-import { kvSaveHistory, extractTrustedIp } from '../../../lib/kv';
+import { kvConsumeFreeCredit, kvSaveHistory, extractTrustedIp } from '../../../lib/kv';
 import { checkAuthAndQuota, logUsage } from '../../../lib/authMiddleware';
 
 export const maxDuration = 60;
@@ -350,16 +350,16 @@ function normalizeWeChatOutput(output: WeChatSourcingOutput): WeChatSourcingOutp
 export async function POST(request: NextRequest) {
   const start = Date.now();
   try {
-    const authResult = await checkAuthAndQuota(request, 'wechat');
-    if (!authResult.ok) return authResult.response;
-    const { userId } = authResult;
-    const ip = extractTrustedIp(request.headers);
-
     const body = (await request.json()) as { keyword: string };
     const keyword = body.keyword?.trim();
     if (!keyword) {
       return NextResponse.json({ error: '검색할 제품/키워드를 입력해주세요.' }, { status: 400 });
     }
+
+    const authResult = await checkAuthAndQuota(request, 'wechat');
+    if (!authResult.ok) return authResult.response;
+    const { userId } = authResult;
+    const ip = extractTrustedIp(request.headers);
 
     // Step 1: Translate keyword to Chinese manufacturing terminology
     const zhKeyword = await translateKeywordToZh(keyword);
@@ -430,6 +430,7 @@ export async function POST(request: NextRequest) {
     }).catch(() => {});
 
     logUsage(userId, ip, 'wechat', keyword, output.posts?.length, Date.now() - start).catch(() => {});
+    if (!userId) kvConsumeFreeCredit(ip).catch(() => {});
 
     return NextResponse.json({ success: true, data: output });
   } catch (error) {

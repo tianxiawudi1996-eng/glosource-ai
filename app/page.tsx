@@ -51,7 +51,7 @@ function saveToHistory(entry: {
 
 const COUNTRY_OPTIONS: { value: CountryPreference; label: string; desc: string }[] = [
   { value: 'china', label: '중국', desc: '1688·Alibaba 직접 탐색' },
-  { value: 'any',   label: '상관없음', desc: '중국 포함 전 세계' },
+  { value: 'korea', label: '한국', desc: 'EC21·BuyKorea·tradeKorea' },
 ];
 
 const FREQUENCY_OPTIONS: { value: OrderFrequency; label: string; desc: string }[] = [
@@ -150,7 +150,7 @@ function generateReportHTML(result: SourcingOutput, req: SourcingRequest, compan
 
   return `<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8">${css}<title>글로벌 소싱 리포트 — ${co}</title></head><body>
     <h1>글로벌 소싱 리포트</h1>
-    <p class="sub">GloSource AI · ${result.groundingUsed ? '<span class="grounding">실시간 웹 검색 기반</span>' : 'AI 지식 기반'}</p>
+    <p class="sub">GloSource AI · <span class="grounding">검증 URL 기반 공급자 후보</span></p>
     <div class="meta">
       <div class="mr"><span class="ml">회사명</span><span>${co}</span></div>
       <div class="mr"><span class="ml">분석일</span><span>${dt}</span></div>
@@ -253,7 +253,7 @@ export default function HomePage() {
         });
         const json = await safeJson(res);
         if (json.error === 'quota_exceeded' || json.error === 'subscription_required') { stopLoading(); setShowPaywall(true); return; }
-        if (!res.ok) throw new Error(json.error || '오류가 발생했습니다.');
+        if (!res.ok) throw new Error(json.message || json.error || '오류가 발생했습니다.');
         setWechatResult(json.data as WeChatSourcingOutput);
         saveToHistory({ timestamp: new Date().toISOString(), source: 'wechat', query: { keyword: form.productDescription }, status: res.status, raw: json });
       } else {
@@ -275,7 +275,7 @@ export default function HomePage() {
       setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
     } catch (e) {
       const message = e instanceof Error ? e.message : '알 수 없는 오류';
-      if (message.includes('찾지 못했습니다')) {
+      if (message.includes('찾지 못했습니다') || message.includes('검증 품질 기준')) {
         setNoResults(true);
         setError('');
       } else {
@@ -335,9 +335,9 @@ export default function HomePage() {
     try {
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       const res = await fetch('/api/source', { method: 'POST', headers, body: JSON.stringify(currentForm) });
-      const json = await res.json() as { success?: boolean; data?: SourcingOutput; error?: string };
+      const json = await res.json() as { success?: boolean; data?: SourcingOutput; error?: string; message?: string };
       if (json.error === 'quota_exceeded' || json.error === 'subscription_required') { stopLoading(); setShowPaywall(true); return; }
-      if (!res.ok) throw new Error(json.error || '오류가 발생했습니다.');
+      if (!res.ok) throw new Error(json.message || json.error || '오류가 발생했습니다.');
       const data = json.data as SourcingOutput;
       setResult(data);
       setSelectedSupplier(data.suppliers[0] ?? null);
@@ -345,7 +345,7 @@ export default function HomePage() {
       setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
     } catch (e) {
       const message = e instanceof Error ? e.message : '알 수 없는 오류';
-      if (message.includes('찾지 못했습니다')) { setNoResults(true); setError(''); }
+      if (message.includes('찾지 못했습니다') || message.includes('검증 품질 기준')) { setNoResults(true); setError(''); }
       else setError(message);
     } finally {
       stopLoading();
@@ -1002,8 +1002,8 @@ export default function HomePage() {
                         </div>
                         <span className="font-bold text-[#0D1B2A] text-sm">소싱 분석 완료</span>
                       </div>
-                      <span className={`text-xs px-2.5 py-1 rounded-full font-medium border ${result.groundingUsed ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-50 text-slate-500 border-slate-200'}`}>
-                        {result.groundingUsed ? '실시간 웹 검색 기반' : 'AI 지식 기반 분석'}
+                      <span className="text-xs px-2.5 py-1 rounded-full font-medium border bg-emerald-50 text-emerald-700 border-emerald-200">
+                        검증 URL 통과 {result.qualityGate ? `${result.qualityGate.acceptedCount}개` : ''}
                       </span>
                       <ExportButton suppliers={result.suppliers} keyword={form.productDescription} />
                       <ShareButton keyword={form.productDescription} supplierCount={result.suppliers.length} />
@@ -1309,7 +1309,7 @@ export default function HomePage() {
               {
                 name: '스타터', tag: '소규모 발주',
                 price: '19만원', unit: '/ 월',
-                per: '분석 20회/월',
+                per: '분석 30회/월',
                 features: ['공급자 탐색 3~5개', 'KS인증 참고 매칭', '예상 원가 비교', 'RFQ 이메일 자동화', 'PDF 리포트 저장'],
                 highlight: false,
               }, {

@@ -26,22 +26,31 @@ function loadCard(): BusinessCard {
 }
 
 function applyCard(template: string, card: BusinessCard): string {
+  const contact = [card.phone, card.wechat].filter(Boolean).join(' / ');
   return template
-    .replace('[YOUR NAME]', card.name || '[YOUR NAME]')
-    .replace('[YOUR TITLE]', card.title || '[YOUR TITLE]')
-    .replace('[YOUR COMPANY]', card.company || '[YOUR COMPANY]')
-    .replace('[YOUR EMAIL]', card.email || '[YOUR EMAIL]')
-    .replace('[YOUR PHONE / WECHAT / WHATSAPP]', [card.phone, card.wechat].filter(Boolean).join(' / ') || '[YOUR PHONE / WECHAT]')
-    .replace('[YOUR WEBSITE]', card.website || '[YOUR WEBSITE]')
-    .replace('[Your Company Name]', card.company || '[Your Company Name]')
-    .replace('[Your Company Name]', card.company || '[Your Company Name]')
-    .replace('[贵公司名称]', card.company || '[贵公司名称]')
-    .replace('[您的公司名称]', card.company || '[您的公司名称]')
-    .replace('[您的姓名]', card.name || '[您的姓名]')
-    .replace('[您的职位]', card.title || '[您的职位]')
-    .replace('[您的电子邮件]', card.email || '[您的电子邮件]')
-    .replace('[您的电话 / 微信 / WhatsApp]', [card.phone, card.wechat].filter(Boolean).join(' / ') || '[您的电话 / 微信]')
-    .replace('[您的网站]', card.website || '[您的网站]');
+    .replaceAll('[YOUR NAME]', card.name || '[YOUR NAME]')
+    .replaceAll('[Your Name]', card.name || '[Your Name]')
+    .replaceAll('[YOUR TITLE]', card.title || '[YOUR TITLE]')
+    .replaceAll('[Your Title]', card.title || '[Your Title]')
+    .replaceAll('[YOUR COMPANY]', card.company || '[YOUR COMPANY]')
+    .replaceAll('[Your Company]', card.company || '[Your Company]')
+    .replaceAll('[Your Company Name]', card.company || '[Your Company Name]')
+    .replaceAll('[YOUR EMAIL]', card.email || '[YOUR EMAIL]')
+    .replaceAll('[Your Email]', card.email || '[Your Email]')
+    .replaceAll('[YOUR PHONE / WECHAT / WHATSAPP]', contact || '[YOUR PHONE / WECHAT]')
+    .replaceAll('[Your Phone]', card.phone || '[Your Phone]')
+    .replaceAll('[YOUR WEBSITE]', card.website || '[YOUR WEBSITE]')
+    .replaceAll('[Your Website]', card.website || '[Your Website]')
+    .replaceAll('[贵公司名称]', card.company || '[贵公司名称]')
+    .replaceAll('[您的公司]', card.company || '[您的公司]')
+    .replaceAll('[您的公司名称]', card.company || '[您的公司名称]')
+    .replaceAll('[您的姓名]', card.name || '[您的姓名]')
+    .replaceAll('[您的职位]', card.title || '[您的职位]')
+    .replaceAll('[您的邮箱]', card.email || '[您的邮箱]')
+    .replaceAll('[您的电子邮件]', card.email || '[您的电子邮件]')
+    .replaceAll('[您的微信/WhatsApp]', contact || '[您的微信/WhatsApp]')
+    .replaceAll('[您的电话 / 微信 / WhatsApp]', contact || '[您的电话 / 微信]')
+    .replaceAll('[您的网站]', card.website || '[您的网站]');
 }
 
 function getLineValue(text: string, labels: string[]): string {

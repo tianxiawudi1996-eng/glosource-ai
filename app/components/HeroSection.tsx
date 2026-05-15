@@ -10,7 +10,7 @@ const copy = {
   ko: {
     badge: 'GloSource AI · 중국 현지 채널까지 탐색',
     h1: 'GloSource AI',
-    h1sub: '공급자 후보 60초 매칭',
+    h1sub: '공급자 후보 AI 매칭',
     desc: '1688 · Baidu 爱采购 · Alibaba · WeChat 후보를 비교하고, 발주 전 공급자 리스크와 RFQ 질문 리스트를 정리합니다.',
     cta1: '무료 5회 체험 시작 →',
     cta2: '요금제 보기',
@@ -18,7 +18,7 @@ const copy = {
     features: ['공장 후보 3~5개 자동 탐색', '사업자·리스크 신뢰도 분석', 'RFQ 이메일 자동 생성', '예상 원가·MOQ 비교 리포트'],
     stats: [
       { num: '3~5개', label: '공급자 자동 탐색' },
-      { num: '60초', label: '평균 분석 소요 시간' },
+      { num: '~90초', label: '평균 분석 소요 시간' },
       { num: '0~100', label: '공급자 리스크 점수' },
       { num: '3단계', label: '검색·검증·RFQ 매칭' },
     ],
@@ -32,7 +32,7 @@ const copy = {
   en: {
     badge: 'K-Beauty · K-Food · K-Fashion · Global Sourcing AI',
     h1: 'Source Korean',
-    h1sub: 'Supplier Candidates in 60s',
+    h1sub: 'AI-Ranked Supplier Candidates',
     desc: 'Find Korean manufacturer candidates via EC21, BuyKorea (KOTRA), tradeKorea, and more. AI-ranked with MFDS / KC / HACCP signals, trust scores, and an English RFQ draft.',
     cta1: 'Start Free — 5 Searches →',
     cta2: 'See Pricing',
@@ -40,7 +40,7 @@ const copy = {
     features: ['K-beauty, K-food, K-fashion & more', 'MFDS / KC / HACCP certification signals', 'Auto-generated English RFQ draft', 'Trust score 0–100 per supplier'],
     stats: [
       { num: '3–5', label: 'Korean suppliers per search' },
-      { num: '60s', label: 'Avg. analysis time' },
+      { num: '~90s', label: 'Avg. analysis time' },
       { num: '0–100', label: 'Supplier trust score' },
       { num: '4 channels', label: 'EC21 · BuyKorea · tradeKorea · more' },
     ],
@@ -240,7 +240,7 @@ export default function HeroSection({ lang = 'ko' }: HeroSectionProps) {
                 />
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent px-5 py-4">
                   <p className="text-white text-xs font-bold tracking-wide">K-beauty · K-food · K-fashion · Electronics</p>
-                  <p className="text-slate-300 text-[10px] mt-0.5">Korean manufacturer candidates, sourced in 60s</p>
+                  <p className="text-slate-300 text-[10px] mt-0.5">Korean manufacturer candidates, AI-ranked for review</p>
                 </div>
               </div>
             ) : (

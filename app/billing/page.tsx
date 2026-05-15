@@ -37,6 +37,7 @@ export default async function BillingPage() {
 
   const subscription = subscriptionRows[0];
   const currentPlan = subscription?.plan ?? session.user.plan;
+  const hasActiveSubscription = subscription?.status === 'active';
 
   const tossReady = Boolean(process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY);
 
@@ -69,7 +70,7 @@ export default async function BillingPage() {
               현재 상태: {subscription?.status ?? 'free'} · 다음 갱신일: {formatDate(subscription?.currentPeriodEnd ?? null)}
             </p>
           </div>
-          <CancelSubscriptionButton />
+          {hasActiveSubscription ? <CancelSubscriptionButton /> : null}
         </header>
 
         <section className="grid gap-4 sm:grid-cols-3">
@@ -93,7 +94,16 @@ export default async function BillingPage() {
                 <p className="text-3xl font-black text-[#0D1B2A]">{plan.price}</p>
                 <p className="mt-2 text-sm font-bold text-slate-500">{plan.usage}</p>
                 <div className="mt-6">
-                  <UpgradeButton planId={plan.id} planName={plan.name} isCurrent={isCurrent} />
+                  {tossReady ? (
+                    <UpgradeButton planId={plan.id} planName={plan.name} isCurrent={isCurrent} />
+                  ) : (
+                    <a
+                      href={`mailto:like2buyglobal@gmail.com?subject=GloSource%20AI%20${plan.name}%20Plan%20Access`}
+                      className="block w-full rounded-xl bg-[#0D1B2A] px-4 py-3 text-center text-sm font-black text-white hover:bg-slate-800"
+                    >
+                      베타 신청하기
+                    </a>
+                  )}
                 </div>
               </article>
             );

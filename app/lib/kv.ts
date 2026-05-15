@@ -26,7 +26,7 @@ const HISTORY_KEY = 'glosource:history';
 const LEADS_KEY = 'glosource:leads';
 const MAX_ENTRIES = 200;
 const MAX_LEADS = 500;
-const FREE_DAILY_LIMIT = 5; // 마케팅 카피 "무료 5회 체험"과 일치. 가입 시 월 10회 제공.
+const FREE_DAILY_LIMIT = 5; // Anonymous successful sourcing searches per day. Signup gets monthly quota.
 
 function getRedis(): Redis | null {
   if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
@@ -89,9 +89,14 @@ export function extractTrustedIp(headers: Headers): string {
   return 'unknown';
 }
 
-// Returns true if the IP is allowed (under free limit), false if blocked.
-// Development can run without Upstash; production must fail closed so the paywall
-// cannot be bypassed when Redis is missing or temporarily unavailable.
+function freeCreditKey(ip: string): string {
+  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  return `glosource:free:${ip}:${today}`;
+}
+
+// Returns true if the IP is still under the anonymous free limit. This does not
+// consume credit; failed validation, model timeouts, and parse failures should
+// not burn a user's trial search.
 export async function kvCheckFreeCredit(ip: string): Promise<boolean> {
   const redis = getRedis();
   if (!redis) {
@@ -102,17 +107,28 @@ export async function kvCheckFreeCredit(ip: string): Promise<boolean> {
     return allowLocalFallback;
   }
 
-  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-  const key = `glosource:free:${ip}:${today}`;
+  try {
+    const count = await redis.get<number>(freeCreditKey(ip));
+    return Number(count ?? 0) < FREE_DAILY_LIMIT;
+  } catch (e) {
+    console.warn('[KV] free credit check failed; blocking anonymous request:', e instanceof Error ? e.message : String(e));
+    return false;
+  }
+}
+
+// Consume credit only after a successful anonymous sourcing result.
+export async function kvConsumeFreeCredit(ip: string): Promise<void> {
+  const redis = getRedis();
+  if (!redis) return;
+
+  const key = freeCreditKey(ip);
   try {
     const count = await redis.incr(key);
     if (count === 1) {
       await redis.expire(key, 86400); // TTL 24h
     }
-    return count <= FREE_DAILY_LIMIT;
   } catch (e) {
-    console.warn('[KV] free credit check failed; blocking anonymous request:', e instanceof Error ? e.message : String(e));
-    return false;
+    console.warn('[KV] free credit consume failed:', e instanceof Error ? e.message : String(e));
   }
 }
 

@@ -39,7 +39,7 @@ export default function UpgradeModal({ onClose }: UpgradeModalProps) {
               className="block w-full rounded-xl bg-[#EA580C] px-4 py-3.5 text-center text-sm font-black text-white hover:bg-orange-600"
               onClick={onClose}
             >
-              로그인하고 5회 무료 시작 →
+              로그인하고 월 10회 무료 시작 →
             </Link>
           )}
 

@@ -59,8 +59,11 @@ export async function POST(request: NextRequest) {
         userId,
         subscriptionId: (data.metadata as Record<string, string>)?.subscriptionId ?? undefined,
       }).onConflictDoUpdate({
-        target: payments.tossPaymentKey,
+        target: payments.tossOrderId,
         set: {
+          tossPaymentKey: paymentKey,
+          amount,
+          method,
           status: status === 'DONE' ? 'done' : 'failed',
           approvedAt: approvedAt ?? undefined,
         },
