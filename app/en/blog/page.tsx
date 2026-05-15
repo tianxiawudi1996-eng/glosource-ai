@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { getAllPosts } from '@/app/lib/blog-posts';
+import { getAllPostsMerged } from '@/app/lib/blog-posts-server';
 
 export const metadata: Metadata = {
   title: 'Korean Supplier Sourcing Blog — GloSource AI',
@@ -8,8 +8,8 @@ export const metadata: Metadata = {
   alternates: { canonical: 'https://glosource-ai.vercel.app/en/blog' },
 };
 
-export default function EnBlogIndex() {
-  const posts = getAllPosts();
+export default async function EnBlogIndex() {
+  const posts = await getAllPostsMerged();
   return (
     <div className="min-h-screen bg-white">
       {/* Nav */}

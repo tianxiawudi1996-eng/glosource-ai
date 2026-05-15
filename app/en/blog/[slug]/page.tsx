@@ -1,7 +1,11 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { getAllPosts, getPost } from '@/app/lib/blog-posts';
+import { getAllPosts } from '@/app/lib/blog-posts';
+import { getPostMerged } from '@/app/lib/blog-posts-server';
+
+// DB posts rendered dynamically on first hit (not pre-generated)
+export const dynamicParams = true;
 
 export async function generateStaticParams() {
   return getAllPosts().map(post => ({ slug: post.slug }));
@@ -9,7 +13,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const post = getPost(slug);
+  const post = await getPostMerged(slug);
   if (!post) return {};
   return {
     title: post.title,
@@ -21,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const post = getPost(slug);
+  const post = await getPostMerged(slug);
   if (!post) notFound();
 
   return (

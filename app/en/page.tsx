@@ -303,6 +303,8 @@ export default async function EnPage() {
             <a href="#why-korea" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden sm:block">Why Korea</a>
             <a href="#pricing" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden sm:block">Pricing</a>
             <Link href="/en/blog" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden sm:block">Blog</Link>
+            <Link href="/en/case-studies" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden md:block">Examples</Link>
+            <Link href="/en/about" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden md:block">About</Link>
             {isLoggedIn ? (
               <Link href="/en/dashboard" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors">
                 My Account
@@ -717,6 +719,9 @@ export default async function EnPage() {
             <a href="mailto:hello@glosource.ai" className="underline hover:text-slate-400">hello@glosource.ai</a>
           </p>
           <div className="flex items-center gap-4 text-xs text-slate-600">
+            <Link href="/en/about" className="hover:text-slate-400 transition-colors">About</Link>
+            <Link href="/en/case-studies" className="hover:text-slate-400 transition-colors">Examples</Link>
+            <Link href="/en/blog" className="hover:text-slate-400 transition-colors">Blog</Link>
             <Link href="/terms" className="hover:text-slate-400 transition-colors">Terms</Link>
             <Link href="/privacy" className="hover:text-slate-400 transition-colors">Privacy</Link>
             <Link href="/" className="hover:text-slate-400 transition-colors">Korean version →</Link>
