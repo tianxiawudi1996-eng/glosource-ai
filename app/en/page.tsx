@@ -6,10 +6,10 @@ import ScrollCTA from './ScrollCTA';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'GloSource AI — Source Korean Suppliers in 60 Seconds',
+  title: 'GloSource AI — Source Korean Suppliers with AI',
   description: 'Find Korean manufacturer candidates for K-beauty, K-food, K-fashion & more. AI-ranked suppliers from EC21 · BuyKorea (KOTRA) · tradeKorea with trust scores and English RFQ drafts. 5 free searches.',
   openGraph: {
-    title: 'GloSource AI — Source Korean Suppliers in 60 Seconds',
+    title: 'GloSource AI — Source Korean Suppliers with AI',
     description: 'Find Korean manufacturer candidates for K-beauty, K-food, K-fashion & more. EC21 · BuyKorea (KOTRA) · tradeKorea channels. AI trust scores + English RFQ.',
     url: 'https://glosource-ai.vercel.app/en',
     siteName: 'GloSource AI',
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'GloSource AI — Source Korean Suppliers in 60 Seconds',
+    title: 'GloSource AI — Source Korean Suppliers with AI',
     description: 'Find Korean manufacturer candidates for K-beauty, K-food, K-fashion & more. 5 free searches.',
   },
   alternates: {
@@ -93,7 +93,7 @@ const HOW_IT_WORKS = [
   },
   {
     step: '03',
-    title: 'Get your shortlist + RFQ in 60s',
+    title: 'Get your shortlist + RFQ draft',
     desc: '3–5 Korean supplier candidates ranked side-by-side with MFDS/HACCP/KC signals, MOQ, and unit price. One click copies an English RFQ draft for review.',
   },
 ];
@@ -222,8 +222,8 @@ const FAQ = [
     a: 'No. We are a research and preparation tool — we surface, compare, score, and prepare RFQ drafts. You contact suppliers and negotiate directly. We do not handle transactions, logistics, or payments on your behalf.',
   },
   {
-    q: 'How do paid plans work during beta?',
-    a: 'Online subscription activation is launching soon. During beta, email us for plan access and team setup. No Korean business registration is required on your end.',
+    q: 'How do I subscribe to a paid plan?',
+    a: 'Click "Get started" on any paid plan. You will be taken to a secure checkout. After payment, an account is automatically created using your payment email and you will receive an email to set your password. No Korean business registration or ID is required.',
   },
   {
     q: 'Does a failed or errored search count against my free quota?',
@@ -232,10 +232,16 @@ const FAQ = [
 ];
 
 function PolarButton({ envKey, label }: { envKey: string; label: string }) {
-  void envKey;
+  const checkoutUrl = process.env[envKey];
+  const href = checkoutUrl ?? 'mailto:like2buyglobal@gmail.com?subject=GloSource%20AI%20English%20Plan%20Access';
+  const isExternal = !href.startsWith('mailto:');
   return (
-    <a href="mailto:like2buyglobal@gmail.com?subject=GloSource%20AI%20English%20Plan%20Access" target="_blank" rel="noopener noreferrer"
-      className="block w-full text-center py-3 rounded-xl font-semibold text-sm transition-all bg-[#EA580C] text-white hover:bg-[#DC4C00] shadow-lg shadow-orange-900/20">
+    <a
+      href={href}
+      target={isExternal ? '_blank' : undefined}
+      rel={isExternal ? 'noopener noreferrer' : undefined}
+      className="block w-full text-center py-3 rounded-xl font-semibold text-sm transition-all bg-[#EA580C] text-white hover:bg-[#DC4C00] shadow-lg shadow-orange-900/20"
+    >
       {label}
     </a>
   );
@@ -246,7 +252,7 @@ const JSON_LD_ORGANIZATION = {
   '@type': 'Organization',
   name: 'GloSource AI',
   url: 'https://glosource-ai.vercel.app/en',
-  description: 'AI-powered sourcing assistant for international buyers. Find Korean supplier candidates (K-beauty, K-food, K-fashion) from EC21, BuyKorea, KOTRA, and tradeKorea in 60 seconds.',
+  description: 'AI-powered sourcing assistant for international buyers. Find Korean supplier candidates (K-beauty, K-food, K-fashion) from EC21, BuyKorea, KOTRA, and tradeKorea.',
   contactPoint: {
     '@type': 'ContactPoint',
     email: 'like2buyglobal@gmail.com',
@@ -347,7 +353,7 @@ export default function EnPage() {
             <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-3">Try it free — 5 searches</p>
             <h2 className="text-2xl font-black text-[#0D1B2A] mb-2">Find your Korean supplier now</h2>
             <p className="text-sm text-slate-500 max-w-lg mx-auto">
-              Select a category below or type your own product. AI scans EC21 · BuyKorea · tradeKorea and direct Korean factory sources, then returns ranked suppliers with certification evidence, MOQ, and an RFQ draft in under 60 seconds.
+              Select a category below or type your own product. AI scans EC21 · BuyKorea · tradeKorea and direct Korean factory sources, then returns ranked suppliers with certification evidence, MOQ, and an RFQ draft.
             </p>
           </div>
           <KSourceWrapper />
@@ -474,7 +480,7 @@ export default function EnPage() {
         <div className="max-w-5xl mx-auto px-6 py-16">
           <div className="mb-10 text-center">
             <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-3">How it works</p>
-            <h2 className="text-2xl font-black text-[#0D1B2A]">From product idea to Korean supplier shortlist in 60 seconds</h2>
+            <h2 className="text-2xl font-black text-[#0D1B2A]">From product idea to a Korean supplier shortlist</h2>
           </div>
           {/* Image D — supplier verification process visual */}
           <div className="relative w-full rounded-2xl overflow-hidden mb-10 shadow-sm border border-slate-100">
@@ -520,7 +526,7 @@ export default function EnPage() {
             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Pricing</p>
             <h2 className="text-2xl font-black text-[#0D1B2A] mb-3">Simple, transparent pricing</h2>
             <p className="text-sm text-slate-500 max-w-xl mx-auto">
-              1 search = 3–5 Korean supplier candidates + trust scoring + certification evidence + English RFQ draft. No contracts, cancel anytime.
+              1 search = 3–5 Korean supplier candidates + trust scoring + certification evidence + English RFQ draft. During beta, plan activation is handled manually by email.
             </p>
             <p className="mt-2 text-xs text-slate-400">For international buyers · Priced in USD · Korean-market plans available at <Link href="/" className="underline text-[#0D1B2A] hover:text-slate-700">glosource-ai.vercel.app</Link></p>
             <div className="mt-4 inline-flex items-center gap-2 border border-amber-200 bg-amber-50 rounded-full px-4 py-2 text-xs font-semibold text-amber-700">
@@ -594,7 +600,7 @@ export default function EnPage() {
         <div className="max-w-3xl mx-auto px-6 py-20 text-center">
           <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-4">Start sourcing today</p>
           <h2 className="text-3xl font-black mb-5 leading-tight">
-            Find your Korean supplier shortlist<br className="hidden sm:block" /> in the next 60 seconds
+            Find your Korean supplier shortlist<br className="hidden sm:block" /> with AI-ranked evidence
           </h2>
           <p className="text-slate-300 text-sm mb-8 leading-relaxed max-w-lg mx-auto">
             5 free searches, no credit card required. Get ranked Korean supplier candidates with MFDS/HACCP/KC certification signals and an English RFQ draft — in under a minute.

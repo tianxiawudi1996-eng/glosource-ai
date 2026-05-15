@@ -8,6 +8,13 @@
       "when": 1777890482113,
       "tag": "0000_loose_gunslinger",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1778842865536,
+      "tag": "0001_tiresome_manta",
+      "breakpoints": true
     }
   ]
 }

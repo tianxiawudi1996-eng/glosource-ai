@@ -47,17 +47,21 @@ export const verificationTokens = pgTable('verification_tokens', {
   expires: timestamp('expires', { mode: 'date' }).notNull(),
 }, (t) => [primaryKey({ columns: [t.identifier, t.token] })]);
 
-// ── 구독 (Toss Payments) ──────────────────────────────────────────────
+// ── 구독 (Toss Payments KO / Polar.sh EN) ────────────────────────────
 
 export const subscriptions = pgTable('subscriptions', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
   plan: text('plan', { enum: ['starter', 'pro', 'enterprise'] }).notNull(),
   status: text('status', { enum: ['active', 'canceled', 'past_due', 'trialing'] }).notNull().default('trialing'),
-  // Toss Payments
+  // Toss Payments (KO)
   tossBillingKey: text('toss_billing_key'),
   tossCustomerKey: text('toss_customer_key'),
   tossOrderId: text('toss_order_id'),
+  // Polar.sh (EN)
+  polarSubscriptionId: text('polar_subscription_id').unique(),
+  polarCustomerId: text('polar_customer_id'),
+  polarProductId: text('polar_product_id'),
   // 구독 기간
   currentPeriodStart: timestamp('current_period_start', { mode: 'date' }),
   currentPeriodEnd: timestamp('current_period_end', { mode: 'date' }),
@@ -91,6 +95,7 @@ export const payments = pgTable('payments', {
   subscriptionId: text('subscription_id').references(() => subscriptions.id),
   tossPaymentKey: text('toss_payment_key').unique(),
   tossOrderId: text('toss_order_id').unique(),
+  polarPaymentId: text('polar_payment_id').unique(),
   amount: integer('amount').notNull(),
   currency: text('currency').default('KRW').notNull(),
   status: text('status', { enum: ['pending', 'done', 'canceled', 'failed'] }).notNull(),
