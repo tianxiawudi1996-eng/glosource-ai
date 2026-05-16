@@ -380,6 +380,310 @@ Best regards,
 <p>GloSource AI searches all three channels simultaneously and returns a shortlist of Korean food manufacturer candidates with HACCP and MFDS signals, estimated MOQ, and a ready-to-use English RFQ — cutting hours of manual research to under 2 minutes.</p>
     `.trim(),
   },
+  {
+    slug: 'k-beauty-wholesale-supplier-guide',
+    title: 'K-Beauty Wholesale Suppliers: The Complete Buyer\'s Guide (2025)',
+    description: 'How to find reliable K-beauty wholesale suppliers for retail, Amazon FBA, and private label — covering platforms, minimum orders, certification requirements, and red flags to avoid.',
+    publishedAt: '2026-05-12',
+    readingTimeMin: 8,
+    category: 'Sourcing Guide',
+    content: `
+<h2>Why K-beauty wholesale is booming</h2>
+<p>Global K-beauty product exports exceeded $9.2 billion in 2023, driven by demand in the US, Southeast Asia, and the Middle East. Wholesale buyers from Amazon FBA sellers to independent boutiques are actively sourcing Korean skincare, makeup, and haircare products. The challenge: most Korean wholesale suppliers primarily communicate in Korean and list on platforms unfamiliar to international buyers.</p>
+
+<h2>The 4 main channels for K-beauty wholesale</h2>
+
+<h3>1. BuyKorea (KOTRA) — most trusted for verified exporters</h3>
+<p>BuyKorea is a government-operated B2B marketplace run by KOTRA (Korea Trade-Investment Promotion Agency). Suppliers listed here have passed basic export eligibility checks. For beauty products, you can filter by HS code 3304 (beauty, make-up, skin care) and 3305 (hair products).</p>
+<p><strong>MOQ on BuyKorea:</strong> Typically 500–3,000 pieces for branded products, lower for unbranded wholesale lots.</p>
+
+<h3>2. EC21 — largest volume, lighter verification</h3>
+<p>EC21 hosts thousands of Korean beauty suppliers. It's the right place when you want a large shortlist to compare. Not all listings are verified, so cross-reference with Korean business registration (사업자등록번호) when possible.</p>
+
+<h3>3. Cosmetics OEM/ODM directories</h3>
+<p>For private label, search specifically for "Korean cosmetics OEM" or "ODM Korea". Korea has ~3,000 licensed cosmetics manufacturers registered with MFDS (Ministry of Food and Drug Safety). Larger OEM clusters are in Incheon, Seongnam (Gyeonggi), and the Cheongju cosmetics industrial complex.</p>
+
+<h3>4. tradeKorea (KITA) — KITA-listed manufacturers</h3>
+<p>tradeKorea is operated by KITA (Korea International Trade Association). Similar supplier quality to BuyKorea but with a slightly different mix, especially strong in cosmetics and food-grade products.</p>
+
+<h2>Key certifications to request from K-beauty wholesale suppliers</h2>
+<table>
+<thead><tr><th>Certification</th><th>What it means</th><th>Required for</th></tr></thead>
+<tbody>
+<tr><td>MFDS registration</td><td>Korean cosmetics manufacturer license</td><td>All serious suppliers</td></tr>
+<tr><td>CGMP / ISO 22716</td><td>Good Manufacturing Practice for cosmetics</td><td>Private label, EU/US import</td></tr>
+<tr><td>Vegan certified</td><td>No animal-derived ingredients</td><td>EU, US wellness market</td></tr>
+<tr><td>HALAL</td><td>Halal-certified ingredients and process</td><td>Middle East, SE Asia</td></tr>
+<tr><td>Cruelty-free / PETA</td><td>No animal testing</td><td>US, EU retail</td></tr>
+</tbody>
+</table>
+
+<h2>Typical K-beauty wholesale pricing</h2>
+<p>Wholesale prices vary significantly by product type, order volume, and supplier tier:</p>
+<ul>
+<li><strong>Sheet masks:</strong> $0.40–$1.20 per piece (FOB Korea) for 3,000+ pcs</li>
+<li><strong>Serums (30ml):</strong> $2.50–$6.00 per unit for 1,000+ pcs</li>
+<li><strong>Cushion compacts:</strong> $4.00–$12.00 per unit depending on formulation</li>
+<li><strong>Sunscreen (50ml):</strong> $1.80–$4.50 per unit for 2,000+ pcs</li>
+</ul>
+<p>Add 8–12% for shipping (FOB Busan or Incheon to US West Coast), and standard import duty is 0% for most cosmetics under the US-Korea FTA (KORUS).</p>
+
+<h2>Red flags when evaluating K-beauty wholesale suppliers</h2>
+<ul>
+<li>❌ No MFDS registration number available</li>
+<li>❌ Cannot provide a Certificate of Analysis (CoA) for products</li>
+<li>❌ Unwilling to share ingredient lists (INCI format)</li>
+<li>❌ No verifiable physical address or business registration</li>
+<li>❌ Pushing you to use Western Union or cryptocurrency for payment</li>
+<li>❌ Sample quality inconsistent with bulk order (common bait-and-switch)</li>
+</ul>
+
+<h2>For Amazon FBA sellers: specific checklist</h2>
+<ol>
+<li>Confirm INCI ingredient listing matches US FDA cosmetics labeling requirements</li>
+<li>Request English-language product labels or confirm supplier can provide</li>
+<li>Check if the supplier ships FBA-ready (individual FNSKU barcodes, poly bags)</li>
+<li>Confirm the product does not contain ingredients banned in the US (e.g., certain whitening agents)</li>
+<li>Verify the product is eligible for Amazon's "Made in Korea" badge</li>
+</ol>
+
+<h2>Faster K-beauty wholesale sourcing with AI</h2>
+<p>GloSource AI searches BuyKorea, EC21, and tradeKorea simultaneously, filters for MFDS and CGMP certification signals, and generates a ready-to-send English RFQ draft — reducing your initial research from 3–4 hours to under 2 minutes. It also generates a Trade Readiness Score so you can immediately see which suppliers have the strongest export documentation signals.</p>
+    `.trim(),
+  },
+  {
+    slug: 'alibaba-alternative-korea',
+    title: 'Best Alibaba Alternatives in Korea: 5 Korean Supplier Platforms vs Alibaba',
+    description: 'Comparing the top Korean B2B supplier platforms to Alibaba — BuyKorea, EC21, tradeKorea, and why Korea-sourced products offer distinct advantages for quality-focused buyers.',
+    publishedAt: '2026-05-10',
+    readingTimeMin: 7,
+    category: 'Sourcing Guide',
+    content: `
+<h2>Why look beyond Alibaba for Korean suppliers?</h2>
+<p>Alibaba dominates global B2B sourcing — but for Korean-manufactured products specifically, the best Korean suppliers often don't list on Alibaba at all. Korea's export infrastructure runs through its own government-backed and industry-backed B2B platforms. Buyers sourcing K-beauty, Korean food products, industrial components, or electronics parts find better verified options through Korea-specific channels.</p>
+<p>This guide compares the top Korean B2B supplier platforms to Alibaba to help you decide where to focus your sourcing effort.</p>
+
+<h2>Platform comparison: Korean alternatives vs Alibaba</h2>
+<table>
+<thead><tr><th>Platform</th><th>Operator</th><th>Verification level</th><th>Best for</th><th>Free for buyers?</th></tr></thead>
+<tbody>
+<tr><td>Alibaba</td><td>Private</td><td>Gold Supplier (paid badge)</td><td>China manufacturing, high volume</td><td>Yes (search)</td></tr>
+<tr><td>BuyKorea</td><td>KOTRA (Korean gov.)</td><td>Export eligibility verified</td><td>Verified Korean exporters</td><td>Yes</td></tr>
+<tr><td>EC21</td><td>Private (Korea)</td><td>Light (self-reported)</td><td>Volume of Korean suppliers</td><td>Yes</td></tr>
+<tr><td>tradeKorea</td><td>KITA</td><td>KITA-vetted exporters</td><td>KITA-listed manufacturers</td><td>Yes</td></tr>
+<tr><td>GloSource AI</td><td>AI aggregator</td><td>AI trust score + Google verification</td><td>Fast research across all platforms</td><td>5 free searches</td></tr>
+</tbody>
+</table>
+
+<h2>1. BuyKorea — the most trusted Korean B2B platform</h2>
+<p>BuyKorea (buykorea.org) is operated by KOTRA, a Korean government agency whose mission is to promote Korean exports. Unlike Alibaba's Gold Supplier badge (which is simply a paid subscription), BuyKorea suppliers have undergone basic export eligibility verification.</p>
+<p><strong>Advantages over Alibaba for Korean products:</strong></p>
+<ul>
+<li>Government-backed supplier verification (not a paid badge)</li>
+<li>Strong in cosmetics (MFDS-registered), food (HACCP), and industrial goods (KS-certified)</li>
+<li>Direct contact with manufacturers (not trading companies)</li>
+</ul>
+<p><strong>Disadvantages:</strong></p>
+<ul>
+<li>Smaller supplier count than Alibaba (Korea-only)</li>
+<li>Dated UI, less intuitive than Alibaba</li>
+<li>Korean-first communication (many suppliers need English email templates to respond)</li>
+</ul>
+
+<h2>2. EC21 — Korea's largest B2B marketplace</h2>
+<p>EC21 is Korea's largest private B2B marketplace with millions of product listings from Korean companies. Think of it as Korea's version of Alibaba — but supplier verification is lighter.</p>
+<p><strong>Advantages over Alibaba for Korean products:</strong></p>
+<ul>
+<li>Largest Korean supplier count of any Korean platform</li>
+<li>Strong export track record — EC21 has been operating since 1997</li>
+<li>Many Korean manufacturers list here that don't appear on Alibaba</li>
+</ul>
+<p><strong>Disadvantages:</strong></p>
+<ul>
+<li>Anyone can list — more filtering required than BuyKorea</li>
+<li>Some listings are from trading companies, not direct manufacturers</li>
+</ul>
+
+<h2>3. tradeKorea — KITA-backed alternative</h2>
+<p>tradeKorea (tradekorea.com) is run by KITA (Korea International Trade Association). It has strong coverage of Korean manufacturers in electronics, machinery, food, and chemicals.</p>
+
+<h2>4. Alibaba's "Korean suppliers" section — why it falls short</h2>
+<p>Alibaba does have Korean suppliers listed, but the representation is skewed. Most serious Korean exporters, particularly in cosmetics and food, prioritize KOTRA/KITA-affiliated channels and direct export relationships over Alibaba. What you find on Alibaba under "Korean supplier" is often:</p>
+<ul>
+<li>Korean-branded products manufactured in China</li>
+<li>Trading companies (not direct manufacturers)</li>
+<li>Smaller suppliers with less export infrastructure</li>
+</ul>
+
+<h2>5. GloSource AI — searching all Korean platforms at once</h2>
+<p>GloSource AI acts as an AI-powered aggregator across BuyKorea, EC21, tradeKorea, and Google Search. Instead of running separate searches on each platform, you describe what you need in English and get a ranked shortlist of Korean supplier candidates with trust scores, certification signals, and a ready-to-send RFQ email — in about 90 seconds.</p>
+
+<h2>When to choose Korean suppliers over China (Alibaba)</h2>
+<ul>
+<li>✅ Product quality and certification requirements are high (FDA-grade cosmetics, HACCP food)</li>
+<li>✅ "Made in Korea" or "K-beauty" brand positioning adds product value</li>
+<li>✅ You need certifications specifically tied to Korean regulatory bodies (MFDS, KFDA)</li>
+<li>✅ Your market (US, EU, Middle East) has favorable trade terms with Korea (KORUS, EU-Korea FTA)</li>
+<li>⚠️ If pure price-per-unit is the primary driver: China manufacturing may still be lower cost at high volumes</li>
+</ul>
+    `.trim(),
+  },
+  {
+    slug: 'amazon-fba-korea-supplier-guide',
+    title: 'Amazon FBA Korea Supplier Guide: How to Source Products from Korea for FBA',
+    description: 'A practical guide for Amazon FBA sellers sourcing products from Korean manufacturers — covering supplier vetting, FBA-ready packaging requirements, import duties, and avoiding common mistakes.',
+    publishedAt: '2026-05-08',
+    readingTimeMin: 9,
+    category: 'FBA Sourcing',
+    content: `
+<h2>Why Korean suppliers for Amazon FBA?</h2>
+<p>Amazon FBA sellers increasingly source from Korea for one key reason: "Made in Korea" or "K-beauty" positioning commands meaningful price premiums in the US and EU. A Korean-sourced skincare product can sell at 2–3× the price of a comparable Chinese-manufactured product under the right branding.</p>
+<p>Beyond cosmetics, Korea is also a strong source for premium food products, electronics accessories, textiles, and industrial components — all categories with strong Amazon demand.</p>
+
+<h2>Step 1: Find the right product category for Korea sourcing</h2>
+<p>Not all categories benefit equally from Korean sourcing. The strongest FBA categories for Korean-sourced products:</p>
+<table>
+<thead><tr><th>Category</th><th>Korea strength</th><th>Example products</th></tr></thead>
+<tbody>
+<tr><td>K-beauty / Skincare</td><td>⭐⭐⭐⭐⭐</td><td>Sheet masks, serums, sunscreen, essence</td></tr>
+<tr><td>Korean food / Snacks</td><td>⭐⭐⭐⭐</td><td>Seaweed snacks, ramen, gochujang, Korean BBQ sauce</td></tr>
+<tr><td>Healthcare / Supplements</td><td>⭐⭐⭐</td><td>Korean ginseng, probiotics, red yeast rice</td></tr>
+<tr><td>Electronics accessories</td><td>⭐⭐⭐</td><td>Phone accessories, cables, charging pads</td></tr>
+<tr><td>Textiles / Apparel</td><td>⭐⭐</td><td>High-quality fabrics, performance sportswear</td></tr>
+</tbody>
+</table>
+
+<h2>Step 2: Vet your Korean supplier before placing an order</h2>
+<p>For Amazon FBA, supplier vetting is critical — a product quality issue leads to negative reviews and account suspension risk. Here's the FBA-specific checklist:</p>
+<ol>
+<li><strong>Confirm MFDS registration</strong> (for cosmetics) or food safety certification (HACCP for food products)</li>
+<li><strong>Request a Certificate of Analysis (CoA)</strong> for the specific batch</li>
+<li><strong>Verify the supplier has shipped to FBA before</strong> — ask for references or prior shipment documentation</li>
+<li><strong>Confirm product labeling can meet US FDA requirements</strong> — ingredient lists in English, INCI format for cosmetics</li>
+<li><strong>Request samples and test them</strong> before placing a bulk order</li>
+</ol>
+
+<h2>Step 3: FBA-ready packaging requirements from Korean suppliers</h2>
+<p>Korean manufacturers often ship export-ready but not FBA-ready. Confirm these requirements explicitly in your RFQ:</p>
+<ul>
+<li><strong>FNSKU barcodes:</strong> Each unit needs an Amazon FNSKU sticker. Either apply in Korea before shipping or use a 3PL/prep center in the US.</li>
+<li><strong>Poly bag + suffocation warning:</strong> Soft goods need poly bags with the suffocation warning label.</li>
+<li><strong>Master carton labeling:</strong> FBA requires specific carton labels — provide the template to your supplier.</li>
+<li><strong>Set/bundle compliance:</strong> If selling a bundle, the outer packaging must clearly identify all items.</li>
+</ul>
+<p>Many Korean manufacturers will apply FNSKU labels for a small fee ($0.05–0.15/unit) if you provide the labels in advance. This is often cheaper than using a prep center.</p>
+
+<h2>Step 4: Understand import duties for Korean products to the US</h2>
+<p>The US-Korea FTA (KORUS) eliminates import duties on most categories:</p>
+<ul>
+<li><strong>Cosmetics (HS 3304, 3305):</strong> 0% duty under KORUS</li>
+<li><strong>Food products (most categories):</strong> 0% under KORUS</li>
+<li><strong>Electronics:</strong> 0% under KORUS</li>
+<li><strong>Textiles:</strong> Varies — some categories still have duty</li>
+</ul>
+<p>You need a Certificate of Origin (CO) from your Korean supplier to claim KORUS duty-free rates. Most Korean exporters can provide this — include it in your purchase order terms.</p>
+
+<h2>Step 5: Shipping options from Korea to Amazon FBA</h2>
+<table>
+<thead><tr><th>Method</th><th>Transit time</th><th>Cost estimate</th><th>Best for</th></tr></thead>
+<tbody>
+<tr><td>Sea freight (LCL)</td><td>18–25 days</td><td>$150–400/CBM</td><td>Regular large orders</td></tr>
+<tr><td>Sea freight (FCL)</td><td>18–25 days</td><td>$1,200–2,500/container</td><td>High volume (15+ CBM)</td></tr>
+<tr><td>Air freight</td><td>5–7 days</td><td>$4–8/kg</td><td>Small urgent orders, high-value items</td></tr>
+<tr><td>Express (DHL/FedEx)</td><td>3–5 days</td><td>$8–15/kg</td><td>Samples, urgent restocks</td></tr>
+</tbody>
+</table>
+<p>For FBA, most sellers use sea freight (LCL for orders under 15 CBM) and ship to a US 3PL prep center first if suppliers aren't FBA-ready, or direct to FBA if all packaging is compliant.</p>
+
+<h2>Common mistakes FBA sellers make when sourcing from Korea</h2>
+<ul>
+<li>❌ Not requesting English-language product labels — causes customs delays</li>
+<li>❌ Skipping the sample phase — bulk quality often differs from samples</li>
+<li>❌ Not confirming FNSKU labeling capability before production</li>
+<li>❌ Forgetting to request Certificate of Origin (CO) — you'll pay full duty</li>
+<li>❌ Choosing a trading company instead of a direct manufacturer (higher cost, less control)</li>
+</ul>
+
+<h2>Using AI to find Korea FBA suppliers faster</h2>
+<p>GloSource AI searches BuyKorea, EC21, and tradeKorea simultaneously for any product category, returns Korean supplier candidates with trust scores, certification signals, MOQ, and estimated pricing — and generates a ready-to-send English RFQ email with FBA-relevant questions pre-filled. This cuts supplier research from 3–4 hours to under 2 minutes for FBA sellers.</p>
+    `.trim(),
+  },
+  {
+    slug: 'private-label-korea-manufacturer',
+    title: 'How to Find Private Label Manufacturers in Korea (OEM & ODM Guide 2025)',
+    description: 'Step-by-step guide to finding Korean private label OEM and ODM manufacturers for beauty, food, and consumer goods — including platforms, costs, MOQs, and how to protect your IP.',
+    publishedAt: '2026-05-06',
+    readingTimeMin: 8,
+    category: 'Private Label',
+    content: `
+<h2>OEM vs. ODM: understanding the difference for Korean manufacturing</h2>
+<p>Before you start searching for Korean private label manufacturers, it's important to understand the two main models:</p>
+<ul>
+<li><strong>OEM (Original Equipment Manufacturer):</strong> You provide the formulation, design, or specification. The Korean manufacturer produces to your exact spec under your brand. You own the IP.</li>
+<li><strong>ODM (Original Design Manufacturer):</strong> The Korean manufacturer has existing formulations or designs that you license and rebrand. Faster and cheaper, but you share the formulation with other buyers.</li>
+</ul>
+<p>For K-beauty private label, most small brands start with ODM (using existing popular Korean formulations) and transition to OEM as volume grows and they want exclusive formulations.</p>
+
+<h2>Where to find Korean private label manufacturers</h2>
+
+<h3>1. Cosmetics OEM/ODM cluster in Cheongju (충북 오송)</h3>
+<p>Korea's cosmetics manufacturing hub is concentrated in Cheongju (Osong area, North Chungcheong Province). This industrial cluster has over 400 cosmetics manufacturers within a small area, including some of the largest OEM/ODM houses in Korea. If you visit Korea for a sourcing trip, this is where you'll find the most options in one place.</p>
+
+<h3>2. Cosmetics OEM/ODM in the Seoul metropolitan area</h3>
+<p>Major cosmetics OEM/ODM companies also operate in Incheon, Seongnam, and Ansan (all near Seoul). These tend to be larger companies with more export infrastructure and English-speaking business development teams.</p>
+
+<h3>3. Online platforms for Korean OEM/ODM discovery</h3>
+<ul>
+<li><strong>BuyKorea (KOTRA):</strong> Filter by "OEM service available" — many cosmetics suppliers specifically flag this</li>
+<li><strong>EC21:</strong> Search "Korea cosmetics OEM" or "Korea food OEM" for extensive listings</li>
+<li><strong>Cosmetics industry associations:</strong> KCII (Korea Cosmetic Industry Institute) maintains a manufacturer directory</li>
+</ul>
+
+<h2>MOQ and cost expectations for Korean private label</h2>
+<table>
+<thead><tr><th>Category</th><th>ODM MOQ</th><th>OEM MOQ</th><th>Price range (FOB)</th></tr></thead>
+<tbody>
+<tr><td>Sheet masks (ODM)</td><td>500 pcs</td><td>5,000 pcs</td><td>$0.40–$1.20/pc</td></tr>
+<tr><td>Serums / essences</td><td>500 pcs</td><td>3,000 pcs</td><td>$2.00–$6.00/unit</td></tr>
+<tr><td>Sunscreen</td><td>1,000 pcs</td><td>5,000 pcs</td><td>$1.80–$4.50/unit</td></tr>
+<tr><td>Korean food products</td><td>500 units</td><td>2,000 units</td><td>Varies widely</td></tr>
+<tr><td>Dietary supplements</td><td>500 bottles</td><td>3,000 bottles</td><td>$3.00–$12.00/bottle</td></tr>
+</tbody>
+</table>
+<p>OEM requires higher MOQ because the manufacturer must set up a new production run for your specific formulation. ODM is faster (4–8 weeks vs. 12–20 weeks for OEM) and significantly cheaper at low volumes.</p>
+
+<h2>Protecting your IP when working with Korean manufacturers</h2>
+<p>IP protection is a serious concern for private label brands. Here's how Korean private label arrangements typically handle this:</p>
+<ol>
+<li><strong>Non-Disclosure Agreement (NDA):</strong> Sign before sharing any proprietary formulations or designs. Korean manufacturers are generally familiar with NDAs for export business.</li>
+<li><strong>Exclusivity clause:</strong> For OEM (your formulation), negotiate exclusivity — the manufacturer agrees not to produce the same formula for your competitors. Usually costs a premium or requires volume commitment.</li>
+<li><strong>Trademark registration:</strong> Register your brand trademark in Korea (KIPO — Korean Intellectual Property Office) and your target markets before production begins.</li>
+<li><strong>Do not share formulations digitally before the contract is signed.</strong></li>
+</ol>
+
+<h2>Timeline for Korean private label production</h2>
+<ul>
+<li><strong>ODM (existing formulation, your label):</strong> 4–8 weeks from PO to shipment</li>
+<li><strong>OEM (your formulation):</strong> 12–20 weeks (includes formulation testing, stability testing, MFDS registration for new products)</li>
+<li><strong>First sample turnaround:</strong> Typically 2–4 weeks from approved specification</li>
+</ul>
+
+<h2>Key questions to ask Korean OEM/ODM manufacturers in your RFQ</h2>
+<ol>
+<li>Do you offer OEM or ODM, or both?</li>
+<li>What is the minimum order quantity for ODM / OEM?</li>
+<li>What are your MFDS registration status and CGMP certification?</li>
+<li>Can you provide INCI ingredient lists in English for US/EU market labeling?</li>
+<li>Do you offer formulation exclusivity? At what volume?</li>
+<li>What is your standard production lead time after PO?</li>
+<li>Can you apply custom labels and apply FNSKU barcodes for Amazon FBA?</li>
+<li>What payment terms do you offer? (Standard: 30% deposit, 70% before shipment)</li>
+</ol>
+
+<h2>Fast-track your Korean private label research with AI</h2>
+<p>GloSource AI searches BuyKorea, EC21, and tradeKorea simultaneously, returning Korean OEM/ODM manufacturer candidates ranked by trust score, certification evidence, and export record. It generates a pre-filled RFQ email with your product specification pre-loaded — including the key OEM/ODM questions above. Most users get a usable shortlist of Korean manufacturer candidates in under 2 minutes.</p>
+    `.trim(),
+  },
 ];
 
 export function getPost(slug: string): BlogPost | undefined {

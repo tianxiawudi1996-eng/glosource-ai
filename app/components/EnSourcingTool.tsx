@@ -19,21 +19,21 @@ const REGION_BUTTONS: { value: SourceRegion; label: string; sub: string }[] = [
 ];
 
 const KOREA_LOADING_STEPS = [
-  'Searching Korean export channels...',
-  'Checking verified source channels...',
-  'Evaluating certification signals...',
-  'Ranking by trust score...',
-  'Generating English RFQ draft...',
-  'Compiling supplier shortlist...',
+  'Searching EC21 — Korea\'s largest B2B marketplace (1/3)...',
+  'Checking BuyKorea — KOTRA government-verified exporters (2/3)...',
+  'Scanning tradeKorea — KITA-listed manufacturers (3/3)...',
+  'Evaluating MFDS · HACCP · KC · KS certification signals...',
+  'Ranking suppliers by trust score and export evidence...',
+  'Generating your pre-filled English RFQ draft...',
 ];
 
 const CHINA_LOADING_STEPS = [
-  'Searching China supplier channels...',
-  'Checking factory-direct signals...',
-  'Comparing export platform evidence...',
-  'Ranking by trust score...',
-  'Generating English RFQ draft...',
-  'Compiling supplier shortlist...',
+  'Searching 1688.com — China\'s wholesale marketplace (1/3)...',
+  'Checking Alibaba factory-direct suppliers (2/3)...',
+  'Scanning WeChat trade channels (3/3)...',
+  'Evaluating factory certification signals...',
+  'Ranking suppliers by trust score and export evidence...',
+  'Generating your pre-filled English RFQ draft...',
 ];
 
 // Known certification patterns → display label + color class
@@ -59,12 +59,45 @@ function extractCerts(evidence: string[]): { label: string; cls: string }[] {
 function TrustBar({ score }: { score: number }) {
   const bar = score >= 75 ? 'bg-emerald-500' : score >= 50 ? 'bg-yellow-400' : 'bg-red-500';
   const txt = score >= 75 ? 'text-emerald-600' : score >= 50 ? 'text-yellow-600' : 'text-red-600';
+  const label = score >= 75 ? 'High confidence' : score >= 50 ? 'Moderate' : 'Low signals';
+  const tooltip = 'AI-estimated from: certification mentions (MFDS/HACCP/KC), export platform presence (EC21/BuyKorea), listing quality, and Google Search verification. Not an independent audit.';
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2" title={tooltip}>
       <div className="h-1.5 flex-1 rounded-full bg-slate-100 overflow-hidden">
         <div className={`h-full rounded-full transition-all duration-700 ${bar}`} style={{ width: `${score}%` }} />
       </div>
       <span className={`text-xs font-bold tabular-nums ${txt}`}>{score}/100</span>
+      <span className="text-[10px] text-slate-400">({label})</span>
+    </div>
+  );
+}
+
+function TradeReadinessScore({ s, certs, isVerified }: { s: Supplier; certs: { label: string }[]; isVerified: boolean }) {
+  const scores = [
+    { label: 'Google-verified URL', pts: 30, met: isVerified },
+    { label: 'Certification signals', pts: 25, met: certs.length > 0 },
+    { label: 'MOQ specified', pts: 15, met: !!(s.moq && s.moq !== 'Inquire' && s.moq !== 'N/A') },
+    { label: 'Lead time specified', pts: 15, met: !!(s.leadTimeDays && s.leadTimeDays !== 'TBD') },
+    { label: 'Platform listing found', pts: 15, met: !!(s.url || s.platform) },
+  ];
+  const total = scores.reduce((sum, item) => sum + (item.met ? item.pts : 0), 0);
+  const barColor = total >= 70 ? 'bg-emerald-500' : total >= 45 ? 'bg-yellow-400' : 'bg-slate-300';
+  return (
+    <div className="border border-slate-100 rounded-xl p-3 bg-slate-50">
+      <div className="flex items-center justify-between mb-2">
+        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Trade Readiness</p>
+        <span className={`text-xs font-black tabular-nums ${total >= 70 ? 'text-emerald-600' : total >= 45 ? 'text-yellow-600' : 'text-slate-400'}`}>{total}/100</span>
+      </div>
+      <div className="h-1.5 w-full rounded-full bg-slate-200 overflow-hidden mb-2">
+        <div className={`h-full rounded-full ${barColor}`} style={{ width: `${total}%` }} />
+      </div>
+      <div className="flex flex-wrap gap-x-3 gap-y-1">
+        {scores.map(item => (
+          <span key={item.label} className={`text-[10px] flex items-center gap-0.5 ${item.met ? 'text-slate-600' : 'text-slate-300'}`}>
+            <span>{item.met ? '✓' : '○'}</span>{item.label}
+          </span>
+        ))}
+      </div>
     </div>
   );
 }
@@ -121,6 +154,9 @@ function SupplierCard({ s, rank }: { s: Supplier; rank: number }) {
         </p>
         <TrustBar score={s.trustScore} />
       </div>
+
+      {/* Trade Readiness */}
+      <TradeReadinessScore s={s} certs={certs} isVerified={isVerified} />
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-2">
