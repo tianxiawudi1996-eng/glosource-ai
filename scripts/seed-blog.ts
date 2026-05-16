@@ -21,8 +21,9 @@ async function main() {
 
   for (const post of BLOG_POSTS) {
     await sql`
-      INSERT INTO blog_posts (slug, title, description, content, category, lang, published_at, reading_time_min, published)
+      INSERT INTO blog_posts (id, slug, title, description, content, category, lang, published_at, reading_time_min, published)
       VALUES (
+        gen_random_uuid()::text,
         ${post.slug},
         ${post.title},
         ${post.description},
