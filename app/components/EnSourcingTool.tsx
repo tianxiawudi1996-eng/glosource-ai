@@ -214,6 +214,10 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
   const [result, setResult] = useState<SourcingOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [rfqCopied, setRfqCopied] = useState(false);
+  const [rfqLang, setRfqLang] = useState<'en' | 'ko' | 'zh'>('en');
+  const [rfqKoCache, setRfqKoCache] = useState<string | null>(null);
+  const [rfqTranslating, setRfqTranslating] = useState(false);
+  const [rfqTranslateError, setRfqTranslateError] = useState<string | null>(null);
   const [freeCount, setFreeCount] = useState(0);
   const [showUpgrade, setShowUpgrade] = useState(false);
   const loadingSteps = region === 'china' ? CHINA_LOADING_STEPS : KOREA_LOADING_STEPS;
@@ -276,13 +280,48 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
     }
   };
 
+  const activeRfqText = (result: SourcingOutput | null): string => {
+    if (!result) return '';
+    if (rfqLang === 'zh') return result.rfqEmail.zh || result.rfqEmail.en;
+    if (rfqLang === 'ko') return rfqKoCache || result.rfqEmail.en;
+    return result.rfqEmail.en;
+  };
+
   const handleCopyRFQ = async () => {
-    if (!result?.rfqEmail.en) return;
+    const text = activeRfqText(result);
+    if (!text) return;
     try {
-      await navigator.clipboard.writeText(result.rfqEmail.en);
+      await navigator.clipboard.writeText(text);
       setRfqCopied(true);
       setTimeout(() => setRfqCopied(false), 2000);
     } catch { /* silent */ }
+  };
+
+  const handleRfqLangChange = async (lang: 'en' | 'ko' | 'zh') => {
+    setRfqLang(lang);
+    setRfqTranslateError(null);
+    if (lang === 'ko' && !rfqKoCache && result?.rfqEmail.en) {
+      setRfqTranslating(true);
+      try {
+        const res = await fetch('/api/translate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: result.rfqEmail.en, targetLang: 'ko' }),
+        });
+        const data = await res.json() as { translated?: string; error?: string };
+        if (data.translated) {
+          setRfqKoCache(data.translated);
+        } else {
+          setRfqTranslateError(data.error ?? 'Translation failed');
+          setRfqLang('en');
+        }
+      } catch {
+        setRfqTranslateError('Translation failed. Please try again.');
+        setRfqLang('en');
+      } finally {
+        setRfqTranslating(false);
+      }
+    }
   };
 
   return (
@@ -496,28 +535,71 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
 
           {result.rfqEmail?.en && (
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-              {/* Amber warning: RFQ is an AI template, not confirmed data */}
+              {/* Amber warning */}
               <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 mb-4 flex items-start gap-2">
                 <svg className="w-3.5 h-3.5 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <p className="text-[11px] text-amber-800 leading-relaxed">
-                  <strong>AI-generated template.</strong> MOQ, pricing, and lead times are <strong>estimates only</strong> — they may not reflect actual supplier terms.
-                  Review every line and confirm details with the supplier before sending.
+                  <strong>AI-generated template.</strong> MOQ, pricing, and lead times are <strong>estimates only</strong> — confirm details with the supplier before sending.
+                  {rfqLang !== 'en' && <> <strong>Translations are AI-generated — do not use as official contract documents.</strong></>}
                 </p>
               </div>
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-xs font-bold text-[#0D1B2A] uppercase tracking-wide">RFQ Email Draft — Review Before Sending</p>
-                <button type="button" onClick={handleCopyRFQ}
-                  className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all border ${rfqCopied ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-[#EA580C] border-[#EA580C] text-white hover:bg-[#DC4C00]'}`}>
-                  {rfqCopied ? (
-                    <><svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>Copied!</>
-                  ) : (
-                    <><svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>Copy RFQ</>
-                  )}
-                </button>
+
+              {/* Header row: title + lang toggle + copy */}
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                <p className="text-xs font-bold text-[#0D1B2A] uppercase tracking-wide">RFQ Email Draft</p>
+                <div className="flex items-center gap-2">
+                  {/* Language toggle */}
+                  <div className="flex rounded-lg border border-slate-200 overflow-hidden text-[11px] font-bold">
+                    {(['en', 'ko', 'zh'] as const).map(lang => (
+                      <button
+                        key={lang}
+                        type="button"
+                        onClick={() => handleRfqLangChange(lang)}
+                        disabled={rfqTranslating}
+                        className={`px-2.5 py-1.5 transition-all ${rfqLang === lang ? 'bg-[#0D1B2A] text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`}
+                      >
+                        {lang === 'en' ? 'EN' : lang === 'ko' ? '한' : '中'}
+                      </button>
+                    ))}
+                  </div>
+                  {/* Copy button */}
+                  <button type="button" onClick={handleCopyRFQ} disabled={rfqTranslating}
+                    className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all border ${rfqCopied ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-[#EA580C] border-[#EA580C] text-white hover:bg-[#DC4C00]'}`}>
+                    {rfqCopied ? (
+                      <><svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>Copied!</>
+                    ) : (
+                      <><svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>Copy</>
+                    )}
+                  </button>
+                </div>
               </div>
-              <pre className="text-xs text-slate-600 leading-relaxed whitespace-pre-wrap bg-slate-50 rounded-xl border border-slate-100 p-4 font-mono overflow-x-auto">{result.rfqEmail.en}</pre>
+
+              {/* RFQ body */}
+              {rfqTranslating ? (
+                <div className="flex items-center gap-2 bg-slate-50 rounded-xl border border-slate-100 p-4 text-xs text-slate-500">
+                  <svg className="w-3.5 h-3.5 animate-spin text-[#EA580C]" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                  </svg>
+                  Translating with AI…
+                </div>
+              ) : rfqTranslateError ? (
+                <div className="rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-[11px] text-red-700 mb-2">{rfqTranslateError}</div>
+              ) : null}
+
+              {!rfqTranslating && (
+                <pre className="text-xs text-slate-600 leading-relaxed whitespace-pre-wrap bg-slate-50 rounded-xl border border-slate-100 p-4 font-mono overflow-x-auto">
+                  {activeRfqText(result)}
+                </pre>
+              )}
+
+              {rfqLang !== 'en' && !rfqTranslating && (
+                <p className="mt-2 text-[10px] text-slate-400">
+                  AI translation · for reference only · not a legally binding document
+                </p>
+              )}
             </div>
           )}
 
