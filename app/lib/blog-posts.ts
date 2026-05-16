@@ -684,6 +684,343 @@ Best regards,
 <p>GloSource AI searches BuyKorea, EC21, and tradeKorea simultaneously, returning Korean OEM/ODM manufacturer candidates ranked by trust score, certification evidence, and export record. It generates a pre-filled RFQ email with your product specification pre-loaded — including the key OEM/ODM questions above. Most users get a usable shortlist of Korean manufacturer candidates in under 2 minutes.</p>
     `.trim(),
   },
+  {
+    slug: 'korean-supplier-scam-red-flags',
+    title: 'Korean Supplier Scams: 9 Red Flags to Spot Before You Wire Money',
+    description: 'How to identify fake or fraudulent Korean suppliers — 9 verified red flags based on real buyer experiences, plus a due diligence checklist before placing any order.',
+    publishedAt: '2026-05-14',
+    readingTimeMin: 7,
+    category: 'Supplier Vetting',
+    content: `
+<h2>Are Korean supplier scams common?</h2>
+<p>Korea has a strong export reputation, and the majority of Korean manufacturers on platforms like BuyKorea, EC21, and tradeKorea are legitimate. However, scams do happen — particularly when buyers contact suppliers found through informal channels (social media, WhatsApp groups, or unverified directories) rather than established B2B platforms.</p>
+<p>The most common scams follow predictable patterns. Knowing these patterns protects your money before it's gone.</p>
+
+<h2>9 red flags that signal a fraudulent Korean supplier</h2>
+
+<h3>1. No verifiable Korean business registration number</h3>
+<p>Every legitimate Korean business has a 사업자등록번호 (Business Registration Number) — a 10-digit number in the format 000-00-00000. Legitimate exporters will provide this without hesitation. You can verify it free at the Korean National Tax Service (NTS) website (https://hometax.go.kr).</p>
+<p><strong>Red flag:</strong> Supplier refuses to provide the registration number or gives a number that fails NTS verification.</p>
+
+<h3>2. Price significantly below market rate</h3>
+<p>If a supplier quotes 40–60% below what comparable suppliers charge, treat it as a warning sign — not a bargain. Scammers attract buyers with impossibly low prices, collect deposits, then disappear or ship nothing.</p>
+<p><strong>Benchmark:</strong> Request quotes from 3–5 suppliers. Outliers 30%+ below the median deserve additional scrutiny.</p>
+
+<h3>3. Insisting on payment via Western Union, MoneyGram, or cryptocurrency</h3>
+<p>Legitimate Korean exporters accept T/T (telegraphic transfer to a Korean bank account), L/C (letter of credit), or PayPal for small orders. Requests for Western Union, MoneyGram, or crypto are almost universally associated with fraud — these payment methods offer zero buyer protection.</p>
+
+<h3>4. Gmail, Naver, or Daum email instead of company domain</h3>
+<p>Real Korean exporters use corporate email addresses (e.g., export@company.co.kr). A supplier using @gmail.com, @naver.com, or @daum.net as their primary business contact is a significant red flag.</p>
+
+<h3>5. No physical address or unverifiable location</h3>
+<p>Ask for the company's physical address and verify it on Google Maps or Kakao Maps. Korean manufacturers have real factories — if the address leads to a residential building, a virtual office service, or doesn't exist, walk away.</p>
+
+<h3>6. Samples that don't match bulk orders</h3>
+<p>A classic bait-and-switch: samples are high quality, but bulk orders contain inferior or completely different goods. Mitigate this by:</p>
+<ul>
+<li>Ordering a larger "trial" quantity (300–500 units) before full production</li>
+<li>Specifying sample and production standards explicitly in the Purchase Order</li>
+<li>Using third-party inspection (SGS, Bureau Veritas) before shipment</li>
+</ul>
+
+<h3>7. Pressure to skip a contract or purchase order</h3>
+<p>Legitimate Korean manufacturers expect and prefer formal Purchase Orders (POs). Any supplier who urges you to "just send the deposit now and we'll sort the paperwork later" is a red flag. Never wire money without a signed contract that specifies product specs, quantity, price, delivery timeline, and what happens in case of defects.</p>
+
+<h3>8. Certificates that don't check out</h3>
+<p>Fraudulent suppliers often provide fake or expired MFDS, HACCP, or KC certificates. Verify independently:</p>
+<ul>
+<li><strong>MFDS certificates:</strong> Verify at the MFDS open data portal (https://www.mfds.go.kr)</li>
+<li><strong>HACCP:</strong> Verify at the HACCP Korea website</li>
+<li><strong>KC mark:</strong> Verify at the Korea Certification Body Network (https://www.kc-cert.or.kr)</li>
+</ul>
+
+<h3>9. New account with no traceable history</h3>
+<p>Check how long the supplier has been listed on EC21, BuyKorea, or tradeKorea. A listing created in the past 1–3 months with no reviews or transaction history warrants extra caution. Cross-reference with Korean business registration date — if the company was registered last month, be very careful.</p>
+
+<h2>Due diligence checklist before wiring money to a Korean supplier</h2>
+<ul>
+<li>✅ Verified business registration number via NTS</li>
+<li>✅ Confirmed physical address on Google/Kakao Maps</li>
+<li>✅ Received and independently verified all claimed certifications</li>
+<li>✅ Checked platform listing age and history</li>
+<li>✅ Requested and tested samples (not just photos)</li>
+<li>✅ Signed formal Purchase Order with specs, quantity, price, timeline</li>
+<li>✅ Paying via T/T to a Korean bank account (not Western Union/crypto)</li>
+<li>✅ Confirmed export experience with references or prior shipment docs</li>
+</ul>
+
+<h2>Using AI to pre-screen Korean suppliers</h2>
+<p>GloSource AI cross-references supplier candidates against BuyKorea (KOTRA-verified), EC21, and tradeKorea — and applies a Trust Score and Trade Readiness Score based on certification signals, Google Search verification, and listing quality. It won't catch every fraudster, but it filters out the most obvious low-signal suppliers before you spend time on outreach.</p>
+    `.trim(),
+  },
+  {
+    slug: 'korean-food-export-certification-guide',
+    title: 'Korean Food Export Certifications Explained: HACCP, MFDS, Halal & More',
+    description: 'A clear guide to Korean food export certifications — what HACCP, MFDS, and Halal mean for importers, how to verify them, and which certifications your target market actually requires.',
+    publishedAt: '2026-05-13',
+    readingTimeMin: 8,
+    category: 'Certifications',
+    content: `
+<h2>Why certifications matter when importing Korean food</h2>
+<p>Korean food exports hit $9.4 billion in 2023 (KITA), driven by ramen, kimchi, gochujang, seaweed snacks, and K-food in general. But importing Korean food into the US, EU, or Middle East without understanding the certification landscape can result in customs holds, regulatory fines, or product recalls.</p>
+<p>This guide explains what each certification means, how to verify it, and which ones your target market actually requires.</p>
+
+<h2>HACCP — the most important baseline certification</h2>
+<p>HACCP (Hazard Analysis and Critical Control Points) is an internationally recognized food safety management system. For Korean food exporters, HACCP certification is administered by the Ministry of Food and Drug Safety (MFDS).</p>
+<p><strong>What it means:</strong> The manufacturer has identified biological, chemical, and physical hazards in the production process and has controls in place to prevent them.</p>
+<p><strong>Required for:</strong> Exporting to the US (FDA), EU (EFSA), most Southeast Asian markets. US importers: HACCP is effectively mandatory under FSMA (Food Safety Modernization Act).</p>
+<p><strong>How to verify:</strong> Ask for the HACCP certificate number. Verify at the HACCP Korea portal (www.haccp.or.kr) — the certificate should show the company name, facility address, and product category.</p>
+<p><strong>Validity:</strong> HACCP certificates require annual re-inspection. Check the issue and expiry dates.</p>
+
+<h2>MFDS registration — the Korean FDA equivalent</h2>
+<p>MFDS (Ministry of Food and Drug Safety) is Korea's food and drug regulatory agency — equivalent to the US FDA. Food manufacturers must be registered with MFDS to export legally.</p>
+<p><strong>What to request:</strong> The supplier's MFDS business registration number and, for specific products, the product registration/approval number.</p>
+<p><strong>How to verify:</strong> MFDS maintains a public open data portal at www.mfds.go.kr. You can search by company name or registration number.</p>
+<p><strong>Important:</strong> For products that require pre-market approval in Korea (functional foods, health supplements), verify that the product itself — not just the manufacturer — is registered.</p>
+
+<h2>ISO 22000 — for export-focused manufacturers</h2>
+<p>ISO 22000 is an international food safety management standard (broader than HACCP, which it subsumes). Korean food manufacturers targeting European buyers often hold ISO 22000 in addition to HACCP.</p>
+<p><strong>How to verify:</strong> Request the ISO 22000 certificate issued by an accredited certification body (SGS, Bureau Veritas, TÜV, etc.). Verify the certificate directly on the certification body's website.</p>
+
+<h2>Halal certification — required for Muslim markets</h2>
+<p>For export to the Middle East, Malaysia, Indonesia, and other Muslim-majority markets, Halal certification is either required by law or expected by buyers.</p>
+<p><strong>Korean Halal certification bodies:</strong></p>
+<ul>
+<li>KMF (Korea Muslim Federation) — the most internationally recognized Korean Halal certifier</li>
+<li>KOHAS (Korea Halal Authority) — government-affiliated, growing acceptance in GCC</li>
+</ul>
+<p><strong>Important:</strong> Not all Halal certificates are equal. Gulf Cooperation Council (GCC) countries have specific approved certifier lists — verify that your supplier's certifier is on the approved list for your target country.</p>
+<p><strong>How to verify:</strong> Request the Halal certificate PDF. Verify directly with KMF (www.islamkorea.com) or KOHAS.</p>
+
+<h2>Organic certification</h2>
+<p>Korean organic certification is administered by NAQS (National Agricultural Products Quality Management Service). For US export, the USDA NOP standard applies — Korean manufacturers need specific USDA-accredited organic certification, not just the Korean organic mark, to label products as "organic" in the US.</p>
+
+<h2>EU-specific requirements</h2>
+<table>
+<thead><tr><th>Requirement</th><th>Details</th></tr></thead>
+<tbody>
+<tr><td>EFSA novel food approval</td><td>Required for ingredients not traditionally consumed in the EU (e.g., some Korean fermented ingredients)</td></tr>
+<tr><td>Allergen labeling</td><td>EU requires 14 major allergens declared on label in the local language</td></tr>
+<tr><td>Nutrition labeling</td><td>EU format (per 100g/ml) — different from US DV% format</td></tr>
+<tr><td>Origin labeling</td><td>"Product of Korea" must appear on EU packaging</td></tr>
+</tbody>
+</table>
+
+<h2>US FDA import requirements for Korean food</h2>
+<ul>
+<li><strong>Prior Notice:</strong> All food imports must be filed with FDA before arrival</li>
+<li><strong>FSVP (Foreign Supplier Verification Program):</strong> US importers must verify their Korean suppliers meet US food safety standards — HACCP and MFDS registration help satisfy this</li>
+<li><strong>Bioterrorism Act registration:</strong> Korean food manufacturers shipping to the US must be registered with FDA (free registration at www.access.fda.gov)</li>
+</ul>
+
+<h2>Certification request checklist for Korean food suppliers</h2>
+<ul>
+<li>✅ HACCP certificate (check expiry date)</li>
+<li>✅ MFDS manufacturer registration number</li>
+<li>✅ FDA bioterrorism registration (for US export)</li>
+<li>✅ Certificate of Analysis (CoA) for the specific product</li>
+<li>✅ Ingredient list with allergen declarations</li>
+<li>✅ Country of Origin certificate (for duty-free KORUS claims)</li>
+<li>✅ Halal certificate if targeting Muslim markets</li>
+<li>✅ ISO 22000 if targeting EU buyers</li>
+</ul>
+
+<h2>Find HACCP-certified Korean food suppliers faster</h2>
+<p>GloSource AI searches BuyKorea, EC21, and tradeKorea for Korean food manufacturers and surfaces HACCP and MFDS certification signals from each supplier's listing. It won't replace independent certificate verification, but it cuts your initial shortlisting from hours to minutes — giving you a ranked list of candidates with the strongest food safety signals to contact first.</p>
+    `.trim(),
+  },
+  {
+    slug: 'korean-oem-minimum-order-guide',
+    title: 'Korean OEM Minimum Order Quantities: What to Expect by Category (2025)',
+    description: 'Real MOQ ranges for Korean OEM and ODM manufacturers across beauty, food, supplements, and textiles — plus how to negotiate lower minimums as a new buyer.',
+    publishedAt: '2026-05-11',
+    readingTimeMin: 6,
+    category: 'Sourcing Guide',
+    content: `
+<h2>Why Korean OEM MOQs differ from Chinese factories</h2>
+<p>Korean OEM manufacturers typically have higher minimum order quantities than comparable Chinese factories — but the trade-off is quality consistency, certification compliance, and the "Made in Korea" brand premium. Understanding realistic MOQ ranges before you start outreach saves weeks of back-and-forth.</p>
+<p>This guide covers current MOQ ranges by product category, based on data from Korean B2B platforms and direct manufacturer discussions.</p>
+
+<h2>K-beauty & cosmetics MOQ table</h2>
+<table>
+<thead><tr><th>Product type</th><th>ODM MOQ</th><th>OEM MOQ</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>Sheet masks</td><td>500–1,000 pcs</td><td>5,000–10,000 pcs</td><td>ODM is most accessible entry point</td></tr>
+<tr><td>Toner / essence (100–150ml)</td><td>500–1,000 pcs</td><td>3,000–5,000 pcs</td><td>Filling cost drives OEM MOQ</td></tr>
+<tr><td>Serum (30–50ml)</td><td>300–500 pcs</td><td>2,000–5,000 pcs</td><td>Premium format, more flexibility</td></tr>
+<tr><td>Cream / moisturizer</td><td>500–1,000 pcs</td><td>3,000–5,000 pcs</td><td>Jar vs. tube affects MOQ</td></tr>
+<tr><td>Sunscreen (SPF 50+)</td><td>1,000–2,000 pcs</td><td>5,000–10,000 pcs</td><td>Stability testing adds OEM lead time</td></tr>
+<tr><td>Cushion compact</td><td>1,000–2,000 sets</td><td>5,000–10,000 sets</td><td>Compact tooling cost drives OEM MOQ high</td></tr>
+<tr><td>Lip balm / gloss</td><td>500–1,000 pcs</td><td>3,000–5,000 pcs</td><td>Tube vs. pot affects price significantly</td></tr>
+<tr><td>Cleansing oil / foam</td><td>500–1,000 pcs</td><td>3,000–5,000 pcs</td><td>Formulation complexity varies</td></tr>
+</tbody>
+</table>
+
+<h2>Korean food & supplements MOQ table</h2>
+<table>
+<thead><tr><th>Product type</th><th>MOQ</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>Seaweed snacks (individual packs)</td><td>500–2,000 packs</td><td>HACCP required for export</td></tr>
+<tr><td>Instant ramen / noodles</td><td>1,000–5,000 units</td><td>Custom branding requires higher MOQ</td></tr>
+<tr><td>Gochujang / sauces</td><td>500–2,000 jars</td><td>Export packaging differs from domestic</td></tr>
+<tr><td>Korean BBQ marinade</td><td>500–1,000 bottles</td><td>English label required for US/EU</td></tr>
+<tr><td>Korean ginseng (red/white)</td><td>500–1,000 units</td><td>KGC (Korea Ginseng Corp) dominates — alternatives exist</td></tr>
+<tr><td>Probiotics / health supplements</td><td>1,000–3,000 bottles</td><td>MFDS approval + FDA registration needed for US</td></tr>
+<tr><td>Korean rice / grain products</td><td>1,000–5,000 units</td><td>Phytosanitary certificate required</td></tr>
+</tbody>
+</table>
+
+<h2>Textiles & apparel MOQ table</h2>
+<table>
+<thead><tr><th>Product type</th><th>MOQ</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>Performance sportswear</td><td>200–500 pcs per style</td><td>Korean functional fabrics (Gore-Tex licensed) common</td></tr>
+<tr><td>Premium knit fabrics (per yard)</td><td>500–1,000 yards</td><td>Often sold by roll</td></tr>
+<tr><td>Workwear / safety gear</td><td>200–500 pcs</td><td>KC certification needed for Korean market</td></tr>
+</tbody>
+</table>
+
+<h2>Why Korean OEM MOQs are higher than China</h2>
+<ul>
+<li><strong>Labor cost:</strong> Korean factory labor costs significantly more than Chinese — manufacturers offset this with higher MOQs to maintain profitability per run</li>
+<li><strong>Certification overhead:</strong> MFDS, HACCP, and CGMP compliance requires documentation per batch — lower volumes don't amortize that cost well</li>
+<li><strong>Formulation exclusivity:</strong> OEM manufacturers set higher MOQs to justify dedicating a production line to your spec</li>
+</ul>
+
+<h2>How to negotiate lower MOQs as a new buyer</h2>
+<ol>
+<li><strong>Start with ODM, not OEM:</strong> ODM (using their existing formulation) almost always has lower MOQ than OEM. Build the relationship first, then negotiate custom formulation at higher volume.</li>
+<li><strong>Offer a clear growth commitment:</strong> Korean manufacturers respond well to a written growth plan — "starting with 500 units, targeting 3,000 units by Q3" often unlocks lower MOQ flexibility.</li>
+<li><strong>Accept standard packaging:</strong> Custom bottles, caps, and packaging increase MOQ. Starting with the manufacturer's standard components and adding only custom labels dramatically reduces minimums.</li>
+<li><strong>Pay a premium for lower MOQ:</strong> Some manufacturers will accept 30–50% lower MOQ in exchange for a higher per-unit price. For testing a new market, this trade-off can be worth it.</li>
+<li><strong>Visit in person or on a video call:</strong> Korean business culture values relationship. A video call or factory visit often unlocks flexibility that cold email outreach won't.</li>
+</ol>
+
+<h2>MOQ vs. total investment — a realistic calculation</h2>
+<p>Before negotiating MOQ, calculate your actual total investment at the stated MOQ:</p>
+<ul>
+<li>Unit cost × MOQ = product cost</li>
+<li>Add 8–12% for sea freight (Korea to US West Coast)</li>
+<li>Add 0% import duty (KORUS FTA for most categories)</li>
+<li>Add $200–500 for third-party quality inspection (recommended)</li>
+<li>Add custom label/packaging design cost (one-time)</li>
+</ul>
+<p>For many Korean cosmetic ODM products, a realistic first order at minimum MOQ totals $1,500–5,000 landed — accessible for serious small brands.</p>
+
+<h2>Find Korean OEM manufacturers at the right MOQ</h2>
+<p>GloSource AI lets you specify your target quantity when searching. Supplier candidates are matched and ranked based on MOQ compatibility signals, alongside trust score and certification evidence — so you're not wasting outreach on manufacturers whose minimums you can't meet yet.</p>
+    `.trim(),
+  },
+  {
+    slug: 'ship-from-korea-to-amazon-fba',
+    title: 'How to Ship from Korea to Amazon FBA: Sea Freight, Air, and Prep Center Guide',
+    description: 'Complete shipping guide for Amazon FBA sellers importing from Korea — sea vs. air freight costs, Korean forwarders, prep centers, FBA compliance requirements, and avoiding costly mistakes.',
+    publishedAt: '2026-05-09',
+    readingTimeMin: 9,
+    category: 'FBA Sourcing',
+    content: `
+<h2>Overview: the Korea-to-FBA supply chain</h2>
+<p>Shipping from Korea to Amazon FBA involves more steps than domestic sourcing — but the process is well-established. Hundreds of Amazon sellers successfully run Korea-to-FBA supply chains for K-beauty, Korean food, electronics accessories, and other categories. This guide walks you through every step.</p>
+
+<h2>Step 1: Choose your shipping method</h2>
+<table>
+<thead><tr><th>Method</th><th>Transit (Korea→US)</th><th>Cost estimate</th><th>Best for</th></tr></thead>
+<tbody>
+<tr><td>Sea freight LCL (Less-than-Container Load)</td><td>18–25 days</td><td>$150–400/CBM</td><td>Regular restocks, 0.5–10 CBM</td></tr>
+<tr><td>Sea freight FCL (Full Container Load)</td><td>18–25 days</td><td>$1,500–3,500/40ft</td><td>High volume, 15+ CBM</td></tr>
+<tr><td>Air freight</td><td>5–7 days</td><td>$5–9/kg</td><td>High-value, time-sensitive, under 150kg</td></tr>
+<tr><td>Express courier (DHL/FedEx/UPS)</td><td>3–5 days</td><td>$9–18/kg</td><td>Samples, urgent small restocks</td></tr>
+</tbody>
+</table>
+<p><strong>Most FBA sellers use:</strong> Sea freight LCL for orders under 10 CBM (roughly 500–2,000 units of cosmetics), switching to FCL when monthly volumes exceed one 20ft container.</p>
+
+<h2>Step 2: Find a Korean freight forwarder</h2>
+<p>You need a freight forwarder based in Korea (or with a Korea office) to handle export customs, prepare shipping documents, and arrange the actual shipment. Key responsibilities:</p>
+<ul>
+<li>Export customs clearance (Korean customs)</li>
+<li>Bill of Lading or Airway Bill preparation</li>
+<li>Commercial Invoice and Packing List</li>
+<li>Certificate of Origin (for KORUS duty-free claim)</li>
+<li>Booking cargo space with shipping line or airline</li>
+</ul>
+<p><strong>What to ask a Korean forwarder:</strong></p>
+<ol>
+<li>Do you handle Korea-to-FBA shipments regularly?</li>
+<li>Can you prepare FBA-compliant carton labels?</li>
+<li>Do you have a US customs broker partner?</li>
+<li>What is your handling fee for LCL?</li>
+</ol>
+
+<h2>Step 3: US import customs clearance</h2>
+<p>Your freight forwarder typically works with a US customs broker to clear your shipment. Key documents required:</p>
+<ul>
+<li>Commercial Invoice (with HS codes, declared value)</li>
+<li>Packing List</li>
+<li>Bill of Lading or Airway Bill</li>
+<li>Certificate of Origin (to claim 0% KORUS duty rate)</li>
+<li>FDA Prior Notice (for food and cosmetics)</li>
+<li>Any required certificates (HACCP, MFDS, etc.)</li>
+</ul>
+<p><strong>Import duty under KORUS FTA:</strong> Most Korean products enter the US at 0% duty under the Korea-US Free Trade Agreement. Without a Certificate of Origin, you'll pay MFN (Most Favored Nation) rates instead.</p>
+
+<h2>Step 4: Ship direct to FBA or use a prep center?</h2>
+
+<h3>Option A: Ship direct to Amazon FBA warehouse</h3>
+<p>Requires your Korean supplier to:</p>
+<ul>
+<li>Apply FNSKU barcodes to each unit</li>
+<li>Pack in FBA-compliant cartons (no overweight, correct dimensions)</li>
+<li>Apply Amazon's required carton labels</li>
+<li>Meet all FBA packaging requirements (poly bags, suffocation warnings, etc.)</li>
+</ul>
+<p><strong>Cost advantage:</strong> Saves $0.50–1.50/unit in prep center fees. Works well once you have an established relationship with a supplier who does FBA prep reliably.</p>
+
+<h3>Option B: Use a US prep center</h3>
+<p>Ship to a third-party prep center (3PL) in the US first. The prep center receives your goods, applies FNSKUs, re-packs if needed, and creates an FBA shipment.</p>
+<p><strong>Cost:</strong> $0.50–1.50 per unit for FNSKU labeling + $0.20–0.50 per unit for re-boxing if needed.</p>
+<p><strong>Best for:</strong> New suppliers (until you trust their FBA compliance), products that need English stickers or US-compliant labeling added, and first-time Korea-to-FBA shipments.</p>
+
+<h2>Step 5: FBA packaging compliance — Korean supplier checklist</h2>
+<p>Send this checklist to your Korean supplier before production:</p>
+<ul>
+<li>✅ Unit dimensions and weight meet FBA limits (longest side ≤ 18", standard-size ≤ 20 lbs)</li>
+<li>✅ FNSKU barcode applied to each unit (cover manufacturer barcode if present)</li>
+<li>✅ Poly bag with suffocation warning for soft goods (warning text on bag if bag is 5" × 5" or larger)</li>
+<li>✅ Set/bundle sold as single unit — outer packaging clearly marked "Sold as Set"</li>
+<li>✅ Carton weight ≤ 50 lbs per box</li>
+<li>✅ FBA shipment carton label applied (generated in Seller Central)</li>
+<li>✅ No loose items or multiple SKUs in one shipping carton</li>
+</ul>
+
+<h2>Timeline: Korea-to-FBA typical total lead time</h2>
+<table>
+<thead><tr><th>Stage</th><th>Duration</th></tr></thead>
+<tbody>
+<tr><td>Production (ODM, existing formulation)</td><td>4–6 weeks</td></tr>
+<tr><td>Quality inspection (optional but recommended)</td><td>3–5 days</td></tr>
+<tr><td>Export packing + forwarder pickup</td><td>3–5 days</td></tr>
+<tr><td>Sea freight transit (Korea→US West Coast)</td><td>18–22 days</td></tr>
+<tr><td>US customs clearance</td><td>3–7 days</td></tr>
+<tr><td>FBA check-in (after delivery to warehouse)</td><td>2–5 business days</td></tr>
+<tr><td><strong>Total (sea freight)</strong></td><td><strong>~10–12 weeks</strong></td></tr>
+</tbody>
+</table>
+<p><strong>Air freight alternative total:</strong> ~6–8 weeks (production + 1 week transit).</p>
+
+<h2>Common mistakes that cost FBA sellers money</h2>
+<ul>
+<li>❌ No Certificate of Origin — paying full duty instead of 0% KORUS rate</li>
+<li>❌ Skipping FDA Prior Notice for food/cosmetics — customs hold, potential recall</li>
+<li>❌ Wrong carton dimensions or weight — FBA receives penalty or refuses shipment</li>
+<li>❌ FNSKU applied over barcode incompletely — scanner reads wrong barcode, stranded inventory</li>
+<li>❌ Not testing supplier's FBA packing quality on trial order — expensive to fix at scale</li>
+<li>❌ Ignoring inventory lead time — 10–12 week Korea-to-FBA cycle requires ordering 2–3 months before stockout</li>
+</ul>
+
+<h2>Finding FBA-experienced Korean suppliers</h2>
+<p>GloSource AI searches BuyKorea, EC21, and tradeKorea for Korean suppliers in your product category and generates a pre-filled RFQ that includes FBA-specific questions — covering FNSKU labeling capability, carton compliance, and Certificate of Origin availability. Most sellers get a usable shortlist in under 2 minutes and can begin outreach the same day.</p>
+    `.trim(),
+  },
 ];
 
 export function getPost(slug: string): BlogPost | undefined {

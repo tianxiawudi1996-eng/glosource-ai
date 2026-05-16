@@ -642,8 +642,66 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
           {result.disclaimer && (
             <p className="text-[11px] text-slate-400 leading-relaxed border-t border-slate-100 pt-4">{result.disclaimer}</p>
           )}
+
+          {/* Email capture — shown after results for non-subscribed users */}
+          {searchesLeft <= 2 && <SourcingEmailCapture />}
         </div>
       )}
+    </div>
+  );
+}
+
+function SourcingEmailCapture() {
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!email.trim()) return;
+    setStatus('loading');
+    try {
+      const res = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim(), source: 'sourcing_tool_result' }),
+      });
+      setStatus(res.ok ? 'done' : 'error');
+    } catch {
+      setStatus('error');
+    }
+  }
+
+  if (status === 'done') {
+    return (
+      <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-center">
+        <p className="text-sm font-bold text-emerald-700">You&apos;re on the list!</p>
+        <p className="text-xs text-emerald-600 mt-1">We&apos;ll send Korean sourcing tips and platform updates to your inbox.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+      <p className="text-xs font-bold text-[#0D1B2A] uppercase tracking-wide mb-1">Get Korean sourcing tips by email</p>
+      <p className="text-xs text-slate-500 mb-3">We send practical guides on vetting suppliers, reading certifications, and avoiding common import mistakes. No spam.</p>
+      <form onSubmit={handleSubmit} className="flex gap-2">
+        <input
+          type="email"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+          placeholder="your@email.com"
+          required
+          className="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-[#0D1B2A] placeholder:text-slate-400 focus:border-[#EA580C] focus:outline-none focus:ring-2 focus:ring-[#EA580C]/10 transition-all"
+        />
+        <button
+          type="submit"
+          disabled={status === 'loading' || !email.trim()}
+          className="rounded-xl bg-[#0D1B2A] px-4 py-2 text-sm font-bold text-white hover:bg-[#1a2e48] disabled:opacity-50 transition-all flex-shrink-0"
+        >
+          {status === 'loading' ? '…' : 'Subscribe'}
+        </button>
+      </form>
+      {status === 'error' && <p className="text-[11px] text-red-500 mt-2">Something went wrong — please try again.</p>}
     </div>
   );
 }
