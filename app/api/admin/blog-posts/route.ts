@@ -1,20 +1,6 @@
-import { neon } from '@neondatabase/serverless';
 import { NextRequest, NextResponse } from 'next/server';
-
-const ENSURE_TABLE = `
-  CREATE TABLE IF NOT EXISTS blog_posts (
-    id          TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
-    slug        TEXT UNIQUE NOT NULL,
-    title       TEXT NOT NULL,
-    description TEXT NOT NULL,
-    published_at TEXT NOT NULL,
-    reading_time_min INTEGER NOT NULL DEFAULT 5,
-    category    TEXT NOT NULL,
-    content     TEXT NOT NULL,
-    published   BOOLEAN NOT NULL DEFAULT true,
-    created_at  TIMESTAMPTZ DEFAULT NOW()
-  )
-`;
+import { db, blogPosts } from '@/app/lib/db';
+import { desc, eq } from 'drizzle-orm';
 
 function authorized(request: NextRequest): boolean {
   const secret = process.env.ADMIN_PUBLISH_SECRET;
@@ -22,80 +8,112 @@ function authorized(request: NextRequest): boolean {
   return request.headers.get('authorization') === `Bearer ${secret}`;
 }
 
+// POST /api/admin/blog-posts — upsert a blog post
 export async function POST(request: NextRequest) {
   if (!authorized(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  let body: {
-    slug?: string;
-    title?: string;
-    description?: string;
-    publishedAt?: string;
-    readingTimeMin?: number;
-    category?: string;
-    content?: string;
-  };
-
+  let body: Record<string, unknown>;
   try {
-    body = await request.json();
+    body = await request.json() as Record<string, unknown>;
   } catch {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
 
-  const { slug, title, description, publishedAt, readingTimeMin = 5, category, content } = body;
-  if (!slug || !title || !description || !publishedAt || !category || !content) {
-    return NextResponse.json(
-      { error: 'Missing required fields: slug, title, description, publishedAt, category, content' },
-      { status: 400 }
-    );
-  }
+  const { slug, title, description, content, category, lang, publishedAt, readingTimeMin, published } = body;
 
-  const url = process.env.DATABASE_URL;
-  if (!url) return NextResponse.json({ error: 'DATABASE_URL not set' }, { status: 500 });
+  if (typeof slug !== 'string' || !slug.trim()) return NextResponse.json({ error: 'slug required' }, { status: 400 });
+  if (typeof title !== 'string' || !title.trim()) return NextResponse.json({ error: 'title required' }, { status: 400 });
+  if (typeof description !== 'string' || !description.trim()) return NextResponse.json({ error: 'description required' }, { status: 400 });
+  if (typeof content !== 'string' || !content.trim()) return NextResponse.json({ error: 'content required' }, { status: 400 });
+  if (typeof category !== 'string' || !category.trim()) return NextResponse.json({ error: 'category required' }, { status: 400 });
+
+  const pubDate = publishedAt ? new Date(String(publishedAt)) : new Date();
+  if (isNaN(pubDate.getTime())) return NextResponse.json({ error: 'Invalid publishedAt' }, { status: 400 });
+
+  const langValue = (lang === 'ko' ? 'ko' : 'en') as 'en' | 'ko';
+  const readTime = typeof readingTimeMin === 'number' ? Math.max(1, Math.round(readingTimeMin)) : 5;
+  const isPublished = published !== false;
 
   try {
-    const sql = neon(url);
-    await sql.unsafe(ENSURE_TABLE);
-    await sql`
-      INSERT INTO blog_posts (slug, title, description, published_at, reading_time_min, category, content)
-      VALUES (${slug}, ${title}, ${description}, ${publishedAt}, ${readingTimeMin}, ${category}, ${content})
-      ON CONFLICT (slug) DO UPDATE SET
-        title            = EXCLUDED.title,
-        description      = EXCLUDED.description,
-        published_at     = EXCLUDED.published_at,
-        reading_time_min = EXCLUDED.reading_time_min,
-        category         = EXCLUDED.category,
-        content          = EXCLUDED.content,
-        created_at       = NOW()
-    `;
-    return NextResponse.json({ success: true, slug });
-  } catch (error) {
-    console.error('[admin/blog-posts] POST error:', error);
+    await db
+      .insert(blogPosts)
+      .values({
+        slug: slug.trim(),
+        title: title.trim(),
+        description: description.trim(),
+        content: content.trim(),
+        category: category.trim(),
+        lang: langValue,
+        publishedAt: pubDate,
+        readingTimeMin: readTime,
+        published: isPublished,
+      })
+      .onConflictDoUpdate({
+        target: blogPosts.slug,
+        set: {
+          title: title.trim(),
+          description: description.trim(),
+          content: content.trim(),
+          category: category.trim(),
+          lang: langValue,
+          publishedAt: pubDate,
+          readingTimeMin: readTime,
+          published: isPublished,
+        },
+      });
+
+    return NextResponse.json({ success: true, slug: slug.trim() });
+  } catch (err) {
+    console.error('[admin/blog-posts POST]', err);
     return NextResponse.json({ error: 'Database error' }, { status: 500 });
   }
 }
 
+// GET /api/admin/blog-posts — list all posts including drafts
 export async function GET(request: NextRequest) {
   if (!authorized(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const url = process.env.DATABASE_URL;
-  if (!url) return NextResponse.json({ error: 'DATABASE_URL not set' }, { status: 500 });
+  try {
+    const posts = await db
+      .select({
+        id: blogPosts.id,
+        slug: blogPosts.slug,
+        title: blogPosts.title,
+        category: blogPosts.category,
+        lang: blogPosts.lang,
+        publishedAt: blogPosts.publishedAt,
+        readingTimeMin: blogPosts.readingTimeMin,
+        published: blogPosts.published,
+        createdAt: blogPosts.createdAt,
+      })
+      .from(blogPosts)
+      .orderBy(desc(blogPosts.publishedAt));
+
+    return NextResponse.json({ posts });
+  } catch (err) {
+    console.error('[admin/blog-posts GET]', err);
+    return NextResponse.json({ error: 'Database error' }, { status: 500 });
+  }
+}
+
+// DELETE /api/admin/blog-posts?slug=... — soft-unpublish
+export async function DELETE(request: NextRequest) {
+  if (!authorized(request)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const slug = request.nextUrl.searchParams.get('slug');
+  if (!slug) return NextResponse.json({ error: 'slug param required' }, { status: 400 });
 
   try {
-    const sql = neon(url);
-    await sql.unsafe(ENSURE_TABLE);
-    const rows = await sql`
-      SELECT slug, title, description, published_at AS "publishedAt",
-             reading_time_min AS "readingTimeMin", category, published, created_at
-      FROM blog_posts
-      ORDER BY published_at DESC
-    `;
-    return NextResponse.json({ posts: rows });
-  } catch (error) {
-    console.error('[admin/blog-posts] GET error:', error);
+    await db.update(blogPosts).set({ published: false }).where(eq(blogPosts.slug, slug));
+    return NextResponse.json({ success: true, unpublished: slug });
+  } catch (err) {
+    console.error('[admin/blog-posts DELETE]', err);
     return NextResponse.json({ error: 'Database error' }, { status: 500 });
   }
 }

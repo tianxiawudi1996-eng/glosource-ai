@@ -160,3 +160,21 @@ export const socialPosts = pgTable('social_posts', {
 });
 
 export type SocialPost = typeof socialPosts.$inferSelect;
+
+// ── 블로그 포스트 ──────────────────────────────────────────────────────
+export const blogPosts = pgTable('blog_posts', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  slug: text('slug').notNull().unique(),
+  title: text('title').notNull(),
+  description: text('description').notNull(),
+  content: text('content').notNull(),
+  category: text('category').notNull(),
+  lang: text('lang', { enum: ['en', 'ko'] }).notNull().default('en'),
+  publishedAt: timestamp('published_at', { mode: 'date' }).notNull(),
+  readingTimeMin: integer('reading_time_min').notNull().default(5),
+  published: boolean('published').notNull().default(false),
+  createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
+});
+
+export type BlogPost = typeof blogPosts.$inferSelect;
+export type NewBlogPost = typeof blogPosts.$inferInsert;
