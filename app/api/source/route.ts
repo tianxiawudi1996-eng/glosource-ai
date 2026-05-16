@@ -647,11 +647,9 @@ export async function POST(request: NextRequest) {
       raw: output,
     }).catch(() => {});
 
-    // Only charge quota when grounding was actually used — ai_estimated-only results don't consume a credit
-    if (output.groundingUsed) {
-      logUsage(userId, ip, 'source', req.productDescription, output.suppliers?.length, Date.now() - start).catch(() => {});
-      if (!userId) kvConsumeFreeCredit(ip).catch(() => {});
-    };
+    // Always charge quota — result was returned regardless of grounding quality
+    logUsage(userId, ip, 'source', req.productDescription, output.suppliers?.length, Date.now() - start).catch(() => {});
+    if (!userId) kvConsumeFreeCredit(ip).catch(() => {});
 
     return NextResponse.json({ success: true, data: output });
   } catch (error) {

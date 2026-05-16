@@ -51,7 +51,7 @@ const PLANS = [
     tag: 'Most popular',
     price: '$29',
     unit: '/mo',
-    per: '60 searches / month · $0.48 per search',
+    per: '60 searches / month · includes China sourcing + PDF report',
     features: [
       'All Starter features',
       'HACCP / KS / ISO certification signals',

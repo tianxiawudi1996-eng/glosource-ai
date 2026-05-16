@@ -117,7 +117,7 @@ function SupplierCard({ s, rank }: { s: Supplier; rank: number }) {
       {/* Trust */}
       <div>
         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">
-          Trust score <span className="font-normal normal-case text-slate-400">(AI-estimated signal · not an audit · not a guarantee)</span>
+          Trust score <span className="font-normal normal-case text-amber-600">(AI estimate only — not an audit or guarantee of quality)</span>
         </p>
         <TrustBar score={s.trustScore} />
       </div>
