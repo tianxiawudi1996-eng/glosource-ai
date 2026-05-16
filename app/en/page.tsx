@@ -68,7 +68,7 @@ const PLANS = [
     tag: 'For teams',
     price: '$79',
     unit: '/mo',
-    per: 'Unlimited searches',
+    per: 'No monthly search cap',
     features: [
       'No monthly search cap',
       '5-seat team access',
@@ -549,58 +549,49 @@ export default async function EnPage() {
         </div>
       </section>
 
-      {/* ── SOCIAL PROOF ──────────────────────────────── */}
+      {/* ── DEMO OUTPUTS ──────────────────────────────── */}
       <section className="bg-slate-50 border-b border-slate-200">
         <div className="max-w-5xl mx-auto px-6 py-16">
           <div className="text-center mb-10">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Early Users</p>
-            <h2 className="text-2xl font-black text-[#0D1B2A]">What buyers say</h2>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Demo Outputs</p>
+            <h2 className="text-2xl font-black text-[#0D1B2A]">What a search can return</h2>
+            <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-slate-500">
+              These examples show the output format. They are demo scenarios, not customer testimonials or independently verified supplier endorsements.
+            </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             {[
               {
-                quote: "Found 4 MFDS-certified Korean cosmetic manufacturers in under 2 minutes. Used to spend half a day on BuyKorea and EC21 separately.",
-                name: "Sarah T.",
-                role: "Cosmetics buyer, New York",
-                flag: "🇺🇸",
+                title: "K-Beauty OEM",
+                result: "Example shortlist with MFDS and ISO 22716 certification signals, estimated MOQ range, and an English RFQ draft.",
+                meta: "Collagen serum OEM · 1,000 units",
               },
               {
-                quote: "The RFQ email was already filled with the supplier's name and MOQ from the search. Saved me an hour of copy-pasting.",
-                name: "Marcus L.",
-                role: "Import manager, Sydney",
-                flag: "🇦🇺",
+                title: "K-Food Wholesale",
+                result: "Example food supplier screen with HACCP/MFDS signals, bulk MOQ assumptions, and destination-market questions.",
+                meta: "Instant ramen OEM · bulk order",
               },
               {
-                quote: "I tried 1688 and Alibaba but couldn't tell Korean manufacturers from re-exporters. GloSource filters them properly.",
-                name: "Priya R.",
-                role: "Private label founder, London",
-                flag: "🇬🇧",
+                title: "K-Fashion OEM",
+                result: "Example apparel search comparing OEM candidates, estimated lead times, and certification signals to verify before outreach.",
+                meta: "Cotton T-shirt OEM · 500 pcs",
               },
-            ].map(t => (
-              <div key={t.name} className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col">
-                <div className="flex gap-1 mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <svg key={i} className="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                  ))}
-                </div>
-                <p className="text-sm text-slate-600 leading-relaxed flex-1 mb-4">&ldquo;{t.quote}&rdquo;</p>
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-lg">{t.flag}</div>
-                  <div>
-                    <p className="text-sm font-bold text-[#0D1B2A]">{t.name}</p>
-                    <p className="text-xs text-slate-400">{t.role}</p>
-                  </div>
-                </div>
+            ].map(item => (
+              <div key={item.title} className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col">
+                <span className="mb-4 w-fit rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-amber-700">
+                  Demo
+                </span>
+                <h3 className="mb-2 text-sm font-black text-[#0D1B2A]">{item.title}</h3>
+                <p className="mb-4 text-xs font-semibold text-slate-400">{item.meta}</p>
+                <p className="text-sm text-slate-600 leading-relaxed flex-1">{item.result}</p>
               </div>
             ))}
           </div>
           <div className="flex flex-wrap justify-center gap-6 text-center">
             {[
-              { num: '500+', label: 'Searches completed' },
-              { num: '4.8★', label: 'Average user rating' },
-              { num: '~90s', label: 'Avg. time to shortlist' },
+              { num: '3–5', label: 'Candidates per search' },
+              { num: '0–100', label: 'AI trust score' },
+              { num: '~90s', label: 'Typical shortlist target' },
             ].map(s => (
               <div key={s.label} className="px-6">
                 <p className="text-2xl font-black text-[#0D1B2A]">{s.num}</p>
@@ -664,7 +655,7 @@ export default async function EnPage() {
           </div>
 
           <p className="mt-6 text-center text-xs text-slate-400">
-            Secure checkout via Polar.sh · Cancel anytime · No Korean entity required
+            Secure checkout where available · Email fallback for early access · No Korean entity required
           </p>
         </div>
       </section>
@@ -695,7 +686,7 @@ export default async function EnPage() {
             Find your Korean supplier shortlist<br className="hidden sm:block" /> with AI-ranked evidence
           </h2>
           <p className="text-slate-300 text-sm mb-8 leading-relaxed max-w-lg mx-auto">
-            5 free searches, no credit card required. Get ranked Korean supplier candidates with MFDS/HACCP/KC certification signals and an English RFQ draft — in under a minute.
+            5 free searches, no credit card required. Get ranked Korean supplier candidates with MFDS/HACCP/KC certification signals and an English RFQ draft.
           </p>
           <ScrollCTA targetId="sourcing-tool"
             className="inline-flex items-center gap-2 bg-[#EA580C] hover:bg-[#DC4C00] text-white font-bold px-8 py-4 rounded-xl transition-all shadow-lg shadow-orange-900/30 text-sm">

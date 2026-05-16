@@ -437,7 +437,7 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
                 View all plans →
               </a>
             </div>
-            <p className="text-[10px] text-slate-400 text-center mt-2">Secure checkout via Polar.sh · Cancel anytime · No Korean entity required</p>
+            <p className="text-[10px] text-slate-400 text-center mt-2">Secure checkout where available · Email fallback for early access · No Korean entity required</p>
           </div>
         </div>
       )}

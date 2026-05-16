@@ -1,0 +1,29 @@
+[
+  {
+    "cluster": "K-beauty OEM",
+    "intent": "Find Korean cosmetics manufacturers for private label or OEM sourcing",
+    "keywords": [
+      "how to find Korean cosmetics manufacturers",
+      "Korean skincare OEM suppliers",
+      "Korean sheet mask private label manufacturers"
+    ]
+  },
+  {
+    "cluster": "Supplier verification",
+    "intent": "Understand Korean supplier trust and certification signals",
+    "keywords": [
+      "MFDS Korean cosmetics supplier verification",
+      "HACCP Korean food manufacturer verification",
+      "BuyKorea vs EC21 vs tradeKorea"
+    ]
+  },
+  {
+    "cluster": "RFQ templates",
+    "intent": "Prepare outreach to Korean manufacturers",
+    "keywords": [
+      "RFQ email template for Korean manufacturer",
+      "Korean supplier MOQ lead time RFQ",
+      "private label skincare RFQ template"
+    ]
+  }
+]

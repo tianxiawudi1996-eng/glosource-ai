@@ -39,8 +39,8 @@ export default function PrivacyPage() {
             <p>
               GloSource AI (&ldquo;we&rdquo;, &ldquo;us&rdquo;) operates the sourcing research tool at glosource-ai.vercel.app.
               Questions about this policy can be sent to{' '}
-              <a href="mailto:like2buyglobal@gmail.com" className="underline text-[#EA580C] hover:text-orange-400">
-                like2buyglobal@gmail.com
+              <a href="mailto:hello@glosource.ai" className="underline text-[#EA580C] hover:text-orange-400">
+                hello@glosource.ai
               </a>.
             </p>
           </section>
@@ -161,8 +161,8 @@ export default function PrivacyPage() {
             </ul>
             <p className="mb-3">
               To exercise any right, email{' '}
-              <a href="mailto:like2buyglobal@gmail.com" className="underline text-[#EA580C] hover:text-orange-400">
-                like2buyglobal@gmail.com
+              <a href="mailto:hello@glosource.ai" className="underline text-[#EA580C] hover:text-orange-400">
+                hello@glosource.ai
               </a>{' '}
               with the subject line <em>&ldquo;Privacy Request — [Your Right]&rdquo;</em>.
               We will respond within 30 days (GDPR standard).
@@ -213,7 +213,7 @@ export default function PrivacyPage() {
               <p><strong className="text-white">제3자 처리자:</strong> Google(Gemini AI), Vercel(호스팅), Neon(DB), Resend(이메일)</p>
               <p><strong className="text-white">정보주체 권리:</strong> 열람·수정·삭제·이동·처리 정지 요청 가능. 이메일로 30일 내 처리.</p>
               <p><strong className="text-white">보존 기간:</strong> 계정 삭제 후 30일 내 이메일 삭제, 검색 기록 12개월, 결제 정보 5년(법적 의무)</p>
-              <p><strong className="text-white">문의:</strong> like2buyglobal@gmail.com (제목: 개인정보 요청 — 요청 유형)</p>
+              <p><strong className="text-white">문의:</strong> hello@glosource.ai (제목: 개인정보 요청 — 요청 유형)</p>
             </div>
           </section>
 
@@ -226,7 +226,7 @@ export default function PrivacyPage() {
           <div className="flex items-center gap-4">
             <Link href="/terms" className="hover:text-slate-300 transition-colors">Terms</Link>
             <Link href="/privacy" className="text-white hover:text-slate-300 transition-colors">Privacy</Link>
-            <a href="mailto:like2buyglobal@gmail.com" className="hover:text-slate-300 transition-colors">Contact</a>
+            <a href="mailto:hello@glosource.ai" className="hover:text-slate-300 transition-colors">Contact</a>
           </div>
         </div>
       </footer>

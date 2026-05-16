@@ -18,13 +18,13 @@ export function CancelPolarButton({ subscriptionId }: { subscriptionId: string }
       });
       if (!res.ok) {
         const json = await res.json().catch(() => ({})) as { error?: string };
-        alert(json.error ?? 'Failed to cancel subscription. Please email like2buyglobal@gmail.com for help.');
+        alert(json.error ?? 'Failed to cancel subscription. Please email hello@glosource.ai for help.');
         return;
       }
       setIsOpen(false);
       router.refresh();
     } catch {
-      alert('An error occurred. Please email like2buyglobal@gmail.com for help.');
+      alert('An error occurred. Please email hello@glosource.ai for help.');
     } finally {
       setLoading(false);
     }

@@ -1,0 +1,26 @@
+[
+  {
+    "company": "Example K-Beauty Shopify Store",
+    "category": "K-beauty ecommerce",
+    "country": "US",
+    "url": "https://example.com",
+    "contact": "founder@example.com",
+    "sellsKoreanProducts": true,
+    "hasWholesaleLanguage": true,
+    "contactVisible": true,
+    "recentLaunch": false,
+    "usesMarketplace": true
+  },
+  {
+    "company": "Example Beauty Distributor",
+    "category": "beauty wholesale",
+    "country": "UK",
+    "url": "https://example.co.uk",
+    "contact": "",
+    "sellsKoreanProducts": true,
+    "hasWholesaleLanguage": true,
+    "contactVisible": false,
+    "recentLaunch": true,
+    "usesMarketplace": false
+  }
+]

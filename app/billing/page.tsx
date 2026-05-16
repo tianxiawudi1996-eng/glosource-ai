@@ -98,7 +98,7 @@ export default async function BillingPage() {
                     <UpgradeButton planId={plan.id} planName={plan.name} isCurrent={isCurrent} />
                   ) : (
                     <a
-                      href={`mailto:like2buyglobal@gmail.com?subject=GloSource%20AI%20${plan.name}%20Plan%20Access`}
+                      href={`mailto:hello@glosource.ai?subject=GloSource%20AI%20${plan.name}%20Plan%20Access`}
                       className="block w-full rounded-xl bg-[#0D1B2A] px-4 py-3 text-center text-sm font-black text-white hover:bg-slate-800"
                     >
                       베타 신청하기

@@ -7,6 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "growth:audit": "node scripts/growth/audit-en-funnel.js && node scripts/growth/audit-brand-consistency.js",
+    "growth:payments": "node scripts/growth/audit-polar-health.js",
+    "growth:cases": "node scripts/growth/extract-case-study-candidates.js",
+    "growth:seo": "node scripts/growth/generate-seo-briefs.js",
+    "growth:weekly": "node scripts/growth/generate-weekly-growth-report.js",
+    "growth:leads": "node scripts/growth/score-outreach-leads.js",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio"

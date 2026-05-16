@@ -95,7 +95,7 @@ export default function TermsPage() {
               <li>A verified technical failure on our side prevented service delivery for more than 72 consecutive hours.</li>
             </ul>
             <p className="mb-3">
-              To request a refund, email <a href="mailto:like2buyglobal@gmail.com" className="underline text-[#EA580C] hover:text-orange-400">like2buyglobal@gmail.com</a> with your account email and order reference.
+              To request a refund, email <a href="mailto:hello@glosource.ai" className="underline text-[#EA580C] hover:text-orange-400">hello@glosource.ai</a> with your account email and order reference.
               We aim to respond within 3 business days.
             </p>
             <h3 id="section-3-5" className="font-semibold text-white mb-2 scroll-mt-24">3.5 EU Consumer Withdrawal Rights</h3>
@@ -109,7 +109,7 @@ export default function TermsPage() {
               California residents have the right to know what personal information is collected, to request deletion, and to opt out of the sale of personal information.
               We do <strong className="text-white">not</strong> sell personal information.
               To exercise your rights, email{' '}
-              <a href="mailto:like2buyglobal@gmail.com" className="underline text-[#EA580C] hover:text-orange-400">like2buyglobal@gmail.com</a>{' '}
+              <a href="mailto:hello@glosource.ai" className="underline text-[#EA580C] hover:text-orange-400">hello@glosource.ai</a>{' '}
               with subject line &ldquo;CCPA Request&rdquo;.
             </p>
           </section>
@@ -180,7 +180,7 @@ export default function TermsPage() {
             <div className="bg-white/5 border border-white/10 rounded-xl p-5 space-y-1.5 text-slate-300 text-sm">
               <p><strong className="text-white">서비스 운영자 / Operator:</strong> Vision Kim (김무빈)</p>
               <p><strong className="text-white">연락처 / Contact:</strong>{' '}
-                <a href="mailto:like2buyglobal@gmail.com" className="underline text-[#EA580C] hover:text-orange-400">like2buyglobal@gmail.com</a>
+                <a href="mailto:hello@glosource.ai" className="underline text-[#EA580C] hover:text-orange-400">hello@glosource.ai</a>
               </p>
               <p><strong className="text-white">서비스명 / Service:</strong> GloSource AI</p>
               <p className="text-xs text-slate-400 pt-1">
@@ -195,8 +195,8 @@ export default function TermsPage() {
             <h2 className="text-lg font-bold text-white mb-3">10. Contact</h2>
             <p>
               Questions about these Terms?{' '}
-              <a href="mailto:like2buyglobal@gmail.com" className="underline text-[#EA580C] hover:text-orange-400">
-                like2buyglobal@gmail.com
+              <a href="mailto:hello@glosource.ai" className="underline text-[#EA580C] hover:text-orange-400">
+                hello@glosource.ai
               </a>
             </p>
           </section>
@@ -212,8 +212,8 @@ export default function TermsPage() {
               <p><strong className="text-white">청약철회권:</strong> 구독 결제 시 즉시 디지털 서비스가 제공되므로, 최초 검색 사용 후에는 전자상거래법 제17조에 따른 청약철회권이 제한됩니다. 결제 시 별도 동의를 받습니다.</p>
               <p><strong className="text-white">요금제:</strong> 한국어 플랜과 영어 플랜은 동일한 AI 엔진을 사용하며, 가격 차이는 포함된 월간 검색 횟수와 지역 시장 여건을 반영합니다.</p>
               <p><strong className="text-white">준거법:</strong> 대한민국 법률 적용, 관할 법원은 서울중앙지방법원.</p>
-              <p><strong className="text-white">사업자 정보:</strong> 통신판매업 신고 진행 중. 운영자: 김무빈, 연락처: like2buyglobal@gmail.com</p>
-              <p><strong className="text-white">문의:</strong> like2buyglobal@gmail.com</p>
+              <p><strong className="text-white">사업자 정보:</strong> 통신판매업 신고 진행 중. 운영자: 김무빈, 연락처: hello@glosource.ai</p>
+              <p><strong className="text-white">문의:</strong> hello@glosource.ai</p>
             </div>
           </section>
 
@@ -226,7 +226,7 @@ export default function TermsPage() {
           <div className="flex items-center gap-4">
             <Link href="/terms" className="text-white hover:text-slate-300 transition-colors">Terms</Link>
             <Link href="/privacy" className="hover:text-slate-300 transition-colors">Privacy</Link>
-            <a href="mailto:like2buyglobal@gmail.com" className="hover:text-slate-300 transition-colors">Contact</a>
+            <a href="mailto:hello@glosource.ai" className="hover:text-slate-300 transition-colors">Contact</a>
           </div>
         </div>
       </footer>
