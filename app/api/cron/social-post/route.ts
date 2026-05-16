@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const BUFFER_API = 'https://api.buffer.com/graphql';
-const BUFFER_TOKEN = process.env.BUFFER_API_KEY!;
 const CHANNELS = {
   threads: process.env.BUFFER_CHANNEL_THREADS!,
   twitter: process.env.BUFFER_CHANNEL_TWITTER!,
@@ -12,11 +11,45 @@ const RSS_FEEDS = [
   'https://venturebeat.com/category/ai/feed/',
 ];
 
+// [FIX 1] "verified" 제거, MFDS/HACCP 보장 표현 제거, #ad 표기 추가
 const GLOSOURCE_MENTIONS = [
-  'If you source products from Korea, GloSource AI (glosource-ai.vercel.app) can find verified Korean suppliers in ~90 seconds. Worth trying.',
-  'Korean supplier research used to take hours. GloSource AI cuts it to ~90 sec — EC21, BuyKorea, tradeKorea searched simultaneously.',
-  'For buyers sourcing Korean cosmetics, food, or fashion — GloSource AI finds supplier candidates with MFDS/HACCP signals automatically.',
+  '[AD] Sourcing from Korea? GloSource AI (glosource-ai.vercel.app) finds supplier candidates via EC21, BuyKorea & tradeKorea in ~90 sec.',
+  '[AD] Korean supplier research used to take hours of tab-switching. GloSource AI searches multiple B2B platforms simultaneously.',
+  '[AD] For buyers exploring Korean cosmetics, food, or fashion suppliers — GloSource AI surfaces candidates with AI-detected cert signals. Results require your own verification.',
 ];
+
+// [FIX 2] 부적절한 뉴스 블랙리스트
+const BLOCKED_KEYWORDS = [
+  'scam', 'fraud', 'bankrupt', 'bankruptcy', 'lawsuit', 'layoff',
+  'hack', 'breach', 'arrested', 'indicted', 'collapse', 'shutdown',
+  'exploit', 'vulnerability', 'death', 'fatal',
+];
+
+// [FIX 3] GloSource 멘션은 소싱/무역 관련 뉴스에만 삽입
+const SOURCING_KEYWORDS = [
+  'supply chain', 'manufacturing', 'supplier', 'sourcing', 'import',
+  'export', 'trade', 'b2b', 'factory', 'procurement', 'logistics',
+  'warehouse', 'inventory', 'wholesale', 'vendor',
+];
+
+async function sendFailureAlert(message: string): Promise<void> {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) return;
+  try {
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: process.env.RESEND_EMAIL_FROM ?? 'noreply@glosource.ai',
+        to: process.env.ADMIN_EMAIL ?? 'tianxiawudi1996@gmail.com',
+        subject: '[GloSource] 소셜 자동화 발행 실패',
+        text: message,
+      }),
+    });
+  } catch {
+    // 알림 실패는 무시
+  }
+}
 
 async function fetchRSSItem(): Promise<{ title: string; link: string; summary: string } | null> {
   for (const feed of RSS_FEEDS) {
@@ -26,19 +59,30 @@ async function fetchRSSItem(): Promise<{ title: string; link: string; summary: s
       const items = xml.match(/<item>([\s\S]*?)<\/item>/g);
       if (!items || items.length === 0) continue;
 
-      const randomItem = items[Math.floor(Math.random() * Math.min(5, items.length))];
-      const cdataTitle = /<title><!\[CDATA\[([\s\S]*?)\]\]><\/title>/.exec(randomItem)?.[1];
-      const plainTitle = /<title>([\s\S]*?)<\/title>/.exec(randomItem)?.[1];
-      const title = cdataTitle ?? plainTitle ?? '';
-      const link = randomItem.match(/<link>(.*?)<\/link>/)?.[1]
-        ?? randomItem.match(/<link[^>]*href="([^"]+)"/)?.[1]
-        ?? '';
-      const cdataDesc = /<description><!\[CDATA\[([\s\S]*?)\]\]><\/description>/.exec(randomItem)?.[1];
-      const plainDesc = /<description>([\s\S]*?)<\/description>/.exec(randomItem)?.[1];
-      const desc = cdataDesc ?? plainDesc ?? '';
+      // 최신 10개 중 랜덤 선택 (더 다양한 뉴스)
+      const candidates = items.slice(0, 10);
+      for (let attempt = 0; attempt < candidates.length; attempt++) {
+        const randomItem = candidates[Math.floor(Math.random() * candidates.length)];
+        const cdataTitle = /<title><!\[CDATA\[([\s\S]*?)\]\]><\/title>/.exec(randomItem)?.[1];
+        const plainTitle = /<title>([\s\S]*?)<\/title>/.exec(randomItem)?.[1];
+        const title = cdataTitle ?? plainTitle ?? '';
+        const link = randomItem.match(/<link>(.*?)<\/link>/)?.[1]
+          ?? randomItem.match(/<link[^>]*href="([^"]+)"/)?.[1]
+          ?? '';
+        const cdataDesc = /<description><!\[CDATA\[([\s\S]*?)\]\]><\/description>/.exec(randomItem)?.[1];
+        const plainDesc = /<description>([\s\S]*?)<\/description>/.exec(randomItem)?.[1];
+        const desc = cdataDesc ?? plainDesc ?? '';
+        const summary = desc.replace(/<[^>]+>/g, '').slice(0, 200).trim();
 
-      const summary = desc.replace(/<[^>]+>/g, '').slice(0, 200).trim();
-      if (title && link) return { title, link, summary };
+        if (!title || !link) continue;
+
+        // [FIX 2] 블랙리스트 필터 — 부적절한 뉴스 건너뜀
+        const titleLower = title.toLowerCase();
+        const isBlocked = BLOCKED_KEYWORDS.some(kw => titleLower.includes(kw));
+        if (isBlocked) continue;
+
+        return { title, link, summary };
+      }
     } catch {
       continue;
     }
@@ -50,9 +94,12 @@ async function generatePost(newsItem: { title: string; link: string; summary: st
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error('GEMINI_API_KEY missing');
 
-  const shouldMentionGlosource = Math.random() < 0.4;
-  const glosourceLine = shouldMentionGlosource
-    ? `\n\n💡 ${GLOSOURCE_MENTIONS[Math.floor(Math.random() * GLOSOURCE_MENTIONS.length)]}`
+  // [FIX 3] 소싱/무역 관련 뉴스에서만 GloSource 멘션 삽입
+  const combined = (newsItem.title + ' ' + newsItem.summary).toLowerCase();
+  const isRelevantTopic = SOURCING_KEYWORDS.some(kw => combined.includes(kw));
+  const shouldMentionGlosource = isRelevantTopic && Math.random() < 0.5;
+  const glosourceMention = shouldMentionGlosource
+    ? GLOSOURCE_MENTIONS[Math.floor(Math.random() * GLOSOURCE_MENTIONS.length)]
     : '';
 
   const prompt = `You are a B2B sourcing and AI industry content writer targeting international buyers and entrepreneurs.
@@ -63,14 +110,15 @@ NEWS TITLE: ${newsItem.title}
 SUMMARY: ${newsItem.summary}
 LINK: ${newsItem.link}
 
-VERSION 1 (Threads) — max 400 characters total, conversational, 1-2 hashtags, include the link. Keep it tight.
-VERSION 2 (Twitter/X) — max 260 characters, punchy, include the link, 1-2 hashtag
+VERSION 1 (Threads) — max 380 characters total including link and hashtags. Conversational, 1-2 hashtags. Keep it tight.
+VERSION 2 (Twitter/X) — max 250 characters total including link and hashtag. Punchy, 1 hashtag max.
 
 Rules:
 - Focus on practical implications for business/sourcing/trade
-- No hype language ("game-changer", "revolutionary", "mindblowing")
+- No hype words: "game-changer", "revolutionary", "mindblowing", "groundbreaking"
 - Sound like a knowledgeable professional, not a marketer
 - Always include the original news link
+- Output valid JSON only — no markdown, no code block
 
 Respond in this exact JSON format:
 {"threads": "...", "twitter": "..."}`;
@@ -90,16 +138,25 @@ Respond in this exact JSON format:
   if (!jsonMatch) throw new Error('Invalid Gemini response');
 
   const parsed = JSON.parse(jsonMatch[0]);
+  let threadsText = String(parsed.threads ?? '').trim();
+  let twitterText = String(parsed.twitter ?? '').trim();
+
+  // [FIX 4] 맥락 있을 때만 GloSource 멘션 append (문자수 초과 방지)
+  if (glosourceMention && threadsText.length + glosourceMention.length + 2 <= 500) {
+    threadsText = `${threadsText}\n\n${glosourceMention}`;
+  }
+
+  // 안전 truncate
   return {
-    threads: parsed.threads + glosourceLine,
-    twitter: parsed.twitter,
+    threads: threadsText.slice(0, 500),
+    twitter: twitterText.slice(0, 280),
   };
 }
 
 async function scheduleBufferPost(channelId: string, text: string): Promise<{ ok: boolean; error?: string }> {
-  const tomorrow9am = new Date();
-  tomorrow9am.setDate(tomorrow9am.getDate() + 1);
-  tomorrow9am.setHours(9, 0, 0, 0);
+  const bufferToken = process.env.BUFFER_API_KEY;
+  if (!bufferToken) return { ok: false, error: 'BUFFER_API_KEY missing' };
+  if (!channelId) return { ok: false, error: 'Buffer channel id missing' };
 
   const mutation = `
     mutation CreatePost($input: CreatePostInput!) {
@@ -115,7 +172,7 @@ async function scheduleBufferPost(channelId: string, text: string): Promise<{ ok
   const res = await fetch(BUFFER_API, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${BUFFER_TOKEN}`,
+      'Authorization': `Bearer ${bufferToken}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
@@ -144,15 +201,18 @@ async function scheduleBufferPost(channelId: string, text: string): Promise<{ ok
 }
 
 export async function GET(request: NextRequest) {
+  // [FIX 5] 항상 CRON_SECRET 검증 (개발환경 무인증 제거)
   const authHeader = request.headers.get('authorization');
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}` && process.env.NODE_ENV === 'production') {
+  const cronSecret = process.env.CRON_SECRET;
+  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
     const newsItem = await fetchRSSItem();
     if (!newsItem) {
-      return NextResponse.json({ error: 'No news found' }, { status: 500 });
+      await sendFailureAlert('소셜 자동화: RSS에서 적합한 뉴스를 찾지 못했습니다.');
+      return NextResponse.json({ error: 'No suitable news found' }, { status: 500 });
     }
 
     const posts = await generatePost(newsItem);
@@ -162,18 +222,33 @@ export async function GET(request: NextRequest) {
       scheduleBufferPost(CHANNELS.twitter, posts.twitter),
     ]);
 
-    return NextResponse.json({
-      success: true,
-      news: newsItem.title,
-      scheduled: {
-        threads: threadsResult.ok,
-        twitter: twitterResult.ok,
-        threadsError: threadsResult.error,
-        twitterError: twitterResult.error,
+    // [FIX 5] 발행 실패 시 success:false + 이메일 알림
+    const allOk = threadsResult.ok && twitterResult.ok;
+    if (!allOk) {
+      const errorMsg = [
+        `뉴스: ${newsItem.title}`,
+        threadsResult.error ? `Threads 실패: ${threadsResult.error}` : '',
+        twitterResult.error ? `Twitter 실패: ${twitterResult.error}` : '',
+      ].filter(Boolean).join('\n');
+      await sendFailureAlert(errorMsg);
+    }
+
+    return NextResponse.json(
+      {
+        success: allOk,
+        news: newsItem.title,
+        scheduled: {
+          threads: threadsResult.ok,
+          twitter: twitterResult.ok,
+          ...(threadsResult.error && { threadsError: threadsResult.error }),
+          ...(twitterResult.error && { twitterError: twitterResult.error }),
+        },
       },
-    });
+      { status: allOk ? 200 : 500 }
+    );
   } catch (error) {
     console.error('[social-post cron]', error);
+    await sendFailureAlert(`소셜 자동화 예외 발생: ${String(error)}`);
     return NextResponse.json({ error: String(error) }, { status: 500 });
   }
 }
