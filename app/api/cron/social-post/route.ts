@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { db, socialPosts } from '@/app/lib/db';
+import { eq } from 'drizzle-orm';
 
 const BUFFER_API = 'https://api.buffer.com/graphql';
 const CHANNELS = {
@@ -51,6 +53,21 @@ async function sendFailureAlert(message: string): Promise<void> {
   }
 }
 
+// [FIX 6] DB에서 이미 발행된 URL 조회 (dedup)
+async function isAlreadyPublished(articleUrl: string): Promise<boolean> {
+  try {
+    const rows = await db
+      .select({ id: socialPosts.id })
+      .from(socialPosts)
+      .where(eq(socialPosts.articleUrl, articleUrl))
+      .limit(1);
+    return rows.length > 0;
+  } catch {
+    // DB 오류 시 dedup 건너뜀 (중단 방지)
+    return false;
+  }
+}
+
 async function fetchRSSItem(): Promise<{ title: string; link: string; summary: string } | null> {
   for (const feed of RSS_FEEDS) {
     try {
@@ -80,6 +97,10 @@ async function fetchRSSItem(): Promise<{ title: string; link: string; summary: s
         const titleLower = title.toLowerCase();
         const isBlocked = BLOCKED_KEYWORDS.some(kw => titleLower.includes(kw));
         if (isBlocked) continue;
+
+        // [FIX 6] 중복 발행 방지 — 이미 DB에 있는 URL 건너뜀
+        const alreadyPublished = await isAlreadyPublished(link);
+        if (alreadyPublished) continue;
 
         return { title, link, summary };
       }
@@ -139,7 +160,7 @@ Respond in this exact JSON format:
 
   const parsed = JSON.parse(jsonMatch[0]);
   let threadsText = String(parsed.threads ?? '').trim();
-  let twitterText = String(parsed.twitter ?? '').trim();
+  const twitterText = String(parsed.twitter ?? '').trim();
 
   // [FIX 4] 맥락 있을 때만 GloSource 멘션 append (문자수 초과 방지)
   if (glosourceMention && threadsText.length + glosourceMention.length + 2 <= 500) {
@@ -153,7 +174,7 @@ Respond in this exact JSON format:
   };
 }
 
-async function scheduleBufferPost(channelId: string, text: string): Promise<{ ok: boolean; error?: string }> {
+async function scheduleBufferPost(channelId: string, text: string): Promise<{ ok: boolean; postId?: string; error?: string }> {
   const bufferToken = process.env.BUFFER_API_KEY;
   if (!bufferToken) return { ok: false, error: 'BUFFER_API_KEY missing' };
   if (!channelId) return { ok: false, error: 'Buffer channel id missing' };
@@ -197,7 +218,28 @@ async function scheduleBufferPost(channelId: string, text: string): Promise<{ ok
   if (result?.message) {
     return { ok: false, error: result.message };
   }
-  return { ok: !!result?.post?.id };
+  const postId = result?.post?.id as string | undefined;
+  return { ok: !!postId, postId };
+}
+
+// [FIX 8] 발행 성공 후 DB에 기록
+async function logPublishedPost(
+  newsItem: { title: string; link: string },
+  threadsPostId: string | undefined,
+  twitterPostId: string | undefined,
+  status: 'published' | 'partial' | 'failed',
+): Promise<void> {
+  try {
+    await db.insert(socialPosts).values({
+      articleUrl: newsItem.link,
+      articleTitle: newsItem.title,
+      threadsPostId: threadsPostId ?? null,
+      twitterPostId: twitterPostId ?? null,
+      status,
+    });
+  } catch {
+    // 로그 실패는 무시 (발행 성공이 우선)
+  }
 }
 
 export async function GET(request: NextRequest) {
@@ -211,7 +253,7 @@ export async function GET(request: NextRequest) {
   try {
     const newsItem = await fetchRSSItem();
     if (!newsItem) {
-      await sendFailureAlert('소셜 자동화: RSS에서 적합한 뉴스를 찾지 못했습니다.');
+      await sendFailureAlert('소셜 자동화: RSS에서 적합한 뉴스를 찾지 못했습니다. (모두 중복이거나 블랙리스트 필터됨)');
       return NextResponse.json({ error: 'No suitable news found' }, { status: 500 });
     }
 
@@ -224,6 +266,18 @@ export async function GET(request: NextRequest) {
 
     // [FIX 5] 발행 실패 시 success:false + 이메일 알림
     const allOk = threadsResult.ok && twitterResult.ok;
+    const status = allOk ? 'published' : (threadsResult.ok || twitterResult.ok ? 'partial' : 'failed');
+
+    // [FIX 8] 발행 결과 DB 기록 (성공·부분 성공 모두 기록)
+    if (status !== 'failed') {
+      await logPublishedPost(
+        newsItem,
+        threadsResult.postId,
+        twitterResult.postId,
+        status,
+      );
+    }
+
     if (!allOk) {
       const errorMsg = [
         `뉴스: ${newsItem.title}`,

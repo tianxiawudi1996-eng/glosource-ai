@@ -147,3 +147,16 @@ export const PLAN_LIMITS = {
 export type PlanTier = keyof typeof PLAN_LIMITS;
 
 export type VerifiedSupplier = typeof verifiedSuppliers.$inferSelect;
+
+// ── 소셜 미디어 자동화 발행 로그 ──────────────────────────────────────
+export const socialPosts = pgTable('social_posts', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  articleUrl: text('article_url').notNull().unique(),
+  articleTitle: text('article_title').notNull(),
+  threadsPostId: text('threads_post_id'),
+  twitterPostId: text('twitter_post_id'),
+  status: text('status', { enum: ['published', 'partial', 'failed'] }).notNull().default('published'),
+  publishedAt: timestamp('published_at', { mode: 'date' }).defaultNow().notNull(),
+});
+
+export type SocialPost = typeof socialPosts.$inferSelect;
