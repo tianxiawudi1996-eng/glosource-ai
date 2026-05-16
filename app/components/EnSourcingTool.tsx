@@ -94,7 +94,6 @@ function AeoCompanyCard({ company }: { company: AeoMatchedCompany }) {
 }
 
 function AeoPanel({ matches, region }: { matches: { korea: AeoMatchedCompany[]; china: AeoMatchedCompany[] }; region: 'korea' | 'china' }) {
-  const companies = region === 'korea' ? matches.korea : matches.china;
   const allCompanies = region === 'korea'
     ? matches.korea
     : [...matches.china, ...matches.korea].slice(0, 4);
