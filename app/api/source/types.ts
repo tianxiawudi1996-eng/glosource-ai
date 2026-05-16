@@ -44,6 +44,18 @@ export interface Supplier {
   exportToKoreaExperience: boolean;
 }
 
+export interface AeoMatchedCompany {
+  id: string;
+  name: string;
+  nameLocal: string;
+  country: 'KR' | 'CN';
+  tier: 'AA' | 'A' | 'ABAC';
+  specialties: string[];
+  exportRegions: string[];
+  website?: string;
+  verifiedYear: number;
+}
+
 export interface SourcingOutput {
   suppliers: Supplier[];
   recommendation: string;
@@ -58,6 +70,10 @@ export interface SourcingOutput {
     acceptedCount: number;
     rejectedCount: number;
     rejectionReasons: string[];
+  };
+  aeoMatches?: {
+    korea: AeoMatchedCompany[];
+    china: AeoMatchedCompany[];
   };
 }
 

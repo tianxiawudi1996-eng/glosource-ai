@@ -7,6 +7,7 @@ import type { SourcingRequest, SourcingOutput, Supplier } from './types';
 import { kvConsumeFreeCredit, kvSaveHistory, extractTrustedIp } from '../../lib/kv';
 import { checkAuthAndQuota, logUsage } from '../../lib/authMiddleware';
 import { enforceVerifiedSupplierQualityGate, verifiedSupplierUnavailableMessage } from '../../lib/supplier-verification';
+import { matchAeoCompanies } from '../../lib/aeo-companies';
 
 export const maxDuration = 120;
 
@@ -636,6 +637,14 @@ export async function POST(request: NextRequest) {
     }
 
     const output = qualityGate.output;
+
+    // AEO 매칭: 제품 검색어 기준으로 한국/중국 AEO 공인기업 매칭
+    const aeoQuery = `${req.productDescription} ${req.categoryCode ?? ''}`.trim();
+    const krAeo = matchAeoCompanies(aeoQuery, 'KR', 3);
+    const cnAeo = matchAeoCompanies(aeoQuery, 'CN', 3);
+    if (krAeo.length > 0 || cnAeo.length > 0) {
+      output.aeoMatches = { korea: krAeo, china: cnAeo };
+    }
 
     kvSaveHistory({
       id: `${Date.now()}-ai`,

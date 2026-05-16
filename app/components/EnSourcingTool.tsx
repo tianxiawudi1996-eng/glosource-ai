@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import type { SourcingOutput, Supplier } from '@/app/api/source/types';
+import type { SourcingOutput, Supplier, AeoMatchedCompany } from '@/app/api/source/types';
+import { AEO_TIER_LABEL } from '@/app/lib/aeo-companies';
 
 type SourceRegion = 'china' | 'korea';
 
@@ -54,6 +55,89 @@ const CERT_PATTERNS: { re: RegExp; label: string; cls: string }[] = [
 function extractCerts(evidence: string[]): { label: string; cls: string }[] {
   const joined = (Array.isArray(evidence) ? evidence : []).join(' ');
   return CERT_PATTERNS.filter(p => p.re.test(joined)).map(p => ({ label: p.label, cls: p.cls }));
+}
+
+function AeoCompanyCard({ company }: { company: AeoMatchedCompany }) {
+  const tierInfo = AEO_TIER_LABEL[company.tier];
+  const flagEmoji = company.country === 'KR' ? '🇰🇷' : '🇨🇳';
+  return (
+    <div className="bg-white rounded-xl border border-slate-200 p-3 flex flex-col gap-2 hover:border-slate-300 transition-all">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-1.5 mb-0.5">
+            <span className="text-sm">{flagEmoji}</span>
+            <p className="font-bold text-sm text-[#0D1B2A] truncate">{company.name}</p>
+          </div>
+          <p className="text-[10px] text-slate-400 truncate">{company.nameLocal}</p>
+        </div>
+        <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold border flex-shrink-0 ${tierInfo.color}`}>
+          {tierInfo.badge} {company.tier === 'ABAC' ? 'ABAC' : `AEO ${company.tier}`}
+        </span>
+      </div>
+      <div className="flex flex-wrap gap-1">
+        {company.specialties.slice(0, 3).map(s => (
+          <span key={s} className="text-[10px] bg-slate-50 border border-slate-200 rounded-full px-1.5 py-0.5 text-slate-600">{s}</span>
+        ))}
+      </div>
+      <div className="flex items-center justify-between">
+        <span className="text-[10px] text-slate-400">Exports: {company.exportRegions.slice(0, 4).join(' · ')}</span>
+        {company.website && (
+          <a href={company.website} target="_blank" rel="noopener noreferrer"
+            className="text-[10px] text-blue-600 hover:text-blue-800 transition-colors">
+            Website →
+          </a>
+        )}
+      </div>
+      <p className="text-[9px] text-slate-400">Verified {company.verifiedYear} · Confirm current status at customs authority</p>
+    </div>
+  );
+}
+
+function AeoPanel({ matches, region }: { matches: { korea: AeoMatchedCompany[]; china: AeoMatchedCompany[] }; region: 'korea' | 'china' }) {
+  const companies = region === 'korea' ? matches.korea : matches.china;
+  const allCompanies = region === 'korea'
+    ? matches.korea
+    : [...matches.china, ...matches.korea].slice(0, 4);
+
+  const display = region === 'korea' ? matches.korea : allCompanies;
+  if (display.length === 0) return null;
+
+  const aaCount = display.filter(c => c.tier === 'AA').length;
+  const aCount = display.filter(c => c.tier === 'A').length;
+  const abacCount = display.filter(c => c.tier === 'ABAC').length;
+
+  return (
+    <div className="rounded-2xl border border-yellow-300 bg-yellow-50/60 p-4 shadow-sm">
+      <div className="flex items-center justify-between mb-3">
+        <div>
+          <div className="flex items-center gap-2 mb-0.5">
+            <span className="text-base">🏛️</span>
+            <p className="text-sm font-black text-[#0D1B2A]">AEO Customs-Certified Companies</p>
+          </div>
+          <p className="text-[10px] text-slate-500 ml-6">
+            Authorized Economic Operators — recognized by customs authorities across APEC member economies
+          </p>
+        </div>
+        <div className="flex gap-1.5 flex-shrink-0">
+          {aaCount > 0 && <span className="text-[10px] font-bold bg-yellow-100 border border-yellow-300 text-yellow-700 px-1.5 py-0.5 rounded-full">🏅 AA ×{aaCount}</span>}
+          {aCount > 0 && <span className="text-[10px] font-bold bg-emerald-50 border border-emerald-300 text-emerald-700 px-1.5 py-0.5 rounded-full">✅ A ×{aCount}</span>}
+          {abacCount > 0 && <span className="text-[10px] font-bold bg-blue-50 border border-blue-300 text-blue-700 px-1.5 py-0.5 rounded-full">⭐ ABAC ×{abacCount}</span>}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mb-3">
+        {display.map(company => (
+          <AeoCompanyCard key={company.id} company={company} />
+        ))}
+      </div>
+
+      <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[10px] text-amber-800 leading-relaxed">
+        <strong>Disclaimer:</strong> AEO certification status is based on publicly available customs authority data (Korea Customs Service / China GACC).
+        Certification status may change. Always verify current status directly with the official customs authority before signing any contract.
+        AEO certification does not guarantee product quality or suitability for your specific requirements.
+      </div>
+    </div>
+  );
 }
 
 function TrustBar({ score }: { score: number }) {
@@ -535,6 +619,11 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
       {/* Results */}
       {result && (
         <div className="space-y-6">
+          {/* AEO 공인기업 패널 — AI 결과 위에 표시 */}
+          {result.aeoMatches && (result.aeoMatches.korea.length > 0 || result.aeoMatches.china.length > 0) && (
+            <AeoPanel matches={result.aeoMatches} region={region} />
+          )}
+
           <div>
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-black text-[#0D1B2A]">
