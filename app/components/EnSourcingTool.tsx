@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import type { SourcingOutput, Supplier, AeoMatchedCompany } from '@/app/api/source/types';
 import { AEO_TIER_LABEL } from '@/app/lib/aeo-companies';
+import TrustScoreGauge from './TrustScoreGauge';
+import ExportButton from './ExportButton';
+import EmptyState from './EmptyState';
 
 type SourceRegion = 'china' | 'korea';
 
@@ -139,21 +142,6 @@ function AeoPanel({ matches, region }: { matches: { korea: AeoMatchedCompany[]; 
   );
 }
 
-function TrustBar({ score }: { score: number }) {
-  const bar = score >= 75 ? 'bg-emerald-500' : score >= 50 ? 'bg-yellow-400' : 'bg-red-500';
-  const txt = score >= 75 ? 'text-emerald-600' : score >= 50 ? 'text-yellow-600' : 'text-red-600';
-  const label = score >= 75 ? 'High confidence' : score >= 50 ? 'Moderate' : 'Low signals';
-  const tooltip = 'AI-estimated from: certification mentions (MFDS/HACCP/KC), export platform presence (EC21/BuyKorea), listing quality, and Google Search verification. Not an independent audit.';
-  return (
-    <div className="flex items-center gap-2" title={tooltip}>
-      <div className="h-1.5 flex-1 rounded-full bg-slate-100 overflow-hidden">
-        <div className={`h-full rounded-full transition-all duration-700 ${bar}`} style={{ width: `${score}%` }} />
-      </div>
-      <span className={`text-xs font-bold tabular-nums ${txt}`}>{score}/100</span>
-      <span className="text-[10px] text-slate-400">({label})</span>
-    </div>
-  );
-}
 
 function TradeReadinessScore({ s, certs, isVerified }: { s: Supplier; certs: { label: string }[]; isVerified: boolean }) {
   const scores = [
@@ -211,8 +199,9 @@ function SupplierCard({ s, rank }: { s: Supplier; rank: number }) {
           </div>
         </div>
         <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold border flex-shrink-0 ${isVerified ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-slate-100 border-slate-200 text-slate-500'}`}>
-          <span className={`w-1.5 h-1.5 rounded-full ${isVerified ? 'bg-emerald-500' : 'bg-slate-400'}`} />
-          {isVerified ? 'URL found via Google Search' : 'AI Estimate — Not Search-Verified'}
+          <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${isVerified ? 'bg-emerald-500' : 'bg-slate-400'}`} />
+          <span className="hidden sm:inline">{isVerified ? 'URL found via Google Search' : 'AI Estimate — Not Search-Verified'}</span>
+          <span className="sm:hidden">{isVerified ? 'Verified' : 'AI Est.'}</span>
         </span>
       </div>
 
@@ -235,7 +224,7 @@ function SupplierCard({ s, rank }: { s: Supplier; rank: number }) {
         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">
           Trust score <span className="font-normal normal-case text-amber-600">(AI estimate only — not an audit or guarantee of quality)</span>
         </p>
-        <TrustBar score={s.trustScore} />
+        <TrustScoreGauge score={s.trustScore} size="sm" />
       </div>
 
       {/* Trade Readiness */}
@@ -500,7 +489,7 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
         )}
 
         <button type="submit" disabled={loading || !product.trim() || !quantity.trim()}
-          className="w-full py-3.5 px-6 rounded-xl font-bold text-sm text-white bg-[#EA580C] hover:bg-[#DC4C00] disabled:opacity-60 disabled:cursor-not-allowed transition-all shadow-lg shadow-orange-900/20 flex items-center justify-center gap-2">
+          className="w-full min-h-[44px] py-3.5 px-6 rounded-xl font-bold text-sm text-white bg-[#EA580C] hover:bg-[#DC4C00] disabled:opacity-60 disabled:cursor-not-allowed transition-all shadow-lg shadow-orange-900/20 flex items-center justify-center gap-2">
           {loading ? (
             <>
               <svg className="w-4 h-4 animate-spin flex-shrink-0" fill="none" viewBox="0 0 24 24">
@@ -602,17 +591,7 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
 
       {/* Empty state */}
       {!loading && !result && !error && !showUpgrade && (
-        <div className="text-center py-12 text-slate-400">
-          <svg className="w-12 h-12 mx-auto mb-4 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-          <p className="text-sm font-semibold text-slate-500">Enter a product and quantity above</p>
-          <p className="text-xs mt-1.5 text-slate-400">
-            {region === 'china'
-              ? 'AI searches China supplier channels and prepares an English RFQ draft'
-              : 'AI searches EC21 · BuyKorea (KOTRA) · tradeKorea · direct factories and returns a ranked shortlist'}
-          </p>
-        </div>
+        <EmptyState type="initial" />
       )}
 
       {/* Results */}
@@ -624,22 +603,29 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
           )}
 
           <div>
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-black text-[#0D1B2A]">
-                {result.suppliers.length} supplier{result.suppliers.length !== 1 ? 's' : ''} found
-              </p>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 border border-blue-200 px-3 py-1 text-[11px] font-bold text-blue-700">
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                Google Search-confirmed URLs
-              </span>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+              <div className="flex items-center gap-3">
+                <p className="text-sm font-black text-[#0D1B2A]">
+                  {result.suppliers.length} supplier{result.suppliers.length !== 1 ? 's' : ''} found
+                </p>
+                <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-blue-50 border border-blue-200 px-3 py-1 text-[11px] font-bold text-blue-700">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                  Google Search-confirmed URLs
+                </span>
+              </div>
+              <ExportButton suppliers={result.suppliers} keyword={product} />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {result.suppliers.map((s, i) => (
-                <div key={s.rank}>
-                  <SupplierCard s={s} rank={i + 1} />
-                </div>
-              ))}
-            </div>
+            {result.suppliers.length === 0 ? (
+              <EmptyState type="no_results" />
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {result.suppliers.map((s, i) => (
+                  <div key={s.rank}>
+                    <SupplierCard s={s} rank={i + 1} />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {result.recommendation && (
