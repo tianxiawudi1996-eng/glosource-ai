@@ -179,7 +179,13 @@ const JSON_LD_FAQ = {
   })),
 };
 
-export default async function EnPage() {
+export default async function EnPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ q?: string }>;
+}) {
+  const params = await searchParams;
+  const initialProduct = params?.q ?? '';
   const session = await auth();
   const isLoggedIn = !!session?.user;
 
@@ -268,7 +274,7 @@ export default async function EnPage() {
               Select a category below or type your own product. AI scans EC21 · BuyKorea · tradeKorea and direct Korean factory sources, then returns ranked suppliers with certification evidence, MOQ, and an RFQ draft.
             </p>
           </div>
-          <KSourceWrapper />
+          <KSourceWrapper initialProduct={initialProduct} />
         </div>
       </section>
 

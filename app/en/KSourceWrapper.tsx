@@ -55,8 +55,8 @@ const QUICK_CATEGORIES = [
   },
 ];
 
-export default function KSourceWrapper() {
-  const [prefill, setPrefill] = useState('');
+export default function KSourceWrapper({ initialProduct = '' }: { initialProduct?: string }) {
+  const [prefill, setPrefill] = useState(initialProduct);
   const [prefillQuantity, setPrefillQuantity] = useState('');
 
   const handleCategoryClick = (query: string, quantity: string) => {
