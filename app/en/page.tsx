@@ -81,23 +81,6 @@ const PLANS = [
   },
 ] as const;
 
-const HOW_IT_WORKS = [
-  {
-    step: '01',
-    title: 'Describe what you need',
-    desc: 'Type a product in English — e.g. "K-beauty collagen serum OEM". Use the category shortcuts below to prefill realistic examples and quantities.',
-  },
-  {
-    step: '02',
-    title: 'AI scans Korean export channels',
-    desc: 'Instead of opening EC21 · BuyKorea · tradeKorea in separate tabs, GloSource AI searches all channels via Google Search simultaneously. Every candidate is AI-scored 0–100 for trust signals and certification evidence (AI-estimated, not independently audited).',
-  },
-  {
-    step: '03',
-    title: 'Get your shortlist + RFQ draft',
-    desc: '3–5 Korean supplier candidates ranked side-by-side with MFDS/HACCP/KC signals, estimated MOQ, and unit price. Unlike a generic ChatGPT template, the RFQ draft is pre-filled with the specific supplier name, platform, and detected certification signals from your search.',
-  },
-];
 
 const WHY_KOREA = [
   {
@@ -135,71 +118,6 @@ const WHY_KOREA = [
   },
 ];
 
-const CERTS = [
-  {
-    label: 'MFDS',
-    full: 'Ministry of Food and Drug Safety',
-    desc: 'Korea\'s food, drug, cosmetics, and medical-device regulator. MFDS records and related documents help screen suppliers, but importers must still verify labeling, ingredients, and destination-market rules.',
-    products: 'K-Beauty · Skincare OEM · Supplements · K-Food',
-    color: 'border-emerald-200 bg-emerald-50',
-    labelColor: 'bg-emerald-600 text-white',
-  },
-  {
-    label: 'HACCP',
-    full: 'Hazard Analysis Critical Control Points',
-    desc: 'Internationally recognized food-safety management system. Many Korean food manufacturers hold HACCP for export, and importers can use it as an important due-diligence signal.',
-    products: 'Instant Noodles · Snacks · Sauces · Beverages',
-    color: 'border-emerald-200 bg-emerald-50',
-    labelColor: 'bg-emerald-600 text-white',
-  },
-  {
-    label: 'KC',
-    full: 'Korea Certification',
-    desc: "Mandatory Korean safety certification for electronics and electrical appliances sold in Korea. Export buyers should still confirm CE, FCC, UKCA, or other destination-market requirements separately.",
-    products: 'Electronics · Appliances · Components · Wearables',
-    color: 'border-blue-200 bg-blue-50',
-    labelColor: 'bg-blue-600 text-white',
-  },
-  {
-    label: 'KS',
-    full: 'Korean Industrial Standard',
-    desc: 'The Korean equivalent of ISO for industrial products and materials. Ensures dimensional consistency, material quality, and performance standards. Widely trusted by industrial buyers globally.',
-    products: 'Industrial Parts · Construction · Steel · Plastics',
-    color: 'border-blue-200 bg-blue-50',
-    labelColor: 'bg-blue-600 text-white',
-  },
-];
-
-const CHANNELS = [
-  {
-    name: 'EC21.com',
-    sub: 'Korea-Based B2B Export Marketplace',
-    desc: 'A major Korea-based B2B marketplace used by international buyers looking for Korean manufacturers and traders across many product categories.',
-    badge: 'Priority channel',
-    badgeColor: 'bg-[#EA580C]/10 text-[#EA580C] border-[#EA580C]/20',
-  },
-  {
-    name: 'BuyKorea (KOTRA)',
-    sub: 'Korean Government Trade Agency',
-    desc: 'Operated by KOTRA, Korea\'s official trade promotion agency. Useful for finding Korean exporters and starting supplier due diligence with more structured company information.',
-    badge: 'Government backed',
-    badgeColor: 'bg-blue-50 text-blue-700 border-blue-200',
-  },
-  {
-    name: 'tradeKorea (KITA)',
-    sub: 'Korea International Trade Association',
-    desc: 'KITA operates tradeKorea for Korean SME manufacturers seeking international partnerships. Particularly strong in manufacturing, materials, and industrial products, as well as consumer goods.',
-    badge: 'SME manufacturers',
-    badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  },
-  {
-    name: 'Direct Factory Search',
-    sub: 'AI-Powered Web Research',
-    desc: 'GloSource AI also searches Korean factory websites, NAVER directories, and industry-specific databases directly. Surfaces suppliers not listed on major B2B platforms.',
-    badge: 'AI-powered',
-    badgeColor: 'bg-slate-100 text-slate-600 border-slate-200',
-  },
-];
 
 const FAQ = [
   {
@@ -306,9 +224,14 @@ export default async function EnPage() {
             <Link href="/en/case-studies" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden md:block">Examples</Link>
             <Link href="/en/about" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden md:block">About</Link>
             {isLoggedIn ? (
-              <Link href="/en/dashboard" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors">
-                My Account
-              </Link>
+              <>
+                <Link href="/en/dashboard" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden sm:block">
+                  Dashboard
+                </Link>
+                <Link href="/account" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden sm:block">
+                  Settings
+                </Link>
+              </>
             ) : (
               <>
                 <Link href="/en/login" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden sm:block">
@@ -329,28 +252,6 @@ export default async function EnPage() {
       {/* ── HERO ───────────────────────────────────────────── */}
       <HeroSection lang="en" />
 
-      {/* ── CHANNEL TRUST BAR ──────────────────────────────── */}
-      <section className="bg-white border-y border-slate-100">
-        <div className="max-w-6xl mx-auto px-6 py-5">
-          <div className="flex flex-col sm:flex-row items-center gap-4">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap shrink-0">AI searches via Google</p>
-            <div className="flex flex-wrap justify-center sm:justify-start gap-2">
-              {[
-                { name: 'EC21.com', note: 'Korea B2B' },
-                { name: 'BuyKorea', note: 'KOTRA Gov.' },
-                { name: 'tradeKorea', note: 'KITA' },
-                { name: 'Direct factories', note: 'Korea web' },
-                { name: 'NAVER directories', note: 'Korea local' },
-              ].map(({ name, note }) => (
-                <span key={name} className="border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-600 bg-slate-50 flex items-center gap-1.5">
-                  {name}
-                  <span className="text-[10px] text-slate-400 font-normal">{note}</span>
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* ── ROI STRIP ──────────────────────────────────────── */}
       <section className="bg-[#0D1B2A] border-b border-white/10">
@@ -441,166 +342,6 @@ export default async function EnPage() {
         </div>
       </section>
 
-      {/* ── CERTIFICATION GUIDE ────────────────────────────── */}
-      <section className="bg-slate-50 border-b border-slate-100">
-        <div className="max-w-5xl mx-auto px-6 py-16">
-          <div className="mb-10 text-center">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Certification guide</p>
-            <h2 className="text-2xl font-black text-[#0D1B2A] mb-3">What Korean certifications actually mean</h2>
-            <p className="text-sm text-slate-500 max-w-xl mx-auto">
-              GloSource AI looks for certification signals and displays them for each supplier candidate — giving you a head start before you reach out.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {CERTS.map(cert => (
-              <div key={cert.label} className={`rounded-2xl border p-6 ${cert.color}`}>
-                <div className="flex items-start gap-4 mb-3">
-                  <span className={`text-sm font-black rounded-lg px-3 py-1.5 shrink-0 ${cert.labelColor}`}>
-                    {cert.label}
-                  </span>
-                  <div>
-                    <p className="font-bold text-sm text-[#0D1B2A] leading-snug">{cert.full}</p>
-                    <p className="text-[10px] text-slate-500 mt-0.5 font-medium">{cert.products}</p>
-                  </div>
-                </div>
-                <p className="text-sm text-slate-600 leading-relaxed">{cert.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── CHANNELS EXPLAINED ─────────────────────────────── */}
-      <section className="bg-white border-b border-slate-100">
-        <div className="max-w-5xl mx-auto px-6 py-16">
-          <div className="mb-10 text-center">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Where we search</p>
-            <h2 className="text-2xl font-black text-[#0D1B2A] mb-3">Korean export channels, searched simultaneously</h2>
-            <p className="text-sm text-slate-500 max-w-xl mx-auto">
-              GloSource AI covers the main Korean export channels and direct factory sources in one search — no manual browsing required.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {CHANNELS.map(ch => (
-              <div key={ch.name} className="bg-slate-50 rounded-2xl border border-slate-200 p-5">
-                <div className="flex items-start justify-between gap-3 mb-3">
-                  <div>
-                    <p className="font-black text-[#0D1B2A] text-sm">{ch.name}</p>
-                    <p className="text-xs text-slate-400 mt-0.5">{ch.sub}</p>
-                  </div>
-                  <span className={`text-[10px] font-bold border rounded-full px-2 py-0.5 shrink-0 ${ch.badgeColor}`}>
-                    {ch.badge}
-                  </span>
-                </div>
-                <p className="text-sm text-slate-500 leading-relaxed">{ch.desc}</p>
-              </div>
-            ))}
-          </div>
-          <div className="mt-8 text-center">
-            <ScrollCTA targetId="sourcing-tool"
-              className="inline-flex items-center gap-2 bg-[#EA580C] hover:bg-[#DC4C00] text-white font-bold text-sm px-6 py-3 rounded-xl transition-all shadow-lg shadow-orange-900/30">
-              Search all 4 channels now →
-            </ScrollCTA>
-          </div>
-        </div>
-      </section>
-
-      {/* ── HOW IT WORKS ───────────────────────────────────── */}
-      <section className="bg-slate-50 border-b border-slate-100">
-        <div className="max-w-5xl mx-auto px-6 py-16">
-          <div className="mb-10 text-center">
-            <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-3">How it works</p>
-            <h2 className="text-2xl font-black text-[#0D1B2A]">From product idea to a Korean supplier shortlist</h2>
-          </div>
-          {/* Image D — supplier verification process visual */}
-          <div className="relative w-full rounded-2xl overflow-hidden mb-10 shadow-sm border border-slate-100">
-            <Image
-              src="/images/k-supplier-process.png"
-              alt="Buyer reviewing Korean supplier samples, packaging, inspection notes, and fabric swatches"
-              width={1448}
-              height={1086}
-              className="w-full object-cover"
-            />
-            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#0D1B2A]/75 to-transparent px-6 py-4">
-              <p className="text-white text-xs font-bold">How buyers evaluate Korean supplier samples — this is the process GloSource AI prepares you for.</p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {HOW_IT_WORKS.map((item, idx) => (
-              <div key={item.step} className="relative bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-                {idx < HOW_IT_WORKS.length - 1 && (
-                  <div className="hidden md:block absolute top-8 -right-3 w-6 h-px bg-slate-300 z-10" />
-                )}
-                <div className="w-10 h-10 rounded-xl bg-[#EA580C] flex items-center justify-center mb-4">
-                  <span className="font-black text-xs text-white">{item.step}</span>
-                </div>
-                <h3 className="font-black text-[#0D1B2A] mb-2">{item.title}</h3>
-                <p className="text-sm text-slate-500 leading-relaxed">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-          <div className="mt-8 text-center">
-            <ScrollCTA targetId="sourcing-tool"
-              className="inline-flex items-center gap-2 bg-[#EA580C] hover:bg-[#DC4C00] text-white font-bold text-sm px-6 py-3 rounded-xl transition-all shadow-lg shadow-orange-900/30">
-              Try it now — 5 free searches →
-            </ScrollCTA>
-          </div>
-        </div>
-      </section>
-
-      {/* ── DEMO OUTPUTS ──────────────────────────────── */}
-      <section className="bg-slate-50 border-b border-slate-200">
-        <div className="max-w-5xl mx-auto px-6 py-16">
-          <div className="text-center mb-10">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Demo Outputs</p>
-            <h2 className="text-2xl font-black text-[#0D1B2A]">What a search can return</h2>
-            <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-slate-500">
-              These examples show the output format. They are demo scenarios, not customer testimonials or independently verified supplier endorsements.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            {[
-              {
-                title: "K-Beauty OEM",
-                result: "Example shortlist with MFDS and ISO 22716 certification signals, estimated MOQ range, and an English RFQ draft.",
-                meta: "Collagen serum OEM · 1,000 units",
-              },
-              {
-                title: "K-Food Wholesale",
-                result: "Example food supplier screen with HACCP/MFDS signals, bulk MOQ assumptions, and destination-market questions.",
-                meta: "Instant ramen OEM · bulk order",
-              },
-              {
-                title: "K-Fashion OEM",
-                result: "Example apparel search comparing OEM candidates, estimated lead times, and certification signals to verify before outreach.",
-                meta: "Cotton T-shirt OEM · 500 pcs",
-              },
-            ].map(item => (
-              <div key={item.title} className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col">
-                <span className="mb-4 w-fit rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-amber-700">
-                  Demo
-                </span>
-                <h3 className="mb-2 text-sm font-black text-[#0D1B2A]">{item.title}</h3>
-                <p className="mb-4 text-xs font-semibold text-slate-400">{item.meta}</p>
-                <p className="text-sm text-slate-600 leading-relaxed flex-1">{item.result}</p>
-              </div>
-            ))}
-          </div>
-          <div className="flex flex-wrap justify-center gap-6 text-center">
-            {[
-              { num: '3–5', label: 'Candidates per search' },
-              { num: '0–100', label: 'AI trust score' },
-              { num: '~90s', label: 'Typical shortlist target' },
-            ].map(s => (
-              <div key={s.label} className="px-6">
-                <p className="text-2xl font-black text-[#0D1B2A]">{s.num}</p>
-                <p className="text-xs text-slate-500 mt-1">{s.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* ── PRICING ────────────────────────────────────────── */}
       <section id="pricing" className="bg-white border-b border-slate-200">
@@ -678,23 +419,6 @@ export default async function EnPage() {
         </div>
       </section>
 
-      {/* ── BOTTOM CTA ─────────────────────────────────────── */}
-      <section className="bg-[#0D1B2A] text-white">
-        <div className="max-w-3xl mx-auto px-6 py-20 text-center">
-          <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-4">Start sourcing today</p>
-          <h2 className="text-3xl font-black mb-5 leading-tight">
-            Find your Korean supplier shortlist<br className="hidden sm:block" /> with AI-ranked evidence
-          </h2>
-          <p className="text-slate-300 text-sm mb-8 leading-relaxed max-w-lg mx-auto">
-            5 free searches, no credit card required. Get ranked Korean supplier candidates with MFDS/HACCP/KC certification signals and an English RFQ draft.
-          </p>
-          <ScrollCTA targetId="sourcing-tool"
-            className="inline-flex items-center gap-2 bg-[#EA580C] hover:bg-[#DC4C00] text-white font-bold px-8 py-4 rounded-xl transition-all shadow-lg shadow-orange-900/30 text-sm">
-            Start 5 free searches →
-          </ScrollCTA>
-          <p className="mt-4 text-xs text-slate-500">No signup required · No credit card required</p>
-        </div>
-      </section>
 
       {/* ── FOOTER ─────────────────────────────────────────── */}
       <footer className="bg-[#0A1520] border-t border-white/5">
