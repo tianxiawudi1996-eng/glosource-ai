@@ -6,11 +6,49 @@ interface EmptyStateProps {
   type: EmptyStateType;
   errorMessage?: string;
   onRetry?: () => void;
+  lang?: 'ko' | 'en';
+  region?: 'korea' | 'china';
 }
 
-const EXAMPLE_TAGS = ['알루미늄 창호 프레임', '6063-T5 铝型材', 'SS400 강판 6T'];
+const COPY = {
+  ko: {
+    initial: {
+      title: '제품명을 입력하면 AI가 공급자를 자동 탐색합니다',
+      desc: (region?: string) => region === 'korea'
+        ? 'EC21 · BuyKorea · tradeKorea 동시 분석'
+        : '1688.com · Alibaba · WeChat 동시 분석',
+    },
+    no_results: {
+      title: '공급자를 찾지 못했습니다',
+      desc: '더 구체적인 제품명이나 중문 키워드로 검색해보세요',
+      tags: ['알루미늄 창호 프레임', '6063-T5 铝型材', 'SS400 강판 6T'],
+    },
+    error: {
+      desc: '입력값을 확인한 뒤 다시 시도해보세요',
+      retry: '재시도',
+    },
+  },
+  en: {
+    initial: {
+      title: 'Enter a product to find AI-ranked supplier candidates',
+      desc: (region?: string) => region === 'china'
+        ? 'AI searches 1688 · Alibaba · WeChat and prepares an English RFQ draft'
+        : 'AI searches EC21 · BuyKorea (KOTRA) · tradeKorea and returns a ranked shortlist',
+    },
+    no_results: {
+      title: 'No suppliers found',
+      desc: 'Try a more specific product name or a Chinese keyword',
+      tags: ['Korean collagen serum OEM', 'HACCP food manufacturer', 'K-beauty private label'],
+    },
+    error: {
+      desc: 'Check your input and try again',
+      retry: 'Retry',
+    },
+  },
+};
 
-export default function EmptyState({ type, errorMessage, onRetry }: EmptyStateProps) {
+export default function EmptyState({ type, errorMessage, onRetry, lang = 'ko', region }: EmptyStateProps) {
+  const c = COPY[lang];
   const isInitial = type === 'initial';
   const isNoResults = type === 'no_results';
   const isError = type === 'error';
@@ -37,20 +75,20 @@ export default function EmptyState({ type, errorMessage, onRetry }: EmptyStatePr
         </div>
 
         <h3 className="mb-2 text-lg font-bold text-[#0D1B2A]">
-          {isInitial && '제품명을 입력하면 AI가 중국 공급자를 자동 탐색합니다'}
-          {isNoResults && '공급자를 찾지 못했습니다'}
-          {isError && (errorMessage || '오류가 발생했습니다')}
+          {isInitial && c.initial.title}
+          {isNoResults && c.no_results.title}
+          {isError && (errorMessage || (lang === 'en' ? 'Something went wrong' : '오류가 발생했습니다'))}
         </h3>
 
         <p className="text-sm leading-relaxed text-slate-400">
-          {isInitial && '1688.com  Alibaba  WeChat 동시 분석'}
-          {isNoResults && '더 구체적인 제품명이나 중문 키워드로 검색해보세요'}
-          {isError && '입력값을 확인한 뒤 다시 시도해보세요'}
+          {isInitial && c.initial.desc(region)}
+          {isNoResults && c.no_results.desc}
+          {isError && c.error.desc}
         </p>
 
         {isNoResults && (
           <div className="mt-5 flex flex-wrap justify-center gap-2">
-            {EXAMPLE_TAGS.map((tag) => (
+            {c.no_results.tags.map((tag) => (
               <span key={tag} className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs text-slate-500">
                 {tag}
               </span>
@@ -64,7 +102,7 @@ export default function EmptyState({ type, errorMessage, onRetry }: EmptyStatePr
             onClick={onRetry}
             className="mt-6 rounded-lg bg-[#EA580C] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#DC4C00]"
           >
-            재시도
+            {c.error.retry}
           </button>
         )}
       </div>

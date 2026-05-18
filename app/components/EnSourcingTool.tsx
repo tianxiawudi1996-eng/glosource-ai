@@ -591,7 +591,7 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
 
       {/* Empty state */}
       {!loading && !result && !error && !showUpgrade && (
-        <EmptyState type="initial" />
+        <EmptyState type="initial" lang="en" region={region} />
       )}
 
       {/* Results */}
@@ -616,7 +616,7 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
               <ExportButton suppliers={result.suppliers} keyword={product} />
             </div>
             {result.suppliers.length === 0 ? (
-              <EmptyState type="no_results" />
+              <EmptyState type="no_results" lang="en" region={region} />
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {result.suppliers.map((s, i) => (
