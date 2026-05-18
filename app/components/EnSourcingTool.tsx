@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { SourcingOutput, Supplier, AeoMatchedCompany } from '@/app/api/source/types';
 import { AEO_TIER_LABEL } from '@/app/lib/aeo-companies';
 import TrustScoreGauge from './TrustScoreGauge';
@@ -328,6 +328,8 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
   const [rfqTranslateError, setRfqTranslateError] = useState<string | null>(null);
   const [freeCount, setFreeCount] = useState(0);
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const [autoSubmitPending, setAutoSubmitPending] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
   const loadingSteps = region === 'china' ? CHINA_LOADING_STEPS : KOREA_LOADING_STEPS;
   const submitLabel = region === 'china' ? 'Find China Suppliers →' : 'Find Korean Suppliers →';
   const searchesLeft = Math.max(0, FREE_LIMIT - freeCount);
@@ -340,7 +342,7 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
     } catch { /* ignore */ }
   }, []);
 
-  // Sync prefill from parent category clicks
+  // Sync prefill from parent category clicks + queue auto-submit
   useEffect(() => {
     if (initialProduct) {
       setProduct(initialProduct);
@@ -348,8 +350,18 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
       setResult(null);
       setError(null);
       setShowUpgrade(false);
+      setAutoSubmitPending(true);
     }
   }, [initialProduct, initialQuantity]);
+
+  // Auto-submit once both product and quantity are set from a category click
+  useEffect(() => {
+    if (autoSubmitPending && product && quantity && !loading) {
+      setAutoSubmitPending(false);
+      const t = setTimeout(() => formRef.current?.requestSubmit(), 80);
+      return () => clearTimeout(t);
+    }
+  }, [autoSubmitPending, product, quantity, loading]);
 
   // Cycle through loading steps
   useEffect(() => {
@@ -433,9 +445,9 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
   };
 
   return (
-    <div className="w-full">
+    <div id="en-tool-form" className="w-full">
       {/* Form */}
-      <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-6">
+      <form ref={formRef} onSubmit={handleSubmit} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-6">
         <div className="mb-4">
           <label className="block text-xs font-bold text-[#0D1B2A] uppercase tracking-wide mb-2">
             Product description <span className="text-[#EA580C]">*</span>

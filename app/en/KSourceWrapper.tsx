@@ -63,7 +63,7 @@ export default function KSourceWrapper() {
     setPrefill(query);
     setPrefillQuantity(quantity);
     setTimeout(() => {
-      document.getElementById('sourcing-tool')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      document.getElementById('en-tool-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 60);
   };
 
