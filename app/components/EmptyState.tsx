@@ -47,7 +47,7 @@ const COPY = {
   },
 };
 
-export default function EmptyState({ type, errorMessage, onRetry, lang = 'ko', region }: EmptyStateProps) {
+export default function EmptyState({ type, errorMessage, onRetry, lang = 'en', region }: EmptyStateProps) {
   const c = COPY[lang];
   const isInitial = type === 'initial';
   const isNoResults = type === 'no_results';

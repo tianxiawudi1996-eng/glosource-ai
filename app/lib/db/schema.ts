@@ -17,6 +17,7 @@ export const users = pgTable('users', {
   emailVerified: timestamp('email_verified', { mode: 'date' }),
   image: text('image'),
   passwordHash: text('password_hash'),
+  gdprConsentAt: timestamp('gdpr_consent_at', { mode: 'date' }),
   createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { mode: 'date' }).defaultNow().notNull(),
 });
@@ -101,6 +102,50 @@ export const payments = pgTable('payments', {
   status: text('status', { enum: ['pending', 'done', 'canceled', 'failed'] }).notNull(),
   method: text('method'),
   approvedAt: timestamp('approved_at', { mode: 'date' }),
+  createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
+});
+
+// ── 남용 신호 / 계정군 추적 ──────────────────────────────────────────
+
+export const abuseIdentities = pgTable('abuse_identities', {
+  id: text('id').primaryKey(),
+  identityType: text('identity_type', {
+    enum: ['ip', 'email_domain', 'email_local', 'polar_customer', 'toss_customer'],
+  }).notNull(),
+  identityHash: text('identity_hash').notNull(),
+  riskScore: integer('risk_score').default(0).notNull(),
+  eventCount: integer('event_count').default(0).notNull(),
+  userCount: integer('user_count').default(0).notNull(),
+  firstSeenAt: timestamp('first_seen_at', { mode: 'date' }).defaultNow().notNull(),
+  lastSeenAt: timestamp('last_seen_at', { mode: 'date' }).defaultNow().notNull(),
+});
+
+export const abuseEvents = pgTable('abuse_events', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userId: text('user_id').references(() => users.id, { onDelete: 'set null' }),
+  identityId: text('identity_id').references(() => abuseIdentities.id, { onDelete: 'set null' }),
+  event: text('event', {
+    enum: [
+      'signup_created',
+      'signup_rate_limited',
+      'email_verified',
+      'free_search_used',
+      'quota_blocked',
+      'duplicate_query_cluster',
+      'market_risk_flagged',
+      'supplier_revealed',
+      'supplier_url_clicked',
+      'rfq_copied',
+      'export_clicked',
+      'subscription_created',
+      'subscription_canceled',
+      'payment_done',
+    ],
+  }).notNull(),
+  severity: integer('severity').default(1).notNull(),
+  emailDomain: text('email_domain'),
+  ip: text('ip'),
+  metadata: text('metadata'),
   createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
 });
 

@@ -44,7 +44,7 @@ function formatDate(date: Date | null): string {
 function formatAmount(amount: number, currency: string): string {
   const c = currency.toUpperCase();
   if (c === 'USD') return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount / 100);
-  if (c === 'KRW') return new Intl.NumberFormat('ko-KR').format(amount) + '원';
+  if (c === 'KRW') return new Intl.NumberFormat('en-US').format(amount / 100) + ' KRW';
   return `${amount} ${c}`;
 }
 

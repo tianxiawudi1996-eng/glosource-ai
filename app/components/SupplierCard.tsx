@@ -191,7 +191,7 @@ export function SupplierRow({ supplier: s, isSelected, onClick }: SupplierRowPro
           </div>
         </div>
         <div className="w-full flex-shrink-0 text-left sm:w-auto sm:text-right">
-          <TrustScoreGauge score={s.trustScore} size="sm" muted={s.verificationStatus === 'ai_estimated' && !s.url} />
+          <TrustScoreGauge score={s.trustScore} size="sm" muted={s.verificationStatus === 'ai_estimated' && !s.url} lang="ko" />
           {s.verificationStatus === 'ai_estimated' && !s.url && (
             <p className="text-[10px] text-amber-500 mt-0.5">AI 추정 · 웹 미확인</p>
           )}

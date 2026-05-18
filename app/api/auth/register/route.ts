@@ -4,6 +4,7 @@ import { db, users, verificationTokens } from '@/app/lib/db';
 import { hashPassword } from '@/auth';
 import { sendWelcomeEmail, sendVerificationEmail } from '@/app/lib/email';
 import { extractTrustedIp } from '@/app/lib/kv';
+import { logAbuseSignal } from '@/app/lib/abuse';
 
 function clean(v: unknown, max = 200): string {
   return typeof v === 'string' ? v.trim().slice(0, max) : '';
@@ -31,6 +32,12 @@ export async function POST(request: NextRequest) {
   const ip = extractTrustedIp(request.headers);
   const allowed = await checkRegisterRateLimit(ip);
   if (!allowed) {
+    logAbuseSignal({
+      event: 'signup_rate_limited',
+      severity: 5,
+      ip,
+      metadata: { route: '/api/auth/register' },
+    }).catch(() => {});
     return NextResponse.json({ error: '잠시 후 다시 시도해주세요. (1분 5회 제한)' }, { status: 429 });
   }
 
@@ -41,6 +48,7 @@ export async function POST(request: NextRequest) {
     const name = clean(body.name, 80);
     const tosConsent = body.tosConsent === true;
     const dataConsent = body.dataConsent === true;
+    const gdprConsent = body.gdprConsent === true;
 
     if (!email || !password || !name) {
       return NextResponse.json({ error: '이름, 이메일, 비밀번호를 모두 입력해주세요.' }, { status: 400 });
@@ -61,7 +69,19 @@ export async function POST(request: NextRequest) {
     }
 
     const passwordHash = await hashPassword(password);
-    await db.insert(users).values({ email, name, passwordHash });
+    const [createdUser] = await db
+      .insert(users)
+      .values({ email, name, passwordHash, ...(gdprConsent ? { gdprConsentAt: new Date() } : {}) })
+      .returning({ id: users.id });
+
+    logAbuseSignal({
+      userId: createdUser?.id,
+      event: 'signup_created',
+      severity: 1,
+      ip,
+      email,
+      metadata: { source: 'credentials' },
+    }).catch(() => {});
 
     sendWelcomeEmail(email, name).catch(() => {});
 

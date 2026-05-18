@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import type { SourcingOutput, Supplier, AeoMatchedCompany } from '@/app/api/source/types';
+import type { BuyerCountry, SourcingOutput, Supplier, AeoMatchedCompany } from '@/app/api/source/types';
 import { AEO_TIER_LABEL } from '@/app/lib/aeo-companies';
 import TrustScoreGauge from './TrustScoreGauge';
 import ExportButton from './ExportButton';
@@ -20,6 +20,15 @@ interface EnSourcingToolProps {
 const REGION_BUTTONS: { value: SourceRegion; label: string; sub: string }[] = [
   { value: 'korea', label: 'Korea', sub: 'EC21 · BuyKorea · tradeKorea' },
   { value: 'china', label: 'China add-on', sub: '1688 · Alibaba · WeChat' },
+];
+
+const BUYER_COUNTRIES: { value: BuyerCountry; label: string }[] = [
+  { value: 'GLOBAL', label: 'Global' },
+  { value: 'US', label: 'United States' },
+  { value: 'GB', label: 'United Kingdom' },
+  { value: 'EU', label: 'European Union' },
+  { value: 'BR', label: 'Brazil' },
+  { value: 'MX', label: 'Mexico' },
 ];
 
 const KOREA_LOADING_STEPS = [
@@ -74,7 +83,7 @@ function AeoCompanyCard({ company }: { company: AeoMatchedCompany }) {
           <p className="text-[10px] text-slate-400 truncate">{company.nameLocal}</p>
         </div>
         <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold border flex-shrink-0 ${tierInfo.color}`}>
-          {tierInfo.badge} {company.tier === 'ABAC' ? 'ABAC' : `AEO ${company.tier}`}
+          {tierInfo.badge} {company.tier === 'ABAC' ? 'ABAC (APEC Business Advisory Council)' : `AEO ${company.tier}`}
         </span>
       </div>
       <div className="flex flex-wrap gap-1">
@@ -123,7 +132,7 @@ function AeoPanel({ matches, region }: { matches: { korea: AeoMatchedCompany[]; 
         <div className="flex gap-1.5 flex-shrink-0">
           {aaCount > 0 && <span className="text-[10px] font-bold bg-yellow-100 border border-yellow-300 text-yellow-700 px-1.5 py-0.5 rounded-full">🏅 AA ×{aaCount}</span>}
           {aCount > 0 && <span className="text-[10px] font-bold bg-emerald-50 border border-emerald-300 text-emerald-700 px-1.5 py-0.5 rounded-full">✅ A ×{aCount}</span>}
-          {abacCount > 0 && <span className="text-[10px] font-bold bg-blue-50 border border-blue-300 text-blue-700 px-1.5 py-0.5 rounded-full">⭐ ABAC ×{abacCount}</span>}
+          {abacCount > 0 && <span className="text-[10px] font-bold bg-blue-50 border border-blue-300 text-blue-700 px-1.5 py-0.5 rounded-full" title="APEC Business Advisory Council member">⭐ ABAC ×{abacCount}</span>}
         </div>
       </div>
 
@@ -179,7 +188,17 @@ function formatLeadTime(value: string): string {
   return /^\d+$/.test(trimmed) ? `${trimmed} days` : trimmed;
 }
 
-function SupplierCard({ s, rank }: { s: Supplier; rank: number }) {
+async function trackAbuseEvent(event: string, metadata: Record<string, unknown>): Promise<void> {
+  try {
+    await fetch('/api/abuse/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ event, metadata }),
+    });
+  } catch { /* best-effort telemetry */ }
+}
+
+function SupplierCard({ s, rank, keyword, locked }: { s: Supplier; rank: number; keyword: string; locked: boolean }) {
   const isVerified = s.verificationStatus === 'grounding_confirmed';
   const trustEvidence = Array.isArray(s.trustEvidence) ? s.trustEvidence : [];
   const redFlags = Array.isArray(s.redFlags) ? s.redFlags : [];
@@ -224,7 +243,7 @@ function SupplierCard({ s, rank }: { s: Supplier; rank: number }) {
         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">
           Trust score <span className="font-normal normal-case text-amber-600">(AI estimate only — not an audit or guarantee of quality)</span>
         </p>
-        <TrustScoreGauge score={s.trustScore} size="sm" />
+        <TrustScoreGauge score={s.trustScore} size="sm" lang="en" />
       </div>
 
       {/* Trade Readiness */}
@@ -232,13 +251,16 @@ function SupplierCard({ s, rank }: { s: Supplier; rank: number }) {
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-2">
-        {[['Est. Price', s.estimatedPrice || 'Inquire'], ['Est. MOQ', s.moq || 'Inquire'], ['Lead time', formatLeadTime(s.leadTimeDays)]].map(([label, val]) => (
+        {[['Est. Price', s.estimatedPrice || 'Inquire'], ['Est. MOQ (Min. Order Qty)', s.moq || 'Inquire'], ['Lead time', formatLeadTime(s.leadTimeDays)]].map(([label, val]) => (
           <div key={label} className="bg-slate-50 rounded-lg px-2.5 py-2">
-            <p className="text-[10px] text-slate-400 font-medium">{label}</p>
+            <p className="text-[10px] text-slate-400 font-medium leading-tight">{label}</p>
             <p className="text-xs font-bold text-[#0D1B2A] mt-0.5 truncate">{val}</p>
           </div>
         ))}
       </div>
+      <p className="text-[10px] text-amber-600 leading-tight">
+        ⚠ Est. Price &amp; MOQ are AI-estimated from public data — confirm directly with the supplier before ordering.
+      </p>
 
       {/* Summary */}
       {s.summary && <p className="text-xs text-slate-500 leading-relaxed">{s.summary}</p>}
@@ -270,12 +292,25 @@ function SupplierCard({ s, rank }: { s: Supplier; rank: number }) {
       {/* URL — only show for suppliers that passed the server quality gate */}
       {s.url && isVerified && (
         <a href={s.url} target="_blank" rel="noopener noreferrer"
+          onClick={() => {
+            void trackAbuseEvent('supplier_url_clicked', {
+              keyword,
+              supplierRank: s.rank,
+              supplierName: s.name,
+              platform: s.platform,
+            });
+          }}
           className="text-xs text-blue-600 hover:text-blue-800 transition-colors inline-flex items-center gap-1">
           Visit search result URL (not live-verified)
           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
           </svg>
         </a>
+      )}
+      {locked && (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[11px] font-semibold text-amber-800">
+          Full supplier URL, export-ready RFQ, and contact details unlock after buyer verification or upgrade.
+        </div>
       )}
       {s.url && !isVerified && (
         <p className="text-[11px] text-slate-400 italic">Verify supplier contact details independently before outreach.</p>
@@ -284,7 +319,7 @@ function SupplierCard({ s, rank }: { s: Supplier; rank: number }) {
   );
 }
 
-async function callAPI(product: string, quantity: string, budget: string, country: 'china' | 'korea'): Promise<SourcingOutput> {
+async function callAPI(product: string, quantity: string, budget: string, country: 'china' | 'korea', buyerCountry: BuyerCountry): Promise<SourcingOutput> {
   const res = await fetch('/api/source', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -295,7 +330,7 @@ async function callAPI(product: string, quantity: string, budget: string, countr
       countryPreference: country,
       orderFrequency: 'one_time' as const,
       outputLanguage: 'en' as const,
-      buyerCountry: 'GLOBAL' as const,
+      buyerCountry,
     }),
   });
   if (res.status === 429) {
@@ -317,6 +352,7 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
   const [quantity, setQuantity] = useState('');
   const [budget, setBudget] = useState('');
   const [region, setRegion] = useState<SourceRegion>('korea');
+  const [buyerCountry, setBuyerCountry] = useState<BuyerCountry>('GLOBAL');
   const [loading, setLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
   const [result, setResult] = useState<SourcingOutput | null>(null);
@@ -380,7 +416,7 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
     setResult(null);
     setShowUpgrade(false);
     try {
-      const output = await callAPI(product, quantity, budget, region);
+      const output = await callAPI(product, quantity, budget, region, buyerCountry);
       setResult(output);
       // Only increment free counter when grounding was used (mirrors server-side quota logic)
       if (output.groundingUsed) {
@@ -412,6 +448,12 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
     if (!text) return;
     try {
       await navigator.clipboard.writeText(text);
+      void trackAbuseEvent('rfq_copied', {
+        keyword: product,
+        lang: rfqLang,
+        buyerCountry,
+        locked: result?.access?.supplierDetailsLocked ?? false,
+      });
       setRfqCopied(true);
       setTimeout(() => setRfqCopied(false), 2000);
     } catch { /* silent */ }
@@ -470,6 +512,19 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
               </button>
             ))}
           </div>
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-xs font-bold text-[#0D1B2A] uppercase tracking-wide mb-2">Buyer market</label>
+          <select
+            value={buyerCountry}
+            onChange={e => setBuyerCountry(e.target.value as BuyerCountry)}
+            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-[#0D1B2A] focus:border-[#EA580C] focus:outline-none focus:ring-2 focus:ring-[#EA580C]/10 transition-all"
+          >
+            {BUYER_COUNTRIES.map(country => (
+              <option key={country.value} value={country.value}>{country.label}</option>
+            ))}
+          </select>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
@@ -572,8 +627,8 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
           <div className="px-6 py-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
               {[
-                { name: 'Starter', price: '$9.90/mo', searches: '30 searches/month', highlight: false },
-                { name: 'Pro', price: '$29/mo', searches: '60 searches + HACCP/KS signals', highlight: true },
+                { name: 'Starter', price: '$9.90/mo', searches: '30 searches/month · All cert signals incl.', highlight: false },
+                { name: 'Pro', price: '$29/mo', searches: '60 searches + China sourcing + PDF report', highlight: true },
               ].map(p => (
                 <div key={p.name} className={`rounded-xl border p-4 ${p.highlight ? 'border-[#EA580C] bg-orange-50' : 'border-slate-200 bg-white'}`}>
                   <div className="flex items-center justify-between mb-1">
@@ -609,7 +664,7 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
       {/* Results */}
       {result && (
         <div className="space-y-6">
-          {/* AEO 공인기업 패널 — AI 결과 위에 표시 */}
+          {/* AEO certified company panel — shown above AI results */}
           {result.aeoMatches && (result.aeoMatches.korea.length > 0 || result.aeoMatches.china.length > 0) && (
             <AeoPanel matches={result.aeoMatches} region={region} />
           )}
@@ -622,10 +677,10 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
                 </p>
                 <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-blue-50 border border-blue-200 px-3 py-1 text-[11px] font-bold text-blue-700">
                   <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                  Google Search-confirmed URLs
+                  Web-verified URLs (AI-searched)
                 </span>
               </div>
-              <ExportButton suppliers={result.suppliers} keyword={product} />
+              <ExportButton suppliers={result.suppliers} keyword={product} lang="en" />
             </div>
             {result.suppliers.length === 0 ? (
               <EmptyState type="no_results" lang="en" region={region} />
@@ -682,7 +737,7 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
                         disabled={rfqTranslating}
                         className={`px-2.5 py-1.5 transition-all ${rfqLang === lang ? 'bg-[#0D1B2A] text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`}
                       >
-                        {lang === 'en' ? 'EN' : lang === 'ko' ? '한' : '中'}
+                        {lang === 'en' ? 'EN' : lang === 'ko' ? 'KO' : 'ZH'}
                       </button>
                     ))}
                   </div>

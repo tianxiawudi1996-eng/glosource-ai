@@ -3,6 +3,7 @@ import Image from 'next/image';
 import HeroSection from '@/app/components/HeroSection';
 import KSourceWrapper from './KSourceWrapper';
 import ScrollCTA from './ScrollCTA';
+import PolarCheckoutButton from './PolarCheckoutButton';
 import Link from 'next/link';
 import { auth } from '@/auth';
 
@@ -36,7 +37,7 @@ const PLANS = [
     unit: '/mo',
     per: '30 searches / month · $0.33 per search',
     features: [
-      '3–5 verified Korean supplier candidates per search',
+      '3–5 AI-surfaced Korean supplier candidates per search',
       'Trust & risk scoring 0–100 with Trade Readiness breakdown',
       'Unit price, MOQ & lead-time comparison',
       'Auto-generated English RFQ email — ready to send',
@@ -96,8 +97,8 @@ const WHY_KOREA = [
   },
   {
     title: 'World-Class Certifications',
-    desc: 'Many Korean manufacturers provide MFDS, HACCP, KC, KS, ISO, or category-specific documentation. These are useful screening signals, but buyers still need to confirm destination-market requirements before import.',
-    badge: 'MFDS · HACCP · KC · KS',
+    desc: 'Many Korean manufacturers provide MFDS (Ministry of Food and Drug Safety — Korean FDA equivalent), HACCP (Hazard Analysis Critical Control Points — food safety), KC (Korea Certification — electronics/electrical safety), KS (Korean Standards), or ISO documentation. These are useful screening signals, but buyers must confirm destination-market requirements before import.',
+    badge: 'MFDS (Korean FDA) · HACCP · KC · KS',
     badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
     icon: (
       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -154,26 +155,6 @@ const FAQ = [
   },
 ];
 
-function PolarButton({ envKey, label }: { envKey: string; label: string }) {
-  const checkoutUrl = process.env[envKey];
-  const href = checkoutUrl ?? 'mailto:hello@glosource.ai?subject=GloSource%20AI%20Plan%20Access';
-  const isExternal = !href.startsWith('mailto:');
-  return (
-    <div className="space-y-2">
-      <p className="text-[10px] text-slate-500 text-center leading-relaxed">
-        By subscribing, you request immediate service access and acknowledge that your 14-day right of withdrawal (EU Consumer Rights Directive Art. 16(m)) ends upon your first search.
-      </p>
-      <a
-        href={href}
-        target={isExternal ? '_blank' : undefined}
-        rel={isExternal ? 'noopener noreferrer' : undefined}
-        className="block w-full text-center py-3 rounded-xl font-semibold text-sm transition-all bg-[#EA580C] text-white hover:bg-[#DC4C00] shadow-lg shadow-orange-900/20"
-      >
-        {label}
-      </a>
-    </div>
-  );
-}
 
 const JSON_LD_ORGANIZATION = {
   '@context': 'https://schema.org',
@@ -259,7 +240,7 @@ export default async function EnPage() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:divide-x sm:divide-white/10">
             {[
               { before: 'Manual search', after: '~90 sec', label: 'Time to supplier shortlist (AI-assisted)' },
-              { before: '5+ tabs', after: '1 search', label: 'EC21 · BuyKorea · tradeKorea · more' },
+              { before: '5+ tabs', after: '1 search', label: 'EC21 (Korea #1 B2B) · BuyKorea (KOTRA gov) · tradeKorea (KITA)' },
               { before: 'Manual RFQ', after: 'Auto-drafted', label: 'English RFQ template, ready to edit' },
             ].map(({ before, after, label }) => (
               <div key={label} className="flex items-center gap-4 sm:px-6 first:pl-0 last:pr-0">
@@ -390,13 +371,19 @@ export default async function EnPage() {
                     </li>
                   ))}
                 </ul>
-                <PolarButton envKey={plan.envKey} label={`Get ${plan.name} →`} />
+                <PolarCheckoutButton
+                  checkoutUrl={process.env[plan.envKey] ?? 'mailto:hello@glosource.ai?subject=GloSource%20AI%20Plan%20Access'}
+                  label={`Get ${plan.name} →`}
+                />
               </div>
             ))}
           </div>
 
-          <p className="mt-6 text-center text-xs text-slate-400">
-            Secure checkout where available · Email fallback for early access · No Korean entity required
+          <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-500 max-w-lg mx-auto text-center">
+            <strong className="text-slate-700">Free tier:</strong> 5 searches total (no credit card) · 3–5 AI-surfaced Korean supplier candidates per search · Trust score · English RFQ draft
+          </div>
+          <p className="mt-3 text-center text-xs text-slate-400">
+            Secure checkout · Email fallback for early access · No Korean entity required
           </p>
         </div>
       </section>

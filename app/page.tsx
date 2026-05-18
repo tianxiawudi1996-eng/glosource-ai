@@ -988,9 +988,9 @@ export default function HomePage() {
               )}
 
               {error && !loading ? (
-                <EmptyState type="error" errorMessage={error} onRetry={handleRetry} />
+                <EmptyState type="error" errorMessage={error} onRetry={handleRetry} lang="ko" />
               ) : noResults && !loading ? (
-                <EmptyState type="no_results" />
+                <EmptyState type="no_results" lang="ko" />
               ) : result ? (
                 <div className="space-y-4">
                   {/* 상태 + 그라운딩 뱃지 */}
@@ -1019,7 +1019,7 @@ export default function HomePage() {
                     />
                   ) : (
                     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
-                      <EmptyState type="no_results" />
+                      <EmptyState type="no_results" lang="ko" />
                     </div>
                   )}
 
@@ -1056,7 +1056,7 @@ export default function HomePage() {
                   </div>
                 </div>
               ) : (
-                !wechatResult && <EmptyState type="initial" />
+                !wechatResult && <EmptyState type="initial" lang="ko" />
               )}
             </div>
           </div>
