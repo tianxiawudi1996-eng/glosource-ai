@@ -2,14 +2,13 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { and, count, desc, eq, gte } from 'drizzle-orm';
 import { auth } from '@/auth';
-import { db, PLAN_LIMITS, subscriptions, usageLogs } from '@/app/lib/db';
+import { db, PLAN_LIMITS, subscriptions, usageLogs, searchHistory } from '@/app/lib/db';
 import type { PlanTier } from '@/app/lib/db/schema';
 
-const actionLabels: Record<string, string> = {
-  source: 'AI Search',
-  factory_direct: 'Factory Direct',
-  wechat: 'WeChat',
-  image_analyze: 'Image Analysis',
+const regionLabel: Record<string, string> = {
+  korea: '🇰🇷 Korea',
+  china: '🇨🇳 China',
+  any: '🌏 Any',
 };
 
 function formatDate(date: Date | null): string {
@@ -34,12 +33,12 @@ export default async function EnDashboardPage() {
   const plan = (session.user.plan ?? 'free') as PlanTier;
   const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
 
-  const [monthlyUsageRows, subscriptionRows, recentLogs] = await Promise.all([
+  const [monthlyUsageRows, subscriptionRows, historyRows] = await Promise.all([
     db.select({ value: count() }).from(usageLogs)
       .where(and(eq(usageLogs.userId, userId), gte(usageLogs.createdAt, monthStart))),
     db.select().from(subscriptions).where(eq(subscriptions.userId, userId)).limit(1),
-    db.select().from(usageLogs).where(eq(usageLogs.userId, userId))
-      .orderBy(desc(usageLogs.createdAt)).limit(5),
+    db.select().from(searchHistory).where(eq(searchHistory.userId, userId))
+      .orderBy(desc(searchHistory.createdAt)).limit(20),
   ]);
 
   const usageCount = monthlyUsageRows[0]?.value ?? 0;
@@ -111,35 +110,48 @@ export default async function EnDashboardPage() {
         <section className="mt-6 rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="flex flex-col gap-3 border-b border-slate-100 p-5 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h2 className="text-lg font-black text-[#0D1B2A]">Recent searches</h2>
-              <p className="mt-1 text-sm text-slate-500">Your last 5 sourcing searches.</p>
+              <h2 className="text-lg font-black text-[#0D1B2A]">Search history</h2>
+              <p className="mt-1 text-sm text-slate-500">Your last 20 sourcing searches — including top AI-surfaced suppliers.</p>
             </div>
             <Link href="/en#sourcing-tool"
               className="min-h-[44px] flex items-center rounded-xl bg-[#EA580C] px-5 py-2.5 text-sm font-black text-white hover:bg-[#DC4C00] transition-colors">
               New search →
             </Link>
           </div>
+
           {/* Mobile */}
           <div className="md:hidden divide-y divide-slate-100">
-            {recentLogs.length > 0 ? recentLogs.map(log => (
-              <div key={log.id} className="px-5 py-4 flex items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="font-bold text-sm text-[#0D1B2A] truncate">{log.product ?? '–'}</p>
-                  <p className="text-xs text-slate-500 mt-0.5">{formatDate(log.createdAt)}</p>
+            {historyRows.length > 0 ? historyRows.map(row => (
+              <div key={row.id} className="px-5 py-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-bold text-sm text-[#0D1B2A] truncate">{row.product}</p>
+                    {row.topSuppliers && (
+                      <p className="text-xs text-slate-500 mt-1 truncate">{row.topSuppliers}</p>
+                    )}
+                    <p className="text-xs text-slate-400 mt-1">{formatDate(row.createdAt)}</p>
+                  </div>
+                  <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+                    <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2 py-1 rounded-md">
+                      {regionLabel[row.region] ?? row.region}
+                    </span>
+                    <span className="text-xs font-black text-[#EA580C] bg-orange-50 border border-orange-100 px-2 py-1 rounded-md">
+                      {row.supplierCount} found
+                    </span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2 py-1 rounded-md">
-                    {actionLabels[log.action] ?? log.action}
-                  </span>
-                  <span className="text-xs font-black text-[#EA580C] bg-orange-50 border border-orange-100 px-2 py-1 rounded-md min-w-[32px] text-center">
-                    {log.supplierCount ?? 0}
-                  </span>
-                </div>
+                <Link
+                  href={`/en?q=${encodeURIComponent(row.product)}#sourcing-tool`}
+                  className="mt-2.5 inline-block text-xs font-bold text-[#EA580C] border border-orange-200 rounded-lg px-3 py-1.5 hover:bg-orange-50 transition-colors"
+                >
+                  Re-run →
+                </Link>
               </div>
             )) : (
-              <div className="px-5 py-10 text-center text-sm text-slate-500">No searches yet.</div>
+              <div className="px-5 py-10 text-center text-sm text-slate-500">No searches yet. Run your first search above.</div>
             )}
           </div>
+
           {/* Desktop */}
           <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-left">
@@ -147,20 +159,40 @@ export default async function EnDashboardPage() {
                 <tr>
                   <th className="px-5 py-3">Date</th>
                   <th className="px-5 py-3">Product searched</th>
-                  <th className="px-5 py-3">Channel</th>
-                  <th className="px-5 py-3">Results</th>
+                  <th className="px-5 py-3">Region</th>
+                  <th className="px-5 py-3">Top suppliers (AI-surfaced)</th>
+                  <th className="px-5 py-3 text-center">Found</th>
+                  <th className="px-5 py-3"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {recentLogs.length > 0 ? recentLogs.map(log => (
-                  <tr key={log.id}>
-                    <td className="px-5 py-4 text-sm text-slate-600">{formatDate(log.createdAt)}</td>
-                    <td className="px-5 py-4 text-sm font-bold text-[#0D1B2A]">{log.product ?? '–'}</td>
-                    <td className="px-5 py-4 text-sm text-slate-600">{actionLabels[log.action] ?? log.action}</td>
-                    <td className="px-5 py-4 text-sm font-bold text-slate-600">{log.supplierCount ?? 0}</td>
+                {historyRows.length > 0 ? historyRows.map(row => (
+                  <tr key={row.id} className="hover:bg-slate-50/50">
+                    <td className="px-5 py-4 text-sm text-slate-500 whitespace-nowrap">{formatDate(row.createdAt)}</td>
+                    <td className="px-5 py-4 text-sm font-bold text-[#0D1B2A] max-w-[200px] truncate">{row.product}</td>
+                    <td className="px-5 py-4 text-sm text-slate-600 whitespace-nowrap">{regionLabel[row.region] ?? row.region}</td>
+                    <td className="px-5 py-4 text-sm text-slate-600 max-w-[240px] truncate">
+                      {row.topSuppliers ?? <span className="text-slate-400">—</span>}
+                    </td>
+                    <td className="px-5 py-4 text-sm font-black text-[#EA580C] text-center">{row.supplierCount}</td>
+                    <td className="px-5 py-4">
+                      <Link
+                        href={`/en?q=${encodeURIComponent(row.product)}#sourcing-tool`}
+                        className="text-xs font-bold text-[#EA580C] border border-orange-200 rounded-lg px-3 py-1.5 hover:bg-orange-50 transition-colors whitespace-nowrap"
+                      >
+                        Re-run →
+                      </Link>
+                    </td>
                   </tr>
                 )) : (
-                  <tr><td colSpan={4} className="px-5 py-10 text-center text-sm text-slate-500">No searches yet.</td></tr>
+                  <tr>
+                    <td colSpan={6} className="px-5 py-10 text-center text-sm text-slate-500">
+                      No searches yet.{' '}
+                      <Link href="/en#sourcing-tool" className="text-[#EA580C] font-bold hover:underline">
+                        Run your first search →
+                      </Link>
+                    </td>
+                  </tr>
                 )}
               </tbody>
             </table>

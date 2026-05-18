@@ -33,9 +33,9 @@ const PLANS = [
     id: 'starter',
     name: 'Starter',
     tag: 'Test the waters',
-    price: '$9.90',
+    price: '$19',
     unit: '/mo',
-    per: '30 searches / month · $0.33 per search',
+    per: '30 searches / month · $0.63 per search',
     features: [
       '3–5 AI-surfaced Korean supplier candidates per search',
       'Trust & risk scoring 0–100 with Trade Readiness breakdown',
@@ -50,7 +50,7 @@ const PLANS = [
     id: 'pro',
     name: 'Pro',
     tag: '⭐ Best for Amazon FBA sellers',
-    price: '$29',
+    price: '$49',
     unit: '/mo',
     per: '60 searches / month · Korea + China sourcing',
     features: [
@@ -67,7 +67,7 @@ const PLANS = [
     id: 'agency',
     name: 'Agency',
     tag: 'For teams & sourcing agents',
-    price: '$79',
+    price: '$149',
     unit: '/mo',
     per: 'Unlimited searches · 5-seat team access',
     features: [

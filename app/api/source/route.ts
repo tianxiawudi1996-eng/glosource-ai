@@ -9,7 +9,7 @@ import { checkAuthAndQuota, logUsage } from '../../lib/authMiddleware';
 import { enforceVerifiedSupplierQualityGate, verifiedSupplierUnavailableMessage } from '../../lib/supplier-verification';
 import { matchAeoCompanies } from '../../lib/aeo-companies';
 import { logAbuseSignal } from '@/app/lib/abuse';
-import { db, usageLogs } from '@/app/lib/db';
+import { db, usageLogs, searchHistory } from '@/app/lib/db';
 import { and, eq, gte, or } from 'drizzle-orm';
 
 export const maxDuration = 120;
@@ -822,6 +822,20 @@ export async function POST(request: NextRequest) {
 
     // Always charge quota — result was returned regardless of grounding quality
     logUsage(userId, ip, 'source', req.productDescription, output.suppliers?.length, Date.now() - start).catch(() => {});
+
+    // Save full search result for logged-in users (dashboard history)
+    if (userId) {
+      const topSuppliers = (output.suppliers ?? []).slice(0, 3).map(s => s.name).join(', ');
+      db.insert(searchHistory).values({
+        userId,
+        product: req.productDescription.slice(0, 300),
+        region: req.countryPreference ?? 'any',
+        supplierCount: output.suppliers?.length ?? 0,
+        topSuppliers: topSuppliers || null,
+        resultJson: JSON.stringify(output),
+        durationMs: Date.now() - start,
+      }).catch(() => {});
+    }
     if (plan === 'free') {
       logAbuseSignal({
         userId,

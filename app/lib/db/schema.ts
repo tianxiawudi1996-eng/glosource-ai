@@ -223,3 +223,20 @@ export const blogPosts = pgTable('blog_posts', {
 
 export type BlogPost = typeof blogPosts.$inferSelect;
 export type NewBlogPost = typeof blogPosts.$inferInsert;
+
+// ── 검색 히스토리 (AI 소싱 결과 전체 저장) ────────────────────────────
+export const searchHistory = pgTable('search_history', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userId: text('user_id').references(() => users.id, { onDelete: 'cascade' }),
+  product: text('product').notNull(),
+  region: text('region').notNull(), // 'korea' | 'china' | 'any'
+  supplierCount: integer('supplier_count').notNull().default(0),
+  // top 3 supplier names for quick display (comma-separated)
+  topSuppliers: text('top_suppliers'),
+  // full JSON result blob (SourcingOutput)
+  resultJson: text('result_json'),
+  durationMs: integer('duration_ms'),
+  createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
+});
+
+export type SearchHistory = typeof searchHistory.$inferSelect;

@@ -9,7 +9,7 @@ const PLANS = [
   {
     id: 'starter',
     name: 'Starter',
-    price: '$9.90',
+    price: '$19',
     unit: '/mo',
     searches: '30 searches / month',
     envKey: 'NEXT_PUBLIC_POLAR_STARTER_LINK',
@@ -18,7 +18,7 @@ const PLANS = [
   {
     id: 'pro',
     name: 'Pro',
-    price: '$29',
+    price: '$49',
     unit: '/mo',
     searches: '60 searches / month',
     envKey: 'NEXT_PUBLIC_POLAR_PRO_LINK',
@@ -28,7 +28,7 @@ const PLANS = [
   {
     id: 'enterprise',
     name: 'Agency',
-    price: '$79',
+    price: '$149',
     unit: '/mo',
     searches: 'No monthly search cap',
     envKey: 'NEXT_PUBLIC_POLAR_AGENCY_LINK',
