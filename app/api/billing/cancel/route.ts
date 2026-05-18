@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { eq } from 'drizzle-orm';
 import { auth } from '@/auth';
 import { db, subscriptions } from '@/app/lib/db';
+import { logAbuseSignal } from '@/app/lib/abuse';
 
 export async function POST() {
   const session = await auth();
@@ -28,6 +29,14 @@ export async function POST() {
       updatedAt: new Date(),
     })
     .where(eq(subscriptions.id, subscription.id));
+
+  logAbuseSignal({
+    userId: session.user.id,
+    event: 'subscription_canceled',
+    severity: 4,
+    email: session.user.email,
+    metadata: { provider: 'toss', subscriptionId: subscription.id, plan: subscription.plan },
+  }).catch(() => {});
 
   return NextResponse.json({ success: true });
 }

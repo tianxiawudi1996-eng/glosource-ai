@@ -206,6 +206,16 @@ interface SupplierDetailProps {
   supplier: Supplier;
 }
 
+async function trackAbuseEvent(event: string, metadata: Record<string, unknown>): Promise<void> {
+  try {
+    await fetch('/api/abuse/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ event, metadata }),
+    });
+  } catch { /* best-effort telemetry */ }
+}
+
 export function SupplierDetail({ supplier: s }: SupplierDetailProps) {
   const verdict = getVerdict(s);
   const vs = getVerdictStyle(verdict);
@@ -227,6 +237,14 @@ export function SupplierDetail({ supplier: s }: SupplierDetailProps) {
         </div>
         {s.url && (
           <a href={s.url} target="_blank" rel="noopener noreferrer"
+            onClick={() => {
+              void trackAbuseEvent('supplier_url_clicked', {
+                supplierRank: s.rank,
+                supplierName: s.name,
+                platform: s.platform,
+                source: 'supplier_detail',
+              });
+            }}
             className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 transition-colors border border-blue-200 rounded-lg px-2.5 py-1.5 flex-shrink-0 ml-2">
             <Icon.ExternalLink className="w-3 h-3" />공급자 페이지
           </a>

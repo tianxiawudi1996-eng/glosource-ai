@@ -3,6 +3,7 @@ import { eq } from 'drizzle-orm';
 import { db, users, subscriptions, payments } from '@/app/lib/db';
 import { hashPassword } from '@/auth';
 import { sendPolarWelcomeEmail } from '@/app/lib/email';
+import { logAbuseSignal } from '@/app/lib/abuse';
 
 // Polar plan_id env var → internal plan tier
 function resolvePlan(productId: string): 'starter' | 'pro' | 'enterprise' | null {
@@ -166,6 +167,30 @@ export async function POST(request: NextRequest) {
     const { id: userId, isNew } = await findOrCreateUser(email, name);
     const subId = await upsertSubscription(userId, data, plan);
 
+    if (type === 'subscription.created' || type === 'subscription.active') {
+      logAbuseSignal({
+        userId,
+        event: 'subscription_created',
+        severity: 1,
+        email,
+        identityType: 'polar_customer',
+        identityValue: data.customer_id,
+        metadata: { plan, polarSubscriptionId: data.id, type },
+      }).catch(() => {});
+    }
+
+    if (type === 'subscription.canceled' || data.status === 'canceled') {
+      logAbuseSignal({
+        userId,
+        event: 'subscription_canceled',
+        severity: 4,
+        email,
+        identityType: 'polar_customer',
+        identityValue: data.customer_id,
+        metadata: { plan, polarSubscriptionId: data.id, type },
+      }).catch(() => {});
+    }
+
     // Record payment for invoice events
     if (type === 'subscription.created' || type === 'subscription.active') {
       if (data.invoice?.id && data.amount != null) {
@@ -185,6 +210,15 @@ export async function POST(request: NextRequest) {
             status: 'done',
             approvedAt: new Date(),
           });
+          logAbuseSignal({
+            userId,
+            event: 'payment_done',
+            severity: 1,
+            email,
+            identityType: 'polar_customer',
+            identityValue: data.customer_id,
+            metadata: { amount: data.amount, currency: data.currency, invoiceId: data.invoice.id },
+          }).catch(() => {});
         }
       }
 

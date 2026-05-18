@@ -664,6 +664,27 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
       {/* Results */}
       {result && (
         <div className="space-y-6">
+          {result.marketRiskFlags && result.marketRiskFlags.length > 0 && (
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
+              <p className="text-xs font-black uppercase tracking-wide text-amber-800">Buyer-market risk flags</p>
+              <div className="mt-3 grid gap-2">
+                {result.marketRiskFlags.map(flag => (
+                  <div key={flag.code} className="rounded-xl border border-amber-200 bg-white/70 px-3 py-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-sm font-black text-[#0D1B2A]">{flag.title}</p>
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-black ${
+                        flag.severity === 'high' ? 'bg-red-100 text-red-700' : flag.severity === 'medium' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'
+                      }`}>
+                        {flag.severity.toUpperCase()}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-xs leading-relaxed text-slate-600">{flag.detail}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* AEO certified company panel — shown above AI results */}
           {result.aeoMatches && (result.aeoMatches.korea.length > 0 || result.aeoMatches.china.length > 0) && (
             <AeoPanel matches={result.aeoMatches} region={region} />
@@ -680,7 +701,7 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
                   Web-verified URLs (AI-searched)
                 </span>
               </div>
-              <ExportButton suppliers={result.suppliers} keyword={product} lang="en" />
+              <ExportButton suppliers={result.suppliers} keyword={product} lang="en" locked={result.access?.supplierDetailsLocked ?? false} />
             </div>
             {result.suppliers.length === 0 ? (
               <EmptyState type="no_results" lang="en" region={region} />
@@ -688,7 +709,7 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {result.suppliers.map((s, i) => (
                   <div key={s.rank}>
-                    <SupplierCard s={s} rank={i + 1} />
+                    <SupplierCard s={s} rank={i + 1} keyword={product} locked={result.access?.supplierDetailsLocked ?? false} />
                   </div>
                 ))}
               </div>

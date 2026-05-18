@@ -105,6 +105,10 @@ export default async function AdminPage() {
             className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-[#0D1B2A] shadow-sm hover:bg-slate-50 transition-colors">
             🏭 검증 공급자 DB →
           </a>
+          <a href="/admin/abuse"
+            className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-[#0D1B2A] shadow-sm hover:bg-slate-50 transition-colors">
+            Abuse Signals →
+          </a>
         </div>
 
         <section className="mt-6 rounded-2xl border border-slate-200 bg-white shadow-sm">

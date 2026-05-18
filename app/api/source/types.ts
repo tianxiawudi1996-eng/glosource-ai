@@ -3,7 +3,7 @@ export type OrderFrequency = 'one_time' | 'monthly' | 'bimonthly_plus';
 export type QuantityUnit = '개' | 'kg' | 'ton' | 'm' | 'm2' | 'm3' | 'set';
 export type VerificationStatus = 'grounding_confirmed' | 'ai_estimated';
 export type ProductStage = 'raw_material' | 'semi_finished' | 'finished_product';
-export type BuyerCountry = 'KR' | 'US' | 'EU' | 'JP' | 'SG' | 'AU' | 'GLOBAL';
+export type BuyerCountry = 'KR' | 'US' | 'EU' | 'GB' | 'BR' | 'MX' | 'JP' | 'SG' | 'AU' | 'GLOBAL';
 export type OutputLanguage = 'ko' | 'en';
 export type CurrencyCode = 'KRW' | 'USD' | 'EUR' | 'JPY' | 'SGD' | 'AUD';
 export type UnitSystem = 'metric' | 'imperial';
@@ -56,6 +56,13 @@ export interface AeoMatchedCompany {
   verifiedYear: number;
 }
 
+export interface MarketRiskFlag {
+  code: string;
+  severity: 'low' | 'medium' | 'high';
+  title: string;
+  detail: string;
+}
+
 export interface SourcingOutput {
   suppliers: Supplier[];
   recommendation: string;
@@ -74,6 +81,12 @@ export interface SourcingOutput {
   aeoMatches?: {
     korea: AeoMatchedCompany[];
     china: AeoMatchedCompany[];
+  };
+  marketRiskFlags?: MarketRiskFlag[];
+  access?: {
+    plan: string;
+    supplierDetailsLocked: boolean;
+    lockedReason?: string;
   };
 }
 

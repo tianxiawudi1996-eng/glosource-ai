@@ -85,6 +85,16 @@ function buildChecklist(lang: 'en' | 'zh') {
   ];
 }
 
+async function trackAbuseEvent(event: string, metadata: Record<string, unknown>): Promise<void> {
+  try {
+    await fetch('/api/abuse/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ event, metadata }),
+    });
+  } catch { /* best-effort telemetry */ }
+}
+
 interface RFQComposerProps {
   rfqEmail: SourcingOutput['rfqEmail'];
 }
@@ -109,6 +119,11 @@ export default function RFQComposer({ rfqEmail }: RFQComposerProps) {
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(finalEmail);
+    void trackAbuseEvent('rfq_copied', {
+      lang,
+      cardFilled: Boolean(cardFilled),
+      source: 'rfq_composer',
+    });
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };

@@ -4,6 +4,7 @@ import { and, eq } from 'drizzle-orm';
 import { auth } from '@/auth';
 import { db, payments, subscriptions } from '@/app/lib/db';
 import { sendReceiptEmail } from '@/app/lib/email';
+import { logAbuseSignal } from '@/app/lib/abuse';
 
 interface Props {
   searchParams: Promise<{ paymentKey?: string; orderId?: string; amount?: string }>;
@@ -125,6 +126,13 @@ export default async function BillingSuccessPage({ searchParams }: Props) {
           now,
         ).catch(() => {});
       }
+      logAbuseSignal({
+        userId: session.user.id,
+        event: 'payment_done',
+        severity: 1,
+        email: session.user.email,
+        metadata: { provider: 'toss', orderId, plan: planId, amount: amountNum },
+      }).catch(() => {});
     }
   } catch (e) {
     console.error('[billing/success]', e);
