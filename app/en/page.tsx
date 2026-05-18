@@ -188,6 +188,7 @@ export default async function EnPage({
   const initialProduct = params?.q ?? '';
   const session = await auth();
   const isLoggedIn = !!session?.user;
+  const plan = session?.user?.plan ?? 'free';
 
   return (
     <div className="min-h-screen bg-white">
@@ -274,7 +275,7 @@ export default async function EnPage({
               Select a category below or type your own product. AI scans EC21 · BuyKorea · tradeKorea and direct Korean factory sources, then returns ranked suppliers with certification evidence, MOQ, and an RFQ draft.
             </p>
           </div>
-          <KSourceWrapper initialProduct={initialProduct} />
+          <KSourceWrapper initialProduct={initialProduct} plan={plan} />
         </div>
       </section>
 

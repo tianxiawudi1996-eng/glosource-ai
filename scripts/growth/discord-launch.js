@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 /**
  * GloSource AI — Discord Webhook Launch Script
  *

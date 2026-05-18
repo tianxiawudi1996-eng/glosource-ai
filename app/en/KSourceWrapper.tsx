@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import EnSourcingTool from '@/app/components/EnSourcingTool';
+import type { PlanTier } from '@/app/lib/db/schema';
 
 const QUICK_CATEGORIES = [
   {
@@ -55,7 +56,13 @@ const QUICK_CATEGORIES = [
   },
 ];
 
-export default function KSourceWrapper({ initialProduct = '' }: { initialProduct?: string }) {
+export default function KSourceWrapper({
+  initialProduct = '',
+  plan = 'free',
+}: {
+  initialProduct?: string;
+  plan?: PlanTier;
+}) {
   const [prefill, setPrefill] = useState(initialProduct);
   const [prefillQuantity, setPrefillQuantity] = useState('');
 
@@ -115,7 +122,7 @@ export default function KSourceWrapper({ initialProduct = '' }: { initialProduct
       </div>
 
       {/* Sourcing tool */}
-      <EnSourcingTool initialProduct={prefill} initialQuantity={prefillQuantity} />
+      <EnSourcingTool initialProduct={prefill} initialQuantity={prefillQuantity} plan={plan} />
     </div>
   );
 }
