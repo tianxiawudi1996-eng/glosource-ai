@@ -17,7 +17,8 @@ function resolvePlan(productId: string): 'starter' | 'pro' | 'enterprise' | null
 async function verifyPolarSignature(request: NextRequest, body: string): Promise<boolean> {
   const secret = process.env.POLAR_WEBHOOK_SECRET;
   if (!secret) {
-    return process.env.NODE_ENV !== 'production';
+    console.error('[polar-webhook] POLAR_WEBHOOK_SECRET not configured — rejecting all requests');
+    return false;
   }
 
   const msgId = request.headers.get('webhook-id') ?? '';

@@ -14,7 +14,9 @@ const errorMessages: Record<string, string> = {
 function LoginContent() {
   const searchParams = useSearchParams();
   const error = searchParams.get('error');
-  const callbackUrl = searchParams.get('callbackUrl') ?? '/en';
+  const rawCallback = searchParams.get('callbackUrl') ?? '';
+  // Only allow same-origin relative paths to prevent open redirect phishing
+  const callbackUrl = rawCallback.startsWith('/') && !rawCallback.startsWith('//') ? rawCallback : '/en';
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {

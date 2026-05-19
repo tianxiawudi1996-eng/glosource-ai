@@ -132,7 +132,7 @@ const FAQ = [
   },
   {
     q: 'Why not just use BuyKorea or EC21 directly? They\'re free.',
-    a: 'You can — but BuyKorea and EC21 are in Korean, require browsing each site separately, and give you no cross-platform trust scoring or English RFQ. A typical manual search across BuyKorea + EC21 + tradeKorea takes 2–3 hours. GloSource queries all three simultaneously, ranks results by AI trust signals, and delivers a pre-written English RFQ in about 90 seconds. If your time is worth more than $0.63, it pays for itself on the first search.',
+    a: 'You can — but each platform requires separate browsing, has its own search interface, and gives you no cross-platform trust scoring or English RFQ. A typical manual search across BuyKorea + EC21 + tradeKorea takes 2–3 hours. GloSource queries all three simultaneously, ranks results by AI trust signals, and delivers a pre-written English RFQ in about 90 seconds. If your time is worth more than $0.63, it pays for itself on the first search.',
   },
   {
     q: 'How is BuyKorea (KOTRA) different from Alibaba?',

@@ -14,15 +14,14 @@ export const SCENARIOS: Scenario[] = [
     category: 'billing',
     triggers: ['refund', 'money back', 'cancel', 'charged', 'not used', 'never used', 'didnt use'],
     tone: 'empathetic',
+    escalate: true,
     response: `Hi {{name}},
 
-Thank you for reaching out. I completely understand.
+Thank you for reaching out. I completely understand, and I'm sorry to hear the service didn't work out for you.
 
-I've initiated a full refund for your subscription — you should see it back on your card within 3–5 business days.
+I've passed your request to our billing team and they'll review your account within 1 business day. You'll hear back with next steps via email.
 
-If you'd like to try GloSource AI again in the future, you're always welcome to use the 5 free searches first to make sure it fits your sourcing workflow.
-
-Sorry it didn't work out this time, and thank you for giving it a try.
+In the meantime, you still have full access to your account.
 
 Best,
 Vision @ GloSource AI`,
@@ -37,11 +36,9 @@ Vision @ GloSource AI`,
 
 I'm really sorry the results didn't meet your expectations — that's genuinely frustrating, and I take that feedback seriously.
 
-As a goodwill gesture, I'd like to extend your subscription by one month at no charge, so you can continue searching while I work on improving result quality for your product category.
+I've flagged your case for a personal review and our team will reach out within 1 business day to discuss options including a refund or an extended trial period.
 
-If you'd still prefer a refund, please reply to this email and I'll process it immediately — no questions asked.
-
-Could you tell me what product you were sourcing? I'd love to personally check the results and see what went wrong.
+Could you tell me what product you were sourcing? This helps me personally investigate what went wrong and improve quality for your category.
 
 Best,
 Vision @ GloSource AI`,
@@ -51,9 +48,10 @@ Vision @ GloSource AI`,
     category: 'billing',
     triggers: ['cancel', 'stop subscription', 'unsubscribe', 'end membership', 'discontinue'],
     tone: 'empathetic',
+    escalate: true,
     response: `Hi {{name}},
 
-I've cancelled your subscription — you won't be charged again. You'll keep access until the end of your current billing period.
+I've received your cancellation request and passed it to our billing team. They'll process it within 1 business day and confirm via email. You'll keep full access until the end of your current billing period.
 
 Before you go: was there something specific that didn't work for you? Even a quick note helps me improve GloSource for others.
 
@@ -70,9 +68,9 @@ Vision @ GloSource AI`,
     escalate: true,
     response: `Hi {{name}},
 
-I sincerely apologize — that should never happen. I'm looking into this right now and will refund the duplicate charge within 24 hours.
+I sincerely apologize — that should never happen. I'm escalating this to our billing team right now.
 
-Please reply with the last 4 digits of the card charged and the transaction date, so I can confirm the right payment.
+To help us investigate quickly, could you reply with the transaction dates and amounts you were charged? Our team will review and respond within 1 business day.
 
 Very sorry for the inconvenience.
 
@@ -121,13 +119,12 @@ Vision @ GloSource AI`,
     category: 'billing',
     triggers: ['promo code', 'discount code', 'coupon', 'producthunt', 'PRODUCTHUNT', 'code not working'],
     tone: 'informative',
+    escalate: true,
     response: `Hi {{name}},
 
-The Product Hunt promo code is: PRODUCTHUNT
+I'd love to help with your promo code! Could you reply with the code you're trying to use and I'll look into it personally.
 
-This gives you 1 month free on any paid plan. Enter it at checkout on glosource-ai.vercel.app/en/billing.
-
-If it's still not working, reply here and I'll apply the discount manually to your account.
+If you're having trouble at checkout, you can also reach us directly at glosourceai@gmail.com and we'll apply any valid discount manually to your account.
 
 Best,
 Vision @ GloSource AI`,

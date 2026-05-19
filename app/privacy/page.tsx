@@ -171,6 +171,8 @@ export default function PrivacyPage() {
               <strong className="text-slate-300">Supervisory authorities:</strong>{' '}
               EU/EEA users may lodge a complaint with their national data protection authority via{' '}
               <a href="https://www.edpb.europa.eu/about-edpb/about-edpb/members_en" target="_blank" rel="noopener noreferrer" className="underline text-[#EA580C] hover:text-orange-400">edpb.europa.eu</a>.
+              {' '}UK users may contact the Information Commissioner&apos;s Office (ICO) at{' '}
+              <a href="https://ico.org.uk" target="_blank" rel="noopener noreferrer" className="underline text-[#EA580C] hover:text-orange-400">ico.org.uk</a>.
               {' '}Korean users may contact the Personal Information Protection Commission at{' '}
               <a href="https://www.pipc.go.kr" target="_blank" rel="noopener noreferrer" className="underline text-[#EA580C] hover:text-orange-400">pipc.go.kr</a>.
             </p>

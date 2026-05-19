@@ -65,12 +65,12 @@ export async function sendPolarWelcomeEmail(
   if (!user) return;
 
   const token = crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, '');
-  const identifier = `password-reset:${to}`;
-  const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+  const identifier = `pw-reset:${to}`;
+  const expires = new Date(Date.now() + 48 * 60 * 60 * 1000); // 48 hours
   await db.delete(verificationTokens).where(eq(verificationTokens.identifier, identifier));
   await db.insert(verificationTokens).values({ identifier, token, expires });
 
-  const resetLink = `${baseUrl}/api/auth/password?token=${token}&email=${encodeURIComponent(to)}`;
+  const resetLink = `${baseUrl}/en/reset-password?token=${token}&email=${encodeURIComponent(to)}`;
 
   const resend = getResend();
   if (!resend) {

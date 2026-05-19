@@ -61,7 +61,7 @@ const CERT_PATTERNS: { re: RegExp; label: string; cls: string }[] = [
   { re: /ISO 22000/i,                 label: 'ISO 22000', cls: 'bg-slate-100 text-slate-600 border-slate-200' },
   { re: /ISO 9001/i,                  label: 'ISO 9001',  cls: 'bg-slate-100 text-slate-600 border-slate-200' },
   { re: /HALAL/i,                     label: 'HALAL',     cls: 'bg-green-50 text-green-700 border-green-200' },
-  { re: /KOTRA\s*[Ll]isted|BuyKorea/i, label: 'On BuyKorea', cls: 'bg-blue-50 text-blue-700 border-blue-200' },
+  { re: /KOTRA\s*[Ll]isted|BuyKorea/i, label: 'On BuyKorea', cls: 'bg-slate-100 text-slate-600 border-slate-200' },
   { re: /\bCE\b/,                     label: 'CE',        cls: 'bg-slate-100 text-slate-600 border-slate-200' },
   { re: /\bSGS\b/i,                   label: 'SGS',       cls: 'bg-slate-100 text-slate-600 border-slate-200' },
 ];
@@ -102,7 +102,7 @@ function AeoCompanyCard({ company }: { company: AeoMatchedCompany }) {
           </a>
         )}
       </div>
-      <p className="text-[9px] text-slate-400">Verified {company.verifiedYear} · Confirm current status at customs authority</p>
+      <p className="text-xs text-slate-400">Verified {company.verifiedYear} · Confirm current status at customs authority</p>
     </div>
   );
 }
@@ -246,7 +246,7 @@ function SupplierCard({ s, rank, keyword, locked }: { s: Supplier; rank: number;
       {/* Cert badges — only shown for grounding_confirmed suppliers */}
       {isVerified && certs.length > 0 && (
         <div>
-          <p className="text-[9px] font-bold text-amber-600 uppercase tracking-wide mb-1">AI-detected signals (unverified) — confirm directly with supplier</p>
+          <p className="text-xs font-bold text-amber-600 uppercase tracking-wide mb-1">AI-detected signals (unverified) — confirm directly with supplier</p>
           <div className="flex flex-wrap gap-1">
             {certs.map(c => (
               <span key={c.label} className={`text-[10px] font-bold border rounded-full px-1.5 py-0.5 ${c.cls}`}>
@@ -313,7 +313,7 @@ function SupplierCard({ s, rank, keyword, locked }: { s: Supplier; rank: number;
       )}
 
       {/* URL — only show for suppliers that passed the server quality gate */}
-      {s.url && isVerified && (
+      {s.url && isVerified && /^https?:\/\//i.test(s.url) && (
         <a href={s.url} target="_blank" rel="noopener noreferrer"
           onClick={() => {
             void trackAbuseEvent('supplier_url_clicked', {
@@ -850,11 +850,12 @@ export default function EnSourcingTool({
 
 function SourcingEmailCapture() {
   const [email, setEmail] = useState('');
+  const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!email.trim()) return;
+    if (!email.trim() || !consent) return;
     setStatus('loading');
     try {
       const res = await fetch('/api/waitlist', {
@@ -881,22 +882,36 @@ function SourcingEmailCapture() {
     <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
       <p className="text-xs font-bold text-[#0D1B2A] uppercase tracking-wide mb-1">Get Korean sourcing tips by email</p>
       <p className="text-xs text-slate-500 mb-3">We send practical guides on vetting suppliers, reading certifications, and avoiding common import mistakes. No spam.</p>
-      <form onSubmit={handleSubmit} className="flex gap-2">
-        <input
-          type="email"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          placeholder="your@email.com"
-          required
-          className="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-[#0D1B2A] placeholder:text-slate-400 focus:border-[#EA580C] focus:outline-none focus:ring-2 focus:ring-[#EA580C]/10 transition-all"
-        />
-        <button
-          type="submit"
-          disabled={status === 'loading' || !email.trim()}
-          className="rounded-xl bg-[#0D1B2A] px-4 py-2 text-sm font-bold text-white hover:bg-[#1a2e48] disabled:opacity-50 transition-all flex-shrink-0"
-        >
-          {status === 'loading' ? '…' : 'Subscribe'}
-        </button>
+      <form onSubmit={handleSubmit} className="space-y-3">
+        <div className="flex gap-2">
+          <input
+            type="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            placeholder="your@email.com"
+            required
+            className="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-[#0D1B2A] placeholder:text-slate-400 focus:border-[#EA580C] focus:outline-none focus:ring-2 focus:ring-[#EA580C]/10 transition-all"
+          />
+          <button
+            type="submit"
+            disabled={status === 'loading' || !email.trim() || !consent}
+            className="rounded-xl bg-[#0D1B2A] px-4 py-2 text-sm font-bold text-white hover:bg-[#1a2e48] disabled:opacity-50 transition-all flex-shrink-0"
+          >
+            {status === 'loading' ? '…' : 'Subscribe'}
+          </button>
+        </div>
+        <label className="flex items-start gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={consent}
+            onChange={e => setConsent(e.target.checked)}
+            className="mt-0.5 h-3.5 w-3.5 accent-[#EA580C] flex-shrink-0"
+          />
+          <span className="text-[11px] text-slate-500">
+            I agree to receive sourcing tips and product updates from GloSource AI. I can unsubscribe at any time. See our{' '}
+            <a href="/privacy" className="underline hover:text-slate-700">Privacy Policy</a>.
+          </span>
+        </label>
       </form>
       {status === 'error' && <p className="text-[11px] text-red-500 mt-2">Something went wrong — please try again.</p>}
     </div>
