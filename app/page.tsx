@@ -1224,7 +1224,7 @@ export default function HomePage() {
                   <div className="space-y-2 text-xs">
                     <div className="grid grid-cols-[76px_1fr] rounded border border-slate-200">
                       <span className="bg-slate-50 px-2 py-1.5 font-bold text-slate-500">Product</span>
-                      <span className="px-2 py-1.5 text-slate-600">[PRODUCT_NAME]</span>
+                      <span className="px-2 py-1.5 text-slate-600">your product</span>
                     </div>
                     <div className="grid grid-cols-[76px_1fr] rounded border border-slate-200">
                       <span className="bg-slate-50 px-2 py-1.5 font-bold text-slate-500">Quantity</span>

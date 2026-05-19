@@ -49,11 +49,13 @@ export async function POST(request: NextRequest) {
     const tosConsent = body.tosConsent === true;
     const dataConsent = body.dataConsent === true;
     const gdprConsent = body.gdprConsent === true;
+    const ageConsent = body.ageConsent === true;
+    const marketingConsent = body.marketingConsent === true;
 
     if (!email || !password || !name) {
       return NextResponse.json({ error: '이름, 이메일, 비밀번호를 모두 입력해주세요.' }, { status: 400 });
     }
-    if (!tosConsent || !dataConsent) {
+    if (!tosConsent || !dataConsent || !gdprConsent || !ageConsent) {
       return NextResponse.json({ error: '필수 약관 및 개인정보 수집·이용 동의가 필요합니다.' }, { status: 400 });
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -76,9 +78,11 @@ export async function POST(request: NextRequest) {
         email,
         name,
         passwordHash,
-        tosConsentAt: tosConsent ? now : undefined,
-        dataConsentAt: dataConsent ? now : undefined,
-        ...(gdprConsent ? { gdprConsentAt: now } : {}),
+        tosConsentAt: now,
+        dataConsentAt: now,
+        gdprConsentAt: now,
+        ageConfirmedAt: now,
+        ...(marketingConsent ? { marketingConsentAt: now } : {}),
       })
       .returning({ id: users.id });
 

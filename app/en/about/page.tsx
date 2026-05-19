@@ -43,7 +43,7 @@ export default function AboutPage() {
         <section className="mb-10">
           <h2 className="text-lg font-black text-[#0D1B2A] mb-3">What GloSource AI does</h2>
           <p className="text-slate-600 text-sm leading-relaxed mb-4">
-            GloSource AI searches Korean B2B export channels — EC21, BuyKorea (KOTRA), tradeKorea, and direct factory sources — simultaneously using Google Search grounding and AI analysis. For each search, it returns 3–5 supplier candidates with trust scoring, certification signals, estimated pricing, and a ready-to-send English RFQ draft.
+            GloSource AI searches Korean B2B export channels — EC21, BuyKorea (KOTRA), tradeKorea, and direct factory sources — simultaneously using Google Search grounding and AI analysis. For each search, it returns up to 3–5 supplier candidates with trust scoring, certification signals, estimated pricing, and a ready-to-send English RFQ draft.
           </p>
           <p className="text-slate-600 text-sm leading-relaxed">
             The process takes around 90 seconds instead of hours of manual research across separate tabs.

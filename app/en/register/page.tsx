@@ -13,6 +13,8 @@ export default function EnRegisterPage() {
   const [tosConsent, setTosConsent] = useState(false);
   const [dataConsent, setDataConsent] = useState(false);
   const [gdprConsent, setGdprConsent] = useState(false);
+  const [ageConsent, setAgeConsent] = useState(false);
+  const [marketingConsent, setMarketingConsent] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -32,7 +34,7 @@ export default function EnRegisterPage() {
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password, tosConsent, dataConsent }),
+        body: JSON.stringify({ name, email, password, tosConsent, dataConsent, gdprConsent, ageConsent, marketingConsent }),
       });
       const result = (await response.json()) as RegisterResponse;
       if (!response.ok) {
@@ -55,7 +57,7 @@ export default function EnRegisterPage() {
     }
   }
 
-  const allConsents = tosConsent && dataConsent && gdprConsent;
+  const allConsents = tosConsent && dataConsent && gdprConsent && ageConsent;
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-50 px-6 py-10">
@@ -121,6 +123,22 @@ export default function EnRegisterPage() {
                 <strong className="text-[#0D1B2A]">[Required]</strong>{' '}
                 I understand that my data will be processed in accordance with GDPR and applicable data protection laws. I may request deletion at any time by emailing{' '}
                 <a href="mailto:glosourceai@gmail.com" className="underline">glosourceai@gmail.com</a>.
+              </span>
+            </label>
+            <label className="flex items-start gap-2.5 cursor-pointer">
+              <input type="checkbox" checked={ageConsent} onChange={e => setAgeConsent(e.target.checked)}
+                className="mt-0.5 accent-[#0D1B2A] flex-shrink-0" />
+              <span className="text-xs text-slate-600 leading-relaxed">
+                <strong className="text-[#0D1B2A]">[Required]</strong>{' '}
+                I confirm that I am at least 14 years old.
+              </span>
+            </label>
+            <label className="flex items-start gap-2.5 cursor-pointer">
+              <input type="checkbox" checked={marketingConsent} onChange={e => setMarketingConsent(e.target.checked)}
+                className="mt-0.5 accent-[#0D1B2A] flex-shrink-0" />
+              <span className="text-xs text-slate-600 leading-relaxed">
+                <strong className="text-slate-500">[Optional]</strong>{' '}
+                Send me product updates, sourcing tips, and launch emails. I can unsubscribe at any time.
               </span>
             </label>
           </div>

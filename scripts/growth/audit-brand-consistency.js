@@ -4,7 +4,7 @@ const { walk, readText, writeJsonReport, failIfCritical } = require('./_utils');
 const files = walk('app', file => /\.(tsx|ts)$/.test(file));
 const criticals = [];
 const warnings = [];
-const domainEmail = 'hello@glosource.ai';
+const domainEmail = 'glosourceai@gmail.com';
 const legacyEmail = 'like2buyglobal@gmail.com';
 
 for (const file of files) {

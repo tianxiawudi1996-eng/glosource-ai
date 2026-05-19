@@ -53,7 +53,7 @@ const PLANS = [
     tag: '⭐ Best for Amazon FBA sellers',
     price: '$49',
     unit: '/mo',
-    per: '60 searches / month · Korea + China sourcing',
+    per: '60 searches / month · $0.82 per search · Korea + China sourcing',
     features: [
       'Everything in Starter',
       'China supplier add-on — compare Korea vs. China side-by-side',

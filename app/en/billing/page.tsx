@@ -14,7 +14,7 @@ const PLANS = [
     unit: '/mo',
     searches: '30 searches / month',
     envKey: 'NEXT_PUBLIC_POLAR_STARTER_LINK',
-    features: ['3–5 supplier candidates per search', 'Trust score 0–100', 'English RFQ draft', 'MFDS / KC signals'],
+    features: ['Up to 3–5 supplier candidates per search', 'Trust score 0–100', 'English RFQ draft', 'MFDS / KC signals'],
   },
   {
     id: 'pro',

@@ -36,6 +36,20 @@
       "when": 1779062400000,
       "tag": "0004_abuse_signals",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1779206340000,
+      "tag": "0005_consent_timestamps",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1779206700000,
+      "tag": "0006_user_age_marketing_consent",
+      "breakpoints": true
     }
   ]
 }

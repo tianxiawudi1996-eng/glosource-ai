@@ -91,7 +91,10 @@ function requestPolarProduct(id, token) {
       const result = await requestPolarProduct(env[key], env.POLAR_ACCESS_TOKEN);
       productResults.push({ key, ok: result.ok, status: result.status });
       if (!result.ok) {
-        criticals.push({ file: '.env.local', message: `${key} cannot be read with POLAR_ACCESS_TOKEN. Status: ${result.status || result.error}` });
+        const hint = result.status === 403
+          ? ' Check that POLAR_ACCESS_TOKEN is an Organization Access Token for the same Polar organization and includes products:read or products:write scope.'
+          : '';
+        criticals.push({ file: '.env.local', message: `${key} cannot be read with POLAR_ACCESS_TOKEN. Status: ${result.status || result.error}.${hint}` });
       }
     }
   }

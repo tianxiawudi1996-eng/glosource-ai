@@ -42,7 +42,7 @@ const EMBED = {
       description: `Scans **EC21 · BuyKorea (KOTRA gov) · tradeKorea** simultaneously — AI ranks supplier candidates by trust score and generates a pre-filled English RFQ.
 
 **Per supplier result:**
-✅ Trust score 0–100 with Trade Readiness breakdown
+✅ Trust score 0–100 with Listing Quality breakdown
 ✅ MFDS / HACCP / KC / KS certification signals
 ✅ Est. MOQ, unit price & lead time
 ✅ AEO customs-certified companies highlighted

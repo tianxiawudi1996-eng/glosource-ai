@@ -45,7 +45,7 @@ Google gives you distributors. Alibaba barely has Korean suppliers. EC21/BuyKore
 So I built **GloSource AI** — you type a product, it scans EC21 · BuyKorea (KOTRA-operated, government-backed) · tradeKorea simultaneously, ranks suppliers by trust score, and generates a pre-filled English RFQ you can send immediately.
 
 **What it shows per supplier:**
-- Trust score 0–100 with Trade Readiness breakdown
+- Trust score 0–100 with Listing Quality breakdown
 - MFDS / HACCP / KC / KS certification signals
 - Est. MOQ, unit price, lead time
 - AEO customs-certified companies flagged separately

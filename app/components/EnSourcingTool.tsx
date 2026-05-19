@@ -154,7 +154,7 @@ function AeoPanel({ matches, region }: { matches: { korea: AeoMatchedCompany[]; 
 }
 
 
-function TradeReadinessScore({ s, certs, isVerified }: { s: Supplier; certs: { label: string }[]; isVerified: boolean }) {
+function ListingQualityScore({ s, certs, isVerified }: { s: Supplier; certs: { label: string }[]; isVerified: boolean }) {
   const scores = [
     { label: 'Google-verified URL', pts: 30, met: isVerified },
     { label: 'Certification signals', pts: 25, met: certs.length > 0 },
@@ -188,6 +188,15 @@ function formatLeadTime(value: string): string {
   const trimmed = value?.trim();
   if (!trimmed) return 'TBD';
   return /^\d+$/.test(trimmed) ? `${trimmed} days` : trimmed;
+}
+
+function isUnavailableEstimate(value: string | undefined): boolean {
+  const trimmed = value?.trim();
+  return !trimmed || /^(inquire|n\/a|na|tbd|unknown|not available)$/i.test(trimmed);
+}
+
+function formatEstimate(value: string | undefined): string {
+  return isUnavailableEstimate(value) ? 'AI estimate unavailable' : value!.trim();
 }
 
 function freeCountStorageKey(limit: number): string {
@@ -257,19 +266,23 @@ function SupplierCard({ s, rank, keyword, locked }: { s: Supplier; rank: number;
       </div>
 
       {/* Listing Quality */}
-      <TradeReadinessScore s={s} certs={certs} isVerified={isVerified} />
+      <ListingQualityScore s={s} certs={certs} isVerified={isVerified} />
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-2">
-        {[['Est. Price', s.estimatedPrice || 'Inquire'], ['Est. MOQ (Min. Order Qty)', s.moq || 'Inquire'], ['Lead time', formatLeadTime(s.leadTimeDays)]].map(([label, val]) => (
+        {[
+          { label: 'Est. Price', val: formatEstimate(s.estimatedPrice), unavailable: isUnavailableEstimate(s.estimatedPrice) },
+          { label: 'Est. MOQ (Min. Order Qty)', val: formatEstimate(s.moq), unavailable: isUnavailableEstimate(s.moq) },
+          { label: 'Lead time', val: formatLeadTime(s.leadTimeDays), unavailable: false },
+        ].map(({ label, val, unavailable }) => (
           <div key={label} className="bg-slate-50 rounded-lg px-2.5 py-2">
             <p className="text-[10px] text-slate-400 font-medium leading-tight">{label}</p>
-            <p className="text-xs font-bold text-[#0D1B2A] mt-0.5 truncate">{val}</p>
+            <p className={`text-xs font-bold mt-0.5 truncate ${unavailable ? 'text-slate-400' : 'text-[#0D1B2A]'}`}>{val}</p>
           </div>
         ))}
       </div>
       <p className="text-[10px] text-amber-600 leading-tight">
-        ⚠ Est. Price &amp; MOQ are AI-estimated from public data — confirm directly with the supplier before ordering.
+        ⚠ Est. Price &amp; MOQ are AI-estimated when available; if unavailable, ask the supplier directly before ordering.
       </p>
 
       {/* Summary */}

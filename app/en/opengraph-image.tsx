@@ -76,7 +76,7 @@ export default function EnOgImage() {
 
         {/* bottom: feature tags */}
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-          {['3–5 supplier candidates', 'Risk score 0–100', 'Auto RFQ draft'].map((tag) => (
+          {['Up to 3–5 supplier candidates', 'Risk score 0–100', 'Auto RFQ draft'].map((tag) => (
             <div
               key={tag}
               style={{

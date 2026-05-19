@@ -20,6 +20,8 @@ export const users = pgTable('users', {
   tosConsentAt: timestamp('tos_consent_at', { mode: 'date' }),
   dataConsentAt: timestamp('data_consent_at', { mode: 'date' }),
   gdprConsentAt: timestamp('gdpr_consent_at', { mode: 'date' }),
+  ageConfirmedAt: timestamp('age_confirmed_at', { mode: 'date' }),
+  marketingConsentAt: timestamp('marketing_consent_at', { mode: 'date' }),
   createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { mode: 'date' }).defaultNow().notNull(),
 });
