@@ -31,7 +31,7 @@ export default function EnResetPasswordPage() {
       <section className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
         <div className="mb-7 text-center">
           <Link href="/en" aria-label="GloSource AI home">
-            <BrandLogo />
+            <BrandLogo onDark={false} />
           </Link>
           <h1 className="mt-6 text-2xl font-black text-[#0D1B2A]">Reset password</h1>
           <p className="mt-2 text-sm text-slate-500">Enter your email and we&apos;ll send you a reset link.</p>

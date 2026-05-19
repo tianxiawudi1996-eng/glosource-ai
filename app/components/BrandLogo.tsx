@@ -2,23 +2,25 @@ import Image from 'next/image';
 
 type BrandLogoProps = {
   compact?: boolean;
+  onDark?: boolean;  // true = dark nav (white box), false = light page (border only)
   className?: string;
 };
 
-export default function BrandLogo({ compact = false, className = '' }: BrandLogoProps) {
-  const frameSize = compact ? 'h-10 w-[112px] sm:w-[132px]' : 'h-12 w-[142px] sm:w-[166px]';
-  const imageSize = compact ? 'h-8 w-[96px] sm:w-[116px]' : 'h-10 w-[124px] sm:w-[148px]';
+export default function BrandLogo({ compact = false, onDark = true, className = '' }: BrandLogoProps) {
+  const containerStyle = onDark
+    ? 'bg-white shadow-sm'
+    : 'border border-slate-200 bg-white';
 
   return (
     <span
-      className={`inline-flex ${frameSize} items-center justify-center rounded-xl border border-white/25 bg-white/10 px-2 shadow-[0_8px_30px_rgba(2,8,23,0.16)] ring-1 ring-slate-950/5 backdrop-blur-md ${className}`}
+      className={`inline-flex items-center rounded-xl ${containerStyle} ${compact ? 'px-2.5 py-1' : 'px-3 py-1.5'} ${className}`}
     >
       <Image
         src="/images/glosource-logo-transparent.png"
         alt="GloSource AI"
-        width={compact ? 112 : 146}
-        height={compact ? 44 : 56}
-        className={`${imageSize} object-contain drop-shadow-[0_1px_1px_rgba(255,255,255,0.25)]`}
+        width={1048}
+        height={721}
+        className={compact ? 'h-7 w-auto' : 'h-9 w-auto'}
         priority={false}
       />
     </span>
