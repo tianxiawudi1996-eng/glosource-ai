@@ -36,7 +36,7 @@ export default function SupportPage() {
           <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-6 text-center">
             <p className="text-emerald-700 font-semibold text-lg mb-1">Message received!</p>
             <p className="text-emerald-600 text-sm">
-              Check your inbox — we&apos;ve sent an automatic reply. Our team will follow up if needed.
+              Check your inbox — our AI assistant sent an initial reply. A human reviews billing and complex issues within 1 business day.
             </p>
           </div>
         ) : (

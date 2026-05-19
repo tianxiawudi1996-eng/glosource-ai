@@ -66,7 +66,7 @@ export const BLOG_POSTS: BlogPost[] = [
 </ol>
 
 <h2>Using AI to speed up your search</h2>
-<p>Manually checking BuyKorea, EC21, and tradeKorea separately takes hours. GloSource AI searches all three channels simultaneously via Google Search, ranks candidates by trust signals and certification evidence, and generates a ready-to-send English RFQ email — in about 90 seconds.</p>
+<p>Manually checking BuyKorea, EC21, and tradeKorea separately takes hours. GloSource AI searches all three channels simultaneously via Google Search, ranks candidates by trust signals and AI-detected certification signals, and generates a ready-to-send English RFQ email — in about 90 seconds.</p>
 <p>The AI doesn't verify suppliers or guarantee quality, but it dramatically cuts the research time from hours to minutes.</p>
 
 <h2>Summary checklist</h2>
@@ -681,7 +681,7 @@ Best regards,
 </ol>
 
 <h2>Fast-track your Korean private label research with AI</h2>
-<p>GloSource AI searches BuyKorea, EC21, and tradeKorea simultaneously, returning Korean OEM/ODM manufacturer candidates ranked by trust score, certification evidence, and export record. It generates a pre-filled RFQ email with your product specification pre-loaded — including the key OEM/ODM questions above. Most users get a usable shortlist of Korean manufacturer candidates in under 2 minutes.</p>
+<p>GloSource AI searches BuyKorea, EC21, and tradeKorea simultaneously, returning Korean OEM/ODM manufacturer candidates ranked by trust score, AI-detected certification signals, and export record. It generates a pre-filled RFQ email with your product specification pre-loaded — including the key OEM/ODM questions above. Most users get a usable shortlist of Korean manufacturer candidates in under 2 minutes.</p>
     `.trim(),
   },
   {
@@ -908,7 +908,7 @@ Best regards,
 <p>For many Korean cosmetic ODM products, a realistic first order at minimum MOQ totals $1,500–5,000 landed — accessible for serious small brands.</p>
 
 <h2>Find Korean OEM manufacturers at the right MOQ</h2>
-<p>GloSource AI lets you specify your target quantity when searching. Supplier candidates are matched and ranked based on MOQ compatibility signals, alongside trust score and certification evidence — so you're not wasting outreach on manufacturers whose minimums you can't meet yet.</p>
+<p>GloSource AI lets you specify your target quantity when searching. Supplier candidates are matched and ranked based on MOQ compatibility signals, alongside trust score and AI-detected certification signals — so you're not wasting outreach on manufacturers whose minimums you can't meet yet.</p>
     `.trim(),
   },
   {

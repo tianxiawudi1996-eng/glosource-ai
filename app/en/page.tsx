@@ -131,6 +131,10 @@ const FAQ = [
     a: 'Alibaba includes Korean traders, re-exporters, and resellers mixed together with manufacturers — it\'s hard to tell them apart. GloSource specifically filters for Korean manufacturers with MFDS/HACCP/KC certification signals, which Alibaba does not surface. You also get an English RFQ pre-filled with supplier-specific details, saving hours of manual cross-referencing across BuyKorea, EC21, and tradeKorea.',
   },
   {
+    q: 'Why not just use BuyKorea or EC21 directly? They\'re free.',
+    a: 'You can — but BuyKorea and EC21 are in Korean, require browsing each site separately, and give you no cross-platform trust scoring or English RFQ. A typical manual search across BuyKorea + EC21 + tradeKorea takes 2–3 hours. GloSource queries all three simultaneously, ranks results by AI trust signals, and delivers a pre-written English RFQ in about 90 seconds. If your time is worth more than $0.63, it pays for itself on the first search.',
+  },
+  {
     q: 'How is BuyKorea (KOTRA) different from Alibaba?',
     a: 'BuyKorea is operated by KOTRA, a Korean government agency. It focuses on registered, export-oriented Korean companies, giving buyers more structured company information than a fully open marketplace. For Korean products specifically, KOTRA-listed suppliers can be a stronger starting point for due diligence.',
   },
@@ -145,6 +149,10 @@ const FAQ = [
   {
     q: 'Is GloSource AI an actual sourcing agent?',
     a: 'No. We are a research and preparation tool — we surface, compare, score, and prepare RFQ drafts. You contact suppliers and negotiate directly. We do not handle transactions, logistics, or payments on your behalf.',
+  },
+  {
+    q: 'What if suppliers don\'t respond to my RFQ?',
+    a: 'GloSource finds and ranks candidates — supplier response rates depend on your RFQ quality, the specificity of your specs, and follow-up timing. Most buyers need 2–5 outreach rounds before getting a useful reply. Tips: send RFQs to at least 3 candidates, include your target MOQ and price range, and follow up within 3 business days.',
   },
   {
     q: 'How do I subscribe to a paid plan?',
@@ -269,7 +277,7 @@ export default async function EnPage({
             <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-3">Try it free — 5 searches</p>
             <h2 className="text-2xl font-black text-[#0D1B2A] mb-2">Find your Korean supplier now</h2>
             <p className="text-sm text-slate-500 max-w-lg mx-auto">
-              Select a category below or type your own product. AI scans EC21 · BuyKorea · tradeKorea and direct Korean factory sources, then returns ranked suppliers with certification evidence, MOQ, and an RFQ draft.
+              Select a category below or type your own product. AI searches publicly available listings on EC21 · BuyKorea · tradeKorea, then returns ranked suppliers with AI-detected certification signals (unverified), MOQ estimates, and an RFQ draft.
             </p>
           </div>
           <KSourceWrapper initialProduct={initialProduct} plan={plan} freeSearchLimit={freeSearchLimit} />
@@ -335,7 +343,7 @@ export default async function EnPage({
             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Pricing</p>
             <h2 className="text-2xl font-black text-[#0D1B2A] mb-3">Simple, transparent pricing</h2>
             <p className="text-sm text-slate-500 max-w-xl mx-auto">
-              1 search = 3–5 Korean supplier candidates + AI trust signals + certification evidence + English RFQ draft.
+              1 search = 3–5 Korean supplier candidates + AI trust signals + certification signals (AI-detected, unverified) + English RFQ draft.
             </p>
             <p className="mt-2 text-xs text-slate-400">For international buyers · Priced in USD · Korean-market plans available at <Link href="/" className="underline text-[#0D1B2A] hover:text-slate-700">glosource-ai.vercel.app</Link></p>
             <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-500 max-w-lg mx-auto text-left">

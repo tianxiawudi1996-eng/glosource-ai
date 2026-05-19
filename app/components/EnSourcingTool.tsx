@@ -34,11 +34,11 @@ const BUYER_COUNTRIES: { value: BuyerCountry; label: string }[] = [
 ];
 
 const KOREA_LOADING_STEPS = [
-  'Searching EC21 — Korea\'s largest B2B marketplace (1/3)...',
-  'Checking BuyKorea — KOTRA government-verified exporters (2/3)...',
-  'Scanning tradeKorea — KITA-listed manufacturers (3/3)...',
-  'Evaluating MFDS · HACCP · KC · KS certification signals...',
-  'Ranking suppliers by trust score and export evidence...',
+  'Using AI to search publicly available listings on EC21 (1/3)...',
+  'Using AI to search BuyKorea — KOTRA-listed exporters (2/3)...',
+  'Using AI to search tradeKorea — KITA-listed manufacturers (3/3)...',
+  'Detecting MFDS · HACCP · KC · KS certification signals in AI-gathered data...',
+  'Ranking suppliers by AI trust signals and export evidence...',
   'Generating your pre-filled English RFQ draft...',
 ];
 

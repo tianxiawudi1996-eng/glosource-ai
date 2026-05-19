@@ -181,8 +181,11 @@ export default function PrivacyPage() {
             <h2 className="text-lg font-bold text-white mb-3">7. Data Transfers</h2>
             <p>
               Your data is processed in the Republic of Korea and the United States (Vercel, Neon, Google).
-              Transfers to the US are conducted under Standard Contractual Clauses (SCCs) or equivalent
-              safeguards where required.
+              Transfers to the US are conducted under Standard Contractual Clauses (SCCs) with Vercel, Neon,
+              and Google. GloSource AI does not currently designate an EU representative under GDPR Art. 27;
+              EU/EEA residents may contact us directly at{' '}
+              <a href="mailto:glosourceai@gmail.com" className="underline text-[#EA580C]">glosourceai@gmail.com</a>{' '}
+              for any data requests. We are working toward full EU representative designation.
             </p>
           </section>
 
