@@ -48,12 +48,12 @@ const EMBED = {
 ✅ AEO customs-certified companies highlighted
 ✅ Ready-to-send English RFQ draft
 
-**5 free searches — no account required.**`,
+**5 free anonymous searches. Free account: 10 searches/month after email verification.**`,
       url: 'https://glosource-ai.vercel.app/en',
       color: 0xEA580C,
       fields: [
         { name: 'Best for', value: 'K-beauty OEM · K-food bulk · Electronics · Private label cosmetics', inline: false },
-        { name: 'Free',     value: '5 searches/day (no signup)',          inline: true },
+        { name: 'Free',     value: '5 anonymous · 10/month after signup', inline: true },
         { name: 'Paid',     value: 'From $19/mo — 30 searches',           inline: true },
       ],
       footer: { text: 'Feedback welcome — DM or reply' },
@@ -65,14 +65,18 @@ const EMBED = {
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 async function main() {
-  if (WEBHOOKS.length === 0) {
+  if (!DRY_RUN && WEBHOOKS.length === 0) {
     console.error('\n❌  No Discord webhooks set in .env.local\n    DISCORD_WEBHOOK_FBA / ECOMMERCE / DROPSHIP / OWN\n');
     process.exit(1);
   }
 
   console.log(DRY_RUN ? '\n--- DRY RUN ---' : `\n--- LIVE — posting to ${WEBHOOKS.length} channel(s) ---`);
 
-  for (const wh of WEBHOOKS) {
+  const targets = DRY_RUN && WEBHOOKS.length === 0
+    ? [{ name: 'Sample Discord channel', url: 'dry-run' }]
+    : WEBHOOKS;
+
+  for (const wh of targets) {
     if (DRY_RUN) {
       console.log(`[DRY RUN] → ${wh.name}`);
       continue;

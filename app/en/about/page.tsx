@@ -104,8 +104,8 @@ export default function AboutPage() {
           <h2 className="text-lg font-black text-[#0D1B2A] mb-3">Contact</h2>
           <p className="text-slate-600 text-sm leading-relaxed">
             For questions, feedback, or support:{' '}
-            <a href="mailto:hello@glosource.ai" className="text-[#EA580C] font-semibold hover:underline">
-              hello@glosource.ai
+            <a href="mailto:glosourceai@gmail.com" className="text-[#EA580C] font-semibold hover:underline">
+              glosourceai@gmail.com
             </a>
           </p>
           <p className="text-slate-500 text-xs mt-2">
@@ -135,7 +135,7 @@ export default function AboutPage() {
             <Link href="/en/blog" className="hover:text-slate-700">Blog</Link>
             <Link href="/terms" className="hover:text-slate-700">Terms</Link>
             <Link href="/privacy" className="hover:text-slate-700">Privacy</Link>
-            <a href="mailto:hello@glosource.ai" className="hover:text-slate-700">Contact</a>
+            <a href="mailto:glosourceai@gmail.com" className="hover:text-slate-700">Contact</a>
           </div>
         </div>
       </footer>

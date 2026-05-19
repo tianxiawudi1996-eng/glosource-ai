@@ -190,6 +190,14 @@ function formatLeadTime(value: string): string {
   return /^\d+$/.test(trimmed) ? `${trimmed} days` : trimmed;
 }
 
+function freeCountStorageKey(limit: number): string {
+  const now = new Date();
+  const period = limit > 5
+    ? now.toISOString().slice(0, 7)
+    : now.toISOString().slice(0, 10);
+  return `${FREE_COUNT_KEY}:${period}:${limit}`;
+}
+
 async function trackAbuseEvent(event: string, metadata: Record<string, unknown>): Promise<void> {
   try {
     await fetch('/api/abuse/track', {
@@ -383,10 +391,10 @@ export default function EnSourcingTool({
   useEffect(() => {
     if (!isFreePlan) return;
     try {
-      const c = parseInt(localStorage.getItem(FREE_COUNT_KEY) ?? '0', 10);
+      const c = parseInt(localStorage.getItem(freeCountStorageKey(effectiveFreeLimit)) ?? '0', 10);
       setFreeCount(isNaN(c) ? 0 : c);
     } catch { /* ignore */ }
-  }, [isFreePlan]);
+  }, [effectiveFreeLimit, isFreePlan]);
 
   // Sync prefill from parent category clicks + queue auto-submit
   useEffect(() => {
@@ -432,7 +440,7 @@ export default function EnSourcingTool({
         // Successful free searches consume quota server-side; keep the local display in sync.
         const newCount = freeCount + 1;
         setFreeCount(newCount);
-        try { localStorage.setItem(FREE_COUNT_KEY, String(newCount)); } catch { /* ignore */ }
+        try { localStorage.setItem(freeCountStorageKey(effectiveFreeLimit), String(newCount)); } catch { /* ignore */ }
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Something went wrong. Please try again.';

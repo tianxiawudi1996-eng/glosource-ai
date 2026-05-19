@@ -165,7 +165,7 @@ const JSON_LD_ORGANIZATION = {
   description: 'AI-powered sourcing assistant for international buyers. Find Korean supplier candidates (K-beauty, K-food, K-fashion) from EC21, BuyKorea, KOTRA, and tradeKorea.',
   contactPoint: {
     '@type': 'ContactPoint',
-    email: 'hello@glosource.ai',
+    email: 'glosourceai@gmail.com',
     contactType: 'customer service',
   },
 };
@@ -376,7 +376,7 @@ export default async function EnPage({
                   ))}
                 </ul>
                 <PolarCheckoutButton
-                  checkoutUrl={process.env[plan.envKey] ?? 'mailto:hello@glosource.ai?subject=GloSource%20AI%20Plan%20Access'}
+                  checkoutUrl={process.env[plan.envKey] ?? 'mailto:glosourceai@gmail.com?subject=GloSource%20AI%20Plan%20Access'}
                   label={`Get ${plan.name} →`}
                 />
               </div>
@@ -417,7 +417,7 @@ export default async function EnPage({
           <BrandLogo compact />
           <p className="text-xs text-slate-600 text-center">
             GloSource AI is a sourcing research tool, not a trade agent. Contact:{' '}
-            <a href="mailto:hello@glosource.ai" className="underline hover:text-slate-400">hello@glosource.ai</a>
+            <a href="mailto:glosourceai@gmail.com" className="underline hover:text-slate-400">glosourceai@gmail.com</a>
           </p>
           <div className="flex items-center gap-4 text-xs text-slate-600">
             <Link href="/en/about" className="hover:text-slate-400 transition-colors">About</Link>

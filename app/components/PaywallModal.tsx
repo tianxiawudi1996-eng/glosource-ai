@@ -108,7 +108,7 @@ export default function PaywallModal({ onClose, onLicenseActivated, onContactPla
             </button>
           ))}
         </div>
-        <p className="text-xs text-slate-400 text-center mb-4">세금계산서 발행 가능 · hello@glosource.ai</p>
+        <p className="text-xs text-slate-400 text-center mb-4">세금계산서 발행 가능 · glosourceai@gmail.com</p>
         <div className="border-t border-slate-100 pt-4 mb-4">
           <p className="text-xs font-semibold text-slate-500 mb-2">이미 라이선스 키가 있으신가요?</p>
           <div className="flex gap-2">

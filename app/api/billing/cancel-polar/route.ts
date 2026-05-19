@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
   if (!accessToken) {
     console.error('[cancel-polar] POLAR_ACCESS_TOKEN not set');
     return NextResponse.json({
-      error: 'Cancellation is temporarily unavailable. Please email hello@glosource.ai for help.',
+      error: 'Cancellation is temporarily unavailable. Please email glosourceai@gmail.com for help.',
     }, { status: 503 });
   }
 
@@ -62,13 +62,13 @@ export async function POST(request: NextRequest) {
       const err = await res.text();
       console.error('[cancel-polar] Polar API error:', res.status, err);
       return NextResponse.json({
-        error: 'Polar cancellation failed. Please email hello@glosource.ai so we can cancel it manually.',
+        error: 'Polar cancellation failed. Please email glosourceai@gmail.com so we can cancel it manually.',
       }, { status: 502 });
     }
   } catch (e) {
     console.error('[cancel-polar] Polar API call failed:', e);
     return NextResponse.json({
-      error: 'Polar cancellation failed. Please email hello@glosource.ai so we can cancel it manually.',
+      error: 'Polar cancellation failed. Please email glosourceai@gmail.com so we can cancel it manually.',
     }, { status: 502 });
   }
 

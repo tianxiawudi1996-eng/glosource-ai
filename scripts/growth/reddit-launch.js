@@ -37,7 +37,7 @@ const DRY_RUN = process.argv.includes('--dry-run');
 const POSTS = [
   {
     subreddit: 'FulfillmentByAmazon',
-    title: "I built a tool that finds Korean suppliers (K-beauty, K-food, electronics) in 60 seconds — 5 free searches",
+    title: "I built a tool that finds Korean suppliers (K-beauty, K-food, electronics) in 60 seconds — free to try",
     text: `Been sourcing Korean products for a while and the pain point is always the same: you know K-beauty or K-food is hot, but finding a **real manufacturer** (not a reseller) who actually exports is a nightmare.
 
 Google gives you distributors. Alibaba barely has Korean suppliers. EC21/BuyKorea work but you spend hours filtering through dead listings.
@@ -50,7 +50,7 @@ So I built **GloSource AI** — you type a product, it scans EC21 · BuyKorea (K
 - Est. MOQ, unit price, lead time
 - AEO customs-certified companies flagged separately
 
-5 free searches, no credit card: **glosource-ai.vercel.app/en**
+5 free anonymous searches, no credit card. Free account gets 10 searches/month after email verification: **glosource-ai.vercel.app/en**
 
 Would love brutal feedback from people who actually source from Korea.`,
   },
@@ -68,7 +68,7 @@ Would love brutal feedback from people who actually source from Korea.`,
 
 Best for: K-beauty OEM, Korean food wholesale, private label cosmetics, electronics (KC-certified).
 
-**5 free searches:** glosource-ai.vercel.app/en
+**Free search:** glosource-ai.vercel.app/en
 
 Happy to answer questions about Korean sourcing in general too.`,
   },
@@ -79,7 +79,7 @@ Happy to answer questions about Korean sourcing in general too.`,
 
 **GloSource AI** scans EC21 · BuyKorea (KOTRA) · tradeKorea and returns ranked supplier candidates with trust scores, certification signals (MFDS, HACCP, KC), and a ready-to-send English RFQ.
 
-5 free searches: glosource-ai.vercel.app/en
+5 free anonymous searches: glosource-ai.vercel.app/en
 
 Feedback welcome.`,
   },
@@ -126,7 +126,7 @@ async function submitPost(token, { subreddit, title, text }) {
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 async function main() {
-  if (!CLIENT_ID || !CLIENT_SECRET || !USERNAME || !PASSWORD) {
+  if (!DRY_RUN && (!CLIENT_ID || !CLIENT_SECRET || !USERNAME || !PASSWORD)) {
     console.error('\n❌  Reddit credentials missing in .env.local:\n   REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_USERNAME, REDDIT_PASSWORD\n   👉  https://www.reddit.com/prefs/apps\n');
     process.exit(1);
   }

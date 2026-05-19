@@ -27,7 +27,7 @@ function baseLayout(title: string, body: string): string {
             <tr>
               <td style="border-top:1px solid #e2e8f0;padding:18px 28px;font-size:12px;line-height:20px;color:#64748b;">
                 GloSource AI는 납품, 결제, 물류를 대행하지 않습니다. 공급자 후보 발굴과 발주 전 판단 자료 정리를 지원합니다.<br />
-                문의: hello@glosource.ai
+                문의: glosourceai@gmail.com
               </td>
             </tr>
           </table>

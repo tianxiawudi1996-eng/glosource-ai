@@ -160,7 +160,7 @@ function generateReportHTML(result: SourcingOutput, req: SourcingRequest, compan
     </div>
     <div class="section"><div class="sh">공급자 비교표</div>${suppliersTable}</div>
     <div class="section"><div class="sh">AI 최종 추천</div><div class="rec">${result.recommendation}</div></div>
-    <p class="dis">${result.disclaimer} | GloSource AI · hello@glosource.ai</p>
+    <p class="dis">${result.disclaimer} | GloSource AI · glosourceai@gmail.com</p>
     <script>window.onload=()=>window.print();</script>
   </body></html>`;
 }
@@ -1359,7 +1359,7 @@ export default function HomePage() {
               </div>
             ))}
           </div>
-          <p className="text-center text-xs text-slate-400 mt-8">세금계산서 발행 가능 · 문의: hello@glosource.ai · 평일 09:00–18:00</p>
+          <p className="text-center text-xs text-slate-400 mt-8">세금계산서 발행 가능 · 문의: glosourceai@gmail.com · 평일 09:00–18:00</p>
         </div>
       </section>
 
@@ -1397,7 +1397,7 @@ export default function HomePage() {
                 <a href="/privacy" className="text-slate-500 hover:text-slate-300 transition-colors">개인정보처리방침</a>
               </div>
               <p className="text-xs text-slate-400">© 2026 GloSource AI. All rights reserved.</p>
-              <p className="text-xs text-slate-500 mt-1">hello@glosource.ai</p>
+              <p className="text-xs text-slate-500 mt-1">glosourceai@gmail.com</p>
             </div>
           </div>
         </div>
