@@ -6,7 +6,7 @@ import { findScenario, fillTemplate, SCENARIOS } from '@/app/lib/support/scenari
 const resend = new Resend(process.env.RESEND_API_KEY);
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
-const FOUNDER_EMAIL = 'visionlab@seowonenc.co.kr';
+const FOUNDER_EMAIL = 'glosourceai@gmail.com';
 const FROM_EMAIL = process.env.RESEND_EMAIL_FROM ?? 'noreply@glosource.ai';
 
 export async function POST(req: NextRequest) {
