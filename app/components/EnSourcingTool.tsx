@@ -10,13 +10,13 @@ import EmptyState from './EmptyState';
 
 type SourceRegion = 'china' | 'korea';
 
-const FREE_LIMIT = 5;
 const FREE_COUNT_KEY = 'glosource_en_free_count';
 
 interface EnSourcingToolProps {
   initialProduct?: string;
   initialQuantity?: string;
   plan?: PlanTier;
+  freeSearchLimit?: number;
 }
 
 const REGION_BUTTONS: { value: SourceRegion; label: string; sub: string }[] = [
@@ -349,7 +349,12 @@ async function callAPI(product: string, quantity: string, budget: string, countr
   return json.data;
 }
 
-export default function EnSourcingTool({ initialProduct = '', initialQuantity = '', plan = 'free' }: EnSourcingToolProps) {
+export default function EnSourcingTool({
+  initialProduct = '',
+  initialQuantity = '',
+  plan = 'free',
+  freeSearchLimit = 5,
+}: EnSourcingToolProps) {
   const [product, setProduct] = useState(initialProduct);
   const [quantity, setQuantity] = useState(initialQuantity);
   const [budget, setBudget] = useState('');
@@ -371,7 +376,8 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
   const loadingSteps = region === 'china' ? CHINA_LOADING_STEPS : KOREA_LOADING_STEPS;
   const submitLabel = region === 'china' ? 'Find China Suppliers →' : 'Find Korean Suppliers →';
   const isFreePlan = plan === 'free';
-  const searchesLeft = Math.max(0, FREE_LIMIT - freeCount);
+  const effectiveFreeLimit = Math.max(1, freeSearchLimit);
+  const searchesLeft = Math.max(0, effectiveFreeLimit - freeCount);
 
   // Load free count from localStorage
   useEffect(() => {
@@ -604,7 +610,7 @@ export default function EnSourcingTool({ initialProduct = '', initialQuantity = 
           {/* Header */}
           <div className="bg-[#0D1B2A] px-6 py-5 text-center">
             <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-1">Free tier complete</p>
-            <h3 className="text-xl font-black text-white mb-1">You&apos;ve used all 5 free searches</h3>
+            <h3 className="text-xl font-black text-white mb-1">You&apos;ve used all {effectiveFreeLimit} free searches</h3>
             <p className="text-xs text-slate-400">Upgrade to keep finding Korean suppliers</p>
           </div>
 

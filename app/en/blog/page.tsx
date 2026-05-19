@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { getAllPostsMerged } from '@/app/lib/blog-posts-server';
+import BrandLogo from '@/app/components/BrandLogo';
 
 export const metadata: Metadata = {
   title: 'Korean Supplier Sourcing Blog — GloSource AI',
@@ -15,11 +16,8 @@ export default async function EnBlogIndex() {
       {/* Nav */}
       <nav className="sticky top-0 z-30 bg-[#0D1B2A]/95 backdrop-blur border-b border-white/10">
         <div className="max-w-5xl mx-auto px-6 py-3 flex items-center justify-between gap-4">
-          <Link href="/en" className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-[#EA580C] rounded-lg flex items-center justify-center">
-              <span className="text-white font-black text-xs">G</span>
-            </div>
-            <span className="font-black text-white text-sm">GloSource AI</span>
+          <Link href="/en" aria-label="GloSource AI home">
+            <BrandLogo compact />
           </Link>
           <div className="flex items-center gap-4">
             <Link href="/en" className="text-xs font-semibold text-slate-300 hover:text-white">← Back to sourcing tool</Link>
@@ -61,11 +59,8 @@ export default async function EnBlogIndex() {
 
       <footer className="border-t border-slate-100 mt-16">
         <div className="max-w-5xl mx-auto px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <Link href="/en" className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-[#EA580C] rounded-md flex items-center justify-center">
-              <span className="text-white font-black text-[10px]">G</span>
-            </div>
-            <span className="font-black text-slate-700 text-xs">GloSource AI</span>
+          <Link href="/en" aria-label="GloSource AI home">
+            <BrandLogo compact />
           </Link>
           <Link href="/en" className="text-xs font-bold text-[#EA580C] hover:text-[#DC4C00]">Try the sourcing tool — 5 free searches →</Link>
         </div>

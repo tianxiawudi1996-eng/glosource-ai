@@ -16,7 +16,9 @@ function resolvePlan(productId: string): 'starter' | 'pro' | 'enterprise' | null
 // Svix-style webhook signature verification used by Polar.sh
 async function verifyPolarSignature(request: NextRequest, body: string): Promise<boolean> {
   const secret = process.env.POLAR_WEBHOOK_SECRET;
-  if (!secret) return true; // allow through in dev (no secret configured)
+  if (!secret) {
+    return process.env.NODE_ENV !== 'production';
+  }
 
   const msgId = request.headers.get('webhook-id') ?? '';
   const msgTimestamp = request.headers.get('webhook-timestamp') ?? '';

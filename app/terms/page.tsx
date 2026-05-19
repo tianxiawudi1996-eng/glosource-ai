@@ -28,7 +28,7 @@ export default function TermsPage() {
       <main className="max-w-3xl mx-auto px-6 py-16">
         <h1 className="text-3xl font-black mb-2">Terms of Service</h1>
         <p className="text-slate-400 text-sm mb-12">
-          Last updated: May 15, 2026 · 최종 업데이트: 2026년 5월 15일
+          Last updated: May 19, 2026 · 최종 업데이트: 2026년 5월 19일
         </p>
 
         <div className="space-y-10 text-sm leading-relaxed text-slate-300">
@@ -75,8 +75,8 @@ export default function TermsPage() {
             </p>
             <h3 className="font-semibold text-white mb-2">3.2 Free Tier</h3>
             <p className="mb-3">
-              New users receive 5 free searches. Free-tier searches expire and do not roll over. No payment information
-              is required for the free tier.
+              Visitors receive 5 anonymous trial searches. Verified free accounts receive 10 free searches per month.
+              Free-tier searches expire and do not roll over. No payment information is required for the free tier.
             </p>
             <h3 className="font-semibold text-white mb-2">3.3 Auto-renewal</h3>
             <p className="mb-3">

@@ -3,6 +3,7 @@ import { desc, eq } from 'drizzle-orm';
 import Link from 'next/link';
 import { auth } from '@/auth';
 import { db, payments, subscriptions } from '@/app/lib/db';
+import BrandLogo from '@/app/components/BrandLogo';
 import { CancelPolarButton } from './BillingActions';
 
 const PLANS = [
@@ -93,11 +94,8 @@ export default async function EnBillingPage({
 
         {/* Nav */}
         <div className="mb-8 flex items-center gap-3">
-          <Link href="/en" className="inline-flex items-center gap-2">
-            <div className="w-7 h-7 bg-[#EA580C] rounded-lg flex items-center justify-center">
-              <span className="text-white font-black text-xs">G</span>
-            </div>
-            <span className="font-black text-[#0D1B2A] text-sm">GloSource AI</span>
+          <Link href="/en" aria-label="GloSource AI home">
+            <BrandLogo compact />
           </Link>
           <span className="text-slate-300">/</span>
           <span className="text-sm font-bold text-slate-500">Plan &amp; Billing</span>

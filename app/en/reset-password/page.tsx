@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { FormEvent, useState } from 'react';
+import BrandLogo from '@/app/components/BrandLogo';
 
 export default function EnResetPasswordPage() {
   const [email, setEmail] = useState('');
@@ -29,11 +30,8 @@ export default function EnResetPasswordPage() {
     <main className="flex min-h-screen items-center justify-center bg-slate-50 px-6 py-10">
       <section className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
         <div className="mb-7 text-center">
-          <Link href="/en" className="inline-flex items-center gap-2">
-            <div className="w-7 h-7 bg-[#EA580C] rounded-lg flex items-center justify-center">
-              <span className="text-white font-black text-xs">G</span>
-            </div>
-            <span className="font-black text-[#0D1B2A]">GloSource AI</span>
+          <Link href="/en" aria-label="GloSource AI home">
+            <BrandLogo />
           </Link>
           <h1 className="mt-6 text-2xl font-black text-[#0D1B2A]">Reset password</h1>
           <p className="mt-2 text-sm text-slate-500">Enter your email and we&apos;ll send you a reset link.</p>

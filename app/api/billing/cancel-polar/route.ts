@@ -42,30 +42,37 @@ export async function POST(request: NextRequest) {
   }
 
   const accessToken = process.env.POLAR_ACCESS_TOKEN;
-  if (accessToken) {
-    // Call Polar API to cancel at period end
-    try {
-      const res = await fetch(`https://api.polar.sh/v1/subscriptions/${sub.polarSubscriptionId}`, {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ cancel_at_period_end: true }),
-      });
-      if (!res.ok) {
-        const err = await res.text();
-        console.error('[cancel-polar] Polar API error:', res.status, err);
-        // Don't fail hard — mark locally and inform support
-      }
-    } catch (e) {
-      console.error('[cancel-polar] Polar API call failed:', e);
-    }
-  } else {
-    console.warn('[cancel-polar] POLAR_ACCESS_TOKEN not set; marking locally only');
+  if (!accessToken) {
+    console.error('[cancel-polar] POLAR_ACCESS_TOKEN not set');
+    return NextResponse.json({
+      error: 'Cancellation is temporarily unavailable. Please email hello@glosource.ai for help.',
+    }, { status: 503 });
   }
 
-  // Mark locally regardless of API result
+  try {
+    const res = await fetch(`https://api.polar.sh/v1/subscriptions/${sub.polarSubscriptionId}`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ cancel_at_period_end: true }),
+    });
+    if (!res.ok) {
+      const err = await res.text();
+      console.error('[cancel-polar] Polar API error:', res.status, err);
+      return NextResponse.json({
+        error: 'Polar cancellation failed. Please email hello@glosource.ai so we can cancel it manually.',
+      }, { status: 502 });
+    }
+  } catch (e) {
+    console.error('[cancel-polar] Polar API call failed:', e);
+    return NextResponse.json({
+      error: 'Polar cancellation failed. Please email hello@glosource.ai so we can cancel it manually.',
+    }, { status: 502 });
+  }
+
+  // Only mark locally after Polar accepts the cancellation request.
   await db.update(subscriptions)
     .set({ cancelAtPeriodEnd: true, updatedAt: new Date() })
     .where(eq(subscriptions.id, sub.id));

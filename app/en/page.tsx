@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import HeroSection from '@/app/components/HeroSection';
+import BrandLogo from '@/app/components/BrandLogo';
 import KSourceWrapper from './KSourceWrapper';
 import ScrollCTA from './ScrollCTA';
 import PolarCheckoutButton from './PolarCheckoutButton';
@@ -9,7 +10,7 @@ import { auth } from '@/auth';
 
 export const metadata: Metadata = {
   title: 'GloSource AI — Source Korean Suppliers with AI',
-  description: 'Find Korean manufacturer candidates for K-beauty, K-food, K-fashion & more. AI-ranked suppliers from EC21 · BuyKorea (KOTRA) · tradeKorea with trust scores and English RFQ drafts. 5 free searches.',
+  description: 'Find Korean manufacturer candidates for K-beauty, K-food, K-fashion & more. AI-ranked suppliers from EC21 · BuyKorea (KOTRA) · tradeKorea with trust scores and English RFQ drafts. Start with 5 free searches.',
   openGraph: {
     title: 'GloSource AI — Source Korean Suppliers with AI',
     description: 'Find Korean manufacturer candidates for K-beauty, K-food, K-fashion & more. EC21 · BuyKorea (KOTRA) · tradeKorea channels. AI trust scores + English RFQ.',
@@ -21,7 +22,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'GloSource AI — Source Korean Suppliers with AI',
-    description: 'Find Korean manufacturer candidates for K-beauty, K-food, K-fashion & more. 5 free searches.',
+    description: 'Find Korean manufacturer candidates for K-beauty, K-food, K-fashion & more. Start with 5 free searches.',
   },
   alternates: {
     canonical: 'https://glosource-ai.vercel.app/en',
@@ -139,7 +140,7 @@ const FAQ = [
   },
   {
     q: 'Do I need to create an account?',
-    a: 'No account needed for the first 5 free searches. After that, a subscription unlocks more monthly analyses. No credit card required for the free tier.',
+    a: 'No account needed for the first 5 free anonymous searches. Creating a verified free account gives you a monthly free quota; paid subscriptions unlock higher monthly limits. No credit card required for the free tier.',
   },
   {
     q: 'Is GloSource AI an actual sourcing agent?',
@@ -189,6 +190,7 @@ export default async function EnPage({
   const session = await auth();
   const isLoggedIn = !!session?.user;
   const plan = session?.user?.plan ?? 'free';
+  const freeSearchLimit = isLoggedIn ? 10 : 5;
 
   return (
     <div className="min-h-screen bg-white">
@@ -198,12 +200,7 @@ export default async function EnPage({
       {/* ── NAV ────────────────────────────────────────────── */}
       <nav className="sticky top-0 z-30 bg-[#0D1B2A]/95 backdrop-blur border-b border-white/10">
         <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-[#EA580C] rounded-lg flex items-center justify-center">
-              <span className="text-white font-black text-xs">G</span>
-            </div>
-            <span className="font-black text-white text-sm">GloSource AI</span>
-          </div>
+          <BrandLogo compact />
           <div className="flex items-center gap-3">
             <Link href="/" className="text-xs font-semibold text-slate-400 hover:text-white transition-colors">KO</Link>
             <a href="#why-korea" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden sm:block">Why Korea</a>
@@ -275,7 +272,7 @@ export default async function EnPage({
               Select a category below or type your own product. AI scans EC21 · BuyKorea · tradeKorea and direct Korean factory sources, then returns ranked suppliers with certification evidence, MOQ, and an RFQ draft.
             </p>
           </div>
-          <KSourceWrapper initialProduct={initialProduct} plan={plan} />
+          <KSourceWrapper initialProduct={initialProduct} plan={plan} freeSearchLimit={freeSearchLimit} />
         </div>
       </section>
 
@@ -387,7 +384,7 @@ export default async function EnPage({
           </div>
 
           <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-500 max-w-lg mx-auto text-center">
-            <strong className="text-slate-700">Free tier:</strong> 5 searches total (no credit card) · 3–5 AI-surfaced Korean supplier candidates per search · Trust score · English RFQ draft
+            <strong className="text-slate-700">Free tier:</strong> 5 anonymous trial searches; verified free accounts get 10 searches/month · 3–5 AI-surfaced Korean supplier candidates per search · Trust score · English RFQ draft
           </div>
           <p className="mt-3 text-center text-xs text-slate-400">
             Secure checkout · Email fallback for early access · No Korean entity required
@@ -417,12 +414,7 @@ export default async function EnPage({
       {/* ── FOOTER ─────────────────────────────────────────── */}
       <footer className="bg-[#0A1520] border-t border-white/5">
         <div className="max-w-5xl mx-auto px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-[#EA580C] rounded-md flex items-center justify-center">
-              <span className="text-white font-black text-[10px]">G</span>
-            </div>
-            <span className="font-black text-slate-300 text-xs">GloSource AI</span>
-          </div>
+          <BrandLogo compact />
           <p className="text-xs text-slate-600 text-center">
             GloSource AI is a sourcing research tool, not a trade agent. Contact:{' '}
             <a href="mailto:hello@glosource.ai" className="underline hover:text-slate-400">hello@glosource.ai</a>

@@ -4,6 +4,7 @@ import { and, count, desc, eq, gte } from 'drizzle-orm';
 import { auth } from '@/auth';
 import { db, PLAN_LIMITS, subscriptions, usageLogs, searchHistory } from '@/app/lib/db';
 import type { PlanTier } from '@/app/lib/db/schema';
+import BrandLogo from '@/app/components/BrandLogo';
 
 const regionLabel: Record<string, string> = {
   korea: '🇰🇷 Korea',
@@ -53,11 +54,8 @@ export default async function EnDashboardPage() {
       <div className="mx-auto max-w-4xl px-6 py-10">
         <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <Link href="/en" className="inline-flex items-center gap-2 mb-3">
-              <div className="w-6 h-6 bg-[#EA580C] rounded-md flex items-center justify-center">
-                <span className="text-white font-black text-[10px]">G</span>
-              </div>
-              <span className="font-black text-[#0D1B2A] text-sm">GloSource AI</span>
+            <Link href="/en" className="mb-3 inline-flex" aria-label="GloSource AI home">
+              <BrandLogo compact />
             </Link>
             <p className="text-sm font-bold text-[#EA580C]">Dashboard</p>
             <h1 className="mt-1 text-2xl font-black text-[#0D1B2A]">

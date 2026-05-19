@@ -12,7 +12,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: 'how-to-find-korean-cosmetics-manufacturers',
     title: 'How to Find Korean Cosmetics Manufacturers for Private Label (2025 Guide)',
-    description: 'A step-by-step guide to finding verified Korean OEM cosmetics manufacturers — covering BuyKorea, EC21, MFDS certification, MOQ requirements, and RFQ templates.',
+    description: 'A step-by-step guide to finding and screening Korean OEM cosmetics manufacturers — covering BuyKorea, EC21, MFDS certification, MOQ requirements, and RFQ templates.',
     publishedAt: '2025-05-01',
     readingTimeMin: 7,
     category: 'Sourcing Guide',
@@ -468,10 +468,10 @@ Best regards,
 <thead><tr><th>Platform</th><th>Operator</th><th>Verification level</th><th>Best for</th><th>Free for buyers?</th></tr></thead>
 <tbody>
 <tr><td>Alibaba</td><td>Private</td><td>Gold Supplier (paid badge)</td><td>China manufacturing, high volume</td><td>Yes (search)</td></tr>
-<tr><td>BuyKorea</td><td>KOTRA (Korean gov.)</td><td>Export eligibility verified</td><td>Verified Korean exporters</td><td>Yes</td></tr>
+<tr><td>BuyKorea</td><td>KOTRA (Korean gov.)</td><td>Export eligibility signals</td><td>Export-oriented Korean companies</td><td>Yes</td></tr>
 <tr><td>EC21</td><td>Private (Korea)</td><td>Light (self-reported)</td><td>Volume of Korean suppliers</td><td>Yes</td></tr>
 <tr><td>tradeKorea</td><td>KITA</td><td>KITA-vetted exporters</td><td>KITA-listed manufacturers</td><td>Yes</td></tr>
-<tr><td>GloSource AI</td><td>AI aggregator</td><td>AI trust score + Google verification</td><td>Fast research across all platforms</td><td>5 free searches</td></tr>
+<tr><td>GloSource AI</td><td>AI aggregator</td><td>AI trust score + Google Search URL evidence</td><td>Fast research across all platforms</td><td>5 free searches</td></tr>
 </tbody>
 </table>
 
@@ -750,7 +750,7 @@ Best regards,
 </ul>
 
 <h2>Using AI to pre-screen Korean suppliers</h2>
-<p>GloSource AI cross-references supplier candidates against BuyKorea (KOTRA-verified), EC21, and tradeKorea — and applies a Trust Score and Trade Readiness Score based on certification signals, Google Search verification, and listing quality. It won't catch every fraudster, but it filters out the most obvious low-signal suppliers before you spend time on outreach.</p>
+<p>GloSource AI cross-references supplier candidates against BuyKorea (KOTRA-operated), EC21, and tradeKorea — and applies a Trust Score and Trade Readiness Score based on certification signals, Google Search URL evidence, and listing quality. It won't catch every fraudster, but it filters out the most obvious low-signal suppliers before you spend time on outreach.</p>
     `.trim(),
   },
   {

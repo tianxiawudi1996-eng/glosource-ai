@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { headers } from "next/headers";
 import "./globals.css";
 import Providers from "@/app/components/Providers";
 import { ConsentAnalytics } from "@/app/components/ConsentAnalytics";
@@ -104,13 +105,16 @@ const jsonLd = [
   },
 ];
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pathname = (await headers()).get("x-pathname") ?? "";
+  const isEnglishRoute = pathname === "/en" || pathname.startsWith("/en/");
+
   return (
-    <html lang="ko" className={`${inter.variable} h-full antialiased`}>
+    <html lang={isEnglishRoute ? "en" : "ko"} className={`${inter.variable} h-full antialiased`}>
       <head>
         <link
           rel="stylesheet"
@@ -119,11 +123,13 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       </head>
       <body className="min-h-full flex flex-col bg-slate-50" style={{ fontFamily: "'Pretendard', 'Inter', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif" }}>
-        <script
-          id="root-json-ld"
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
-        />
+        {!isEnglishRoute && (
+          <script
+            id="root-json-ld"
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
+          />
+        )}
         <Providers>{children}</Providers>
         <ConsentAnalytics />
       </body>

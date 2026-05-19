@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import BrandLogo from '@/app/components/BrandLogo';
 
 export const metadata: Metadata = {
   title: 'Korean Supplier Search Examples — GloSource AI',
@@ -55,11 +56,8 @@ export default function CaseStudiesPage() {
       {/* Nav */}
       <nav className="sticky top-0 z-30 bg-[#0D1B2A]/95 backdrop-blur border-b border-white/10">
         <div className="max-w-5xl mx-auto px-6 py-3 flex items-center justify-between gap-4">
-          <Link href="/en" className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-[#EA580C] rounded-lg flex items-center justify-center">
-              <span className="text-white font-black text-xs">G</span>
-            </div>
-            <span className="font-black text-white text-sm">GloSource AI</span>
+          <Link href="/en" aria-label="GloSource AI home">
+            <BrandLogo compact />
           </Link>
           <Link href="/en#sourcing-tool" className="text-xs font-bold text-[#EA580C] bg-orange-50 px-4 py-1.5 rounded-lg hover:bg-orange-100 transition-all">
             Try it free →
@@ -167,11 +165,8 @@ export default function CaseStudiesPage() {
 
       <footer className="border-t border-slate-100 mt-16">
         <div className="max-w-5xl mx-auto px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <Link href="/en" className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-[#EA580C] rounded-md flex items-center justify-center">
-              <span className="text-white font-black text-[10px]">G</span>
-            </div>
-            <span className="font-black text-slate-700 text-xs">GloSource AI</span>
+          <Link href="/en" aria-label="GloSource AI home">
+            <BrandLogo compact />
           </Link>
           <div className="flex gap-4 text-xs text-slate-500">
             <Link href="/en/blog" className="hover:text-slate-700">Blog</Link>

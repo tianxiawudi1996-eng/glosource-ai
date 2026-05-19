@@ -59,9 +59,11 @@ const QUICK_CATEGORIES = [
 export default function KSourceWrapper({
   initialProduct = '',
   plan = 'free',
+  freeSearchLimit = 5,
 }: {
   initialProduct?: string;
   plan?: PlanTier;
+  freeSearchLimit?: number;
 }) {
   const [prefill, setPrefill] = useState(initialProduct);
   const [prefillQuantity, setPrefillQuantity] = useState('');
@@ -122,7 +124,12 @@ export default function KSourceWrapper({
       </div>
 
       {/* Sourcing tool */}
-      <EnSourcingTool initialProduct={prefill} initialQuantity={prefillQuantity} plan={plan} />
+      <EnSourcingTool
+        initialProduct={prefill}
+        initialQuantity={prefillQuantity}
+        plan={plan}
+        freeSearchLimit={freeSearchLimit}
+      />
     </div>
   );
 }
