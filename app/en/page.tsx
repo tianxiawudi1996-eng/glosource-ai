@@ -38,8 +38,8 @@ const PLANS = [
     unit: '/mo',
     per: '30 searches / month · $0.63 per search',
     features: [
-      '3–5 AI-surfaced Korean supplier candidates per search',
-      'Trust & risk scoring 0–100 with Trade Readiness breakdown',
+      'Up to 3–5 AI-surfaced Korean supplier candidates per search',
+      'Trust & risk scoring 0–100 with Listing Quality breakdown',
       'Unit price, MOQ & lead-time comparison',
       'Auto-generated English RFQ email — ready to send',
       'MFDS / KC / HACCP certification signal check',
@@ -343,7 +343,7 @@ export default async function EnPage({
             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Pricing</p>
             <h2 className="text-2xl font-black text-[#0D1B2A] mb-3">Simple, transparent pricing</h2>
             <p className="text-sm text-slate-500 max-w-xl mx-auto">
-              1 search = 3–5 Korean supplier candidates + AI trust signals + certification signals (AI-detected, unverified) + English RFQ draft.
+              1 search = up to 3–5 Korean supplier candidates + AI trust signals + certification signals (AI-detected, unverified) + English RFQ draft.
             </p>
             <p className="mt-2 text-xs text-slate-400">For international buyers · Priced in USD · Korean-market plans available at <Link href="/" className="underline text-[#0D1B2A] hover:text-slate-700">glosource-ai.vercel.app</Link></p>
             <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-500 max-w-lg mx-auto text-left">
@@ -392,7 +392,7 @@ export default async function EnPage({
           </div>
 
           <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-500 max-w-lg mx-auto text-center">
-            <strong className="text-slate-700">Free tier:</strong> 5 anonymous trial searches; verified free accounts get 10 searches/month · 3–5 AI-surfaced Korean supplier candidates per search · Trust score · English RFQ draft
+            <strong className="text-slate-700">Free tier:</strong> 5 anonymous trial searches; verified free accounts get 10 searches/month · up to 3–5 AI-surfaced Korean supplier candidates per search · Trust score · English RFQ draft
           </div>
           <p className="mt-3 text-center text-xs text-slate-400">
             Secure checkout · Email fallback for early access · No Korean entity required

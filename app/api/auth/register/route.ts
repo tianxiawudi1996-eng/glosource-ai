@@ -69,9 +69,17 @@ export async function POST(request: NextRequest) {
     }
 
     const passwordHash = await hashPassword(password);
+    const now = new Date();
     const [createdUser] = await db
       .insert(users)
-      .values({ email, name, passwordHash, ...(gdprConsent ? { gdprConsentAt: new Date() } : {}) })
+      .values({
+        email,
+        name,
+        passwordHash,
+        tosConsentAt: tosConsent ? now : undefined,
+        dataConsentAt: dataConsent ? now : undefined,
+        ...(gdprConsent ? { gdprConsentAt: now } : {}),
+      })
       .returning({ id: users.id });
 
     logAbuseSignal({

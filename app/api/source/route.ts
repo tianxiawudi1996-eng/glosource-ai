@@ -699,6 +699,7 @@ export async function POST(request: NextRequest) {
         const model = genAI.getGenerativeModel({
           model: m.model,
           ...(m.tools ? { tools: m.tools } : {}),
+          generationConfig: { temperature: 0 },
         });
         const result = await Promise.race([
           model.generateContent(prompt),

@@ -167,7 +167,7 @@ function TradeReadinessScore({ s, certs, isVerified }: { s: Supplier; certs: { l
   return (
     <div className="border border-slate-100 rounded-xl p-3 bg-slate-50">
       <div className="flex items-center justify-between mb-2">
-        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Trade Readiness</p>
+        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Listing Quality</p>
         <span className={`text-xs font-black tabular-nums ${total >= 70 ? 'text-emerald-600' : total >= 45 ? 'text-yellow-600' : 'text-slate-400'}`}>{total}/100</span>
       </div>
       <div className="h-1.5 w-full rounded-full bg-slate-200 overflow-hidden mb-2">
@@ -234,14 +234,14 @@ function SupplierCard({ s, rank, keyword, locked }: { s: Supplier; rank: number;
         </span>
       </div>
 
-      {/* Cert badges */}
-      {certs.length > 0 && (
+      {/* Cert badges — only shown for grounding_confirmed suppliers */}
+      {isVerified && certs.length > 0 && (
         <div>
-          <p className="text-[9px] font-bold text-amber-600 uppercase tracking-wide mb-1">Detected source signals — verify independently</p>
+          <p className="text-[9px] font-bold text-amber-600 uppercase tracking-wide mb-1">AI-detected signals (unverified) — confirm directly with supplier</p>
           <div className="flex flex-wrap gap-1">
             {certs.map(c => (
               <span key={c.label} className={`text-[10px] font-bold border rounded-full px-1.5 py-0.5 ${c.cls}`}>
-                {c.label}
+                {c.label} <span className="font-normal opacity-60">~</span>
               </span>
             ))}
           </div>
@@ -256,7 +256,7 @@ function SupplierCard({ s, rank, keyword, locked }: { s: Supplier; rank: number;
         <TrustScoreGauge score={s.trustScore} size="sm" lang="en" />
       </div>
 
-      {/* Trade Readiness */}
+      {/* Listing Quality */}
       <TradeReadinessScore s={s} certs={certs} isVerified={isVerified} />
 
       {/* Stats */}

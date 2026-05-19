@@ -448,7 +448,7 @@ Best regards,
 </ol>
 
 <h2>Faster K-beauty wholesale sourcing with AI</h2>
-<p>GloSource AI searches BuyKorea, EC21, and tradeKorea simultaneously, filters for MFDS and CGMP certification signals, and generates a ready-to-send English RFQ draft — reducing your initial research from 3–4 hours to under 2 minutes. It also generates a Trade Readiness Score so you can immediately see which suppliers have the strongest export documentation signals.</p>
+<p>GloSource AI searches BuyKorea, EC21, and tradeKorea simultaneously, filters for MFDS and CGMP certification signals, and generates a ready-to-send English RFQ draft — reducing your initial research from 3–4 hours to under 2 minutes. It also generates a Listing Quality Score so you can immediately see which suppliers have the strongest export documentation signals.</p>
     `.trim(),
   },
   {
@@ -750,7 +750,7 @@ Best regards,
 </ul>
 
 <h2>Using AI to pre-screen Korean suppliers</h2>
-<p>GloSource AI cross-references supplier candidates against BuyKorea (KOTRA-operated), EC21, and tradeKorea — and applies a Trust Score and Trade Readiness Score based on certification signals, Google Search URL evidence, and listing quality. It won't catch every fraudster, but it filters out the most obvious low-signal suppliers before you spend time on outreach.</p>
+<p>GloSource AI cross-references supplier candidates against BuyKorea (KOTRA-operated), EC21, and tradeKorea — and applies a Trust Score and Listing Quality Score based on certification signals, Google Search URL evidence, and listing quality. It won't catch every fraudster, but it filters out the most obvious low-signal suppliers before you spend time on outreach.</p>
     `.trim(),
   },
   {
