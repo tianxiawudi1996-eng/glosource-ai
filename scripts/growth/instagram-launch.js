@@ -123,7 +123,7 @@ function httpsPostForm(url, formData) {
 async function generateImage(prompt) {
   console.log('  🎨 Generating image with Gemini Imagen 4...');
   const result = await httpsPost(
-    `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${GEMINI_API_KEY}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-fast-generate-001:predict?key=${GEMINI_API_KEY}`,
     {
       instances: [{ prompt }],
       parameters: { sampleCount: 1, aspectRatio: '1:1' },
