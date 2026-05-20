@@ -13,37 +13,32 @@ const TWITTER_ID = process.env.BUFFER_CHANNEL_TWITTER;
 const DRY_RUN = process.argv.includes('--dry-run');
 
 const TWEETS = [
-  `🇰🇷 Korean suppliers hard to find — Alibaba barely covers them, EC21 takes forever.
+  `🇰🇷 Korean suppliers hard to find?
 
-GloSource AI:
-→ Scans EC21 · BuyKorea (KOTRA) · tradeKorea
-→ Trust scores + MFDS/HACCP/KC signals
-→ English RFQ auto-generated
+GloSource AI scans EC21 · BuyKorea (KOTRA) · tradeKorea simultaneously.
+Trust scores + MFDS/HACCP/KC signals + English RFQ auto-generated.
 
-5 free searches. 10/month after free signup:
-glosource-ai.vercel.app/en
+5 free searches → glosource-ai.vercel.app/en
 
 #AmazonFBA #KBeauty #Sourcing`,
 
-  `Amazon FBA sellers — if you source K-beauty or K-food, this saves hours.
+  `FBA sellers sourcing K-beauty or K-food — this saves hours.
 
-GloSource AI scans Korean B2B marketplaces simultaneously and returns ranked suppliers with certification signals + ready-to-send RFQ.
+GloSource AI ranks Korean suppliers by trust signals & generates a ready-to-send English RFQ.
 
-Free search: glosource-ai.vercel.app/en
+Free: glosource-ai.vercel.app/en
 
 #FBA #KBeauty #KFood #ImportExport`,
 
-  `Korean supplier sourcing just got easier 🇰🇷
-
-GloSource AI:
-✅ EC21 · BuyKorea (KOTRA) · tradeKorea
-✅ Trust score 0-100
-✅ MFDS / HACCP / KC cert signals
+  `Korean sourcing just got easier 🇰🇷
+✅ EC21 · BuyKorea · tradeKorea
+✅ Trust score 0–100
+✅ MFDS/HACCP/KC signals
 ✅ English RFQ auto-generated
 
-5 free searches. 10/month after signup → glosource-ai.vercel.app/en
+5 free searches → glosource-ai.vercel.app/en
 
-#KBeauty #Ecommerce #B2B #Korea`,
+#KBeauty #B2B #Ecommerce #Korea`,
 ];
 
 const GQL = 'https://api.buffer.com';
