@@ -42,3 +42,7 @@ next-env.d.ts
 
 .vercel
 .env*.local
+
+# local Claude Code memory/settings
+.claude/
+.claude-code/
