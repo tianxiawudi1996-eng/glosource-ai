@@ -14,6 +14,7 @@
     "growth:weekly": "node scripts/growth/generate-weekly-growth-report.js",
     "growth:leads": "node scripts/growth/score-outreach-leads.js",
     "growth:schedule": "node scripts/growth/print-automation-schedule.js",
+    "growth:daily": "node scripts/growth/run-daily-growth.js",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio"

@@ -16,7 +16,13 @@ Run the schedule printer at the start of a work session:
 npm run growth:schedule
 ```
 
-Then run the commands listed for the due tasks. The schedule is deliberately conservative: revenue and funnel safety checks run before acquisition work, and all public-facing marketing still requires human review.
+Then run the daily orchestrator:
+
+```bash
+npm run growth:daily
+```
+
+It runs the daily audit, payment health check, and case-study extraction in sequence, writes `reports/growth/daily-growth-run-YYYY-MM-DD.json`, and still exits non-zero if any blocking gate fails. The schedule is deliberately conservative: revenue and funnel safety checks run before acquisition work, and all public-facing marketing still requires human review.
 
 ## Daily Gate
 
