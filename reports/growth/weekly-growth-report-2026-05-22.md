@@ -33,6 +33,14 @@ Date: 2026-05-22
 - paid_ads
 - product_hunt_launch
 
+## Operating Decision
+
+- Do not run paid ads, Product Hunt launch, or high-volume outbound until payment health passes.
+- Social copy is previewable, but live posting should stay deliberate; rerun `npm run growth:social:dry-run` immediately before any Buffer launch.
+- Do not publish testimonials, case studies, or proof claims from this run; no approved evidence candidates were found.
+- Instagram can post with the public logo fallback, but branded/generated image hosting still needs `GITHUB_TOKEN`/`GITHUB_OWNER` or `INSTAGRAM_IMAGE_URL`.
+- Last live Buffer launch is not from today; treat it as historical evidence, not proof that today has been published.
+
 ## Required Manual Updates
 
 - Add visits, free searches, signups, checkout clicks, paid conversions, and MRR from analytics.

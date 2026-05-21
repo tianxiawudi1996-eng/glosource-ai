@@ -95,6 +95,31 @@ if (allBlockedActions.size > 0) {
   for (const action of [...allBlockedActions].sort()) lines.push(`- ${action}`);
 }
 
+lines.push('', '## Operating Decision', '');
+
+if (allBlockedActions.has('paid_ads') || allBlockedActions.has('product_hunt_launch')) {
+  lines.push('- Do not run paid ads, Product Hunt launch, or high-volume outbound until payment health passes.');
+}
+
+if (social?.status === 'pass') {
+  lines.push('- Social copy is previewable, but live posting should stay deliberate; rerun `npm run growth:social:dry-run` immediately before any Buffer launch.');
+} else if (social) {
+  lines.push('- Do not run live social launches until the social dry-run passes.');
+}
+
+if (Number(cases?.count || 0) === 0) {
+  lines.push('- Do not publish testimonials, case studies, or proof claims from this run; no approved evidence candidates were found.');
+}
+
+const envPreflight = latestByPrefix['growth-env-preflight'] ? readJson(latestByPrefix['growth-env-preflight'].file) : null;
+if (envPreflight?.instagramAssetMode === 'default-logo-fallback') {
+  lines.push('- Instagram can post with the public logo fallback, but branded/generated image hosting still needs `GITHUB_TOKEN`/`GITHUB_OWNER` or `INSTAGRAM_IMAGE_URL`.');
+}
+
+if (latestByPrefix['buffer-launch']?.date !== reportDate) {
+  lines.push('- Last live Buffer launch is not from today; treat it as historical evidence, not proof that today has been published.');
+}
+
 lines.push(
   '',
   '## Required Manual Updates',
