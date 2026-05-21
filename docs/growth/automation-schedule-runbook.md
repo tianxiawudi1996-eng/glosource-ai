@@ -29,6 +29,8 @@ npm run growth:payments
 
 If `growth:payments` fails, block paid ads, Product Hunt launch, and high-volume outbound until checkout, webhook, subscription activation, and cancellation are verified.
 
+For Polar `403 insufficient_scope`, create a new production Organization Access Token in the same Polar organization as the products. Required scopes for the current health gate are `products:read`; include `subscriptions:read`, `subscriptions:write`, and `orders:read` before testing cancellation and subscription activation flows. Update `POLAR_ACCESS_TOKEN` in `.env.local`, then rerun `npm run growth:payments`.
+
 At 09:30 KST, run:
 
 ```bash

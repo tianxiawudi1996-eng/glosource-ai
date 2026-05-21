@@ -53,6 +53,18 @@ function requestPolarProduct(id, token) {
   });
 }
 
+function describePolarError(result) {
+  if (!result.body) return '';
+  try {
+    const parsed = JSON.parse(result.body);
+    const code = parsed.error ? ` Polar error: ${parsed.error}.` : '';
+    const description = parsed.error_description ? ` ${parsed.error_description}` : '';
+    return `${code}${description}`.trim();
+  } catch {
+    return ` Polar response: ${result.body}`;
+  }
+}
+
 (async () => {
   const checkoutResults = [];
   for (const key of checkoutKeys) {
@@ -89,12 +101,13 @@ function requestPolarProduct(id, token) {
     for (const key of productKeys) {
       if (!env[key]) continue;
       const result = await requestPolarProduct(env[key], env.POLAR_ACCESS_TOKEN);
-      productResults.push({ key, ok: result.ok, status: result.status });
+      productResults.push({ key, ok: result.ok, status: result.status, error: describePolarError(result) || undefined });
       if (!result.ok) {
+        const error = describePolarError(result);
         const hint = result.status === 403
-          ? ' Check that POLAR_ACCESS_TOKEN is an Organization Access Token for the same Polar organization and includes products:read or products:write scope.'
+          ? ' Check that POLAR_ACCESS_TOKEN is an Organization Access Token for the same Polar organization and includes products:read or products:write scope. If Polar returns insufficient_scope, create a new organization token with products:read and update .env.local.'
           : '';
-        criticals.push({ file: '.env.local', message: `${key} cannot be read with POLAR_ACCESS_TOKEN. Status: ${result.status || result.error}.${hint}` });
+        criticals.push({ file: '.env.local', message: `${key} cannot be read with POLAR_ACCESS_TOKEN. Status: ${result.status || result.error}.${error ? ` ${error}` : ''}${hint}` });
       }
     }
   }
