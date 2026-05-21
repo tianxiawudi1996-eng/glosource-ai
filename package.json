@@ -16,6 +16,7 @@
     "growth:schedule": "node scripts/growth/print-automation-schedule.js",
     "growth:daily": "node scripts/growth/run-daily-growth.js",
     "growth:env": "node scripts/growth/check-growth-env.js",
+    "growth:acquisition:gate": "node scripts/growth/check-acquisition-readiness.js",
     "growth:social:dry-run": "node scripts/growth/run-social-dry-run.js",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",

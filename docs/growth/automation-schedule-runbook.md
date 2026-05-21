@@ -29,9 +29,10 @@ Before any social publishing session, preview all Buffer-bound channel content w
 
 ```bash
 npm run growth:social:dry-run
+npm run growth:acquisition:gate
 ```
 
-This writes `reports/growth/social-dry-run-YYYY-MM-DD.json` and should pass before running any live Twitter/X, Threads, or Instagram launch script.
+The dry-run writes `reports/growth/social-dry-run-YYYY-MM-DD.json`; the acquisition gate writes `reports/growth/acquisition-readiness-YYYY-MM-DD.json` and blocks paid ads, Product Hunt, high-volume outbound, live social launch, or proof publication when current evidence does not support them.
 
 ## Daily Gate
 

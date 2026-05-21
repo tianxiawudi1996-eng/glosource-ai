@@ -4,6 +4,11 @@ Date: 2026-05-22
 
 ## Automation Health
 
+- acquisition-readiness: fail (acquisition-readiness-2026-05-22.json; fresh)
+  - Critical: paid_ads is blocked by current growth evidence.
+  - Critical: product_hunt_launch is blocked by current growth evidence.
+  - Critical: high_volume_outbound is blocked by current growth evidence.
+  - Warning: Case-study publication is blocked until approved evidence candidates exist.
 - brand-consistency: pass (brand-consistency-2026-05-22.json; fresh)
   - Warning: No LinkedIn profile/company link found.
 - buffer-launch: partial (buffer-launch-2026-05-21.json; stale: 2026-05-21)
@@ -29,9 +34,11 @@ Date: 2026-05-22
 
 ## Blocked Actions
 
+- case_study_publication
 - high_volume_outbound
 - paid_ads
 - product_hunt_launch
+- testimonial_like_claims
 
 ## Operating Decision
 
