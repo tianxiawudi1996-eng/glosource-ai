@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-21T14:53:37.526Z",
+  "generatedAt": "2026-05-21T15:00:09.234Z",
   "status": "partial_or_failed",
   "failedJobs": [
     "growth:payments"
@@ -11,11 +11,23 @@
   ],
   "results": [
     {
+      "id": "growth:env",
+      "title": "Growth environment preflight",
+      "command": "node scripts/growth/check-growth-env.js",
+      "startedAt": "2026-05-21T15:00:06.201Z",
+      "finishedAt": "2026-05-21T15:00:06.377Z",
+      "status": "pass",
+      "exitCode": 0,
+      "blocks": [],
+      "stdout": "Growth audit passed. Report: reports\\growth\\growth-env-preflight-2026-05-21.json",
+      "stderr": ""
+    },
+    {
       "id": "growth:audit",
       "title": "English funnel and brand audit",
       "command": "node scripts/growth/audit-en-funnel.js && node scripts/growth/audit-brand-consistency.js",
-      "startedAt": "2026-05-21T14:53:34.959Z",
-      "finishedAt": "2026-05-21T14:53:35.417Z",
+      "startedAt": "2026-05-21T15:00:06.377Z",
+      "finishedAt": "2026-05-21T15:00:06.847Z",
       "status": "pass",
       "exitCode": 0,
       "blocks": [],
@@ -26,8 +38,8 @@
       "id": "growth:payments",
       "title": "Payment health",
       "command": "node scripts/growth/audit-polar-health.js",
-      "startedAt": "2026-05-21T14:53:35.417Z",
-      "finishedAt": "2026-05-21T14:53:37.368Z",
+      "startedAt": "2026-05-21T15:00:06.847Z",
+      "finishedAt": "2026-05-21T15:00:09.078Z",
       "status": "fail",
       "exitCode": 1,
       "blocks": [
@@ -42,8 +54,8 @@
       "id": "growth:cases",
       "title": "Case-study evidence extraction",
       "command": "node scripts/growth/extract-case-study-candidates.js",
-      "startedAt": "2026-05-21T14:53:37.368Z",
-      "finishedAt": "2026-05-21T14:53:37.525Z",
+      "startedAt": "2026-05-21T15:00:09.078Z",
+      "finishedAt": "2026-05-21T15:00:09.233Z",
       "status": "pass",
       "exitCode": 0,
       "blocks": [],

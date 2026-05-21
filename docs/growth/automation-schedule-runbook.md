@@ -19,10 +19,11 @@ npm run growth:schedule
 Then run the daily orchestrator:
 
 ```bash
+npm run growth:env
 npm run growth:daily
 ```
 
-It runs the daily audit, payment health check, and case-study extraction in sequence, writes `reports/growth/daily-growth-run-YYYY-MM-DD.json`, and still exits non-zero if any blocking gate fails. The schedule is deliberately conservative: revenue and funnel safety checks run before acquisition work, and all public-facing marketing still requires human review.
+The env preflight writes `reports/growth/growth-env-preflight-YYYY-MM-DD.json` without exposing secret values. The daily orchestrator runs the daily audit, payment health check, and case-study extraction in sequence, writes `reports/growth/daily-growth-run-YYYY-MM-DD.json`, and still exits non-zero if any blocking gate fails. The schedule is deliberately conservative: revenue and funnel safety checks run before acquisition work, and all public-facing marketing still requires human review.
 
 Before any social publishing session, preview all Buffer-bound channel content without posting:
 

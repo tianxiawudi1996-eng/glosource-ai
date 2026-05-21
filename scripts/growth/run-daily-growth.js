@@ -4,6 +4,12 @@ const { writeJsonReport } = require('./_utils');
 
 const jobs = [
   {
+    id: 'growth:env',
+    title: 'Growth environment preflight',
+    command: ['node', ['scripts/growth/check-growth-env.js']],
+    blocks: ['paid_ads', 'product_hunt_launch', 'high_volume_outbound', 'social_publishing'],
+  },
+  {
     id: 'growth:audit',
     title: 'English funnel and brand audit',
     command: ['node', ['scripts/growth/audit-en-funnel.js']],
