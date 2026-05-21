@@ -24,6 +24,14 @@ npm run growth:daily
 
 It runs the daily audit, payment health check, and case-study extraction in sequence, writes `reports/growth/daily-growth-run-YYYY-MM-DD.json`, and still exits non-zero if any blocking gate fails. The schedule is deliberately conservative: revenue and funnel safety checks run before acquisition work, and all public-facing marketing still requires human review.
 
+Before any social publishing session, preview all Buffer-bound channel content without posting:
+
+```bash
+npm run growth:social:dry-run
+```
+
+This writes `reports/growth/social-dry-run-YYYY-MM-DD.json` and should pass before running any live Twitter/X, Threads, or Instagram launch script.
+
 ## Daily Gate
 
 At 09:00 KST, run:

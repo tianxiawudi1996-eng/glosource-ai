@@ -6,42 +6,61 @@ const jobs = [
   {
     id: 'growth:audit',
     title: 'English funnel and brand audit',
-    command: ['npm', ['run', 'growth:audit']],
+    command: ['node', ['scripts/growth/audit-en-funnel.js']],
+    followUpCommand: ['node', ['scripts/growth/audit-brand-consistency.js']],
     blocks: ['paid_ads', 'product_hunt_launch', 'high_volume_outbound'],
   },
   {
     id: 'growth:payments',
     title: 'Payment health',
-    command: ['npm', ['run', 'growth:payments']],
+    command: ['node', ['scripts/growth/audit-polar-health.js']],
     blocks: ['paid_ads', 'product_hunt_launch', 'high_volume_outbound'],
   },
   {
     id: 'growth:cases',
     title: 'Case-study evidence extraction',
-    command: ['npm', ['run', 'growth:cases']],
+    command: ['node', ['scripts/growth/extract-case-study-candidates.js']],
     blocks: ['case_study_publication', 'testimonial_like_claims'],
   },
 ];
 
-function runJob(job) {
-  const [cmd, args] = job.command;
-  const startedAt = new Date().toISOString();
+function spawnCommand(command) {
+  const [cmd, args] = command;
   const result = spawnSync(cmd, args, {
     cwd: process.cwd(),
     encoding: 'utf8',
-    shell: process.platform === 'win32',
   });
+  const stdout = result.stdout ? result.stdout.trim() : '';
+  const stderr = [
+    result.stderr ? result.stderr.trim() : '',
+    result.error ? result.error.message : '',
+  ].filter(Boolean).join('\n');
+  return {
+    command: [cmd, ...args].join(' '),
+    status: result.status,
+    stdout,
+    stderr,
+  };
+}
+
+function runJob(job) {
+  const startedAt = new Date().toISOString();
+  const primary = spawnCommand(job.command);
+  const followUp = primary.status === 0 && job.followUpCommand
+    ? spawnCommand(job.followUpCommand)
+    : null;
+  const status = followUp ? followUp.status : primary.status;
   return {
     id: job.id,
     title: job.title,
-    command: [cmd, ...args].join(' '),
+    command: [primary.command, followUp?.command].filter(Boolean).join(' && '),
     startedAt,
     finishedAt: new Date().toISOString(),
-    status: result.status === 0 ? 'pass' : 'fail',
-    exitCode: result.status,
-    blocks: result.status === 0 ? [] : job.blocks,
-    stdout: result.stdout.trim(),
-    stderr: result.stderr.trim(),
+    status: status === 0 ? 'pass' : 'fail',
+    exitCode: status,
+    blocks: status === 0 ? [] : job.blocks,
+    stdout: [primary.stdout, followUp?.stdout].filter(Boolean).join('\n'),
+    stderr: [primary.stderr, followUp?.stderr].filter(Boolean).join('\n'),
   };
 }
 
