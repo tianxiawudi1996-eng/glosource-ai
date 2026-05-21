@@ -10,7 +10,7 @@ function ensureDir(dir) {
 }
 
 function today() {
-  return new Date().toISOString().slice(0, 10);
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul' }).format(new Date());
 }
 
 function readText(relativePath) {

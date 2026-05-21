@@ -1,0 +1,131 @@
+{
+  "generatedAt": "2026-05-21T15:08:04.065Z",
+  "status": "pass",
+  "results": [
+    {
+      "key": "GEMINI_API_KEY",
+      "present": true,
+      "length": 39,
+      "category": "ai"
+    },
+    {
+      "key": "BUFFER_API_KEY",
+      "present": true,
+      "length": 43,
+      "category": "buffer"
+    },
+    {
+      "key": "BUFFER_CHANNEL_TWITTER",
+      "present": true,
+      "length": 24,
+      "category": "buffer"
+    },
+    {
+      "key": "BUFFER_CHANNEL_THREADS",
+      "present": true,
+      "length": 24,
+      "category": "buffer"
+    },
+    {
+      "key": "BUFFER_CHANNEL_INSTAGRAM",
+      "present": true,
+      "length": 24,
+      "category": "buffer"
+    },
+    {
+      "key": "POLAR_ACCESS_TOKEN",
+      "present": true,
+      "length": 53,
+      "category": "payments"
+    },
+    {
+      "key": "POLAR_WEBHOOK_SECRET",
+      "present": true,
+      "length": 53,
+      "category": "payments"
+    },
+    {
+      "key": "POLAR_STARTER_PRODUCT_ID",
+      "present": true,
+      "length": 36,
+      "category": "payments"
+    },
+    {
+      "key": "POLAR_PRO_PRODUCT_ID",
+      "present": true,
+      "length": 36,
+      "category": "payments"
+    },
+    {
+      "key": "POLAR_AGENCY_PRODUCT_ID",
+      "present": true,
+      "length": 36,
+      "category": "payments"
+    },
+    {
+      "key": "NEXT_PUBLIC_POLAR_STARTER_LINK",
+      "present": true,
+      "length": 73,
+      "category": "payments",
+      "host": "buy.polar.sh"
+    },
+    {
+      "key": "NEXT_PUBLIC_POLAR_PRO_LINK",
+      "present": true,
+      "length": 73,
+      "category": "payments",
+      "host": "buy.polar.sh"
+    },
+    {
+      "key": "NEXT_PUBLIC_POLAR_AGENCY_LINK",
+      "present": true,
+      "length": 73,
+      "category": "payments",
+      "host": "buy.polar.sh"
+    },
+    {
+      "key": "CRON_SECRET",
+      "present": true,
+      "length": 26,
+      "category": "cron"
+    },
+    {
+      "key": "RESEND_API_KEY",
+      "present": true,
+      "length": 36,
+      "category": "alerts"
+    },
+    {
+      "key": "ADMIN_EMAIL",
+      "present": true,
+      "length": 21,
+      "category": "alerts"
+    },
+    {
+      "key": "GITHUB_TOKEN",
+      "present": false,
+      "length": 0,
+      "category": "instagram-assets"
+    },
+    {
+      "key": "GITHUB_OWNER",
+      "present": false,
+      "length": 0,
+      "category": "instagram-assets"
+    },
+    {
+      "key": "INSTAGRAM_IMAGE_URL",
+      "present": false,
+      "length": 0,
+      "category": "instagram-assets"
+    }
+  ],
+  "instagramAssetMode": "default-logo-fallback",
+  "criticals": [],
+  "warnings": [
+    {
+      "file": ".env.local",
+      "message": "Instagram launch will use the default public logo fallback because GITHUB_TOKEN/GITHUB_OWNER and INSTAGRAM_IMAGE_URL are not configured."
+    }
+  ]
+}
