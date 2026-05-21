@@ -13,6 +13,7 @@
     "growth:seo": "node scripts/growth/generate-seo-briefs.js",
     "growth:weekly": "node scripts/growth/generate-weekly-growth-report.js",
     "growth:leads": "node scripts/growth/score-outreach-leads.js",
+    "growth:schedule": "node scripts/growth/print-automation-schedule.js",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio"

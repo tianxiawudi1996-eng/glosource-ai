@@ -1,8 +1,8 @@
 # GloSource AI EN Growth Orchestrator Automation Plan
 
 Date: 2026-05-16  
-Primary market: `/en` international buyers sourcing Korean suppliers  
-Secondary market: Korean users sourcing China/Korea from `/`
+Active market: `/en` international buyers sourcing Korean suppliers  
+Paused market: Korean users sourcing China/Korea from `/`
 
 ## Executive Summary
 
@@ -37,7 +37,7 @@ This document defines an orchestrator-driven organization of automation agents. 
 1. **No fake testimonials.** Public proof must come from real user quotes, real verified case studies, or clearly labeled demos.
 2. **No unverified supplier claims.** Case studies can show "candidate discovered" only when the source URL passed the verified supplier quality gate.
 3. **No paid traffic before payment QA passes.** If checkout, webhook, plan activation, or cancellation cannot be verified, the orchestrator blocks paid campaigns.
-4. **English funnel takes priority.** Korean version is maintained, but `/en` conversion and trust work are first.
+4. **English funnel is the only active product.** Korean version is paused until explicitly reactivated.
 5. **Every growth action must leave a measurable artifact.** Example: lead list, post URL, campaign URL, CTR, trial searches, signups, paid conversions.
 
 ## Target Operating Model

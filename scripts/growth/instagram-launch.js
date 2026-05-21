@@ -6,7 +6,9 @@
  * Required env vars:
  *   BUFFER_API_KEY, BUFFER_CHANNEL_INSTAGRAM
  *   GEMINI_API_KEY
- *   IMGBB_API_KEY  ← imgbb.com 무료 계정에서 발급
+ *   GITHUB_TOKEN   ← github.com/settings/tokens (public_repo 스코프)
+ *   GITHUB_OWNER   ← GitHub 유저명 (예: glosourceai)
+ *   GITHUB_REPO    ← public 레포명 (예: glosource-assets)
  */
 const fs   = require('fs');
 const path = require('path');
@@ -21,7 +23,9 @@ fs.readFileSync(envPath, 'utf8').split('\n').forEach(line => {
 const BUFFER_API_KEY   = process.env.BUFFER_API_KEY;
 const INSTAGRAM_ID     = process.env.BUFFER_CHANNEL_INSTAGRAM;
 const GEMINI_API_KEY   = process.env.GEMINI_API_KEY;
-const IMGBB_API_KEY    = process.env.IMGBB_API_KEY;
+const GITHUB_TOKEN     = process.env.GITHUB_TOKEN;
+const GITHUB_OWNER     = process.env.GITHUB_OWNER;
+const GITHUB_REPO      = process.env.GITHUB_REPO || 'glosource-assets';
 const DRY_RUN          = process.argv.includes('--dry-run');
 
 // ── Post content (text + image prompt pairs) ──────────────────────────────
@@ -139,19 +143,28 @@ async function generateImage(prompt) {
   return b64;
 }
 
-// ── Step 2: ImgBB에 업로드 → 공개 URL 획득 ────────────────────────────────
-async function uploadToImgBB(base64Image) {
-  if (!IMGBB_API_KEY) throw new Error('IMGBB_API_KEY not set in .env.local — get free key at imgbb.com/api');
+// ── Step 2: GitHub에 업로드 → raw.githubusercontent.com 공개 URL ─────────────
+async function uploadToGitHub(base64Image) {
+  if (!GITHUB_TOKEN || !GITHUB_OWNER) throw new Error('GITHUB_TOKEN or GITHUB_OWNER not set in .env.local');
 
-  console.log('  ☁️  Uploading to ImgBB...');
-  const result = await httpsPostForm(
-    `https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`,
-    { image: base64Image }
+  const filename = `post_${Date.now()}.png`;
+  const apiPath = `/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/images/${filename}`;
+
+  console.log('  ☁️  Uploading to GitHub...');
+  const result = await httpsPost(
+    `https://api.github.com${apiPath}`,
+    { message: 'Upload Instagram image', content: base64Image },
+    {
+      Authorization: `token ${GITHUB_TOKEN}`,
+      'User-Agent': 'GloSource-AI',
+      'X-GitHub-Api-Version': '2022-11-28',
+      Accept: 'application/vnd.github+json',
+    }
   );
 
-  if (!result.success) throw new Error(`ImgBB upload failed: ${JSON.stringify(result)}`);
+  if (!result.content) throw new Error(`GitHub upload failed: ${JSON.stringify(result)}`);
 
-  const url = result.data?.url;
+  const url = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/images/${filename}`;
   console.log(`  ✓ Image hosted at: ${url}`);
   return url;
 }
@@ -201,10 +214,14 @@ async function main() {
     console.error('❌ GEMINI_API_KEY missing');
     process.exit(1);
   }
+  if (!DRY_RUN && (!GITHUB_TOKEN || !GITHUB_OWNER)) {
+    console.error('❌ GITHUB_TOKEN or GITHUB_OWNER missing — see github.com/settings/tokens');
+    process.exit(1);
+  }
 
   console.log(DRY_RUN
     ? `\n--- DRY RUN — ${POSTS.length} Instagram posts (image generation skipped) ---\n`
-    : `\n--- LIVE — ${POSTS.length} Instagram posts via Imagen 4 + ImgBB + Buffer ---\n`
+    : `\n--- LIVE — ${POSTS.length} Instagram posts via Gemini Imagen 4 + GitHub + Buffer ---\n`
   );
 
   for (let i = 0; i < POSTS.length; i++) {
@@ -219,7 +236,7 @@ async function main() {
 
     try {
       const b64 = await generateImage(post.imagePrompt);
-      const imageUrl = await uploadToImgBB(b64);
+      const imageUrl = await uploadToGitHub(b64);
       const result = await postInstagram(post.caption, imageUrl);
       console.log(`  ✓ Posted to Instagram:`, JSON.stringify(result));
     } catch (err) {

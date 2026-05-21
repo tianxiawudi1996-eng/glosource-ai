@@ -1,0 +1,120 @@
+{
+  "timezone": "Asia/Seoul",
+  "owner": "Growth Orchestrator",
+  "principles": [
+    "Operate the English product only; the Korean version is paused until explicitly reactivated.",
+    "Run revenue-safety checks before acquisition work.",
+    "Block paid campaigns when payment health fails.",
+    "Publish only real, approved, or clearly labeled demo evidence.",
+    "Keep human approval before public community posts, cold outreach, or social publishing."
+  ],
+  "cadences": [
+    {
+      "id": "daily-revenue-safety",
+      "cadence": "daily",
+      "time": "09:00",
+      "title": "Revenue and funnel safety gate",
+      "commands": [
+        "npm run growth:audit",
+        "npm run growth:payments"
+      ],
+      "outputs": [
+        "reports/growth/locale-route-audit-YYYY-MM-DD.json",
+        "reports/growth/brand-consistency-YYYY-MM-DD.json",
+        "reports/growth/payment-health-YYYY-MM-DD.json"
+      ],
+      "blocks": [
+        "paid_ads",
+        "product_hunt_launch",
+        "high_volume_outbound"
+      ],
+      "humanReview": "Review critical failures before publishing or sending traffic."
+    },
+    {
+      "id": "daily-evidence-pipeline",
+      "cadence": "daily",
+      "time": "09:30",
+      "title": "Evidence and case-study candidate extraction",
+      "commands": [
+        "npm run growth:cases"
+      ],
+      "outputs": [
+        "data/growth/case-study-candidates.json",
+        "reports/growth/case-study-candidates-YYYY-MM-DD.json"
+      ],
+      "blocks": [
+        "case_study_publication",
+        "testimonial_like_claims"
+      ],
+      "humanReview": "Approve or reject candidates before they become public proof."
+    },
+    {
+      "id": "monday-seo-briefs",
+      "cadence": "weekly",
+      "dayOfWeek": "Monday",
+      "time": "10:00",
+      "title": "SEO brief generation",
+      "commands": [
+        "npm run growth:seo"
+      ],
+      "outputs": [
+        "reports/growth/seo-briefs/*.md",
+        "reports/growth/seo-briefs-YYYY-MM-DD.json"
+      ],
+      "blocks": [],
+      "humanReview": "Fact-check market numbers and unsupported claims before publishing posts."
+    },
+    {
+      "id": "wednesday-lead-scoring",
+      "cadence": "weekly",
+      "dayOfWeek": "Wednesday",
+      "time": "10:00",
+      "title": "Outbound lead scoring",
+      "commands": [
+        "npm run growth:leads"
+      ],
+      "outputs": [
+        "data/growth/outreach-leads-YYYY-MM-DD.csv",
+        "reports/growth/outreach-leads-YYYY-MM-DD.json"
+      ],
+      "blocks": [
+        "bulk_outreach"
+      ],
+      "humanReview": "Personalize every message and cap volume until reply rate is known."
+    },
+    {
+      "id": "friday-weekly-scorecard",
+      "cadence": "weekly",
+      "dayOfWeek": "Friday",
+      "time": "16:00",
+      "title": "Weekly growth scorecard",
+      "commands": [
+        "npm run growth:weekly"
+      ],
+      "outputs": [
+        "reports/growth/weekly-growth-report-YYYY-MM-DD.md"
+      ],
+      "blocks": [],
+      "humanReview": "Add analytics, MRR, top failed queries, and next experiment decision."
+    },
+    {
+      "id": "pre-deploy-growth-gate",
+      "cadence": "manual",
+      "title": "Pre-deploy growth gate",
+      "commands": [
+        "npm run lint",
+        "npx tsc --noEmit",
+        "npm run build",
+        "npm run growth:audit",
+        "npm run growth:payments"
+      ],
+      "outputs": [
+        "reports/growth/*.json"
+      ],
+      "blocks": [
+        "production_deploy_when_checkout_or_auth_changed"
+      ],
+      "humanReview": "If payment health fails, deploy only changes unrelated to checkout, billing, auth, subscriptions, pricing, or webhooks."
+    }
+  ]
+}
