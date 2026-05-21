@@ -1,0 +1,69 @@
+{
+  "generatedAt": "2026-05-21T14:55:00.000Z",
+  "status": "partial",
+  "source": "manual backfill from live Buffer command output",
+  "summary": {
+    "threads": {
+      "sent": 3,
+      "failed": 0
+    },
+    "instagram": {
+      "sent": 3,
+      "failed": 0,
+      "usedFallbackImage": true,
+      "fallbackImageUrl": "https://glosource-ai.vercel.app/images/glosource-logo-transparent.png"
+    },
+    "twitter": {
+      "scheduled": 3,
+      "failed": 0,
+      "mode": "addToQueue"
+    },
+    "blocked": [
+      "Polar payment health remains blocked by POLAR_ACCESS_TOKEN insufficient_scope."
+    ]
+  },
+  "results": {
+    "threads": [
+      {
+        "id": "6a0f096d3e782e8f031c1689",
+        "status": "sent"
+      },
+      {
+        "id": "6a0f0977e71a5be9fda5cd7f",
+        "status": "sent"
+      },
+      {
+        "id": "6a0f0984be94c4209c196751",
+        "status": "sent"
+      }
+    ],
+    "instagram": [
+      {
+        "id": "6a0f0dc935347373b01dd0dc",
+        "status": "sent"
+      },
+      {
+        "id": "6a0f0dd692bd9d6e82c834fe",
+        "status": "sent"
+      },
+      {
+        "id": "6a0f0de5be94c4209c19733a",
+        "status": "sent"
+      }
+    ],
+    "twitter": [
+      {
+        "id": "6a0f0e1492bd9d6e82c835ac",
+        "status": "scheduled"
+      },
+      {
+        "id": "6a0f0e18be94c4209c1973de",
+        "status": "scheduled"
+      },
+      {
+        "id": "6a0f0e1b3e782e8f031c232c",
+        "status": "scheduled"
+      }
+    ]
+  }
+}

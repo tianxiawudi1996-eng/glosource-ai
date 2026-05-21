@@ -13,6 +13,7 @@
 const fs   = require('fs');
 const path = require('path');
 const https = require('https');
+const { writeJsonReport } = require('./_utils');
 
 const envPath = path.join(__dirname, '../../.env.local');
 fs.readFileSync(envPath, 'utf8').split('\n').forEach(line => {
@@ -206,6 +207,7 @@ async function main() {
   );
 
   let failures = 0;
+  const results = [];
   for (let i = 0; i < POSTS.length; i++) {
     const post = POSTS[i];
     console.log(`\n[${i + 1}/${POSTS.length}] Processing...`);
@@ -213,6 +215,7 @@ async function main() {
     if (DRY_RUN) {
       console.log('Caption:', post.caption.slice(0, 80) + '...');
       console.log('Image prompt:', post.imagePrompt.slice(0, 80) + '...');
+      results.push({ index: i + 1, dryRun: true, status: 'previewed', caption: post.caption, imagePrompt: post.imagePrompt });
       continue;
     }
 
@@ -225,15 +228,30 @@ async function main() {
         console.log(`  ℹ Using fallback image URL: ${imageUrl}`);
       }
       const result = await postInstagram(post.caption, imageUrl);
+      results.push({ index: i + 1, ok: true, caption: post.caption, imageUrl, post: result.post });
       console.log(`  ✓ Posted to Instagram:`, JSON.stringify(result));
     } catch (err) {
       failures += 1;
+      results.push({ index: i + 1, ok: false, caption: post.caption, error: err.message });
       console.error(`  ✗ Post ${i + 1} failed: ${err.message}`);
     }
 
     if (i < POSTS.length - 1) await sleep(5000);
   }
 
+  if (!DRY_RUN) {
+    const reportPath = writeJsonReport('buffer-instagram-launch', {
+      channel: 'instagram',
+      status: failures > 0 ? 'partial_or_failed' : 'pass',
+      mode: 'shareNow',
+      total: POSTS.length,
+      failures,
+      usedFallbackImage: !(GITHUB_TOKEN && GITHUB_OWNER),
+      fallbackImageUrl: !(GITHUB_TOKEN && GITHUB_OWNER) ? FALLBACK_IMAGE_URL : undefined,
+      results,
+    });
+    console.log(`Report: ${reportPath}`);
+  }
   if (failures > 0) process.exitCode = 1;
   console.log('\n✅ Done.');
 }

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 const fs   = require('fs');
 const path = require('path');
+const { writeJsonReport } = require('./_utils');
 
 const envPath = path.join(__dirname, '../../.env.local');
 fs.readFileSync(envPath, 'utf8').split('\n').forEach(line => {
@@ -124,20 +125,35 @@ async function main() {
     : `\n--- LIVE — posting ${TWEETS.length} tweets via Buffer GraphQL ---\n`);
 
   let failures = 0;
+  const results = [];
   for (let i = 0; i < TWEETS.length; i++) {
     try {
       const text = withRunTag(TWEETS[i]);
       if (DRY_RUN) {
         console.log(`\n[DRY RUN] Tweet ${i + 1}/${TWEETS.length}\n${text}\n`);
+        results.push({ index: i + 1, dryRun: true, status: 'previewed', text });
         continue;
       }
       const result = await postTweet(text);
+      results.push({ index: i + 1, ok: true, text, post: result.post });
       console.log(`✓ Tweet ${i + 1}/${TWEETS.length}:`, JSON.stringify(result));
       if (i < TWEETS.length - 1) await sleep(3000);
     } catch (err) {
       failures += 1;
+      results.push({ index: i + 1, ok: false, error: err.message });
       console.error(`✗ Tweet ${i + 1}: ${err.message}`);
     }
+  }
+  if (!DRY_RUN) {
+    const reportPath = writeJsonReport('buffer-twitter-launch', {
+      channel: 'twitter',
+      status: failures > 0 ? 'partial_or_failed' : 'pass',
+      mode: 'addToQueue',
+      total: TWEETS.length,
+      failures,
+      results,
+    });
+    console.log(`Report: ${reportPath}`);
   }
   if (failures > 0) process.exitCode = 1;
   console.log('\nDone.');

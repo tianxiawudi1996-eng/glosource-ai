@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 const fs   = require('fs');
 const path = require('path');
+const { writeJsonReport } = require('./_utils');
 
 const envPath = path.join(__dirname, '../../.env.local');
 fs.readFileSync(envPath, 'utf8').split('\n').forEach(line => {
@@ -106,20 +107,35 @@ async function main() {
     : `\n--- LIVE — posting ${POSTS.length} Threads posts via Buffer ---\n`);
 
   let failures = 0;
+  const results = [];
   for (let i = 0; i < POSTS.length; i++) {
     try {
       const text = withRunTag(POSTS[i]);
       if (DRY_RUN) {
         console.log(`\n[DRY RUN] Post ${i + 1}/${POSTS.length}\n${text}\n`);
+        results.push({ index: i + 1, dryRun: true, status: 'previewed', text });
         continue;
       }
       const result = await postThreads(text);
+      results.push({ index: i + 1, ok: true, text, post: result.post });
       console.log(`✓ Post ${i + 1}/${POSTS.length}:`, JSON.stringify(result));
       if (i < POSTS.length - 1) await sleep(3000);
     } catch (err) {
       failures += 1;
+      results.push({ index: i + 1, ok: false, error: err.message });
       console.error(`✗ Post ${i + 1}: ${err.message}`);
     }
+  }
+  if (!DRY_RUN) {
+    const reportPath = writeJsonReport('buffer-threads-launch', {
+      channel: 'threads',
+      status: failures > 0 ? 'partial_or_failed' : 'pass',
+      mode: 'shareNow',
+      total: POSTS.length,
+      failures,
+      results,
+    });
+    console.log(`Report: ${reportPath}`);
   }
   if (failures > 0) process.exitCode = 1;
   console.log('\nDone.');
