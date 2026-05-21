@@ -89,41 +89,6 @@ function httpsPost(url, body, headers = {}) {
   });
 }
 
-function httpsPostForm(url, formData) {
-  return new Promise((resolve, reject) => {
-    const boundary = '----FormBoundary' + Date.now();
-    let body = '';
-    for (const [key, value] of Object.entries(formData)) {
-      body += `--${boundary}\r\nContent-Disposition: form-data; name="${key}"\r\n\r\n${value}\r\n`;
-    }
-    body += `--${boundary}--\r\n`;
-
-    const u = new URL(url);
-    const req = https.request(
-      {
-        hostname: u.hostname,
-        path: u.pathname + u.search,
-        method: 'POST',
-        headers: {
-          'Content-Type': `multipart/form-data; boundary=${boundary}`,
-          'Content-Length': Buffer.byteLength(body),
-        },
-      },
-      res => {
-        let data = '';
-        res.on('data', c => data += c);
-        res.on('end', () => {
-          try { resolve(JSON.parse(data)); }
-          catch { resolve(data); }
-        });
-      }
-    );
-    req.on('error', reject);
-    req.write(body);
-    req.end();
-  });
-}
-
 // ── Step 1: Gemini Imagen 4 이미지 생성 ───────────────────────────────────
 async function generateImage(prompt) {
   console.log('  🎨 Generating image with Gemini Imagen 4...');
