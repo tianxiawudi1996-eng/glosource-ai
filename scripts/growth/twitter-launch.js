@@ -11,6 +11,25 @@ fs.readFileSync(envPath, 'utf8').split('\n').forEach(line => {
 const API_KEY    = process.env.BUFFER_API_KEY;
 const TWITTER_ID = process.env.BUFFER_CHANNEL_TWITTER;
 const DRY_RUN = process.argv.includes('--dry-run');
+const TODAY = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul' }).format(new Date());
+const RUN_TIME = new Intl.DateTimeFormat('en-GB', {
+  timeZone: 'Asia/Seoul',
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: false,
+}).format(new Date());
+const RUN_TAG = `\n\nSourcing note ${TODAY} ${RUN_TIME} KST.`;
+
+function withRunTag(text, maxLen = 280) {
+  const tagged = `${text}${RUN_TAG}`;
+  if (tagged.length <= maxLen) return tagged;
+
+  const withoutHashtags = text.replace(/\n\n#[\s\S]*$/, '');
+  const compactTagged = `${withoutHashtags}${RUN_TAG}`;
+  if (compactTagged.length <= maxLen) return compactTagged;
+
+  return `${text.slice(0, maxLen - RUN_TAG.length - 1).trim()}${RUN_TAG}`;
+}
 
 const TWEETS = [
   `🇰🇷 Korean suppliers hard to find?
@@ -79,10 +98,17 @@ async function postTweet(text) {
       channelId: TWITTER_ID,
       text,
       schedulingType: 'automatic',
-      mode: 'shareNow',
+      mode: 'addToQueue',
     },
   });
-  return data?.createPost;
+  const result = data?.createPost;
+  if (!result?.post?.id) {
+    throw new Error(result?.message || 'Buffer did not return a post id');
+  }
+  if (result.post.status === 'error') {
+    throw new Error(`Buffer created an errored post (${result.post.id})`);
+  }
+  return result;
 }
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -97,19 +123,23 @@ async function main() {
     ? `\n--- DRY RUN — ${TWEETS.length} tweets ---\n`
     : `\n--- LIVE — posting ${TWEETS.length} tweets via Buffer GraphQL ---\n`);
 
+  let failures = 0;
   for (let i = 0; i < TWEETS.length; i++) {
     try {
+      const text = withRunTag(TWEETS[i]);
       if (DRY_RUN) {
-        console.log(`\n[DRY RUN] Tweet ${i + 1}/${TWEETS.length}\n${TWEETS[i]}\n`);
+        console.log(`\n[DRY RUN] Tweet ${i + 1}/${TWEETS.length}\n${text}\n`);
         continue;
       }
-      const result = await postTweet(TWEETS[i]);
+      const result = await postTweet(text);
       console.log(`✓ Tweet ${i + 1}/${TWEETS.length}:`, JSON.stringify(result));
       if (i < TWEETS.length - 1) await sleep(3000);
     } catch (err) {
+      failures += 1;
       console.error(`✗ Tweet ${i + 1}: ${err.message}`);
     }
   }
+  if (failures > 0) process.exitCode = 1;
   console.log('\nDone.');
 }
 

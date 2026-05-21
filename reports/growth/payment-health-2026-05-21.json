@@ -1,0 +1,59 @@
+{
+  "generatedAt": "2026-05-21T12:46:16.397Z",
+  "status": "fail",
+  "checkoutResults": [
+    {
+      "key": "NEXT_PUBLIC_POLAR_STARTER_LINK",
+      "host": "buy.polar.sh",
+      "ok": true,
+      "status": 302,
+      "location": "https://polar.sh"
+    },
+    {
+      "key": "NEXT_PUBLIC_POLAR_PRO_LINK",
+      "host": "buy.polar.sh",
+      "ok": true,
+      "status": 302,
+      "location": "https://polar.sh"
+    },
+    {
+      "key": "NEXT_PUBLIC_POLAR_AGENCY_LINK",
+      "host": "buy.polar.sh",
+      "ok": true,
+      "status": 302,
+      "location": "https://polar.sh"
+    }
+  ],
+  "productResults": [
+    {
+      "key": "POLAR_STARTER_PRODUCT_ID",
+      "ok": false,
+      "status": 403
+    },
+    {
+      "key": "POLAR_PRO_PRODUCT_ID",
+      "ok": false,
+      "status": 403
+    },
+    {
+      "key": "POLAR_AGENCY_PRODUCT_ID",
+      "ok": false,
+      "status": 403
+    }
+  ],
+  "criticals": [
+    {
+      "file": ".env.local",
+      "message": "POLAR_STARTER_PRODUCT_ID cannot be read with POLAR_ACCESS_TOKEN. Status: 403. Check that POLAR_ACCESS_TOKEN is an Organization Access Token for the same Polar organization and includes products:read or products:write scope."
+    },
+    {
+      "file": ".env.local",
+      "message": "POLAR_PRO_PRODUCT_ID cannot be read with POLAR_ACCESS_TOKEN. Status: 403. Check that POLAR_ACCESS_TOKEN is an Organization Access Token for the same Polar organization and includes products:read or products:write scope."
+    },
+    {
+      "file": ".env.local",
+      "message": "POLAR_AGENCY_PRODUCT_ID cannot be read with POLAR_ACCESS_TOKEN. Status: 403. Check that POLAR_ACCESS_TOKEN is an Organization Access Token for the same Polar organization and includes products:read or products:write scope."
+    }
+  ],
+  "warnings": []
+}

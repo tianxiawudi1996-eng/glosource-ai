@@ -26,6 +26,7 @@ const GEMINI_API_KEY   = process.env.GEMINI_API_KEY;
 const GITHUB_TOKEN     = process.env.GITHUB_TOKEN;
 const GITHUB_OWNER     = process.env.GITHUB_OWNER;
 const GITHUB_REPO      = process.env.GITHUB_REPO || 'glosource-assets';
+const FALLBACK_IMAGE_URL = process.env.INSTAGRAM_IMAGE_URL || 'https://glosource-ai.vercel.app/images/glosource-logo-transparent.png';
 const DRY_RUN          = process.argv.includes('--dry-run');
 
 // ── Post content (text + image prompt pairs) ──────────────────────────────
@@ -191,7 +192,19 @@ async function postInstagram(caption, imageUrl) {
         input: {
           channelId: INSTAGRAM_ID,
           text: caption,
-          mediaUrls: [imageUrl],
+          assets: [
+            {
+              image: {
+                url: imageUrl,
+              },
+            },
+          ],
+          metadata: {
+            instagram: {
+              type: 'post',
+              shouldShareToFeed: true,
+            },
+          },
           schedulingType: 'automatic',
           mode: 'shareNow',
         },
@@ -201,7 +214,14 @@ async function postInstagram(caption, imageUrl) {
   );
 
   if (result.errors) throw new Error(JSON.stringify(result.errors));
-  return result.data?.createPost;
+  const post = result.data?.createPost;
+  if (!post?.post?.id) {
+    throw new Error(post?.message || 'Buffer did not return a post id');
+  }
+  if (post.post.status === 'error') {
+    throw new Error(`Buffer created an errored post (${post.post.id})`);
+  }
+  return post;
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────
@@ -214,16 +234,13 @@ async function main() {
     console.error('❌ GEMINI_API_KEY missing');
     process.exit(1);
   }
-  if (!DRY_RUN && (!GITHUB_TOKEN || !GITHUB_OWNER)) {
-    console.error('❌ GITHUB_TOKEN or GITHUB_OWNER missing — see github.com/settings/tokens');
-    process.exit(1);
-  }
 
   console.log(DRY_RUN
     ? `\n--- DRY RUN — ${POSTS.length} Instagram posts (image generation skipped) ---\n`
-    : `\n--- LIVE — ${POSTS.length} Instagram posts via Gemini Imagen 4 + GitHub + Buffer ---\n`
+    : `\n--- LIVE — ${POSTS.length} Instagram posts via Buffer ---\n`
   );
 
+  let failures = 0;
   for (let i = 0; i < POSTS.length; i++) {
     const post = POSTS[i];
     console.log(`\n[${i + 1}/${POSTS.length}] Processing...`);
@@ -235,17 +252,24 @@ async function main() {
     }
 
     try {
-      const b64 = await generateImage(post.imagePrompt);
-      const imageUrl = await uploadToGitHub(b64);
+      let imageUrl = FALLBACK_IMAGE_URL;
+      if (GITHUB_TOKEN && GITHUB_OWNER) {
+        const b64 = await generateImage(post.imagePrompt);
+        imageUrl = await uploadToGitHub(b64);
+      } else {
+        console.log(`  ℹ Using fallback image URL: ${imageUrl}`);
+      }
       const result = await postInstagram(post.caption, imageUrl);
       console.log(`  ✓ Posted to Instagram:`, JSON.stringify(result));
     } catch (err) {
+      failures += 1;
       console.error(`  ✗ Post ${i + 1} failed: ${err.message}`);
     }
 
     if (i < POSTS.length - 1) await sleep(5000);
   }
 
+  if (failures > 0) process.exitCode = 1;
   console.log('\n✅ Done.');
 }
 

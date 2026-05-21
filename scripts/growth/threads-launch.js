@@ -11,6 +11,12 @@ fs.readFileSync(envPath, 'utf8').split('\n').forEach(line => {
 const API_KEY     = process.env.BUFFER_API_KEY;
 const THREADS_ID  = process.env.BUFFER_CHANNEL_THREADS;
 const DRY_RUN     = process.argv.includes('--dry-run');
+const TODAY = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul' }).format(new Date());
+const RUN_TAG = `\n\nSourcing note ${TODAY}.`;
+
+function withRunTag(text) {
+  return `${text}${RUN_TAG}`;
+}
 
 const POSTS = [
   `Finding Korean suppliers used to mean hours on EC21, BuyKorea, and tradeKorea — all separately.
@@ -77,7 +83,14 @@ async function postThreads(text) {
       mode: 'shareNow',
     },
   });
-  return data?.createPost;
+  const result = data?.createPost;
+  if (!result?.post?.id) {
+    throw new Error(result?.message || 'Buffer did not return a post id');
+  }
+  if (result.post.status === 'error') {
+    throw new Error(`Buffer created an errored post (${result.post.id})`);
+  }
+  return result;
 }
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -92,19 +105,23 @@ async function main() {
     ? `\n--- DRY RUN — ${POSTS.length} Threads posts ---\n`
     : `\n--- LIVE — posting ${POSTS.length} Threads posts via Buffer ---\n`);
 
+  let failures = 0;
   for (let i = 0; i < POSTS.length; i++) {
     try {
+      const text = withRunTag(POSTS[i]);
       if (DRY_RUN) {
-        console.log(`\n[DRY RUN] Post ${i + 1}/${POSTS.length}\n${POSTS[i]}\n`);
+        console.log(`\n[DRY RUN] Post ${i + 1}/${POSTS.length}\n${text}\n`);
         continue;
       }
-      const result = await postThreads(POSTS[i]);
+      const result = await postThreads(text);
       console.log(`✓ Post ${i + 1}/${POSTS.length}:`, JSON.stringify(result));
       if (i < POSTS.length - 1) await sleep(3000);
     } catch (err) {
+      failures += 1;
       console.error(`✗ Post ${i + 1}: ${err.message}`);
     }
   }
+  if (failures > 0) process.exitCode = 1;
   console.log('\nDone.');
 }
 
