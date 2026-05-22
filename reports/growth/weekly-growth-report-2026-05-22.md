@@ -11,7 +11,10 @@ Date: 2026-05-22
   - Warning: Case-study publication is blocked until approved evidence candidates exist.
 - brand-consistency: pass (brand-consistency-2026-05-22.json; fresh)
   - Warning: No LinkedIn profile/company link found.
-- buffer-launch: partial (buffer-launch-2026-05-21.json; stale: 2026-05-21)
+- buffer-instagram-launch: pass (buffer-instagram-launch-2026-05-22.json; fresh)
+- buffer-launch: pass (buffer-launch-2026-05-22.json; fresh)
+- buffer-threads-launch: pass (buffer-threads-launch-2026-05-22.json; fresh)
+- buffer-twitter-launch: pass (buffer-twitter-launch-2026-05-22.json; fresh)
 - case-study-candidates: pass (case-study-candidates-2026-05-22.json; fresh)
 - daily-growth-run: partial_or_failed (daily-growth-run-2026-05-22.json; fresh)
 - growth-env-preflight: pass (growth-env-preflight-2026-05-22.json; fresh)
@@ -46,7 +49,6 @@ Date: 2026-05-22
 - Social copy is previewable, but live posting should stay deliberate; rerun `npm run growth:social:dry-run` immediately before any Buffer launch.
 - Do not publish testimonials, case studies, or proof claims from this run; no approved evidence candidates were found.
 - Instagram can post with the public logo fallback, but branded/generated image hosting still needs `GITHUB_TOKEN`/`GITHUB_OWNER` or `INSTAGRAM_IMAGE_URL`.
-- Last live Buffer launch is not from today; treat it as historical evidence, not proof that today has been published.
 
 ## Required Manual Updates
 

@@ -1,0 +1,37 @@
+{
+  "generatedAt": "2026-05-22T10:32:13.786Z",
+  "channel": "twitter",
+  "status": "pass",
+  "mode": "addToQueue",
+  "total": 3,
+  "failures": 0,
+  "results": [
+    {
+      "index": 1,
+      "ok": true,
+      "text": "🇰🇷 Korean suppliers hard to find?\n\nGloSource AI scans EC21 · BuyKorea (KOTRA) · tradeKorea simultaneously.\nTrust scores + MFDS/HACCP/KC signals + English RFQ auto-generated.\n\n5 free searches → glosource-ai.vercel.app/en\n\nSourcing note 2026-05-22 19:32 KST.",
+      "post": {
+        "id": "6a1030a55e033defe0821630",
+        "status": "scheduled"
+      }
+    },
+    {
+      "index": 2,
+      "ok": true,
+      "text": "FBA sellers sourcing K-beauty or K-food — this saves hours.\n\nGloSource AI ranks Korean suppliers by trust signals & generates a ready-to-send English RFQ.\n\nFree: glosource-ai.vercel.app/en\n\n#FBA #KBeauty #KFood #ImportExport\n\nSourcing note 2026-05-22 19:32 KST.",
+      "post": {
+        "id": "6a1030a8f6852ac2b604fa08",
+        "status": "scheduled"
+      }
+    },
+    {
+      "index": 3,
+      "ok": true,
+      "text": "Korean sourcing just got easier 🇰🇷\n✅ EC21 · BuyKorea · tradeKorea\n✅ Trust score 0–100\n✅ MFDS/HACCP/KC signals\n✅ English RFQ auto-generated\n\n5 free searches → glosource-ai.vercel.app/en\n\n#KBeauty #B2B #Ecommerce #Korea\n\nSourcing note 2026-05-22 19:32 KST.",
+      "post": {
+        "id": "6a1030ac46ad8c4ddef9abc4",
+        "status": "scheduled"
+      }
+    }
+  ]
+}

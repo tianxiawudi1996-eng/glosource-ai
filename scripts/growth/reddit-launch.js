@@ -18,6 +18,7 @@
 
 const fs   = require('fs');
 const path = require('path');
+const { writeJsonReport } = require('./_utils');
 
 // .env.local 수동 파싱 (dotenv 불필요)
 const envPath = path.join(__dirname, '../../.env.local');
@@ -126,8 +127,22 @@ async function submitPost(token, { subreddit, title, text }) {
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 async function main() {
+  const results = [];
   if (!DRY_RUN && (!CLIENT_ID || !CLIENT_SECRET || !USERNAME || !PASSWORD)) {
+    const missing = [
+      ['REDDIT_CLIENT_ID', CLIENT_ID],
+      ['REDDIT_CLIENT_SECRET', CLIENT_SECRET],
+      ['REDDIT_USERNAME', USERNAME],
+      ['REDDIT_PASSWORD', PASSWORD],
+    ].filter(([, value]) => !value).map(([key]) => key);
+    const reportPath = writeJsonReport('reddit-launch', {
+      status: 'blocked',
+      dryRun: false,
+      missingCredentials: missing,
+      results,
+    });
     console.error('\n❌  Reddit credentials missing in .env.local:\n   REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_USERNAME, REDDIT_PASSWORD\n   👉  https://www.reddit.com/prefs/apps\n');
+    console.error(`Report: ${reportPath}`);
     process.exit(1);
   }
 
@@ -135,15 +150,28 @@ async function main() {
   const token = DRY_RUN ? 'dry' : await getAccessToken();
   if (!DRY_RUN) console.log('✓ Auth OK\n');
 
+  let failures = 0;
   for (const post of POSTS) {
     try {
       const url = await submitPost(token, post);
+      results.push({ subreddit: post.subreddit, ok: true, dryRun: DRY_RUN, title: post.title, url });
       console.log(`✓ r/${post.subreddit} → ${url}`);
       if (!DRY_RUN) await sleep(10_000); // Reddit rate limit
     } catch (err) {
+      failures += 1;
+      results.push({ subreddit: post.subreddit, ok: false, dryRun: DRY_RUN, title: post.title, error: err.message });
       console.error(`✗ r/${post.subreddit}: ${err.message}`);
     }
   }
+  const reportPath = writeJsonReport('reddit-launch', {
+    status: failures > 0 ? 'partial_or_failed' : 'pass',
+    dryRun: DRY_RUN,
+    total: POSTS.length,
+    failures,
+    results,
+  });
+  console.log(`Report: ${reportPath}`);
+  if (failures > 0) process.exitCode = 1;
   console.log('\nDone.');
 }
 

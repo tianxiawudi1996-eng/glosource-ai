@@ -18,6 +18,8 @@
     "growth:env": "node scripts/growth/check-growth-env.js",
     "growth:acquisition:gate": "node scripts/growth/check-acquisition-readiness.js",
     "growth:social:dry-run": "node scripts/growth/run-social-dry-run.js",
+    "growth:reddit": "node scripts/growth/reddit-launch.js",
+    "growth:reddit:dry-run": "node scripts/growth/reddit-launch.js --dry-run",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio"
