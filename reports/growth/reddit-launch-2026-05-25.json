@@ -1,0 +1,12 @@
+{
+  "generatedAt": "2026-05-25T02:35:39.227Z",
+  "status": "blocked",
+  "dryRun": false,
+  "missingCredentials": [
+    "REDDIT_CLIENT_ID",
+    "REDDIT_CLIENT_SECRET",
+    "REDDIT_USERNAME",
+    "REDDIT_PASSWORD"
+  ],
+  "results": []
+}

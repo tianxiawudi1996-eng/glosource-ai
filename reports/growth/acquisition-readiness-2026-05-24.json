@@ -1,0 +1,55 @@
+{
+  "generatedAt": "2026-05-24T14:12:48.444Z",
+  "status": "fail",
+  "reportDate": "2026-05-24",
+  "inputs": {
+    "dailyGrowthRun": null,
+    "paymentHealth": null,
+    "socialDryRun": null,
+    "caseStudyCandidates": null
+  },
+  "blockedActions": [
+    "case_study_publication",
+    "high_volume_outbound",
+    "live_social_launch",
+    "paid_ads",
+    "product_hunt_launch",
+    "testimonial_like_claims"
+  ],
+  "criticals": [
+    {
+      "file": "reports/growth",
+      "message": "daily-growth-run-2026-05-24.json is missing. Run npm run growth:daily first."
+    },
+    {
+      "file": "reports/growth",
+      "message": "payment-health-2026-05-24.json is missing. Run npm run growth:payments first."
+    },
+    {
+      "file": "reports/growth",
+      "message": "paid_ads is blocked by current growth evidence."
+    },
+    {
+      "file": "reports/growth",
+      "message": "product_hunt_launch is blocked by current growth evidence."
+    },
+    {
+      "file": "reports/growth",
+      "message": "high_volume_outbound is blocked by current growth evidence."
+    }
+  ],
+  "warnings": [
+    {
+      "file": "reports/growth",
+      "message": "social-dry-run-2026-05-24.json is missing. Run npm run growth:social:dry-run before any live Buffer launch."
+    },
+    {
+      "file": "reports/growth",
+      "message": "Live social launch is blocked until today social dry-run passes."
+    },
+    {
+      "file": "reports/growth",
+      "message": "Case-study publication is blocked until approved evidence candidates exist."
+    }
+  ]
+}

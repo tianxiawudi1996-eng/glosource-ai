@@ -1,0 +1,62 @@
+{
+  "generatedAt": "2026-05-25T07:20:00.173Z",
+  "status": "fail",
+  "checkoutResults": [
+    {
+      "key": "NEXT_PUBLIC_POLAR_STARTER_LINK",
+      "host": "buy.polar.sh",
+      "ok": true,
+      "status": 302,
+      "location": "https://polar.sh"
+    },
+    {
+      "key": "NEXT_PUBLIC_POLAR_PRO_LINK",
+      "host": "buy.polar.sh",
+      "ok": true,
+      "status": 302,
+      "location": "https://polar.sh"
+    },
+    {
+      "key": "NEXT_PUBLIC_POLAR_AGENCY_LINK",
+      "host": "buy.polar.sh",
+      "ok": true,
+      "status": 302,
+      "location": "https://polar.sh"
+    }
+  ],
+  "productResults": [
+    {
+      "key": "POLAR_STARTER_PRODUCT_ID",
+      "ok": false,
+      "status": 403,
+      "error": "Polar error: insufficient_scope. The request requires higher privileges than provided by the access token."
+    },
+    {
+      "key": "POLAR_PRO_PRODUCT_ID",
+      "ok": false,
+      "status": 403,
+      "error": "Polar error: insufficient_scope. The request requires higher privileges than provided by the access token."
+    },
+    {
+      "key": "POLAR_AGENCY_PRODUCT_ID",
+      "ok": false,
+      "status": 403,
+      "error": "Polar error: insufficient_scope. The request requires higher privileges than provided by the access token."
+    }
+  ],
+  "criticals": [
+    {
+      "file": ".env.local",
+      "message": "POLAR_STARTER_PRODUCT_ID cannot be read with POLAR_ACCESS_TOKEN. Status: 403. Polar error: insufficient_scope. The request requires higher privileges than provided by the access token. Check that POLAR_ACCESS_TOKEN is an Organization Access Token for the same Polar organization and includes products:read or products:write scope. If Polar returns insufficient_scope, create a new organization token with products:read and update .env.local."
+    },
+    {
+      "file": ".env.local",
+      "message": "POLAR_PRO_PRODUCT_ID cannot be read with POLAR_ACCESS_TOKEN. Status: 403. Polar error: insufficient_scope. The request requires higher privileges than provided by the access token. Check that POLAR_ACCESS_TOKEN is an Organization Access Token for the same Polar organization and includes products:read or products:write scope. If Polar returns insufficient_scope, create a new organization token with products:read and update .env.local."
+    },
+    {
+      "file": ".env.local",
+      "message": "POLAR_AGENCY_PRODUCT_ID cannot be read with POLAR_ACCESS_TOKEN. Status: 403. Polar error: insufficient_scope. The request requires higher privileges than provided by the access token. Check that POLAR_ACCESS_TOKEN is an Organization Access Token for the same Polar organization and includes products:read or products:write scope. If Polar returns insufficient_scope, create a new organization token with products:read and update .env.local."
+    }
+  ],
+  "warnings": []
+}

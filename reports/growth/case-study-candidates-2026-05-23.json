@@ -1,0 +1,7 @@
+{
+  "generatedAt": "2026-05-23T11:52:02.926Z",
+  "status": "pass",
+  "input": "data\\growth\\history-export.json",
+  "output": "data\\growth\\case-study-candidates.json",
+  "count": 0
+}
