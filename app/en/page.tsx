@@ -27,6 +27,11 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: 'https://glosource-ai.vercel.app/en',
+    languages: {
+      'en-US': 'https://glosource-ai.vercel.app/en',
+      'x-default': 'https://glosource-ai.vercel.app/en',
+      // 'ko-KR': 'https://glosource-ai.vercel.app/' — TODO: 한국어 버전 공개 시 추가
+    },
   },
 };
 
