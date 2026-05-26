@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import HeroSection from '@/app/components/HeroSection';
 import BrandLogo from '@/app/components/BrandLogo';
+import JsonLdGloSource from '@/app/components/JsonLdGloSource';
 import KSourceWrapper from './KSourceWrapper';
 import ScrollCTA from './ScrollCTA';
 import PolarCheckoutButton from './PolarCheckoutButton';
@@ -202,6 +203,7 @@ export default async function EnPage({
 
   return (
     <div className="min-h-screen bg-white">
+      <JsonLdGloSource />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD_ORGANIZATION) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD_FAQ) }} />
 
