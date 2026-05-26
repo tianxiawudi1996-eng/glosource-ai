@@ -7,6 +7,20 @@ import JsonLdBreadcrumb from '@/app/components/JsonLdBreadcrumb';
 export const metadata: Metadata = {
   title: 'Korean Supplier Sourcing Blog — GloSource AI',
   description: 'Guides and tips for international buyers sourcing from Korea: finding manufacturers, understanding certifications, writing RFQs, and navigating Korean B2B platforms.',
+  openGraph: {
+    title: 'Korean Supplier Sourcing Blog — GloSource AI',
+    description: 'Guides for K-sourcing — MFDS/KC/HACCP certifications, RFQ templates, EC21 vs BuyKorea, K-beauty FBA.',
+    url: 'https://glosource-ai.vercel.app/en/blog',
+    siteName: 'GloSource AI',
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Korean Supplier Sourcing Blog',
+    description: 'Guides for K-sourcing — certifications, RFQ, B2B platforms, FBA.',
+    creator: '@glosourceai',
+  },
   keywords: [
     'Korean sourcing blog',
     'Korea B2B guide',

@@ -6,6 +6,20 @@ import JsonLdBreadcrumb from '@/app/components/JsonLdBreadcrumb';
 export const metadata: Metadata = {
   title: 'About GloSource AI — Korean Supplier Research Tool',
   description: 'GloSource AI is an AI-powered research tool that helps international buyers find Korean supplier candidates from EC21, BuyKorea (KOTRA), and tradeKorea in under 90 seconds.',
+  openGraph: {
+    title: 'About GloSource AI — Korean Supplier Research Tool',
+    description: 'AI-powered research for finding Korean supplier candidates from EC21, BuyKorea (KOTRA), and tradeKorea in under 90 seconds.',
+    url: 'https://glosource-ai.vercel.app/en/about',
+    siteName: 'GloSource AI',
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'About GloSource AI',
+    description: 'AI-powered Korean supplier research — EC21 · BuyKorea · tradeKorea in 90 seconds.',
+    creator: '@glosourceai',
+  },
   keywords: [
     'About GloSource AI',
     'Korean supplier research',

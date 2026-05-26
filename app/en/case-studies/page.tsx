@@ -6,6 +6,20 @@ import JsonLdBreadcrumb from '@/app/components/JsonLdBreadcrumb';
 export const metadata: Metadata = {
   title: 'Korean Supplier Search Examples — GloSource AI',
   description: 'See what GloSource AI returns for real product searches — Korean cosmetics OEM, K-food wholesale, fashion suppliers. Demo searches with AI-generated results.',
+  openGraph: {
+    title: 'Korean Supplier Search Examples — GloSource AI',
+    description: 'Demo searches with AI-generated results: K-beauty OEM, K-food wholesale, K-fashion suppliers.',
+    url: 'https://glosource-ai.vercel.app/en/case-studies',
+    siteName: 'GloSource AI',
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Korean Supplier Search Examples',
+    description: 'AI-generated demo results for K-beauty OEM, K-food wholesale, K-fashion.',
+    creator: '@glosourceai',
+  },
   keywords: [
     'Korean supplier examples',
     'K-beauty OEM demo',
