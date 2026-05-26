@@ -6,7 +6,13 @@ import BrandLogo from '@/app/components/BrandLogo';
 export const metadata: Metadata = {
   title: 'Korean Supplier Sourcing Blog — GloSource AI',
   description: 'Guides and tips for international buyers sourcing from Korea: finding manufacturers, understanding certifications, writing RFQs, and navigating Korean B2B platforms.',
-  alternates: { canonical: 'https://glosource-ai.vercel.app/en/blog' },
+  alternates: {
+    canonical: 'https://glosource-ai.vercel.app/en/blog',
+    languages: {
+      'en-US': 'https://glosource-ai.vercel.app/en/blog',
+      'x-default': 'https://glosource-ai.vercel.app/en/blog',
+    },
+  },
 };
 
 export default async function EnBlogIndex() {
