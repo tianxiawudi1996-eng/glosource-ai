@@ -1,9 +1,21 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { headers } from "next/headers";
 import "./globals.css";
 import Providers from "@/app/components/Providers";
 import { ConsentAnalytics } from "@/app/components/ConsentAnalytics";
+
+// Next.js 14+ — viewport는 metadata와 별도 export 권장
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#FFFFFF" },
+    { media: "(prefers-color-scheme: dark)", color: "#0D1B2A" },
+  ],
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  colorScheme: "light dark",
+};
 
 const inter = Inter({
   subsets: ["latin"],
