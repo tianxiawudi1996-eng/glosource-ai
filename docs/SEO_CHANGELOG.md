@@ -41,6 +41,14 @@
 | 11 | `40d28e1` | security headers | HSTS (max-age 2년 + preload), Cross-Origin-Opener-Policy: same-origin, X-DNS-Prefetch-Control: on. |
 | 12 | `585a32c` | robots.ts | disallow 6 → 11 확장 (`/en/dashboard`, `/en/billing`, `/en/reset-password`, `/auth/`, `/.well-known/`). GPTBot·CCBot 명시 차단 (LLM 무단 학습 방지). host 디렉티브 추가. |
 
+### 문서·PWA·Article (3 iter)
+
+| iter | commit | 영역 | 변경 |
+|---|---|---|---|
+| 13 | `cb7eeaa` | docs | `docs/SEO_CHANGELOG.md` 신규 — iter 1~12 종합 기록 (이 문서). |
+| 14 | `13684f1` | PWA | `app/manifest.ts` — Add to Home Screen + iOS Safari 호환. standalone display, 브랜드 색, 카테고리 (business/productivity/shopping). |
+| 15 | `e2f1a3e` | Schema.org | blog post `[slug]/page.tsx`에 BlogPosting + BreadcrumbList 추가. headline, author, publisher, datePublished, articleSection, timeRequired, inLanguage. |
+
 ---
 
 ## 측정 기대 효과
@@ -85,13 +93,28 @@
 
 ---
 
-## 누적 통계
+## 누적 통계 (iter 1~15)
 
-- 12 commits master push
-- 누적 변경 ~330 lines (insertions)
+- **16 commits** master push (이 문서 갱신 commit 포함)
+- 누적 변경 ~530 lines (insertions)
 - 새 컴포넌트 2건: `JsonLdGloSource.tsx`, `JsonLdBreadcrumb.tsx`
-- 새 페이지 1건: `app/en/not-found.tsx`
+- 새 페이지 2건: `app/en/not-found.tsx`, `app/manifest.ts`
+- 새 문서 1건: `docs/SEO_CHANGELOG.md` (이 문서)
 - 모든 변경 비파괴·idempotent
+
+## 차장님 06:00 알람 직전 자율 종료
+
+5/26 22:35 위임 → 5/27 05:30경까지 7시간 자율 작업. 16 commit 누적.
+
+차장님 일어나면 한 줄로 종합 확인 가능:
+```
+cd C:\Users\ddedi\safedoc-ai && git log --oneline -20
+```
+
+또는 이 문서 정독:
+```
+cat docs/SEO_CHANGELOG.md
+```
 
 ---
 
