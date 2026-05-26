@@ -5,6 +5,11 @@ const securityHeaders = [
   { key: 'X-Content-Type-Options', value: 'nosniff' },
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
   { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+  // HSTS: HTTPS 강제 (2년 + preload 등록 후보)
+  { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
+  // Cross-Origin 보호 — popup hijacking·side-channel 방지
+  { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
+  { key: 'X-DNS-Prefetch-Control', value: 'on' },
   {
     key: 'Content-Security-Policy',
     value: [
