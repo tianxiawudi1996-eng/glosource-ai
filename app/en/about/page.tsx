@@ -5,6 +5,17 @@ import BrandLogo from '@/app/components/BrandLogo';
 export const metadata: Metadata = {
   title: 'About GloSource AI — Korean Supplier Research Tool',
   description: 'GloSource AI is an AI-powered research tool that helps international buyers find Korean supplier candidates from EC21, BuyKorea (KOTRA), and tradeKorea in under 90 seconds.',
+  keywords: [
+    'About GloSource AI',
+    'Korean supplier research',
+    'EC21 search',
+    'BuyKorea KOTRA',
+    'tradeKorea',
+    'AI sourcing platform',
+    'supplier discovery',
+    'Korean manufacturer database',
+    'trust scoring',
+  ],
   alternates: {
     canonical: 'https://glosource-ai.vercel.app/en/about',
     languages: {

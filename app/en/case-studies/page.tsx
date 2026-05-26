@@ -5,6 +5,17 @@ import BrandLogo from '@/app/components/BrandLogo';
 export const metadata: Metadata = {
   title: 'Korean Supplier Search Examples — GloSource AI',
   description: 'See what GloSource AI returns for real product searches — Korean cosmetics OEM, K-food wholesale, fashion suppliers. Demo searches with AI-generated results.',
+  keywords: [
+    'Korean supplier examples',
+    'K-beauty OEM demo',
+    'K-food wholesale search',
+    'Korean cosmetics manufacturer',
+    'Korean fashion supplier',
+    'AI search demo',
+    'supplier comparison',
+    'RFQ examples',
+    'Korea sourcing case study',
+  ],
   alternates: {
     canonical: 'https://glosource-ai.vercel.app/en/case-studies',
     languages: {
