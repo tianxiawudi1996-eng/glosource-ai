@@ -10,8 +10,24 @@ import Link from 'next/link';
 import { auth } from '@/auth';
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://glosource-ai.vercel.app'),
   title: 'GloSource AI — Source Korean Suppliers with AI',
   description: 'Find Korean manufacturer candidates for K-beauty, K-food, K-fashion & more. AI-ranked suppliers from EC21 · BuyKorea (KOTRA) · tradeKorea with trust scores and English RFQ drafts. Start with 5 free searches.',
+  keywords: [
+    'Korean supplier sourcing',
+    'K-beauty manufacturer',
+    'K-food wholesale',
+    'EC21',
+    'BuyKorea KOTRA',
+    'tradeKorea',
+    'AI supplier search',
+    'English RFQ Korean',
+    'Korean OEM',
+    'Amazon FBA sourcing',
+  ],
+  authors: [{ name: 'GloSource AI' }],
+  creator: 'GloSource AI',
+  publisher: 'GloSource AI',
   openGraph: {
     title: 'GloSource AI — Source Korean Suppliers with AI',
     description: 'Find Korean manufacturer candidates for K-beauty, K-food, K-fashion & more. EC21 · BuyKorea (KOTRA) · tradeKorea channels. AI trust scores + English RFQ.',
@@ -19,11 +35,21 @@ export const metadata: Metadata = {
     siteName: 'GloSource AI',
     locale: 'en_US',
     type: 'website',
+    images: [
+      {
+        url: '/en/opengraph-image',
+        width: 1200,
+        height: 630,
+        alt: 'GloSource AI — Source Korean Suppliers with AI',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'GloSource AI — Source Korean Suppliers with AI',
     description: 'Find Korean manufacturer candidates for K-beauty, K-food, K-fashion & more. Start with 5 free searches.',
+    images: ['/en/opengraph-image'],
+    creator: '@glosourceai',
   },
   alternates: {
     canonical: 'https://glosource-ai.vercel.app/en',
