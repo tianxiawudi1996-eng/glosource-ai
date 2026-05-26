@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { getAllPostsMerged } from '@/app/lib/blog-posts-server';
 import BrandLogo from '@/app/components/BrandLogo';
+import JsonLdBreadcrumb from '@/app/components/JsonLdBreadcrumb';
 
 export const metadata: Metadata = {
   title: 'Korean Supplier Sourcing Blog — GloSource AI',
@@ -31,6 +32,12 @@ export default async function EnBlogIndex() {
   const posts = await getAllPostsMerged();
   return (
     <div className="min-h-screen bg-white">
+      <JsonLdBreadcrumb
+        items={[
+          { name: 'Home', url: 'https://glosource-ai.vercel.app/en' },
+          { name: 'Blog', url: 'https://glosource-ai.vercel.app/en/blog' },
+        ]}
+      />
       {/* Nav */}
       <nav className="sticky top-0 z-30 bg-[#0D1B2A]/95 backdrop-blur border-b border-white/10">
         <div className="max-w-5xl mx-auto px-6 py-3 flex items-center justify-between gap-4">

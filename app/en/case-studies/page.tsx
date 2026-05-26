@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import BrandLogo from '@/app/components/BrandLogo';
+import JsonLdBreadcrumb from '@/app/components/JsonLdBreadcrumb';
 
 export const metadata: Metadata = {
   title: 'Korean Supplier Search Examples — GloSource AI',
@@ -70,6 +71,12 @@ const DEMOS = [
 export default function CaseStudiesPage() {
   return (
     <div className="min-h-screen bg-white">
+      <JsonLdBreadcrumb
+        items={[
+          { name: 'Home', url: 'https://glosource-ai.vercel.app/en' },
+          { name: 'Examples', url: 'https://glosource-ai.vercel.app/en/case-studies' },
+        ]}
+      />
       {/* Nav */}
       <nav className="sticky top-0 z-30 bg-[#0D1B2A]/95 backdrop-blur border-b border-white/10">
         <div className="max-w-5xl mx-auto px-6 py-3 flex items-center justify-between gap-4">
