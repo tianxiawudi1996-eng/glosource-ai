@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import { getAllPosts } from '@/app/lib/blog-posts';
 import { getPostMerged } from '@/app/lib/blog-posts-server';
 import BrandLogo from '@/app/components/BrandLogo';
+import JsonLdBreadcrumb from '@/app/components/JsonLdBreadcrumb';
 
 // DB posts rendered dynamically on first hit (not pre-generated)
 export const dynamicParams = true;
@@ -29,8 +30,49 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   const post = await getPostMerged(slug);
   if (!post) notFound();
 
+  // BlogPosting JSON-LD — Google 리치 결과 (article cards, news 리스팅)
+  const blogPostingSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    description: post.description,
+    datePublished: post.publishedAt,
+    dateModified: post.publishedAt,
+    author: {
+      '@type': 'Organization',
+      name: 'GloSource AI',
+      url: 'https://glosource-ai.vercel.app',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'GloSource AI',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://glosource-ai.vercel.app/images/glosource-logo.png',
+      },
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `https://glosource-ai.vercel.app/en/blog/${post.slug}`,
+    },
+    articleSection: post.category,
+    timeRequired: `PT${post.readingTimeMin}M`,
+    inLanguage: 'en-US',
+  };
+
   return (
     <div className="min-h-screen bg-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(blogPostingSchema) }}
+      />
+      <JsonLdBreadcrumb
+        items={[
+          { name: 'Home', url: 'https://glosource-ai.vercel.app/en' },
+          { name: 'Blog', url: 'https://glosource-ai.vercel.app/en/blog' },
+          { name: post.title, url: `https://glosource-ai.vercel.app/en/blog/${post.slug}` },
+        ]}
+      />
       {/* Nav */}
       <nav className="sticky top-0 z-30 bg-[#0D1B2A]/95 backdrop-blur border-b border-white/10">
         <div className="max-w-5xl mx-auto px-6 py-3 flex items-center justify-between gap-4">
