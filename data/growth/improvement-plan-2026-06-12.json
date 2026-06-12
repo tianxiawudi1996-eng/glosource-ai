@@ -1,0 +1,261 @@
+{
+  "version": "2026-06-12r2",
+  "strategy": "EN-first: overseas customers via /en + Polar.sh only. Toss (KO) excluded until business registration. Ad channels: LinkedIn, Threads, X, Instagram + YouTube Shorts.",
+  "source": "Fable 5 full-scan diagnosis (2026-06-12 07:09-07:29 KST) + same-day code verification + owner strategy decision (Toss excluded)",
+  "doc": "docs/growth/improvement-plan-2026-06-12.md",
+  "scorecard": {
+    "product": 75,
+    "marketing": 54,
+    "monetization": 42,
+    "security": "B+"
+  },
+  "tasks": [
+    {
+      "id": "P0-1",
+      "priority": "P0",
+      "axis": "monetization",
+      "title": "Fix Polar dead-on-arrival accounts",
+      "problem": "Polar webhook creates users with random-hash passwords; 48h reset link expiry leaves an estimated 15-20% of overseas signups paid but locked out.",
+      "files": ["app/api/polar/webhook/route.ts"],
+      "actions": [
+        "Extend reset link to 7 days",
+        "48h reminder email",
+        "Auto re-send reset on subscription.active"
+      ],
+      "acceptance": ["Polar signup without immediate reset click can still access account within 7 days"],
+      "estimateHours": 2,
+      "impact": "Recovers 15-20% of overseas signups"
+    },
+    {
+      "id": "P0-2",
+      "priority": "P0",
+      "axis": "marketing",
+      "title": "Switch social channels from dry-run to live publishing",
+      "problem": "All ad channels are dry-run only with zero live posts despite full credentials (Twitter/Threads/Instagram/Reddit). LinkedIn blocked by missing BUFFER_CHANNEL_LINKEDIN.",
+      "actions": [
+        "npm run growth:buffer:list-channels then add BUFFER_CHANNEL_LINKEDIN to .env.local",
+        "Confirm npm run growth:acquisition:gate PASS",
+        "First live launch on Twitter/X and Reddit (remove --dry-run)",
+        "Then Threads, Instagram, LinkedIn; register weekly automation",
+        "Align messaging with YouTube Shorts (Sound of Seoul, Shorts-only policy)"
+      ],
+      "acceptance": ["Live posts confirmed on at least 2 channels with buffer send reports generated"],
+      "estimateHours": 1.5,
+      "impact": "Ads actually start running — currently 0 live posts"
+    },
+    {
+      "id": "P0-3",
+      "priority": "P0",
+      "axis": "marketing",
+      "title": "Install GA4 (or Plausible) with funnel events",
+      "problem": "Zero analytics; live ads cannot be measured. Only Polar webhook payment events tracked.",
+      "files": ["app/layout.tsx"],
+      "actions": [
+        "Add GA4 or Plausible",
+        "Define search, signup, checkout, payment events",
+        "UTM parameters per ad channel"
+      ],
+      "acceptance": ["Per-channel inflow and conversion visible in dashboard"],
+      "estimateHours": 1
+    },
+    {
+      "id": "P0-4",
+      "priority": "P0",
+      "axis": "security+monetization",
+      "title": "Bill and rate-limit image-analyze",
+      "problem": "image_analyze not in BILLABLE_ACTIONS; anonymous users get unlimited 10MB Gemini Vision calls — cost exposure grows with overseas traffic.",
+      "files": [
+        "app/api/source/image-analyze/route.ts",
+        "app/lib/authMiddleware.ts"
+      ],
+      "actions": [
+        "Add image_analyze to BILLABLE_ACTIONS",
+        "Anonymous: kvConsumeFreeCredit(ip) + IP rate limit"
+      ],
+      "acceptance": ["Returns 402/429 after free quota exhausted"],
+      "estimateHours": 1,
+      "impact": "Stops uncapped Gemini Vision spend"
+    },
+    {
+      "id": "P0-5",
+      "priority": "P0",
+      "axis": "product",
+      "title": "Unify free quota copy + enforce Resend config",
+      "problem": "Schema free=10 vs HeroSection '5 free' mismatch. email.ts silently skips sending when RESEND_API_KEY missing — overseas signup verification emails can vanish silently.",
+      "files": [
+        "app/lib/db/schema.ts",
+        "app/components/HeroSection.tsx",
+        "app/lib/email.ts"
+      ],
+      "actions": [
+        "Unify quota to 5",
+        "Production boot warning/error when RESEND_API_KEY unset + log send failures"
+      ],
+      "acceptance": ["Single quota value across schema and UI; missing key is loudly visible"],
+      "estimateHours": 1
+    },
+    {
+      "id": "P1-1",
+      "priority": "P1",
+      "axis": "monetization",
+      "title": "Soft gate during email verification",
+      "problem": "0 searches allowed pre-verification — ~10% free activation leak.",
+      "files": ["app/lib/authMiddleware.ts"],
+      "actions": ["Allow 2 searches while verification pending"],
+      "estimateHours": 2,
+      "impact": "+8-12% activation"
+    },
+    {
+      "id": "P1-2",
+      "priority": "P1",
+      "axis": "monetization",
+      "title": "Retention email sequence (EN)",
+      "problem": "Only 5 transactional emails exist; no Day 3/10/20/45 cohort emails.",
+      "files": ["app/lib/email.ts", "app/lib/db/schema.ts"],
+      "actions": ["EN templates + emailCohort column + daily cron"],
+      "estimateHours": 4,
+      "impact": "+3-6% conversion"
+    },
+    {
+      "id": "P1-3",
+      "priority": "P1",
+      "axis": "monetization",
+      "title": "Polar annual billing option",
+      "problem": "Monthly plans only.",
+      "files": ["app/en/page.tsx", "app/billing/page.tsx"],
+      "actions": ["Create annual products in Polar", "Annual toggle with 10-15% discount"],
+      "estimateHours": 2,
+      "impact": "+12-18% LTV"
+    },
+    {
+      "id": "P1-4",
+      "priority": "P1",
+      "axis": "marketing",
+      "title": "Acquire real customer evidence",
+      "problem": "Zero approved case studies; testimonial/case-study publication blocked, limiting paid ads effectiveness.",
+      "actions": [
+        "Recruit 5-10 early users via live social + Shorts",
+        "Approve 3 case studies",
+        "Unblock case_study_publication then scale paid ads"
+      ],
+      "estimateHours": 0,
+      "impact": "Unblocks social proof and paid acquisition scale-up"
+    },
+    {
+      "id": "P1-5",
+      "priority": "P1",
+      "axis": "security",
+      "title": "Replace translate in-memory rate limit with Upstash",
+      "problem": "In-memory Map resets per serverless instance — limit is ineffective.",
+      "files": ["app/api/translate/route.ts"],
+      "actions": ["Switch to Upstash Redis rate limit"],
+      "estimateHours": 1
+    },
+    {
+      "id": "P1-6",
+      "priority": "P1",
+      "axis": "security",
+      "title": "Sanitize blog HTML + unify JSON-LD escaping",
+      "problem": "Raw HTML render is a stored-XSS path; JSON-LD </script> escaping inconsistent.",
+      "files": [
+        "app/en/blog/[slug]/page.tsx",
+        "app/components/JsonLdGloSource.tsx",
+        "app/components/JsonLdBreadcrumb.tsx",
+        "app/en/page.tsx"
+      ],
+      "actions": ["rehype-sanitize/DOMPurify", "Unify \\u003c escaping like layout.tsx"],
+      "estimateHours": 2
+    },
+    {
+      "id": "P1-7",
+      "priority": "P1",
+      "axis": "product",
+      "title": "WeChat sourcing fallback",
+      "problem": "No fallback when Sogou scraping fails (feature scored 60/100).",
+      "files": ["app/api/source/wechat/route.ts"],
+      "actions": ["Gemini pure-search fallback"],
+      "estimateHours": 2
+    },
+    {
+      "id": "P1-8",
+      "priority": "P1",
+      "axis": "monetization",
+      "title": "Upsell context on quota-exceeded responses",
+      "problem": "Quota exhaustion blocks without recommending a plan.",
+      "files": ["app/lib/authMiddleware.ts", "app/page.tsx"],
+      "actions": ["Include recommended plan/discount context in limit responses"],
+      "estimateHours": 1,
+      "impact": "+5-8% upgrade rate"
+    },
+    {
+      "id": "P2-1",
+      "priority": "P2",
+      "axis": "product",
+      "title": "Dynamic license issuance system (licenses table + API + admin UI)",
+      "note": "Open when selling B2B volume licenses overseas",
+      "estimateHours": 4
+    },
+    {
+      "id": "P2-2",
+      "priority": "P2",
+      "axis": "marketing",
+      "title": "Referral rewards (+5 free searches per invite)",
+      "estimateHours": 3
+    },
+    {
+      "id": "P2-3",
+      "priority": "P2",
+      "axis": "monetization",
+      "title": "Waitlist email sequence (status column + open/coupon emails)",
+      "estimateHours": 3
+    },
+    {
+      "id": "P2-4",
+      "priority": "P2",
+      "axis": "security",
+      "title": "Security Low batch: timingSafeEqual, abuse/track limit, SHA-256 fallback removal, free-credit INCR, admin layout guard, INTERNAL_API_ALLOWED_IPS required",
+      "estimateHours": 4
+    },
+    {
+      "id": "P2-5",
+      "priority": "P2",
+      "axis": "product",
+      "title": "A11y pass, Organization JSON-LD, remove unused Anthropic SDK, US/EU/BR localization",
+      "estimateHours": 6
+    }
+  ],
+  "deferred": {
+    "condition": "Korean business registration completed (domestic market entry)",
+    "tasks": [
+      {
+        "id": "KO-1",
+        "title": "Toss subscription renewal cron",
+        "note": "tossBillingKey and currentPeriodEnd already in schema; only the cron executor is missing",
+        "files": ["app/api/payments/toss/webhook/route.ts", "vercel.json"],
+        "estimateHours": 4
+      },
+      {
+        "id": "KO-2",
+        "title": "Toss activation gap fix — idempotent subscription creation from webhook",
+        "files": ["app/billing/success/page.tsx", "app/api/payments/toss/webhook/route.ts"],
+        "estimateHours": 2
+      },
+      {
+        "id": "KO-3",
+        "title": "Keep canceled Toss subscriptions active until period end",
+        "files": ["app/api/billing/cancel/route.ts"],
+        "estimateHours": 1
+      },
+      {
+        "id": "KO-4",
+        "title": "Toss dunning/retry flow (renewalAttempts/dunningStatus columns)",
+        "estimateHours": 4
+      },
+      {
+        "id": "KO-5",
+        "title": "Reactivate KO pricing page + domestic marketing",
+        "estimateHours": 0
+      }
+    ]
+  }
+}
