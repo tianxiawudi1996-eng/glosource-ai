@@ -51,26 +51,36 @@ export async function sendVerificationEmail(to: string, name: string, verifyLink
   });
 }
 
+// Polar 웰컴/리마인드 경로 전용 비밀번호 설정 링크 발급.
+// 일반(사용자 요청) 리셋의 1시간 정책과 달리, 결제 직후 자동 생성 계정은
+// 제때 클릭하지 못해 로그인 불가(DOA)가 되므로 7일 유효 토큰을 발급한다.
+// 발급된 토큰은 검증부(/api/auth/reset-password/confirm)가 expires > now 만 보므로 일관 처리된다.
+async function createPolarResetLink(baseUrl: string, to: string): Promise<string | null> {
+  const { db, users, verificationTokens } = await import('@/app/lib/db');
+  const { eq } = await import('drizzle-orm');
+
+  const [user] = await db.select({ id: users.id }).from(users).where(eq(users.email, to)).limit(1);
+  if (!user) return null;
+
+  const token = crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, '');
+  const identifier = `pw-reset:${to}`;
+  const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days (Polar welcome flow)
+  await db.delete(verificationTokens).where(eq(verificationTokens.identifier, identifier));
+  await db.insert(verificationTokens).values({ identifier, token, expires });
+
+  // 토큰을 실제로 처리하는 영문 확인 페이지로 연결 (기존 /en/reset-password 는 토큰을 무시함)
+  return `${baseUrl}/en/reset-password/confirm?token=${token}&email=${encodeURIComponent(to)}`;
+}
+
 export async function sendPolarWelcomeEmail(
   to: string,
   name: string,
   planName: string,
   baseUrl: string,
 ): Promise<void> {
-  // Generate a password-reset token so the new user can set their password
-  const { db, users, verificationTokens } = await import('@/app/lib/db');
-  const { eq } = await import('drizzle-orm');
-
-  const [user] = await db.select({ id: users.id }).from(users).where(eq(users.email, to)).limit(1);
-  if (!user) return;
-
-  const token = crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, '');
-  const identifier = `pw-reset:${to}`;
-  const expires = new Date(Date.now() + 48 * 60 * 60 * 1000); // 48 hours
-  await db.delete(verificationTokens).where(eq(verificationTokens.identifier, identifier));
-  await db.insert(verificationTokens).values({ identifier, token, expires });
-
-  const resetLink = `${baseUrl}/en/reset-password?token=${token}&email=${encodeURIComponent(to)}`;
+  // Generate a 7-day password-reset token so the new user can set their password
+  const resetLink = await createPolarResetLink(baseUrl, to);
+  if (!resetLink) return;
 
   const resend = getResend();
   if (!resend) {
@@ -99,6 +109,45 @@ export async function sendPolarWelcomeEmail(
     subject: `[GloSource AI] Your ${planName} plan is active — set your password`,
     html,
   });
+}
+
+// 48시간 리마인드: 결제 후 아직 비밀번호를 설정하지 않은 Polar 가입자에게 1회 발송.
+// 신선한 7일 토큰을 재발급해 항상 동작하는 링크를 보낸다. 발송 성공 여부를 반환한다.
+export async function sendPolarResetReminderEmail(
+  to: string,
+  name: string,
+  baseUrl: string,
+): Promise<boolean> {
+  const resetLink = await createPolarResetLink(baseUrl, to);
+  if (!resetLink) return false;
+
+  const resend = getResend();
+  if (!resend) {
+    console.log('[email-mock] polar-reminder →', to, resetLink);
+    return true;
+  }
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<body style="font-family:sans-serif;max-width:520px;margin:40px auto;color:#1e293b;padding:0 20px">
+  <div style="background:#0D1B2A;border-radius:12px;padding:32px;margin-bottom:24px;text-align:center">
+    <span style="background:#EA580C;color:#fff;font-weight:900;font-size:18px;padding:8px 16px;border-radius:8px">GloSource AI</span>
+  </div>
+  <h1 style="font-size:22px;font-weight:900;margin-bottom:8px">One step left: set your password</h1>
+  <p style="color:#475569;margin-bottom:24px">Hi ${name}, your GloSource AI subscription is active, but you haven't set your password yet — so you can't sign in. It only takes a moment:</p>
+  <a href="${resetLink}" style="display:inline-block;background:#EA580C;color:#fff;font-weight:700;padding:14px 28px;border-radius:10px;text-decoration:none;font-size:15px">Set my password →</a>
+  <p style="color:#94a3b8;font-size:12px;margin-top:32px">This link expires in 7 days. If you've already set your password, you can ignore this email. Need help? Email hello@glosource.ai.</p>
+</body>
+</html>`;
+
+  await resend.emails.send({
+    from: FROM,
+    to,
+    subject: '[GloSource AI] Reminder: set your password to access your subscription',
+    html,
+  });
+  return true;
 }
 
 export async function sendReceiptEmail(

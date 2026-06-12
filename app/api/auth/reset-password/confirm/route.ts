@@ -35,7 +35,9 @@ export async function POST(request: NextRequest) {
     }
 
     const passwordHash = await hashPassword(password);
-    await db.update(users).set({ passwordHash, updatedAt: now }).where(eq(users.email, email));
+    // passwordSetAt marks that the user has set their own password — stops Polar DOA
+    // resend/reminder emails for auto-provisioned accounts.
+    await db.update(users).set({ passwordHash, passwordSetAt: now, updatedAt: now }).where(eq(users.email, email));
     await db.delete(verificationTokens).where(eq(verificationTokens.identifier, identifier));
 
     return NextResponse.json({ success: true });

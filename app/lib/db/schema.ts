@@ -17,6 +17,12 @@ export const users = pgTable('users', {
   emailVerified: timestamp('email_verified', { mode: 'date' }),
   image: text('image'),
   passwordHash: text('password_hash'),
+  // Polar.sh 자동 생성 계정 추적 (DOA 방지) — webhook이 임시 비밀번호로 만든 계정 표시
+  polarProvisioned: boolean('polar_provisioned').default(false).notNull(),
+  // 사용자가 직접 비밀번호를 설정한 시점 (null = 아직 임시 비밀번호 상태)
+  passwordSetAt: timestamp('password_set_at', { mode: 'date' }),
+  // 48h 리마인드 메일 1회 발송 기록 (멱등)
+  welcomeReminderSentAt: timestamp('welcome_reminder_sent_at', { mode: 'date' }),
   tosConsentAt: timestamp('tos_consent_at', { mode: 'date' }),
   dataConsentAt: timestamp('data_consent_at', { mode: 'date' }),
   gdprConsentAt: timestamp('gdpr_consent_at', { mode: 'date' }),

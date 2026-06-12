@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { eq } from 'drizzle-orm';
-import { db, users, subscriptions, payments } from '@/app/lib/db';
+import { and, eq, gt } from 'drizzle-orm';
+import { db, users, subscriptions, payments, verificationTokens } from '@/app/lib/db';
 import { hashPassword } from '@/auth';
 import { sendPolarWelcomeEmail } from '@/app/lib/email';
 import { logAbuseSignal } from '@/app/lib/abuse';
@@ -75,14 +75,49 @@ async function findOrCreateUser(
   const [existing] = await db.select({ id: users.id }).from(users).where(eq(users.email, email)).limit(1);
   if (existing) return { id: existing.id, isNew: false };
 
-  // New user — create with a random temp password; they'll set it via password-reset link
+  // New user — create with a random temp password; they'll set it via password-reset link.
+  // polarProvisioned marks the account as "temp password, user must still set their own".
   const tempPassword = crypto.randomUUID();
   const passwordHash = await hashPassword(tempPassword);
   const displayName = name ?? email.split('@')[0];
-  await db.insert(users).values({ email, name: displayName, passwordHash });
+  await db.insert(users).values({ email, name: displayName, passwordHash, polarProvisioned: true });
 
   const [created] = await db.select({ id: users.id }).from(users).where(eq(users.email, email)).limit(1);
   return { id: created.id, isNew: true };
+}
+
+// 멱등 재발송: Polar 자동 생성 계정이 아직 비밀번호를 설정하지 않았고,
+// 현재 유효한 리셋 토큰이 없을 때만 웰컴(7일 토큰) 메일을 다시 보낸다.
+// → subscription.created 의 웰컴이 실패했거나 토큰이 만료된 경우의 안전망.
+//   created 직후 동시 도착한 active 나 webhook 재시도는 유효 토큰을 보고 건너뛴다.
+async function maybeResendPolarSetPassword(
+  userId: string,
+  email: string,
+  name: string | null | undefined,
+  planLabel: string,
+  base: string,
+): Promise<void> {
+  const [user] = await db
+    .select({ polarProvisioned: users.polarProvisioned, passwordSetAt: users.passwordSetAt })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
+
+  // 직접 비밀번호를 설정했거나 Polar 자동 생성 계정이 아니면 아무것도 하지 않음
+  if (!user || !user.polarProvisioned || user.passwordSetAt) return;
+
+  // 멱등성: 아직 유효한 리셋 토큰이 있으면(= 동작하는 링크 보유) 재발송하지 않음
+  const [validToken] = await db
+    .select({ token: verificationTokens.token })
+    .from(verificationTokens)
+    .where(and(
+      eq(verificationTokens.identifier, `pw-reset:${email}`),
+      gt(verificationTokens.expires, new Date()),
+    ))
+    .limit(1);
+  if (validToken) return;
+
+  await sendPolarWelcomeEmail(email, name ?? email.split('@')[0], planLabel, base);
 }
 
 async function upsertSubscription(
@@ -225,11 +260,21 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      // Send welcome + set-password email for brand-new accounts
-      if (isNew) {
-        const base = process.env.AUTH_URL ?? 'https://glosource-ai.vercel.app';
-        const planLabels: Record<string, string> = { starter: 'Starter', pro: 'Pro', enterprise: 'Agency' };
-        sendPolarWelcomeEmail(email, name ?? email.split('@')[0], planLabels[plan] ?? plan, base).catch(() => {});
+      // Welcome + set-password email (7-day link). Brand-new accounts get it immediately;
+      // existing temp-password accounts get a resend safety net (idempotent).
+      const base = process.env.AUTH_URL ?? 'https://glosource-ai.vercel.app';
+      const planLabels: Record<string, string> = { starter: 'Starter', pro: 'Pro', enterprise: 'Agency' };
+      const planLabel = planLabels[plan] ?? plan;
+      try {
+        if (isNew) {
+          // Awaited so the reset token is committed before we return 200 — a later
+          // subscription.active (or webhook retry) then sees the valid token and skips resend.
+          await sendPolarWelcomeEmail(email, name ?? email.split('@')[0], planLabel, base);
+        } else {
+          await maybeResendPolarSetPassword(userId, email, name, planLabel, base);
+        }
+      } catch (mailErr) {
+        console.error('[polar-webhook] set-password email failed:', mailErr);
       }
     }
 

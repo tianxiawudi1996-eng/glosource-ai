@@ -50,6 +50,13 @@
       "when": 1779206700000,
       "tag": "0006_user_age_marketing_consent",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1781568000000,
+      "tag": "0007_polar_password_tracking",
+      "breakpoints": true
     }
   ]
 }
