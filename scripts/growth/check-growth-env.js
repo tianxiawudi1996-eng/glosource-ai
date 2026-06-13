@@ -25,6 +25,10 @@ const checks = [
   { key: 'GITHUB_TOKEN', required: false, category: 'instagram-assets' },
   { key: 'GITHUB_OWNER', required: false, category: 'instagram-assets' },
   { key: 'INSTAGRAM_IMAGE_URL', required: false, category: 'instagram-assets', urlHost: null },
+  { key: 'GMAIL_OAUTH_CLIENT_ID', required: false, category: 'outreach-replies' },
+  { key: 'GMAIL_OAUTH_CLIENT_SECRET', required: false, category: 'outreach-replies' },
+  { key: 'GMAIL_OAUTH_REFRESH_TOKEN', required: false, category: 'outreach-replies' },
+  { key: 'GMAIL_ACCOUNT', required: false, category: 'outreach-replies' },
 ];
 
 function maskStatus(key, value) {

@@ -15,8 +15,7 @@
       "time": "09:00",
       "title": "Revenue and funnel safety gate",
       "commands": [
-        "npm run growth:audit",
-        "npm run growth:payments"
+        "npm run growth:daily"
       ],
       "outputs": [
         "reports/growth/locale-route-audit-YYYY-MM-DD.json",
@@ -47,6 +46,60 @@
         "testimonial_like_claims"
       ],
       "humanReview": "Approve or reject candidates before they become public proof."
+    },
+    {
+      "id": "daily-acquisition-readiness",
+      "cadence": "daily",
+      "time": "09:45",
+      "title": "Acquisition readiness gate",
+      "commands": [
+        "npm run growth:social:dry-run",
+        "npm run growth:acquisition:gate"
+      ],
+      "outputs": [
+        "reports/growth/social-dry-run-YYYY-MM-DD.json",
+        "reports/growth/acquisition-readiness-YYYY-MM-DD.json"
+      ],
+      "blocks": [
+        "paid_ads",
+        "product_hunt_launch",
+        "high_volume_outbound",
+        "live_social_launch"
+      ],
+      "humanReview": "Review blockers before publishing, launching paid campaigns, or sending high-volume outbound."
+    },
+    {
+      "id": "daily-ops-log-sync",
+      "cadence": "daily",
+      "time": "10:15",
+      "title": "Daily ops log sync",
+      "commands": [
+        "npm run growth:buyers"
+      ],
+      "outputs": [
+        "reports/growth/buyer-activity-YYYY-MM-DD.json",
+        "reports/growth/daily-ops-log-YYYY-MM-DD.md",
+        "reports/growth/daily-ops-sync-YYYY-MM-DD.json"
+      ],
+      "blocks": [],
+      "humanReview": "Review Slack, Obsidian, and Notion copies. Notion requires connector/manual publish unless a Notion API path is configured."
+    },
+    {
+      "id": "daily-outreach-replies",
+      "cadence": "daily",
+      "time": "11:00",
+      "title": "Inbound outreach reply triage and drafting",
+      "commands": [
+        "npm run growth:replies"
+      ],
+      "outputs": [
+        "reports/growth/outreach-replies-YYYY-MM-DD.json",
+        "data/growth/outreach-reply-queue-YYYY-MM-DD.json"
+      ],
+      "blocks": [
+        "auto_send_replies"
+      ],
+      "humanReview": "Automation only DETECTS replies and writes DRAFTS to Gmail. A human (or the agent in the cloud routine) personalizes each draftBody and runs growth:replies:draft, then reviews and sends from Gmail. Nothing is ever sent automatically."
     },
     {
       "id": "monday-seo-briefs",
@@ -96,6 +149,21 @@
       ],
       "blocks": [],
       "humanReview": "Add analytics, MRR, top failed queries, and next experiment decision."
+    },
+    {
+      "id": "pre-send-outreach-gate",
+      "cadence": "manual",
+      "title": "Pre-send outreach preflight",
+      "commands": [
+        "npm run growth:outreach:preflight"
+      ],
+      "outputs": [
+        "reports/growth/outreach-preflight-YYYY-MM-DD.json"
+      ],
+      "blocks": [
+        "cold_email_send_when_preflight_fails"
+      ],
+      "humanReview": "Run before sending any cold outreach. Fails on missing contact provenance, unexplained company/email domain mismatch, or in-batch duplicates. Resolve every critical before sending; review warnings (already-contacted, explained mismatch) manually."
     },
     {
       "id": "pre-deploy-growth-gate",

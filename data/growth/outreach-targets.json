@@ -1,0 +1,19 @@
+[
+  {
+    "company": "BLIFE USA",
+    "category": "K-beauty/general merchandise distributor",
+    "country": "US",
+    "url": "https://usa.blifeinc.com/contact-us",
+    "contact": "sales@missykayusa.com",
+    "contactSource": "Manual web lookup 2026-06-06 + blifeinc.com company description",
+    "contactSourceNote": "MissyKay is plausibly BLIFE USA's own house beauty brand (BLIFE USA sells 'its own brand beauty products' per blifeinc.com), so sales@missykayusa.com is the reachable B2B inbox. UNVERIFIED relationship — confirm before scaling. NOTE: BLIFE already has a direct Korean OEM/ODM partner, so it is a weak ICP fit for GloSource."
+  },
+  {
+    "company": "BEALL US",
+    "category": "K-beauty distributor and consulting",
+    "country": "US",
+    "url": "https://www.beallus.com/",
+    "contact": "contact@beallus.com",
+    "contactSource": "Public contact visible on beallus.com (lead CSV 2026-06-04, score 90)"
+  }
+]
