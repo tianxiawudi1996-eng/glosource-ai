@@ -1,5 +1,34 @@
 import { neon } from '@neondatabase/serverless';
+import sanitizeHtml from 'sanitize-html';
 import { BLOG_POSTS, type BlogPost } from './blog-posts';
+
+// DB-sourced blog HTML is rendered raw via dangerouslySetInnerHTML, so it must be
+// sanitized to close a stored-XSS path. Static repo posts (BLOG_POSTS) are trusted
+// and left untouched to preserve their rich formatting exactly.
+const BLOG_SANITIZE_OPTIONS: sanitizeHtml.IOptions = {
+  allowedTags: [
+    'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'a', 'ul', 'ol', 'li',
+    'strong', 'em', 'b', 'i', 'u', 's', 'code', 'pre', 'blockquote',
+    'table', 'thead', 'tbody', 'tfoot', 'tr', 'td', 'th', 'caption',
+    'br', 'hr', 'img', 'span', 'div', 'figure', 'figcaption', 'sup', 'sub', 'small',
+  ],
+  allowedAttributes: {
+    a: ['href', 'title', 'target', 'rel'],
+    img: ['src', 'alt', 'title', 'width', 'height', 'loading'],
+    td: ['colspan', 'rowspan', 'align'],
+    th: ['colspan', 'rowspan', 'align', 'scope'],
+    '*': ['class'],
+  },
+  allowedSchemes: ['http', 'https', 'mailto'],
+  // Defend against reverse-tabnabbing on any links that open a new tab.
+  transformTags: {
+    a: sanitizeHtml.simpleTransform('a', { rel: 'noopener noreferrer nofollow' }, true),
+  },
+};
+
+function sanitizeDbPost(post: BlogPost): BlogPost {
+  return { ...post, content: sanitizeHtml(post.content, BLOG_SANITIZE_OPTIONS) };
+}
 
 async function queryDbPosts(): Promise<BlogPost[]> {
   const url = process.env.DATABASE_URL;
@@ -15,7 +44,7 @@ async function queryDbPosts(): Promise<BlogPost[]> {
       WHERE published = true
       ORDER BY published_at DESC
     `;
-    return rows as BlogPost[];
+    return (rows as BlogPost[]).map(sanitizeDbPost);
   } catch {
     return [];
   }
@@ -47,7 +76,8 @@ export async function getPostMerged(slug: string): Promise<BlogPost | undefined>
       WHERE slug = ${slug} AND published = true
       LIMIT 1
     `;
-    return (rows[0] as BlogPost) ?? undefined;
+    const dbPost = rows[0] as BlogPost | undefined;
+    return dbPost ? sanitizeDbPost(dbPost) : undefined;
   } catch {
     return undefined;
   }
