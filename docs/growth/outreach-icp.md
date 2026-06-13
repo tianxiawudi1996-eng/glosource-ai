@@ -59,3 +59,27 @@ a Korea-sourcing operator, not a buyer who needs supplier discovery. The old sco
 "in the K-beauty space" and missed fit entirely. Under this model BLIFE-type leads score negative
 and are excluded. Curate `lead-sources.json` to this ICP before the next send, and gate every send
 with `npm run growth:outreach:preflight`.
+
+## Where to find strong-fit leads (the channel matters more than the scraper)
+
+Cold-scraping company websites systematically surfaces the WRONG targets. Searching the web for
+"buyers sourcing Korean suppliers" returns suppliers, distributors, and sourcing agencies — because
+established operators have websites and contact pages, while the actual ICP (a buyer still *exploring*
+Korea) has no "I need a Korean supplier" page to scrape. That is why BLIFE-type operators keep topping
+scraped lists. It is structural, not a one-off. The fix is the channel, not a better scraper:
+
+- **Inbound SEO (highest leverage):** discovery-stage buyers literally search "how to find Korean
+  cosmetics suppliers", "Korean skincare OEM MOQ", "private label K-beauty RFQ". The existing SEO
+  briefs target these exact queries — capture them with a CTA to the free sourcing tool. Inbound means
+  the buyer self-identifies as strong-fit.
+- **Communities where buyers ask (intent-visible):** r/FulfillmentByAmazon, r/ecommerce,
+  r/EntrepreneurRideAlong, Quora ("Korean cosmetics suppliers for Amazon FBA"), indie-beauty
+  Discord/Facebook groups. Answer the question first, mention the tool second.
+- **LinkedIn by role/intent:** founders of new beauty brands, procurement managers, FBA beauty sellers
+  posting about entering K-beauty. You can read the person's role and intent before reaching out.
+- **Events:** Amazon K-Beauty Seller Day and similar — buyers congregate there.
+
+Practical rule for `lead-sources.json`: prefer leads sourced from an **intent signal** (a sourcing
+question, a "looking for OEM" post, a discovery-stage role) over leads scraped from a company homepage.
+Set `exploringKoreanSuppliers: true` only when there is real evidence of discovery-stage intent — not
+just because the company is in the K-beauty space.
