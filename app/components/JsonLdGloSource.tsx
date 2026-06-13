@@ -60,7 +60,7 @@ const APP_SCHEMA = {
       name: 'Starter',
       price: '19',
       priceCurrency: 'USD',
-      description: '20 searches / month · K-beauty · K-food · K-fashion',
+      description: '30 searches / month · K-beauty · K-food · K-fashion',
     },
     {
       '@type': 'Offer',
@@ -74,7 +74,7 @@ const APP_SCHEMA = {
       name: 'Agency',
       price: '149',
       priceCurrency: 'USD',
-      description: 'Unlimited searches · 5-seat team access',
+      description: '999 searches / month · high-volume sourcing support',
     },
   ],
   aggregateRating: undefined, // TODO: add after 5+ verified user reviews

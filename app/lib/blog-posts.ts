@@ -10,6 +10,97 @@ export interface BlogPost {
 
 export const BLOG_POSTS: BlogPost[] = [
   {
+    slug: 'korean-skincare-oem-suppliers',
+    title: 'Korean Skincare OEM Suppliers: How Buyers Should Shortlist Manufacturers',
+    description: 'A practical sourcing guide for buyers looking for Korean skincare OEM or ODM supplier candidates, including where to search, what trust signals to check, and what to include in the first RFQ.',
+    publishedAt: '2026-06-04',
+    readingTimeMin: 8,
+    category: 'K-Beauty Sourcing',
+    content: `
+<h2>Start with a shortlist, not a single supplier</h2>
+<p>For Korean skincare sourcing, the first goal is not to find one company and trust it. The first goal is to build a supplier-candidate shortlist that you can compare. A useful shortlist should include the supplier name, source URL, product fit, OEM or ODM language, certification signals, MOQ clues, export signals, and the questions you still need to verify directly.</p>
+<p>This matters because Korean beauty supply chains can include brand owners, OEM factories, ODM labs, exporters, distributors, and trading companies. Some are excellent partners, but they play different roles. A buyer looking for a private-label serum manufacturer should not evaluate a wholesale distributor the same way they evaluate an OEM factory.</p>
+
+<h2>Where to search for Korean skincare OEM candidates</h2>
+<p>Use multiple channels and cross-check the same company across them. The most useful starting points are Korean B2B platforms and the supplier's own website.</p>
+
+<h3>BuyKorea / KOTRA</h3>
+<p><a href="https://www.buykorea.org/" target="_blank" rel="noopener noreferrer">BuyKorea</a> is associated with KOTRA, Korea's trade promotion agency. It is useful for discovering Korean exporters and checking whether a company presents itself for international trade. Treat a BuyKorea profile as a discovery signal, not as a completed audit.</p>
+
+<h3>tradeKorea / KITA</h3>
+<p><a href="https://www.tradekorea.com/index.do" target="_blank" rel="noopener noreferrer">tradeKorea</a> is a Korean B2B marketplace connected to KITA. It is useful for finding Korean exporters and comparing product categories, but buyers still need to confirm company identity, certificates, samples, and commercial terms.</p>
+
+<h3>EC21</h3>
+<p><a href="https://www.ec21.com/" target="_blank" rel="noopener noreferrer">EC21</a> has a broad supplier directory and can surface many skincare and cosmetics candidates quickly. Because marketplace listings can include manufacturers, exporters, and traders, use EC21 for volume and then verify each candidate through other sources.</p>
+
+<h3>Company websites</h3>
+<p>A real supplier website should show product categories, company location, inquiry path, factory or R&amp;D language, and export or certification information. Weak websites do not automatically mean a company is bad, but they do increase the number of questions you need to ask before sending money.</p>
+
+<h2>Trust signals to check before sending the RFQ</h2>
+<p>Do not call a supplier verified just because it appears in a search result. Use these as first-pass signals only:</p>
+<ul>
+<li><strong>OEM or ODM language:</strong> The company clearly says it can manufacture, formulate, fill, package, or develop private-label skincare.</li>
+<li><strong>Cosmetics compliance signals:</strong> Look for MFDS, ISO 22716, CGMP, GMP, vegan, halal, or export documentation mentions. Ask for current certificate copies directly.</li>
+<li><strong>Product fit:</strong> The supplier already shows similar products, such as serums, creams, sheet masks, sunscreen, ampoules, or cleansers.</li>
+<li><strong>Export readiness:</strong> The company mentions English inquiry support, overseas buyers, shipping terms, sample process, or export documents.</li>
+<li><strong>Consistent identity:</strong> Company name, address, phone, and website should not conflict across platforms.</li>
+<li><strong>Direct contact path:</strong> A form, email, phone, or messaging contact should be visible.</li>
+</ul>
+
+<h2>Red flags that need follow-up</h2>
+<ul>
+<li>The profile only says "cosmetics supplier" and never explains manufacturing, OEM, ODM, or export capability.</li>
+<li>The company offers too many unrelated categories with no clear skincare specialization.</li>
+<li>Certificates are mentioned but no certificate name, issuing body, date, or scope is shown.</li>
+<li>The supplier cannot explain MOQ, lead time, sample fee, or packaging options.</li>
+<li>The website and marketplace listing use different company names or addresses.</li>
+<li>The first reply pushes payment before samples, documents, or product specifications are discussed.</li>
+</ul>
+
+<h2>What to include in your first RFQ</h2>
+<p>Korean OEM suppliers usually respond better when the first message is specific. A vague "please send catalog" email gives the supplier little reason to prioritize you. Your first RFQ should include:</p>
+<ol>
+<li>Your company, country, and sales channel.</li>
+<li>Product type, such as collagen serum, sunscreen, sheet mask, cleanser, or ampoule.</li>
+<li>Target order quantity and expected reorder volume.</li>
+<li>Packaging needs, such as bottle size, tube, pouch, label, box, or custom design.</li>
+<li>Certification or market requirements, such as MFDS-related documents, ISO 22716, vegan, halal, or destination-market requirements.</li>
+<li>Sample request and desired timeline.</li>
+<li>Target incoterms or a request for ex-factory and FOB pricing.</li>
+</ol>
+
+<h2>Example first RFQ</h2>
+<pre>
+Subject: RFQ - Korean skincare OEM serum - [Company] - [Country]
+
+Dear [Supplier Name] Team,
+
+My name is [Name] from [Company], based in [Country].
+We are looking for Korean OEM or ODM supplier candidates for a private-label skincare serum.
+
+Product: [serum / ampoule / cream / sheet mask]
+Target quantity: [first order quantity]
+Packaging: [bottle/tube/pouch, label and box needs]
+Required documents: [certificates or destination-market requirements]
+Timeline: [sample date and first production target]
+
+Could you confirm:
+1. Can you manufacture this product type?
+2. What is your sample process and sample fee?
+3. What is your MOQ and lead time?
+4. Which certificates or export documents can you provide?
+5. Can you quote ex-factory and FOB Korea pricing?
+
+Best regards,
+[Name]
+</pre>
+
+<h2>How GloSource AI fits into this workflow</h2>
+<p>GloSource AI helps buyers create a supplier-candidate shortlist faster by searching Korean supplier sources, surfacing trust signals, and preparing an English RFQ draft. It does not replace supplier due diligence. Buyers still need to verify certificates, request samples, confirm company identity, review contracts, and check destination-market compliance before placing an order.</p>
+<p><a href="/en#sourcing-tool">Run a free Korean skincare supplier search</a> and use the result as a starting point for your own verification workflow.</p>
+    `.trim(),
+  },
+  {
     slug: 'how-to-find-korean-cosmetics-manufacturers',
     title: 'How to Find Korean Cosmetics Manufacturers for Private Label (2025 Guide)',
     description: 'A step-by-step guide to finding and screening Korean OEM cosmetics manufacturers — covering BuyKorea, EC21, MFDS certification, MOQ requirements, and RFQ templates.',

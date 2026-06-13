@@ -86,8 +86,9 @@ Vision @ GloSource AI`,
 
 Great to hear you want to upgrade! Here are your options:
 
-• Pro ($49/mo) — 100 searches/month
-• Agency ($149/mo) — 500 searches/month + priority support
+• Starter ($19/mo) — 30 searches/month
+• Pro ($49/mo) — 60 searches/month
+• Agency ($149/mo) — 999 searches/month + priority support
 
 You can upgrade directly at: glosource-ai.vercel.app/en/billing
 
@@ -124,7 +125,7 @@ Vision @ GloSource AI`,
 
 I'd love to help with your promo code! Could you reply with the code you're trying to use and I'll look into it personally.
 
-If you're having trouble at checkout, you can also reach us directly at glosourceai@gmail.com and we'll apply any valid discount manually to your account.
+If you're having trouble at checkout, you can also reach us directly at hello@glosource.ai and we'll apply any valid discount manually to your account.
 
 Best,
 Vision @ GloSource AI`,
@@ -289,7 +290,7 @@ Vision @ GloSource AI`,
     tone: 'informative',
     response: `Hi {{name}},
 
-The number of results depends on how many verified suppliers our AI finds across EC21, BuyKorea, and tradeKorea for your product.
+The number of results depends on how many search-grounded supplier candidates our AI can find across EC21, BuyKorea, and tradeKorea for your product.
 
 To get more results:
 • Try a broader search term
@@ -508,7 +509,7 @@ Vision @ GloSource AI`,
     tone: 'informative',
     response: `Hi {{name}},
 
-Team accounts aren't available yet, but the Agency plan ($149/mo) includes 500 searches which is designed for small teams.
+Team accounts aren't available yet, but the Agency plan ($149/mo) includes 999 searches for high-volume sourcing workflows.
 
 If you need multiple user accounts, reply here with how many seats you need and I can put together a custom quote.
 
@@ -685,9 +686,9 @@ Vision @ GloSource AI`,
 
 You've used all 5 free searches! To continue, you can upgrade to a paid plan:
 
-• **Starter** ($19/mo) — 60 searches/month = $0.32/search
-• **Pro** ($49/mo) — 100 searches/month = $0.49/search
-• **Agency** ($149/mo) — 500 searches/month = $0.30/search
+• **Starter** ($19/mo) — 30 searches/month = $0.63/search
+• **Pro** ($49/mo) — 60 searches/month = $0.82/search
+• **Agency** ($149/mo) — 999 searches/month = $0.15/search
 
 Upgrade at: glosource-ai.vercel.app/en/billing
 

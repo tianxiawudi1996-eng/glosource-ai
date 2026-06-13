@@ -102,10 +102,10 @@ const PLANS = [
     tag: 'For teams & sourcing agents',
     price: '$149',
     unit: '/mo',
-    per: 'Unlimited searches · 5-seat team access',
+    per: '999 searches / month · high-volume usage',
     features: [
-      'No monthly search cap',
-      '5-seat team access — collaborate with your VA or partner',
+      '999 monthly searches for high-volume sourcing',
+      'Team workflow support by request — multi-seat accounts are not self-serve yet',
       'Project sourcing history & saved supplier lists',
       'Custom supplier report templates',
       'Priority email support',
@@ -188,7 +188,7 @@ const FAQ = [
   },
   {
     q: 'How do I subscribe to a paid plan?',
-    a: 'Click "Get started" on any paid plan. You will be taken to a secure checkout. After payment, an account is automatically created using your payment email and you will receive an email to set your password. No Korean business registration or ID is required.',
+    a: 'Click "Get started" on any paid plan. You will be taken to a secure checkout. Use the same email as your GloSource AI account when possible. If activation does not appear automatically, email hello@glosource.ai and we will activate it manually. No Korean business registration or ID is required.',
   },
   {
     q: 'Does a failed or errored search count against my free quota?',
@@ -205,7 +205,7 @@ const JSON_LD_ORGANIZATION = {
   description: 'AI-powered sourcing assistant for international buyers. Find Korean supplier candidates (K-beauty, K-food, K-fashion) from EC21, BuyKorea, KOTRA, and tradeKorea.',
   contactPoint: {
     '@type': 'ContactPoint',
-    email: 'glosourceai@gmail.com',
+    email: 'hello@glosource.ai',
     contactType: 'customer service',
   },
 };
@@ -417,7 +417,7 @@ export default async function EnPage({
                   ))}
                 </ul>
                 <PolarCheckoutButton
-                  checkoutUrl={process.env[plan.envKey] ?? 'mailto:glosourceai@gmail.com?subject=GloSource%20AI%20Plan%20Access'}
+                  checkoutUrl={process.env[plan.envKey] ?? 'mailto:hello@glosource.ai?subject=GloSource%20AI%20Plan%20Access'}
                   label={`Get ${plan.name} →`}
                 />
               </div>
@@ -458,7 +458,7 @@ export default async function EnPage({
           <BrandLogo compact />
           <p className="text-xs text-slate-600 text-center">
             GloSource AI is a sourcing research tool, not a trade agent. Contact:{' '}
-            <a href="mailto:glosourceai@gmail.com" className="underline hover:text-slate-400">glosourceai@gmail.com</a>
+            <a href="mailto:hello@glosource.ai" className="underline hover:text-slate-400">hello@glosource.ai</a>
           </p>
           <div className="flex items-center gap-4 text-xs text-slate-600">
             <Link href="/en/about" className="hover:text-slate-400 transition-colors">About</Link>

@@ -4,13 +4,14 @@ const { walk, readText, writeJsonReport, failIfCritical } = require('./_utils');
 const files = walk('app', file => /\.(tsx|ts)$/.test(file));
 const criticals = [];
 const warnings = [];
-const domainEmail = 'glosourceai@gmail.com';
-const legacyEmail = 'like2buyglobal@gmail.com';
+const domainEmail = 'hello@glosource.ai';
+const legacyEmails = ['glosourceai@gmail.com', 'like2buyglobal@gmail.com'];
 
 for (const file of files) {
   const text = readText(file);
-  if (file.startsWith('app/en') && text.includes(legacyEmail)) {
-    criticals.push({ file, message: `EN surface still exposes legacy Gmail (${legacyEmail}). Use ${domainEmail}.` });
+  const exposedLegacyEmail = legacyEmails.find(email => text.includes(email));
+  if (file.startsWith('app/en') && exposedLegacyEmail) {
+    criticals.push({ file, message: `EN surface still exposes legacy Gmail (${exposedLegacyEmail}). Use ${domainEmail}.` });
   }
   if (file.startsWith('app/en') && /testimonial|What buyers say|Average user rating|Searches completed/i.test(text)) {
     if (!/Demo|demo|approved|real user|permission/i.test(text)) {
@@ -33,7 +34,7 @@ if (!/linkedin\.com\/company\/glosource|linkedin\.com\/in\//i.test(enPage)) {
 const reportPath = writeJsonReport('brand-consistency', {
   status: criticals.length ? 'fail' : 'pass',
   domainEmail,
-  legacyEmail,
+  legacyEmails,
   criticals,
   warnings,
 });

@@ -73,7 +73,7 @@ export interface SourcingOutput {
   disclaimer: string;
   groundingUsed: boolean;
   qualityGate?: {
-    policy: 'verified_suppliers_only';
+    policy: 'search_grounded_supplier_candidates';
     acceptedCount: number;
     rejectedCount: number;
     rejectionReasons: string[];

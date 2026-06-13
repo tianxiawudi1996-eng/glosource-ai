@@ -31,9 +31,9 @@ const PLANS = [
     name: 'Agency',
     price: '$149',
     unit: '/mo',
-    searches: 'No monthly search cap',
+    searches: '999 searches / month',
     envKey: 'NEXT_PUBLIC_POLAR_AGENCY_LINK',
-    features: ['High-volume team usage', '5-seat team access', 'Project history', 'Custom templates'],
+    features: ['High-volume usage', 'Team workflow support by request', 'Project history', 'Custom templates'],
   },
 ] as const;
 
@@ -161,7 +161,7 @@ export default async function EnBillingPage({
                     Get {plan.name} &rarr;
                   </a>
                 ) : (
-                  <a href="mailto:glosourceai@gmail.com?subject=GloSource%20AI%20Plan%20Access"
+                  <a href="mailto:hello@glosource.ai?subject=GloSource%20AI%20Plan%20Access"
                     className="block w-full rounded-xl bg-[#EA580C] px-4 py-3 text-center text-sm font-black text-white hover:bg-[#DC4C00] transition-colors">
                     Contact us
                   </a>
@@ -223,8 +223,8 @@ export default async function EnBillingPage({
 
         <p className="mt-8 text-center text-xs text-slate-400">
           Questions about billing?{' '}
-            <a href="mailto:glosourceai@gmail.com" className="font-semibold text-slate-600 hover:text-[#EA580C]">
-            glosourceai@gmail.com
+            <a href="mailto:hello@glosource.ai" className="font-semibold text-slate-600 hover:text-[#EA580C]">
+            hello@glosource.ai
           </a>
         </p>
       </div>

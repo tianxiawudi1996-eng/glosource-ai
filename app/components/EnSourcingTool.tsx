@@ -156,7 +156,7 @@ function AeoPanel({ matches, region }: { matches: { korea: AeoMatchedCompany[]; 
 
 function ListingQualityScore({ s, certs, isVerified }: { s: Supplier; certs: { label: string }[]; isVerified: boolean }) {
   const scores = [
-    { label: 'Google-verified URL', pts: 30, met: isVerified },
+    { label: 'Search-grounded URL signal', pts: 30, met: isVerified },
     { label: 'Certification signals', pts: 25, met: certs.length > 0 },
     { label: 'MOQ specified', pts: 15, met: !!(s.moq && s.moq !== 'Inquire' && s.moq !== 'N/A') },
     { label: 'Lead time specified', pts: 15, met: !!(s.leadTimeDays && s.leadTimeDays !== 'TBD') },
@@ -238,8 +238,8 @@ function SupplierCard({ s, rank, keyword, locked }: { s: Supplier; rank: number;
         </div>
         <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold border flex-shrink-0 ${isVerified ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-slate-100 border-slate-200 text-slate-500'}`}>
           <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${isVerified ? 'bg-emerald-500' : 'bg-slate-400'}`} />
-          <span className="hidden sm:inline">{isVerified ? 'URL found via Google Search' : 'AI Estimate — Not Search-Verified'}</span>
-          <span className="sm:hidden">{isVerified ? 'Verified' : 'AI Est.'}</span>
+          <span className="hidden sm:inline">{isVerified ? 'Search-grounded URL signal' : 'AI Estimate - Not Search-Grounded'}</span>
+          <span className="sm:hidden">{isVerified ? 'Grounded' : 'AI Est.'}</span>
         </span>
       </div>
 
@@ -733,7 +733,7 @@ export default function EnSourcingTool({
                 </p>
                 <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-blue-50 border border-blue-200 px-3 py-1 text-[11px] font-bold text-blue-700">
                   <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                  Web-verified URLs (AI-searched)
+                  Search-grounded URLs (AI-searched)
                 </span>
               </div>
               <ExportButton suppliers={result.suppliers} keyword={product} lang="en" locked={result.access?.supplierDetailsLocked ?? false} />
