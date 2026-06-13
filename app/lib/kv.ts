@@ -132,6 +132,27 @@ export async function kvConsumeFreeCredit(ip: string): Promise<void> {
   }
 }
 
+// Fixed-window rate limit backed by Redis so the count is shared across all
+// serverless instances (an in-memory Map resets on every cold start, making the
+// limit nearly useless). Returns true when the request is allowed.
+// Unconfigured Redis: allow in dev, block in production. Redis error: block.
+export async function kvRateLimit(key: string, limit: number, windowSec: number): Promise<boolean> {
+  const redis = getRedis();
+  if (!redis) {
+    return process.env.NODE_ENV !== 'production';
+  }
+  try {
+    const count = await redis.incr(key);
+    if (count === 1) {
+      await redis.expire(key, windowSec);
+    }
+    return count <= limit;
+  } catch (e) {
+    console.warn('[KV] rate limit check failed; blocking request:', e instanceof Error ? e.message : String(e));
+    return false;
+  }
+}
+
 export async function kvSaveLead(entry: ContactLead): Promise<boolean> {
   const redis = getRedis();
   if (!redis) {

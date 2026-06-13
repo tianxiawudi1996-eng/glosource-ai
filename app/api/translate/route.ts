@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { extractTrustedIp } from '../../lib/kv';
+import { extractTrustedIp, kvRateLimit } from '../../lib/kv';
 
 export const maxDuration = 30;
 
@@ -11,27 +11,15 @@ const LANG_LABEL: Record<TargetLang, string> = {
   en: 'English',
 };
 
-// Simple IP-based rate limit: max 20 translation calls/min per IP
-const ipHits = new Map<string, { count: number; resetAt: number }>();
-
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now();
-  const entry = ipHits.get(ip);
-  if (!entry || now > entry.resetAt) {
-    ipHits.set(ip, { count: 1, resetAt: now + 60_000 });
-    return true;
-  }
-  if (entry.count >= 20) return false;
-  entry.count++;
-  return true;
-}
-
 export async function POST(request: NextRequest) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return NextResponse.json({ error: 'Translation unavailable' }, { status: 503 });
 
   const ip = extractTrustedIp(request.headers);
-  if (!checkRateLimit(ip)) {
+  // Redis-backed limit: 20 translation calls/min per IP. Shared across serverless
+  // instances, unlike the previous in-memory Map which reset on every cold start.
+  const allowed = await kvRateLimit(`glosource:rl:translate:${ip}`, 20, 60);
+  if (!allowed) {
     return NextResponse.json({ error: 'Too many requests. Please wait a moment.' }, { status: 429 });
   }
 
