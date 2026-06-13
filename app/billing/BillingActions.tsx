@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { trackBeginCheckout } from '@/app/lib/analytics';
 
 type UpgradeButtonProps = {
   planId: string;
@@ -14,6 +15,7 @@ export function UpgradeButton({ planId, planName, isCurrent }: UpgradeButtonProp
 
   const handleClick = async () => {
     if (isCurrent) return;
+    trackBeginCheckout(planId);
     setLoading(true);
 
     try {

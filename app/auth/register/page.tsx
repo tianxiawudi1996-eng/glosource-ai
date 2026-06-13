@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { signIn } from 'next-auth/react';
 import { FormEvent, useState } from 'react';
+import { trackSignup } from '@/app/lib/analytics';
 
 type RegisterResponse = {
   error?: string;
@@ -45,6 +46,7 @@ export default function RegisterPage() {
         return;
       }
 
+      trackSignup('email');
       await signIn('credentials', { email, password, redirectTo: '/' });
     } catch {
       setError('회원가입 중 오류가 발생했습니다.');

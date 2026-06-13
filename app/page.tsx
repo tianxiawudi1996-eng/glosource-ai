@@ -16,6 +16,7 @@ import RFQComposer from './components/RFQComposer';
 import { Icon } from './components/icons';
 import type { Category } from './lib/categories';
 import type { SourcingRequest, SourcingOutput, Supplier, CountryPreference, OrderFrequency, WeChatSourcingOutput } from './api/source/types';
+import { trackSearch } from '@/app/lib/analytics';
 
 type SourceMode = 'ai' | '1688' | 'wechat' | 'image';
 
@@ -255,6 +256,7 @@ export default function HomePage() {
         if (json.error === 'quota_exceeded' || json.error === 'subscription_required') { stopLoading(); setShowPaywall(true); return; }
         if (!res.ok) throw new Error(json.message || json.error || '오류가 발생했습니다.');
         setWechatResult(json.data as WeChatSourcingOutput);
+        trackSearch({ source: 'wechat' });
         saveToHistory({ timestamp: new Date().toISOString(), source: 'wechat', query: { keyword: form.productDescription }, status: res.status, raw: json });
       } else {
         const apiPath = activeSource === '1688' ? '/api/source/factory-direct' : '/api/source';
@@ -269,6 +271,7 @@ export default function HomePage() {
         const data = json.data as SourcingOutput;
         setResult(data);
         setSelectedSupplier(data.suppliers[0] ?? null);
+        trackSearch({ source: activeSource, country: form.countryPreference, results: data.suppliers?.length ?? 0 });
         saveToHistory({ timestamp: new Date().toISOString(), source: activeSource, query: { productDescription: form.productDescription, quantity: form.quantity }, status: res.status, raw: json });
       }
 
@@ -341,6 +344,7 @@ export default function HomePage() {
       const data = json.data as SourcingOutput;
       setResult(data);
       setSelectedSupplier(data.suppliers[0] ?? null);
+      trackSearch({ source: 'image', country: form.countryPreference, results: data.suppliers?.length ?? 0 });
       saveToHistory({ timestamp: new Date().toISOString(), source: 'image', query: { productDescription, quantity: currentForm.quantity }, status: res.status, raw: json });
       setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
     } catch (e) {

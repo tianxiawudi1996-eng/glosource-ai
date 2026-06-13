@@ -31,12 +31,21 @@ export function CheckoutLink({
   );
 }
 
-// Fires the GA4 purchase event once when the Polar success banner renders.
-// No value/transaction_id: the redirect can arrive before the webhook records
-// the payment, so we keep it to a reliable plan-level conversion signal.
-export function PurchaseTracker({ plan }: { plan: string }) {
+// Fires the GA4 purchase event once when a payment success page renders.
+// value/currency are optional: the Polar (EN) redirect can arrive before the
+// webhook records the amount, so EN passes plan only; the Toss (KO) success page
+// confirms server-side and passes the real KRW amount.
+export function PurchaseTracker({
+  plan,
+  value,
+  currency,
+}: {
+  plan: string;
+  value?: number;
+  currency?: string;
+}) {
   useEffect(() => {
-    trackPurchase(plan);
-  }, [plan]);
+    trackPurchase(plan, value, currency);
+  }, [plan, value, currency]);
   return null;
 }

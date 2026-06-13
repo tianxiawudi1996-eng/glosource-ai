@@ -5,6 +5,7 @@ import { auth } from '@/auth';
 import { db, payments, subscriptions } from '@/app/lib/db';
 import { sendReceiptEmail } from '@/app/lib/email';
 import { logAbuseSignal } from '@/app/lib/abuse';
+import { PurchaseTracker } from '@/app/components/FunnelTracking';
 
 interface Props {
   searchParams: Promise<{ paymentKey?: string; orderId?: string; amount?: string }>;
@@ -148,6 +149,7 @@ export default async function BillingSuccessPage({ searchParams }: Props) {
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-50 px-6 py-10">
       <section className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 shadow-sm text-center">
+        <PurchaseTracker plan={planId} value={amountNum} currency="KRW" />
         <div className="mb-6">
           <span className="text-5xl">🎉</span>
           <h1 className="mt-4 text-2xl font-black text-[#0D1B2A]">결제 완료</h1>
