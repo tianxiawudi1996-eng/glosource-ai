@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
-import { extractTrustedIp } from '../../../lib/kv';
+import { extractTrustedIp, kvConsumeFreeCredit } from '../../../lib/kv';
 import { checkAuthAndQuota, logUsage } from '../../../lib/authMiddleware';
 
 export const maxDuration = 30;
@@ -90,6 +90,11 @@ export async function POST(request: NextRequest) {
     }
 
     logUsage(userId, ip, 'image_analyze', data.productNameKo, undefined, Date.now() - start).catch(() => {});
+
+    // Anonymous users: consume a free daily credit only on a successful analysis,
+    // matching the sourcing route. image_analyze is now billable, so logged-in
+    // usage is metered via the monthly quota count in checkAuthAndQuota.
+    if (!userId) kvConsumeFreeCredit(ip).catch(() => {});
 
     return NextResponse.json({ success: true, data });
   } catch (e) {

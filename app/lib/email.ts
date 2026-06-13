@@ -2,6 +2,7 @@ import { Resend } from 'resend';
 import { welcomeEmail, receiptEmail, passwordResetEmail, verifyEmailTemplate } from '@/app/emails/templates';
 
 const FROM = process.env.RESEND_EMAIL_FROM ?? 'noreply@glosource.ai';
+const IS_PROD = process.env.NODE_ENV === 'production';
 
 function getResend(): Resend | null {
   const key = process.env.RESEND_API_KEY;
@@ -9,13 +10,45 @@ function getResend(): Resend | null {
   return new Resend(key);
 }
 
+// Loud, once-per-process boot signal: a missing key in production must not fail
+// silently — overseas signup verification / welcome emails would vanish without trace.
+if (IS_PROD && !process.env.RESEND_API_KEY) {
+  console.error(
+    '[email] RESEND_API_KEY is not set — outbound email is DISABLED. ' +
+    'Verification, welcome, password-reset, and receipt emails will NOT be delivered in production.',
+  );
+}
+
+// In production a missing Resend client is an operational error, not a silent mock.
+function emailUnavailable(kind: string, to: string): void {
+  if (IS_PROD) {
+    console.error(`[email] SKIPPED ${kind} → ${to}: RESEND_API_KEY missing in production. Email NOT delivered.`);
+  } else {
+    console.log(`[email-mock] ${kind} →`, to);
+  }
+}
+
+// Send and surface failures. Resend returns errors in an { error } field rather
+// than throwing, so the previous code ignored them — now they are logged loudly.
+// Network/throw failures propagate to the caller as before.
+async function deliver(
+  resend: Resend,
+  kind: string,
+  payload: Parameters<Resend['emails']['send']>[0],
+): Promise<void> {
+  const { error } = await resend.emails.send(payload);
+  if (error) {
+    console.error(`[email] send failed (${kind}) → ${payload.to}:`, error);
+  }
+}
+
 export async function sendWelcomeEmail(to: string, name: string): Promise<void> {
   const resend = getResend();
   if (!resend) {
-    console.log('[email-mock] welcome →', to, name);
+    emailUnavailable('welcome', to);
     return;
   }
-  await resend.emails.send({
+  await deliver(resend, 'welcome', {
     from: FROM,
     to,
     subject: 'GloSource AI 가입을 환영합니다',
@@ -26,10 +59,10 @@ export async function sendWelcomeEmail(to: string, name: string): Promise<void> 
 export async function sendPasswordResetEmail(to: string, resetLink: string): Promise<void> {
   const resend = getResend();
   if (!resend) {
-    console.log('[email-mock] password-reset →', to, resetLink);
+    emailUnavailable('password-reset', to);
     return;
   }
-  await resend.emails.send({
+  await deliver(resend, 'password-reset', {
     from: FROM,
     to,
     subject: '[GloSource AI] 비밀번호 재설정',
@@ -40,10 +73,10 @@ export async function sendPasswordResetEmail(to: string, resetLink: string): Pro
 export async function sendVerificationEmail(to: string, name: string, verifyLink: string): Promise<void> {
   const resend = getResend();
   if (!resend) {
-    console.log('[email-mock] verify →', to, verifyLink);
+    emailUnavailable('verify', to);
     return;
   }
-  await resend.emails.send({
+  await deliver(resend, 'verify', {
     from: FROM,
     to,
     subject: '[GloSource AI] 이메일 인증',
@@ -84,7 +117,7 @@ export async function sendPolarWelcomeEmail(
 
   const resend = getResend();
   if (!resend) {
-    console.log('[email-mock] polar-welcome →', to, planName, resetLink);
+    emailUnavailable('polar-welcome', to);
     return;
   }
 
@@ -103,7 +136,7 @@ export async function sendPolarWelcomeEmail(
 </body>
 </html>`;
 
-  await resend.emails.send({
+  await deliver(resend, 'polar-welcome', {
     from: FROM,
     to,
     subject: `[GloSource AI] Your ${planName} plan is active — set your password`,
@@ -123,8 +156,10 @@ export async function sendPolarResetReminderEmail(
 
   const resend = getResend();
   if (!resend) {
-    console.log('[email-mock] polar-reminder →', to, resetLink);
-    return true;
+    emailUnavailable('polar-reminder', to);
+    // Dev mock counts as sent; in production a missing key is a real failure, so
+    // report not-sent to avoid silently marking the reminder as delivered.
+    return !IS_PROD;
   }
 
   const html = `
@@ -141,7 +176,7 @@ export async function sendPolarResetReminderEmail(
 </body>
 </html>`;
 
-  await resend.emails.send({
+  await deliver(resend, 'polar-reminder', {
     from: FROM,
     to,
     subject: '[GloSource AI] Reminder: set your password to access your subscription',
@@ -159,12 +194,12 @@ export async function sendReceiptEmail(
 ): Promise<void> {
   const resend = getResend();
   if (!resend) {
-    console.log('[email-mock] receipt →', to, planName, amount);
+    emailUnavailable('receipt', to);
     return;
   }
   const dateStr = new Intl.DateTimeFormat('ko-KR', { dateStyle: 'medium' }).format(date);
   const amountStr = new Intl.NumberFormat('ko-KR').format(amount) + '원';
-  await resend.emails.send({
+  await deliver(resend, 'receipt', {
     from: FROM,
     to,
     subject: '[GloSource AI] 결제 영수증',

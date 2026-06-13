@@ -10,7 +10,7 @@ export type AuthResult =
   | { ok: false; response: NextResponse };
 
 export type ActionType = 'source' | 'factory_direct' | 'wechat' | 'image_analyze';
-const BILLABLE_ACTIONS: ActionType[] = ['source', 'factory_direct', 'wechat'];
+const BILLABLE_ACTIONS: ActionType[] = ['source', 'factory_direct', 'wechat', 'image_analyze'];
 const FREE_IP_MONTHLY_LIMIT = Number(process.env.FREE_IP_MONTHLY_LIMIT ?? 0);
 
 function detectLang(request: NextRequest): 'en' | 'ko' {
