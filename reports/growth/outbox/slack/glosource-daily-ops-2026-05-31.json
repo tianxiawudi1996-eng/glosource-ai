@@ -1,0 +1,6 @@
+{
+  "channel": "glosource-growth",
+  "text": "GloSource AI daily ops log - 2026-05-31\nScheduled growth run: pass (reports/growth/scheduled-growth-run-2026-05-31.json)\nBuyer activity: users 24h 0 searches 24h 0 payments 24h 0 active subscriptions 0 (reports/growth/buyer-activity-2026-05-31.json)\nBuffer launch audit: pass; twitter {\"scheduled\":3}, threads {\"sent\":3}, instagram {\"sending\":1,\"sent\":2} (reports/growth/buffer-launch-audit-2026-05-31.json)\nReport: reports/growth/daily-ops-log-2026-05-31.md",
+  "createdAt": "2026-05-31T00:40:07.614Z",
+  "reason": "SLACK_GLOSOURCE_WEBHOOK_URL is not configured."
+}

@@ -1,0 +1,14 @@
+{
+  "generatedAt": "2026-06-13T13:41:06.508Z",
+  "status": "pass",
+  "output": "data\\growth\\outreach-leads-2026-06-13.csv",
+  "count": 3,
+  "topScore": 90,
+  "tierCounts": {
+    "strong": 2,
+    "poor": 1
+  },
+  "poorFitExcluded": [
+    "Example Established K-Beauty Distributor (BLIFE-type)"
+  ]
+}

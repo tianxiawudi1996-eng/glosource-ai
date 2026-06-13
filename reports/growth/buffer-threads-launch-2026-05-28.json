@@ -1,0 +1,37 @@
+{
+  "generatedAt": "2026-05-28T14:07:49.749Z",
+  "channel": "threads",
+  "status": "pass",
+  "mode": "shareNow",
+  "total": 3,
+  "failures": 0,
+  "results": [
+    {
+      "index": 1,
+      "ok": true,
+      "text": "Finding Korean suppliers used to mean hours on EC21, BuyKorea, and tradeKorea — all separately.\n\nGloSource AI searches all three at once, ranks by trust score, and writes your English RFQ automatically.\n\n5 free searches 👉 glosource-ai.vercel.app/en\n\n#KBeauty #Sourcing #B2B #AmazonFBA\n\nSourcing note 2026-05-28.",
+      "post": {
+        "id": "6a184c10aee18469c38e334a",
+        "status": "sent"
+      }
+    },
+    {
+      "index": 2,
+      "ok": true,
+      "text": "If you import Korean products, you need MFDS / HACCP / KC certification checks before even contacting a supplier.\n\nGloSource AI surfaces those signals automatically — plus MOQ, lead time estimates, and a ready-to-send RFQ.\n\nTry free: glosource-ai.vercel.app/en\n\n#KBeauty #KFood #ImportExport #Ecommerce\n\nSourcing note 2026-05-28.",
+      "post": {
+        "id": "6a184c1de593bcd3dad91a4c",
+        "status": "sent"
+      }
+    },
+    {
+      "index": 3,
+      "ok": true,
+      "text": "Korean supplier research in 90 seconds:\n→ EC21 · BuyKorea (KOTRA) · tradeKorea searched simultaneously\n→ AI trust score 0–100 per supplier\n→ Certification signals detected (MFDS, HACCP, KC)\n→ English RFQ pre-filled and ready to send\n\n5 free searches → glosource-ai.vercel.app/en\n\n#Korea #B2BSourcing #FBA #KBeauty\n\nSourcing note 2026-05-28.",
+      "post": {
+        "id": "6a184c2ba494429d1a686170",
+        "status": "sent"
+      }
+    }
+  ]
+}

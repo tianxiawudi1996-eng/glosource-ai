@@ -1,0 +1,26 @@
+{
+  "generatedAt": "2026-06-08T15:31:18.157Z",
+  "status": "pass",
+  "port": 3107,
+  "webhookStatus": 200,
+  "webhookBody": "{\"received\":true}",
+  "checks": [
+    {
+      "name": "webhook returned 200",
+      "pass": true
+    },
+    {
+      "name": "dummy user created",
+      "pass": true
+    },
+    {
+      "name": "starter subscription active",
+      "pass": true
+    },
+    {
+      "name": "dummy payment recorded",
+      "pass": true
+    }
+  ],
+  "cleanedUp": true
+}

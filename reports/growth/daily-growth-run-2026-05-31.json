@@ -1,0 +1,56 @@
+{
+  "generatedAt": "2026-05-31T00:25:42.515Z",
+  "status": "pass",
+  "failedJobs": [],
+  "blockedActions": [],
+  "results": [
+    {
+      "id": "growth:env",
+      "title": "Growth environment preflight",
+      "command": "node scripts/growth/check-growth-env.js",
+      "startedAt": "2026-05-31T00:25:38.882Z",
+      "finishedAt": "2026-05-31T00:25:39.086Z",
+      "status": "pass",
+      "exitCode": 0,
+      "blocks": [],
+      "stdout": "Growth audit passed. Report: reports\\growth\\growth-env-preflight-2026-05-31.json",
+      "stderr": ""
+    },
+    {
+      "id": "growth:audit",
+      "title": "English funnel and brand audit",
+      "command": "node scripts/growth/audit-en-funnel.js && node scripts/growth/audit-brand-consistency.js",
+      "startedAt": "2026-05-31T00:25:39.086Z",
+      "finishedAt": "2026-05-31T00:25:39.585Z",
+      "status": "pass",
+      "exitCode": 0,
+      "blocks": [],
+      "stdout": "Growth audit passed. Report: reports\\growth\\locale-route-audit-2026-05-31.json\nGrowth audit passed. Report: reports\\growth\\brand-consistency-2026-05-31.json",
+      "stderr": ""
+    },
+    {
+      "id": "growth:payments",
+      "title": "Payment health",
+      "command": "node scripts/growth/audit-polar-health.js",
+      "startedAt": "2026-05-31T00:25:39.585Z",
+      "finishedAt": "2026-05-31T00:25:42.304Z",
+      "status": "pass",
+      "exitCode": 0,
+      "blocks": [],
+      "stdout": "Growth audit passed. Report: reports\\growth\\payment-health-2026-05-31.json",
+      "stderr": ""
+    },
+    {
+      "id": "growth:cases",
+      "title": "Case-study evidence extraction",
+      "command": "node scripts/growth/extract-case-study-candidates.js",
+      "startedAt": "2026-05-31T00:25:42.304Z",
+      "finishedAt": "2026-05-31T00:25:42.483Z",
+      "status": "pass",
+      "exitCode": 0,
+      "blocks": [],
+      "stdout": "Extracted 0 case-study candidate(s). Report: reports\\growth\\case-study-candidates-2026-05-31.json",
+      "stderr": ""
+    }
+  ]
+}

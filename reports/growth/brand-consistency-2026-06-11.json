@@ -1,0 +1,16 @@
+{
+  "generatedAt": "2026-06-10T15:02:42.518Z",
+  "status": "pass",
+  "domainEmail": "hello@glosource.ai",
+  "legacyEmails": [
+    "glosourceai@gmail.com",
+    "like2buyglobal@gmail.com"
+  ],
+  "criticals": [],
+  "warnings": [
+    {
+      "file": "app/en/page.tsx",
+      "message": "No LinkedIn profile/company link found."
+    }
+  ]
+}

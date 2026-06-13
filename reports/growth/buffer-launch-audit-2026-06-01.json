@@ -1,0 +1,76 @@
+{
+  "generatedAt": "2026-06-01T11:03:15.322Z",
+  "status": "pass",
+  "reportDate": "2026-06-01",
+  "posts": [
+    {
+      "channel": "twitter",
+      "id": "6a1d66907583ea237a2a6493",
+      "status": "scheduled",
+      "index": 1
+    },
+    {
+      "channel": "twitter",
+      "id": "6a1d66948e251086c3ac4467",
+      "status": "scheduled",
+      "index": 2
+    },
+    {
+      "channel": "twitter",
+      "id": "6a1d66977583ea237a2a6505",
+      "status": "scheduled",
+      "index": 3
+    },
+    {
+      "channel": "threads",
+      "id": "6a1d66907583ea237a2a6480",
+      "status": "sending",
+      "index": 1
+    },
+    {
+      "channel": "threads",
+      "id": "6a1d669e77436f931bb9538c",
+      "status": "sending",
+      "index": 2
+    },
+    {
+      "channel": "threads",
+      "id": "6a1d66abb5e400e7e7136145",
+      "status": "sending",
+      "index": 3
+    },
+    {
+      "channel": "instagram",
+      "id": "6a1d66be77436f931bb95562",
+      "status": "sending",
+      "index": 1
+    },
+    {
+      "channel": "instagram",
+      "id": "6a1d66ceb5e400e7e713624c",
+      "status": "sending",
+      "index": 2
+    },
+    {
+      "channel": "instagram",
+      "id": "6a1d66deb5e400e7e7136352",
+      "status": "sending",
+      "index": 3
+    }
+  ],
+  "criticals": [],
+  "warnings": [
+    {
+      "file": "reports/growth",
+      "message": "twitter post 6a1d66907583ea237a2a6493 is queued, not yet live."
+    },
+    {
+      "file": "reports/growth",
+      "message": "twitter post 6a1d66948e251086c3ac4467 is queued, not yet live."
+    },
+    {
+      "file": "reports/growth",
+      "message": "twitter post 6a1d66977583ea237a2a6505 is queued, not yet live."
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "generatedAt": "2026-05-27T12:07:21.017Z",
+  "status": "fail",
+  "reportDate": "2026-05-27",
+  "inputs": {
+    "dailyGrowthRun": "daily-growth-run-2026-05-27.json",
+    "paymentHealth": "payment-health-2026-05-27.json",
+    "socialDryRun": "social-dry-run-2026-05-27.json",
+    "caseStudyCandidates": "case-study-candidates-2026-05-27.json"
+  },
+  "blockedActions": [
+    "case_study_publication",
+    "high_volume_outbound",
+    "paid_ads",
+    "product_hunt_launch",
+    "testimonial_like_claims"
+  ],
+  "criticals": [
+    {
+      "file": "daily-growth-run-2026-05-27.json",
+      "message": "paid_ads is blocked by current growth evidence."
+    },
+    {
+      "file": "daily-growth-run-2026-05-27.json",
+      "message": "product_hunt_launch is blocked by current growth evidence."
+    },
+    {
+      "file": "daily-growth-run-2026-05-27.json",
+      "message": "high_volume_outbound is blocked by current growth evidence."
+    }
+  ],
+  "warnings": [
+    {
+      "file": "case-study-candidates-2026-05-27.json",
+      "message": "Case-study publication is blocked until approved evidence candidates exist."
+    }
+  ]
+}

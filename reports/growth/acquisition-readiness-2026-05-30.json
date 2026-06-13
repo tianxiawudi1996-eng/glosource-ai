@@ -1,0 +1,22 @@
+{
+  "generatedAt": "2026-05-30T13:15:18.965Z",
+  "status": "pass",
+  "reportDate": "2026-05-30",
+  "inputs": {
+    "dailyGrowthRun": "daily-growth-run-2026-05-30.json",
+    "paymentHealth": "payment-health-2026-05-30.json",
+    "socialDryRun": "social-dry-run-2026-05-30.json",
+    "caseStudyCandidates": "case-study-candidates-2026-05-30.json"
+  },
+  "blockedActions": [
+    "case_study_publication",
+    "testimonial_like_claims"
+  ],
+  "criticals": [],
+  "warnings": [
+    {
+      "file": "case-study-candidates-2026-05-30.json",
+      "message": "Case-study publication is blocked until approved evidence candidates exist."
+    }
+  ]
+}

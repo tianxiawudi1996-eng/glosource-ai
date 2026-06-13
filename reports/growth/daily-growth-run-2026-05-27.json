@@ -1,0 +1,66 @@
+{
+  "generatedAt": "2026-05-27T12:06:55.156Z",
+  "status": "partial_or_failed",
+  "failedJobs": [
+    "growth:payments"
+  ],
+  "blockedActions": [
+    "high_volume_outbound",
+    "paid_ads",
+    "product_hunt_launch"
+  ],
+  "results": [
+    {
+      "id": "growth:env",
+      "title": "Growth environment preflight",
+      "command": "node scripts/growth/check-growth-env.js",
+      "startedAt": "2026-05-27T12:06:51.342Z",
+      "finishedAt": "2026-05-27T12:06:51.608Z",
+      "status": "pass",
+      "exitCode": 0,
+      "blocks": [],
+      "stdout": "Growth audit passed. Report: reports\\growth\\growth-env-preflight-2026-05-27.json",
+      "stderr": ""
+    },
+    {
+      "id": "growth:audit",
+      "title": "English funnel and brand audit",
+      "command": "node scripts/growth/audit-en-funnel.js && node scripts/growth/audit-brand-consistency.js",
+      "startedAt": "2026-05-27T12:06:51.608Z",
+      "finishedAt": "2026-05-27T12:06:52.161Z",
+      "status": "pass",
+      "exitCode": 0,
+      "blocks": [],
+      "stdout": "Growth audit passed. Report: reports\\growth\\locale-route-audit-2026-05-27.json\nGrowth audit passed. Report: reports\\growth\\brand-consistency-2026-05-27.json",
+      "stderr": ""
+    },
+    {
+      "id": "growth:payments",
+      "title": "Payment health",
+      "command": "node scripts/growth/audit-polar-health.js",
+      "startedAt": "2026-05-27T12:06:52.161Z",
+      "finishedAt": "2026-05-27T12:06:54.915Z",
+      "status": "fail",
+      "exitCode": 1,
+      "blocks": [
+        "paid_ads",
+        "product_hunt_launch",
+        "high_volume_outbound"
+      ],
+      "stdout": "",
+      "stderr": "Growth audit failed: 3 critical issue(s). See reports\\growth\\payment-health-2026-05-27.json\n- .env.local: POLAR_STARTER_PRODUCT_ID cannot be read with POLAR_ACCESS_TOKEN. Status: 403. Polar error: insufficient_scope. The request requires higher privileges than provided by the access token. Check that POLAR_ACCESS_TOKEN is an Organization Access Token for the same Polar organization and includes products:read or products:write scope. If Polar returns insufficient_scope, create a new organization token with products:read and update .env.local.\n- .env.local: POLAR_PRO_PRODUCT_ID cannot be read with POLAR_ACCESS_TOKEN. Status: 403. Polar error: insufficient_scope. The request requires higher privileges than provided by the access token. Check that POLAR_ACCESS_TOKEN is an Organization Access Token for the same Polar organization and includes products:read or products:write scope. If Polar returns insufficient_scope, create a new organization token with products:read and update .env.local.\n- .env.local: POLAR_AGENCY_PRODUCT_ID cannot be read with POLAR_ACCESS_TOKEN. Status: 403. Polar error: insufficient_scope. The request requires higher privileges than provided by the access token. Check that POLAR_ACCESS_TOKEN is an Organization Access Token for the same Polar organization and includes products:read or products:write scope. If Polar returns insufficient_scope, create a new organization token with products:read and update .env.local."
+    },
+    {
+      "id": "growth:cases",
+      "title": "Case-study evidence extraction",
+      "command": "node scripts/growth/extract-case-study-candidates.js",
+      "startedAt": "2026-05-27T12:06:54.915Z",
+      "finishedAt": "2026-05-27T12:06:55.120Z",
+      "status": "pass",
+      "exitCode": 0,
+      "blocks": [],
+      "stdout": "Extracted 0 case-study candidate(s). Report: reports\\growth\\case-study-candidates-2026-05-27.json",
+      "stderr": ""
+    }
+  ]
+}

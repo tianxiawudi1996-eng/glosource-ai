@@ -1,0 +1,42 @@
+{
+  "generatedAt": "2026-06-03T05:48:42.549Z",
+  "channel": "instagram",
+  "status": "pass",
+  "mode": "shareNow",
+  "total": 3,
+  "failures": 0,
+  "usedFallbackImage": true,
+  "fallbackImageUrl": "https://glosource-ai.vercel.app/images/glosource-logo-transparent.png",
+  "results": [
+    {
+      "index": 1,
+      "ok": true,
+      "caption": "🇰🇷 Source Korean suppliers in 90 seconds\n\nGloSource AI searches EC21 · BuyKorea (KOTRA) · tradeKorea simultaneously — AI trust scores, cert signals (MFDS, HACCP, KC), and a ready-to-send English RFQ.\n\n5 free searches → glosource-ai.vercel.app/en\n\n#KBeauty #Sourcing #B2B #AmazonFBA #KoreanSuppliers #ImportExport",
+      "imageUrl": "https://glosource-ai.vercel.app/images/glosource-logo-transparent.png",
+      "post": {
+        "id": "6a1fc011590f0bd8b73022ea",
+        "status": "sent"
+      }
+    },
+    {
+      "index": 2,
+      "ok": true,
+      "caption": "Stop spending hours on Korean supplier research 🔍\n\n✅ EC21 · BuyKorea · tradeKorea searched at once\n✅ AI trust score 0–100 per supplier\n✅ MFDS / HACCP / KC cert detection\n✅ English RFQ auto-generated in 90 seconds\n\nFree: glosource-ai.vercel.app/en\n\n#Sourcing #KBeauty #FBA #B2BSourcing #Korea #Wholesale",
+      "imageUrl": "https://glosource-ai.vercel.app/images/glosource-logo-transparent.png",
+      "post": {
+        "id": "6a1fc0200edf3efc006debdc",
+        "status": "sent"
+      }
+    },
+    {
+      "index": 3,
+      "ok": true,
+      "caption": "Korean manufacturer research in 90 seconds 🏭🇰🇷\n\nGloSource AI ranks Korean suppliers by real trust signals — not just listing position — and writes your outreach email automatically.\n\nLink in bio for 5 free searches.\n\n#KoreanManufacturers #OEM #KBeauty #ImportBusiness #Sourcing #B2B #SmallBusiness",
+      "imageUrl": "https://glosource-ai.vercel.app/images/glosource-logo-transparent.png",
+      "post": {
+        "id": "6a1fc0300edf3efc006dec37",
+        "status": "sending"
+      }
+    }
+  ]
+}

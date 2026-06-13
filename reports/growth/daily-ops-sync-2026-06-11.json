@@ -1,0 +1,24 @@
+{
+  "generatedAt": "2026-06-11T09:47:31.857Z",
+  "status": "pass",
+  "reportDate": "2026-06-11",
+  "synced": {
+    "localMarkdown": "reports/growth/daily-ops-log-2026-06-11.md",
+    "obsidian": {
+      "status": "pass",
+      "path": "C:\\Users\\ddedi\\safedoc-ai\\ops\\obsidian\\GloSource AI\\Daily Ops\\GloSource AI Daily Ops 2026-06-11.md",
+      "mode": "default_workspace_vault"
+    },
+    "slack": {
+      "status": "outbox_created",
+      "path": "reports/growth/outbox/slack/glosource-daily-ops-2026-06-11.json"
+    },
+    "notion": {
+      "status": "outbox_created",
+      "path": "reports/growth/outbox/notion/glosource-daily-ops-2026-06-11.md",
+      "note": "Create or update the Notion page from this Markdown when connector/API credentials are available."
+    }
+  },
+  "warnings": [],
+  "criticals": []
+}

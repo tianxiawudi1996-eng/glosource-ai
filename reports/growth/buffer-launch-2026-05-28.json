@@ -1,0 +1,69 @@
+{
+  "generatedAt": "2026-05-28T14:12:52.275Z",
+  "status": "pass",
+  "source": "manual Buffer promotion after user request",
+  "summary": {
+    "twitter": {
+      "scheduled": 3,
+      "failed": 0,
+      "mode": "addToQueue"
+    },
+    "threads": {
+      "sent": 3,
+      "failed": 0,
+      "mode": "shareNow"
+    },
+    "instagram": {
+      "sent": 3,
+      "sending": 0,
+      "failed": 0,
+      "mode": "shareNow",
+      "usedFallbackImage": true,
+      "fallbackImageUrl": "https://glosource-ai.vercel.app/images/glosource-logo-transparent.png"
+    }
+  },
+  "results": {
+    "twitter": [
+      {
+        "id": "6a184c100f4c010bb3301623",
+        "status": "scheduled"
+      },
+      {
+        "id": "6a184c1310370e5e6457874a",
+        "status": "scheduled"
+      },
+      {
+        "id": "6a184c170f4c010bb330168d",
+        "status": "scheduled"
+      }
+    ],
+    "threads": [
+      {
+        "id": "6a184c10aee18469c38e334a",
+        "status": "sent"
+      },
+      {
+        "id": "6a184c1de593bcd3dad91a4c",
+        "status": "sent"
+      },
+      {
+        "id": "6a184c2ba494429d1a686170",
+        "status": "sent"
+      }
+    ],
+    "instagram": [
+      {
+        "id": "6a184c1010370e5e64578706",
+        "status": "sent"
+      },
+      {
+        "id": "6a184c1ea494429d1a68611b",
+        "status": "sent"
+      },
+      {
+        "id": "6a184c2d10370e5e64578824",
+        "status": "sent"
+      }
+    ]
+  }
+}

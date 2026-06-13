@@ -1,0 +1,30 @@
+{
+  "generatedAt": "2026-06-04T11:43:41.705Z",
+  "status": "pass",
+  "dryRun": true,
+  "total": 3,
+  "failures": 0,
+  "results": [
+    {
+      "subreddit": "FulfillmentByAmazon",
+      "ok": true,
+      "dryRun": true,
+      "title": "I built a tool that finds Korean suppliers (K-beauty, K-food, electronics) in 60 seconds — free to try",
+      "url": "[dry-run]"
+    },
+    {
+      "subreddit": "ecommerce",
+      "ok": true,
+      "dryRun": true,
+      "title": "Free tool to find Korean suppliers for K-beauty, K-food, electronics OEM — AI-ranked with trust scores",
+      "url": "[dry-run]"
+    },
+    {
+      "subreddit": "dropship",
+      "ok": true,
+      "dryRun": true,
+      "title": "Korean supplier finder — K-beauty, K-food, electronics. AI trust scores + RFQ draft. Free to try.",
+      "url": "[dry-run]"
+    }
+  ]
+}

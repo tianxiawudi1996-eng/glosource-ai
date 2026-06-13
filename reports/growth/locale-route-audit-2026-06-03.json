@@ -1,0 +1,26 @@
+{
+  "generatedAt": "2026-06-03T07:37:55.934Z",
+  "status": "pass",
+  "checkedFiles": [
+    "app/en/about/page.tsx",
+    "app/en/billing/BillingActions.tsx",
+    "app/en/billing/page.tsx",
+    "app/en/blog/page.tsx",
+    "app/en/blog/[slug]/page.tsx",
+    "app/en/case-studies/page.tsx",
+    "app/en/dashboard/page.tsx",
+    "app/en/KSourceWrapper.tsx",
+    "app/en/layout.tsx",
+    "app/en/login/page.tsx",
+    "app/en/not-found.tsx",
+    "app/en/opengraph-image.tsx",
+    "app/en/page.tsx",
+    "app/en/PolarCheckoutButton.tsx",
+    "app/en/register/page.tsx",
+    "app/en/reset-password/page.tsx",
+    "app/en/ScrollCTA.tsx",
+    "app/en/support/page.tsx"
+  ],
+  "criticals": [],
+  "warnings": []
+}

@@ -1,0 +1,101 @@
+{
+  "generatedAt": "2026-05-29T10:14:01.099Z",
+  "status": "pass",
+  "timezone": "Asia/Seoul",
+  "todayDay": "Friday",
+  "includeManual": false,
+  "includeWeekly": false,
+  "failedItems": [],
+  "blockedActions": [],
+  "results": [
+    {
+      "id": "daily-revenue-safety",
+      "title": "Revenue and funnel safety gate",
+      "cadence": "daily",
+      "dayOfWeek": null,
+      "humanReview": "Review critical failures before publishing or sending traffic.",
+      "status": "pass",
+      "blocks": [],
+      "commands": [
+        {
+          "command": "npm run growth:daily",
+          "startedAt": "2026-05-29T10:13:49.973Z",
+          "finishedAt": "2026-05-29T10:13:54.750Z",
+          "status": "pass",
+          "exitCode": 0,
+          "stdout": "> safedoc-ai@0.1.0 growth:daily\n> node scripts/growth/run-daily-growth.js\n\n[PASS] growth:env\nGrowth audit passed. Report: reports\\growth\\growth-env-preflight-2026-05-29.json\n[PASS] growth:audit\nGrowth audit passed. Report: reports\\growth\\locale-route-audit-2026-05-29.json\nGrowth audit passed. Report: reports\\growth\\brand-consistency-2026-05-29.json\n[PASS] growth:payments\nGrowth audit passed. Report: reports\\growth\\payment-health-2026-05-29.json\n[PASS] growth:cases\nExtracted 0 case-study candidate(s). Report: reports\\growth\\case-study-candidates-2026-05-29.json\nDaily growth report: reports\\growth\\daily-growth-run-2026-05-29.json",
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "id": "daily-evidence-pipeline",
+      "title": "Evidence and case-study candidate extraction",
+      "cadence": "daily",
+      "dayOfWeek": null,
+      "humanReview": "Approve or reject candidates before they become public proof.",
+      "status": "pass",
+      "blocks": [],
+      "commands": [
+        {
+          "command": "npm run growth:cases",
+          "startedAt": "2026-05-29T10:13:54.751Z",
+          "finishedAt": "2026-05-29T10:13:56.149Z",
+          "status": "pass",
+          "exitCode": 0,
+          "stdout": "> safedoc-ai@0.1.0 growth:cases\n> node scripts/growth/extract-case-study-candidates.js\n\nExtracted 0 case-study candidate(s). Report: reports\\growth\\case-study-candidates-2026-05-29.json",
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "id": "daily-acquisition-readiness",
+      "title": "Acquisition readiness gate",
+      "cadence": "daily",
+      "dayOfWeek": null,
+      "humanReview": "Review blockers before publishing, launching paid campaigns, or sending high-volume outbound.",
+      "status": "pass",
+      "blocks": [],
+      "commands": [
+        {
+          "command": "npm run growth:social:dry-run",
+          "startedAt": "2026-05-29T10:13:56.149Z",
+          "finishedAt": "2026-05-29T10:13:58.150Z",
+          "status": "pass",
+          "exitCode": 0,
+          "stdout": "> safedoc-ai@0.1.0 growth:social:dry-run\n> node scripts/growth/run-social-dry-run.js\n\n[PASS] twitter\n--- DRY RUN — 3 tweets ---\n\n\n[DRY RUN] Tweet 1/3\n🇰🇷 Korean suppliers hard to find?\n\nGloSource AI scans EC21 · BuyKorea (KOTRA) · tradeKorea simultaneously.\nTrust scores + MFDS/HACCP/KC signals + English RFQ auto-generated.\n\n5 free searches → glosource-ai.vercel.app/en\n\nSourcing note 2026-05-29 19:13 KST.\n\n\n[DRY RUN] Tweet 2/3\nFBA sellers sourcing K-beauty or K-food — this saves hours.\n\nGloSource AI ranks Korean suppliers by trust signals & generates a ready-to-send English RFQ.\n\nFree: glosource-ai.vercel.app/en\n\n#FBA #KBeauty #KFood #ImportExport\n\nSourcing note 2026-05-29 19:13 KST.\n\n\n[DRY RUN] Tweet 3/3\nKorean sourcing just got easier 🇰🇷\n✅ EC21 · BuyKorea · tradeKorea\n✅ Trust score 0–100\n✅ MFDS/HACCP/KC signals\n✅ English RFQ auto-generated\n\n5 free searches → glosource-ai.vercel.app/en\n\n#KBeauty #B2B #Ecommerce #Korea\n\nSourcing note 2026-05-29 19:13 KST.\n\n\nDone.\n[PASS] threads\n--- DRY RUN — 3 Threads posts ---\n\n\n[DRY RUN] Post 1/3\nFinding Korean suppliers used to mean hours on EC21, BuyKorea, and tradeKorea — all separately.\n\nGloSource AI searches all three at once, ranks by trust score, and writes your English RFQ automatically.\n\n5 free searches 👉 glosource-ai.vercel.app/en\n\n#KBeauty #Sourcing #B2B #AmazonFBA\n\nSourcing note 2026-05-29.\n\n\n[DRY RUN] Post 2/3\nIf you import Korean products, you need MFDS / HACCP / KC certification checks before even contacting a supplier.\n\nGloSource AI surfaces those signals automatically — plus MOQ, lead time estimates, and a ready-to-send RFQ.\n\nTry free: glosource-ai.vercel.app/en\n\n#KBeauty #KFood #ImportExport #Ecommerce\n\nSourcing note 2026-05-29.\n\n\n[DRY RUN] Post 3/3\nKorean supplier research in 90 seconds:\n→ EC21 · BuyKorea (KOTRA) · tradeKorea searched simultaneously\n→ AI trust score 0–100 per supplier\n→ Certification signals detected (MFDS, HACCP, KC)\n→ English RFQ pre-filled and ready to send\n\n5 free searches → glosource-ai.vercel.app/en\n\n#Korea #B2BSourcing #FBA #KBeauty\n\nSourcing note 2026-05-29.\n\n\nDone.\n[PASS] instagram\n--- DRY RUN — 3 Instagram posts (image generation skipped) ---\n\n\n[1/3] Processing...\nCaption: 🇰🇷 Source Korean suppliers in 90 seconds\n\nGloSource AI searches EC21 · BuyKore...\nImage prompt: Professional Instagram square image for a Korean B2B sourcing AI platform called...\n\n[2/3] Processing...\nCaption: Stop spending hours on Korean supplier research 🔍\n\n✅ EC21 · BuyKorea · tradeKor...\nImage prompt: Clean infographic-style Instagram image for a Korean supplier sourcing tool. Dar...\n\n[3/3] Processing...\nCaption: Korean manufacturer research in 90 seconds 🏭🇰🇷\n\nGloSource AI ranks Korean sup...\nImage prompt: Stylized photo-realistic Instagram square image: Korean factory building exterio...\n\n✅ Done.\nSocial dry-run report: reports\\growth\\social-dry-run-2026-05-29.json",
+          "stderr": ""
+        },
+        {
+          "command": "npm run growth:acquisition:gate",
+          "startedAt": "2026-05-29T10:13:58.151Z",
+          "finishedAt": "2026-05-29T10:13:59.629Z",
+          "status": "pass",
+          "exitCode": 0,
+          "stdout": "> safedoc-ai@0.1.0 growth:acquisition:gate\n> node scripts/growth/check-acquisition-readiness.js\n\nGrowth audit passed. Report: reports\\growth\\acquisition-readiness-2026-05-29.json",
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "id": "friday-weekly-scorecard",
+      "title": "Weekly growth scorecard",
+      "cadence": "weekly",
+      "dayOfWeek": "Friday",
+      "humanReview": "Add analytics, MRR, top failed queries, and next experiment decision.",
+      "status": "pass",
+      "blocks": [],
+      "commands": [
+        {
+          "command": "npm run growth:weekly",
+          "startedAt": "2026-05-29T10:13:59.629Z",
+          "finishedAt": "2026-05-29T10:14:01.097Z",
+          "status": "pass",
+          "exitCode": 0,
+          "stdout": "> safedoc-ai@0.1.0 growth:weekly\n> node scripts/growth/generate-weekly-growth-report.js\n\nWeekly report written: reports\\growth\\weekly-growth-report-2026-05-29.md",
+          "stderr": ""
+        }
+      ]
+    }
+  ]
+}

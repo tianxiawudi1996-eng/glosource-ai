@@ -1,0 +1,78 @@
+{
+  "generatedAt": "2026-05-29T10:11:28.157Z",
+  "status": "pass",
+  "summary": {
+    "users_total": 2,
+    "users_24h": 0,
+    "users_7d": 0,
+    "usage_logs_total": 62,
+    "searches_24h": 0,
+    "searches_7d": 0,
+    "payments_total": 0,
+    "payments_24h": 0,
+    "active_subscriptions": 0
+  },
+  "topProducts": [],
+  "latestSearches": [
+    {
+      "product": "반사테이프 고시인성 야광",
+      "supplier_count": 3,
+      "status": 200,
+      "created_at": "2026-05-13T06:14:38.485Z"
+    },
+    {
+      "product": "방수시트 SBS 방수막 건축방수",
+      "supplier_count": 3,
+      "status": 200,
+      "created_at": "2026-05-13T06:13:40.804Z"
+    },
+    {
+      "product": "반사테이프 고시인성 야광",
+      "supplier_count": 3,
+      "status": 200,
+      "created_at": "2026-05-13T06:13:35.411Z"
+    },
+    {
+      "product": "휴대용 구급함 응급처치 키트",
+      "supplier_count": 3,
+      "status": 200,
+      "created_at": "2026-05-13T06:13:34.953Z"
+    },
+    {
+      "product": "산소발생기 비상용 휴대용",
+      "supplier_count": 3,
+      "status": 200,
+      "created_at": "2026-05-13T06:13:31.511Z"
+    },
+    {
+      "product": "안전 잠금장치 로크아웃 태그아웃",
+      "supplier_count": 3,
+      "status": 200,
+      "created_at": "2026-05-13T06:13:31.321Z"
+    },
+    {
+      "product": "추락방지 안전로프 와이어",
+      "supplier_count": 3,
+      "status": 200,
+      "created_at": "2026-05-13T06:13:13.000Z"
+    },
+    {
+      "product": "낙하물방지망 건설현장용",
+      "supplier_count": 3,
+      "status": 200,
+      "created_at": "2026-05-13T06:12:09.678Z"
+    },
+    {
+      "product": "제전복 정전기방지 작업복",
+      "supplier_count": 3,
+      "status": 200,
+      "created_at": "2026-05-13T06:12:04.973Z"
+    },
+    {
+      "product": "귀마개 폼타입 소음방지",
+      "supplier_count": 3,
+      "status": 200,
+      "created_at": "2026-05-13T06:11:45.717Z"
+    }
+  ]
+}

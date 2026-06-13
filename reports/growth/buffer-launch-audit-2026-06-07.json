@@ -1,0 +1,13 @@
+{
+  "generatedAt": "2026-06-07T01:00:21.218Z",
+  "status": "fail",
+  "reportDate": "2026-06-07",
+  "posts": [],
+  "criticals": [
+    {
+      "file": "reports/growth",
+      "message": "No Buffer live launch report found for 2026-06-07."
+    }
+  ],
+  "warnings": []
+}
