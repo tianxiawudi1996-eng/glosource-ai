@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { signIn } from 'next-auth/react';
 import { FormEvent, useState } from 'react';
 import BrandLogo from '@/app/components/BrandLogo';
+import { trackSignup } from '@/app/lib/analytics';
 
 type RegisterResponse = { error?: string; success?: boolean };
 
@@ -49,6 +50,7 @@ export default function EnRegisterPage() {
         setError(translated);
         return;
       }
+      trackSignup('email');
       await signIn('credentials', { email, password, redirectTo: '/en' });
     } catch {
       setError('An error occurred. Please try again.');

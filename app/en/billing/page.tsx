@@ -5,6 +5,7 @@ import { auth } from '@/auth';
 import { db, payments, subscriptions } from '@/app/lib/db';
 import BrandLogo from '@/app/components/BrandLogo';
 import { CancelPolarButton } from './BillingActions';
+import { CheckoutLink, PurchaseTracker } from '@/app/components/FunnelTracking';
 
 const PLANS = [
   {
@@ -82,6 +83,7 @@ export default async function EnBillingPage({
 
         {showSuccess && (
           <div className="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4">
+            <PurchaseTracker plan={currentPlan} />
             <p className="text-sm font-black text-emerald-800">🎉 Payment successful! Your plan is now active.</p>
             <p className="mt-1 text-xs text-emerald-700 leading-5">
               Your account has been upgraded. Start searching below — your new quota is ready.
@@ -156,10 +158,10 @@ export default async function EnBillingPage({
                     Current plan
                   </button>
                 ) : checkoutUrl ? (
-                  <a href={checkoutUrl} target="_blank" rel="noopener noreferrer"
+                  <CheckoutLink href={checkoutUrl} plan={plan.id}
                     className="block w-full rounded-xl bg-[#0D1B2A] px-4 py-3 text-center text-sm font-black text-white hover:bg-slate-800 transition-colors">
                     Get {plan.name} &rarr;
-                  </a>
+                  </CheckoutLink>
                 ) : (
                   <a href="mailto:hello@glosource.ai?subject=GloSource%20AI%20Plan%20Access"
                     className="block w-full rounded-xl bg-[#EA580C] px-4 py-3 text-center text-sm font-black text-white hover:bg-[#DC4C00] transition-colors">

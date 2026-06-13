@@ -7,6 +7,7 @@ import type { PlanTier } from '@/app/lib/db/schema';
 import TrustScoreGauge from './TrustScoreGauge';
 import ExportButton from './ExportButton';
 import EmptyState from './EmptyState';
+import { trackSearch, trackBeginCheckout } from '@/app/lib/analytics';
 
 type SourceRegion = 'china' | 'korea';
 
@@ -449,6 +450,8 @@ export default function EnSourcingTool({
     try {
       const output = await callAPI(product, quantity, budget, region, buyerCountry);
       setResult(output);
+      // GA4 funnel — metadata only, never the search term (privacy posture).
+      trackSearch({ region, buyer_country: buyerCountry, results: output.suppliers?.length ?? 0, plan });
       if (isFreePlan) {
         // Successful free searches consume quota server-side; keep the local display in sync.
         const newCount = freeCount + 1;
@@ -678,6 +681,7 @@ export default function EnSourcingTool({
             <div className="space-y-2">
               <a href={process.env.NEXT_PUBLIC_POLAR_STARTER_LINK ?? '/en/billing'}
                 target="_blank" rel="noopener noreferrer"
+                onClick={() => trackBeginCheckout('starter')}
                 className="block w-full text-center py-3.5 rounded-xl font-bold text-sm text-white bg-[#EA580C] hover:bg-[#DC4C00] transition-all shadow-lg shadow-orange-900/20">
                 Get Starter — $19/mo →
               </a>
