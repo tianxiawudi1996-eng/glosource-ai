@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import "./globals.css";
 import Providers from "@/app/components/Providers";
 import { ConsentAnalytics } from "@/app/components/ConsentAnalytics";
+import { GoogleAnalytics } from "@/app/components/GoogleAnalytics";
 
 // Next.js 14+ — viewport는 metadata와 별도 export 권장
 export const viewport: Viewport = {
@@ -144,6 +145,7 @@ export default async function RootLayout({
         )}
         <Providers>{children}</Providers>
         <ConsentAnalytics />
+        <GoogleAnalytics />
       </body>
     </html>
   );
