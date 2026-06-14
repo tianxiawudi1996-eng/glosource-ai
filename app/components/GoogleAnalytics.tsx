@@ -5,6 +5,9 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect } from 'react';
 import { trackEvent } from '@/app/lib/analytics';
 
+// NEXT_PUBLIC_* is inlined at BUILD time. Changing the value in Vercel only takes
+// effect on a fresh build — a redeploy that reuses the build cache keeps the old
+// (often empty) value, so disable build cache when updating this.
 const GA_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
 // The App Router does not fire page_view on client-side navigation, so track it
