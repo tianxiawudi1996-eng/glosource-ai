@@ -4,32 +4,28 @@
 
 ## READY
 
-1. GLO-002 — Serum/Sunscreen/Sheet Mask 샘플 리포트 증거 감사
-   - Done: 3종 리포트가 정직성 기준 통과(“verified supplier” 표현 없음, 후보는 실재·공개 기업 + “verify directly” 프레이밍, RFQ/후속/체크리스트 존재), 위반 시 수정. 다운로드 폼 카테고리 키(serum/sunscreen/sheet-mask)와 리포트 파일 일치 확인.
-   - Scope: `docs/growth/sample-reports/*.md` 검토·수정, 폼 카테고리 매핑 확인, PDF 호스팅 경로 결정 기록.
-   - Verify: 각 리포트 필수 9섹션 존재 · 금지표현 grep 0 · `SampleReportLeadForm` 카테고리 키 일치.
-   - Risk: 문서 전용. 외부 발송·결제 없음.
+- (없음) 자율 수행 가능한 비게이트 READY가 현재 없다. 남은 작업은 모두 게이트 또는 외부/실데이터 필요 → BLOCKED 참조. 다음 진행은 사람이 게이트를 풀어야 한다.
 
-## QUEUED
+## BLOCKED (게이트/외부 필요)
 
-1. GLO-003 — 실제 ICP 리드 스키마와 20명 1차 배치 구축
-2. GLO-004 — 아웃바운드 preflight와 발송 증거 로깅 dry-run
-3. KDE-001 — 교육형 쇼츠 3개 후킹 가설과 KPI 캡처표 작성
-4. GLO-005 — 승인된 1차 20명 발송 후 응답 분류
-5. GLO-006 — 다음 30명 타깃·메시지 개선
-6. GLO-007 — 인터뷰 및 $19/$49 가격 제시
-7. GLO-008 — 결제 전환 또는 거절 이유 정리
-8. KDE-002 — 쇼츠·itch.io·교육자료 CTA 반응 판정
-9. FINAL-001 — Day 14 계속/수정/중단 보고서
+- GLO-003 — 실제 ICP 리드 20명 1차 배치: intent 채널(LinkedIn/커뮤니티) 또는 사람 큐레이션 필요. 콜드 스크래핑은 운영사만 잡혀 부적합([outreach-icp.md](../growth/outreach-icp.md)). 가짜 리드 금지. (스키마·SOP는 이미 존재: lead-sources.json / outreach-targets.json / preflight 게이트)
+- GLO-005 — 1차 20명 발송 후 응답 분류: EXT-001(발송 승인) + tianxiawudi1996 Gmail OAuth 필요.
+- GLO-006 — 다음 30명 타깃·메시지 개선: GLO-005 응답 데이터 필요.
+- GLO-007 — 인터뷰 및 $19/$49 가격 제시: 실제 리드 응답 필요.
+- GLO-008 — 결제 전환/거절 정리: EXT-003(결제) + 실 트래픽 필요.
+- KDE-002 — 쇼츠·itch.io·교육자료 반응 판정: KDE-DATA-001(플랫폼 데이터 접근) 필요.
+- EXT-001 발송 / EXT-002 Vercel 배포 / EXT-003 결제·환불: 사람 승인.
+- KDE-DATA-001 — K-DEFENSE 플랫폼 분석 접근 경로.
 
-## BLOCKED
+## GATES (사람 결정 필요 — 진행의 핵심 잠금)
 
-- EXT-001 — 실제 아웃바운드 발송: 대상·문구에 대한 사람 승인 필요.
-- EXT-002 — Vercel 배포: 사람 승인 필요.
-- EXT-003 — 실제 Polar 결제·환불 테스트: 사람 승인 필요.
-- KDE-DATA-001 — K-DEFENSE 플랫폼 분석 수집: 계정 또는 export 접근 경로 필요.
+1. **병합 + 배포**: `sprint/kbeauty-oem-validation`(4 commit) → master 병합 + Vercel 배포 → 검증된 K-Beauty 랜딩이 라이브로 실제 샘플 요청 수집 시작. (검증 사이클의 실질적 출발점)
+2. **아웃바운드 가동**: tianxiawudi1996 Gmail OAuth 토큰 발급 + 실 리드 확보 → 발송 승인.
 
 ## DONE
 
-- GH-BOOTSTRAP @ a67f3f7 — Goal Harness Project OS와 guardrail 설치 · Verify: harness checks green.
-- GLO-001 @ 5158e03(+overflow fix) — `/en` K-Beauty OEM 재포지셔닝 + 검증. Verify: tsc/lint/build green, 360·1440 브라우저 스모크 green(오버플로우 0, 핵심요소 전부 존재). Evidence: reports/growth/glo-001-smoke/.
+- GH-BOOTSTRAP @ a67f3f7 — Goal Harness 설치 · harness checks green.
+- GLO-001 @ 5158e03(+507cca7) — `/en` K-Beauty OEM 재포지셔닝 + 검증 · tsc/lint/build + 360·1440 스모크 green.
+- GLO-002 @ working-tree — 샘플 리포트 3종 증거 감사 통과 · 8/8 섹션, 금지표현 0, 폼 매핑 일치. 델리버리=수동(검증단계 적절).
+- GLO-004 @ working-tree — 아웃바운드 preflight dry-run green · 게이트(도메인불일치/중복/provenance) 정상. 단 신규 발송 리드 0(예시뿐).
+- KDE-001 @ working-tree — K-DEFENSE 쇼츠 후킹 가설 3종 + KPI 캡처표 ([kdefense-shorts-hooks.md](../growth/kdefense-shorts-hooks.md)).

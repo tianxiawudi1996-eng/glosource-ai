@@ -2,25 +2,25 @@
   "schema_version": "1.0.0",
   "project": "GloSource AI + K-DEFENSE Validation OS",
   "repo": "tianxiawudi1996-eng/glosource-ai",
-  "calibrated_at": "2026-06-22T10:30:00+09:00",
+  "calibrated_at": "2026-06-22T11:30:00+09:00",
   "current_branch": "sprint/kbeauty-oem-validation",
-  "head_sha": "5158e03",
+  "head_sha": "507cca7",
   "main_sha": "765effc",
   "origin_main_sha": "765effc",
   "main_synced": false,
-  "track": "validation_setup",
+  "track": "outbound_validation",
   "last_done_increment": {
-    "id": "GLO-001",
-    "sha": "5158e03",
-    "summary": "Repositioned /en to K-Beauty OEM + verified: tsc/lint/build green and 360/1440 browser smoke green (no overflow, all landmarks). Fixed mobile horizontal overflow (overflow-x-hidden)."
+    "id": "GLO-002,GLO-004,KDE-001",
+    "sha": "507cca7",
+    "summary": "Autonomous batch: GLO-002 sample-report audit (pass), GLO-004 outbound preflight dry-run (gate functional), KDE-001 K-DEFENSE shorts hook hypotheses + KPI table."
   },
-  "next_ready_task": "GLO-002",
+  "next_ready_task": "WALL: remaining READY items need human gates (deploy landing live, real ICP lead capture, outbound send approval). No non-gated autonomous READY left.",
   "resource_allocation": {
     "glosource_percent": 80,
     "k_defense_percent": 20,
     "completed_units": {
-      "glosource": 1,
-      "k_defense": 0
+      "glosource": 3,
+      "k_defense": 1
     }
   },
   "kpi_baseline": {
@@ -47,7 +47,7 @@
       "id": "DB-1",
       "text": "100 real GloSource ICP leads contacted with evidence",
       "met": false,
-      "evidence": "reports/growth/kbeauty-sprint-kpi.csv"
+      "evidence": "0 contacted. Blocked: real ICP lead capture needs intent channels (LinkedIn/communities); cold-scraping surfaces operators not buyers (see outreach-icp.md). No fabrication."
     },
     {
       "id": "DB-2",
@@ -59,19 +59,19 @@
       "id": "DB-3",
       "text": "K-Beauty landing and conversion funnel verified",
       "met": true,
-      "evidence": "tsc+lint+build green; 360/1440 browser smoke green (status 200, hero/shortlist CTA/sample form/email/pricing present, no horizontal overflow). reports/growth/glo-001-smoke/result.json"
+      "evidence": "GLO-001: tsc+lint+build green; 360/1440 browser smoke green. reports/growth/glo-001-smoke/"
     },
     {
       "id": "DB-4",
       "text": "K-DEFENSE educational content response evidence audited",
       "met": false,
-      "evidence": "No platform KPI export yet"
+      "evidence": "KDE-001 hypotheses + KPI table ready; real data blocked (KDE-DATA-001)"
     },
     {
       "id": "DB-5",
       "text": "80:20 allocation maintained",
-      "met": false,
-      "evidence": "1 GloSource increment done (GLO-001); 0 K-DEFENSE"
+      "met": true,
+      "evidence": "GloSource 3 increments (GLO-001/002/004) : K-DEFENSE 1 (KDE-001) = 75:25, within band"
     },
     {
       "id": "DB-6",
@@ -82,51 +82,47 @@
   ],
   "open_flags": [
     {
-      "flag": "browser_smoke_missing",
-      "state": "resolved",
-      "resolves_in": "Done: puppeteer chromium installed; 360/1440 smoke green. Tool: scripts/smoke-screenshot.mjs"
+      "flag": "offer_ready_not_live",
+      "state": "gate",
+      "resolves_in": "Merge sprint/kbeauty-oem-validation to master + Vercel deploy (approval) so verified K-Beauty landing collects real sample-report requests"
     },
     {
-      "flag": "landing_code_uncommitted",
-      "state": "resolved",
-      "resolves_in": "Done: committed 5158e03 (+ overflow fix)"
+      "flag": "real_lead_capture_blocked",
+      "state": "blocked",
+      "resolves_in": "GLO-003: capture real ICP buyers via intent channels (LinkedIn/communities) — needs human/channel access, no fabrication"
+    },
+    {
+      "flag": "outbound_send_blocked",
+      "state": "gate",
+      "resolves_in": "tianxiawudi1996 Gmail OAuth token + human approval (EXT-001)"
     },
     {
       "flag": "k_defense_metrics_access",
-      "state": "open",
+      "state": "blocked",
       "resolves_in": "KDE-DATA-001"
     },
     {
       "flag": "hook_ignition",
       "state": "pending",
       "resolves_in": "Verify local agent hook schema before activation"
-    },
-    {
-      "flag": "branch_unmerged",
-      "state": "open",
-      "resolves_in": "Merge sprint/kbeauty-oem-validation to master (gate: approval) after increment review"
     }
   ],
   "gates_pending": [
-    "outbound_send_approval",
+    "branch_merge_approval",
     "deployment_approval",
+    "outbound_send_approval",
     "payment_test_approval",
     "social_publish_approval",
-    "private_platform_analytics_access",
-    "branch_merge_approval"
+    "private_platform_analytics_access"
   ],
   "verification": {
-    "last_green_at": "2026-06-22T10:30:00+09:00",
+    "last_green_at": "2026-06-22T11:30:00+09:00",
     "commands": [
       "node scripts/check-state-json.mjs docs/harness/STATE.json",
       "node scripts/check-harness-placeholders.mjs docs/harness",
       "node scripts/check-sensitive-strings.mjs .harness-blocklist.local",
-      "git diff --check",
-      "npx tsc --noEmit",
-      "npm run lint",
-      "npm run build",
-      "node scripts/smoke-screenshot.mjs http://localhost:3000/en reports/growth/glo-001-smoke"
+      "npm run growth:outreach:preflight"
     ],
-    "summary": "GLO-001 complete and green: code checks + 360/1440 browser smoke pass (no overflow). Harness self-checks green. Next: GLO-002 (sample report evidence audit)."
+    "summary": "Autonomous loop ran 4 increments (GLO-001/002/004 + KDE-001) to green. Now at wall: all remaining READY need human gates (deploy, real lead capture, outbound send, payment). Harness self-checks green."
   }
 }

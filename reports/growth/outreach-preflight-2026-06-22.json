@@ -1,0 +1,44 @@
+{
+  "generatedAt": "2026-06-22T12:03:16.025Z",
+  "status": "pass",
+  "targets": 2,
+  "sendable": 2,
+  "checked": [
+    {
+      "company": "BLIFE USA",
+      "contact": "sales@missykayusa.com",
+      "urlDomain": "blifeinc.com",
+      "emailDomain": "missykayusa.com",
+      "sendable": true,
+      "flags": [
+        "domain_mismatch_explained",
+        "already_contacted"
+      ]
+    },
+    {
+      "company": "BEALL US",
+      "contact": "contact@beallus.com",
+      "urlDomain": "beallus.com",
+      "emailDomain": "beallus.com",
+      "sendable": true,
+      "flags": [
+        "already_contacted"
+      ]
+    }
+  ],
+  "criticals": [],
+  "warnings": [
+    {
+      "file": "BLIFE USA",
+      "message": "domain mismatch (blifeinc.com vs missykayusa.com) explained by note: \"MissyKay is plausibly BLIFE USA's own house beauty brand (BLIFE USA sells 'its own brand beauty products' per blifeinc.com), so sales@missykayusa.com is the reachable B2B inbox. UNVERIFIED relationship — confirm before scaling. NOTE: BLIFE already has a direct Korean OEM/ODM partner, so it is a weak ICP fit for GloSource.\"."
+    },
+    {
+      "file": "BLIFE USA",
+      "message": "already contacted sales@missykayusa.com in a prior sent log. Skip or follow up, do not re-cold-email."
+    },
+    {
+      "file": "BEALL US",
+      "message": "already contacted contact@beallus.com in a prior sent log. Skip or follow up, do not re-cold-email."
+    }
+  ]
+}
