@@ -23,3 +23,7 @@ export const trackSignup = (method = 'email'): void => trackEvent('sign_up', { m
 export const trackBeginCheckout = (plan: string): void => trackEvent('begin_checkout', { plan });
 export const trackPurchase = (plan: string, value?: number, currency = 'USD'): void =>
   trackEvent('purchase', { plan, value, currency });
+export const trackShortlistCta = (location: string): void =>
+  trackEvent('shortlist_cta_click', { cta_location: location });
+export const trackSampleReportRequest = (productCategory: string, source = 'en_landing'): void =>
+  trackEvent('sample_report_request', { product_category: productCategory, source });

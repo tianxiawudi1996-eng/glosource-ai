@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { trackShortlistCta } from '@/app/lib/analytics';
 
 interface HeroSectionProps {
   lang?: 'ko' | 'en';
@@ -30,19 +31,19 @@ const copy = {
     supplier2: { name: '공급사 B (샘플 데이터)', platform: 'Alibaba', score: 74, moq: 'MOQ 200개 · ¥15.2/개', lead: '납기 14일 · 한국 수출 ✓' },
   },
   en: {
-    badge: 'K-Beauty · K-Food · K-Fashion · Global Sourcing AI',
-    h1: 'Source Korean',
-    h1sub: 'AI-Ranked Supplier Candidates',
-    desc: 'Skip 5 open tabs and hours of manual research. Get 3–5 Korean manufacturer candidates AI-ranked by trust score and certification signals — with an English RFQ draft ready to send in ~90 seconds.',
-    cta1: 'Start Free — 5 Searches →',
-    cta2: 'See Pricing',
-    note: 'Research tool, not a middleman. GloSource AI finds and ranks Korean supplier candidates — you contact them directly, no commission, no intermediary fees.',
-    features: ['K-beauty, K-food, K-fashion & more', 'MFDS / KC / HACCP certification signals', 'Auto-generated English RFQ draft', 'Trust score 0–100 per supplier'],
+    badge: 'Korea-only supplier intelligence for K-Beauty buyers',
+    h1: 'Find the Right Korean K-Beauty OEM',
+    h1sub: 'Before You Waste Weeks',
+    desc: 'Get a risk-reduced shortlist of Korean OEM/ODM supplier candidates with manufacturer-vs-trader signals, certification signals, MOQ notes, source evidence, and a ready-to-send English RFQ.',
+    cta1: 'Get My Korean Supplier Shortlist →',
+    cta2: 'Download a Free Sample Report',
+    note: 'Built for indie beauty founders, Amazon sellers, and importers sourcing directly from Korea. Research support only — always verify suppliers independently.',
+    features: ['Manufacturer vs. trader signals', 'Certification evidence to verify', 'MOQ and risk notes', 'Product-specific English RFQ'],
     stats: [
-      { num: '3–5', label: 'Korean suppliers per search' },
-      { num: '~90s', label: 'Avg. analysis time' },
-      { num: '0–100', label: 'Supplier trust score' },
-      { num: '4 channels', label: 'EC21 · BuyKorea · tradeKorea · more' },
+      { num: 'Korea-only', label: 'Focused supplier research' },
+      { num: '3–5', label: 'Candidates per shortlist' },
+      { num: '1 RFQ', label: 'Ready to review and send' },
+      { num: '0 claims', label: 'No “verified supplier” promises' },
     ],
     mockQuery: 'Korean collagen serum OEM 1000 units',
     mockDone: 'Analysis complete · 54s',
@@ -187,14 +188,17 @@ export default function HeroSection({ lang = 'ko' }: HeroSectionProps) {
             <div className="flex flex-wrap items-center gap-3 mb-8">
               <a
                 href="#sourcing-tool"
-                onClick={handleScrollTo('sourcing-tool')}
+                onClick={(event) => {
+                  trackShortlistCta('hero');
+                  handleScrollTo('sourcing-tool')(event);
+                }}
                 className="inline-flex items-center gap-2 bg-[#EA580C] hover:bg-[#DC4C00] text-white font-bold text-sm px-6 py-3 rounded-xl transition-all shadow-lg shadow-orange-900/30"
               >
                 {c.cta1}
               </a>
               <a
-                href="#pricing"
-                onClick={handleScrollTo('pricing')}
+                href="#sample-reports"
+                onClick={handleScrollTo('sample-reports')}
                 className="inline-flex items-center border border-white/30 text-white font-semibold text-sm px-6 py-3 rounded-xl hover:bg-white/10 transition-all backdrop-blur"
               >
                 {c.cta2}
@@ -231,16 +235,16 @@ export default function HeroSection({ lang = 'ko' }: HeroSectionProps) {
             {lang === 'en' ? (
               <div className="relative w-full rounded-2xl overflow-hidden shadow-2xl shadow-black/60" style={{ aspectRatio: '16/9' }}>
                 <Image
-                  src="/images/k-hero-products.png"
-                  alt="Korean product samples including skincare, packaged food, fashion, electronics, and export boxes"
+                  src="/images/glosource-sourcing-workspace.png"
+                  alt="GloSource AI Korean supplier shortlist research workspace"
                   fill
                   className="object-cover"
                   priority
                   sizes="420px"
                 />
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent px-5 py-4">
-                  <p className="text-white text-xs font-bold tracking-wide">K-beauty · K-food · K-fashion · Electronics</p>
-                  <p className="text-slate-300 text-[10px] mt-0.5">Korean manufacturer candidates, AI-ranked for review</p>
+                  <p className="text-white text-xs font-bold tracking-wide">K-Beauty OEM candidate shortlist</p>
+                  <p className="text-slate-300 text-[10px] mt-0.5">Evidence, risk signals, MOQ notes, and RFQ preparation</p>
                 </div>
               </div>
             ) : (

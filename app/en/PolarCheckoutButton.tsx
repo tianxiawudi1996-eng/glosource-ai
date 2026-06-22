@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { trackBeginCheckout, trackEvent } from '@/app/lib/analytics';
 
 interface PolarCheckoutButtonProps {
   checkoutUrl: string;
@@ -10,6 +11,17 @@ interface PolarCheckoutButtonProps {
 export default function PolarCheckoutButton({ checkoutUrl, label }: PolarCheckoutButtonProps) {
   const [agreed, setAgreed] = useState(false);
   const isExternal = !checkoutUrl.startsWith('mailto:');
+
+  function handleCheckout(event: React.MouseEvent<HTMLAnchorElement>) {
+    if (!agreed) {
+      event.preventDefault();
+      return;
+    }
+
+    const plan = label.replace(/^Get\s+/i, '').replace(/\s*→$/, '').trim().toLowerCase();
+    trackEvent('checkout_click', { plan, source: 'en_kbeauty_landing' });
+    trackBeginCheckout(plan);
+  }
 
   return (
     <div className="space-y-2.5">
@@ -27,7 +39,7 @@ export default function PolarCheckoutButton({ checkoutUrl, label }: PolarCheckou
       </label>
       <a
         href={agreed ? checkoutUrl : undefined}
-        onClick={!agreed ? (e) => e.preventDefault() : undefined}
+        onClick={handleCheckout}
         target={isExternal ? '_blank' : undefined}
         rel={isExternal ? 'noopener noreferrer' : undefined}
         aria-disabled={!agreed}

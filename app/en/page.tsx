@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Image from 'next/image';
 import HeroSection from '@/app/components/HeroSection';
 import BrandLogo from '@/app/components/BrandLogo';
 import JsonLdGloSource from '@/app/components/JsonLdGloSource';
@@ -8,19 +7,23 @@ import ScrollCTA from './ScrollCTA';
 import PolarCheckoutButton from './PolarCheckoutButton';
 import Link from 'next/link';
 import { auth } from '@/auth';
+import SampleReportLeadForm from './SampleReportLeadForm';
+import PricingViewTracker from './PricingViewTracker';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://glosource-ai.vercel.app'),
-  title: 'GloSource AI — Source Korean Suppliers with AI',
-  description: 'Find Korean manufacturer candidates for K-beauty, K-food, K-fashion & more. AI-ranked suppliers from EC21 · BuyKorea (KOTRA) · tradeKorea with trust scores and English RFQ drafts. Start with 5 free searches.',
+  title: 'GloSource AI — Korean K-Beauty OEM Supplier Intelligence',
+  description: 'Build a risk-reduced shortlist of Korean K-Beauty OEM/ODM supplier candidates with manufacturer-vs-trader signals, certification evidence, MOQ notes, and an English RFQ draft.',
   keywords: [
-    'Korean supplier sourcing',
+    'Korean K-beauty OEM',
+    'Korean cosmetics manufacturer',
+    'K-beauty private label',
+    'Korean skincare ODM',
+    'Korean supplier shortlist',
     'K-beauty manufacturer',
-    'K-food wholesale',
     'EC21',
     'BuyKorea KOTRA',
     'tradeKorea',
-    'AI supplier search',
     'English RFQ Korean',
     'Korean OEM',
     'Amazon FBA sourcing',
@@ -29,8 +32,8 @@ export const metadata: Metadata = {
   creator: 'GloSource AI',
   publisher: 'GloSource AI',
   openGraph: {
-    title: 'GloSource AI — Source Korean Suppliers with AI',
-    description: 'Find Korean manufacturer candidates for K-beauty, K-food, K-fashion & more. EC21 · BuyKorea (KOTRA) · tradeKorea channels. AI trust scores + English RFQ.',
+    title: 'GloSource AI — Korean K-Beauty OEM Supplier Intelligence',
+    description: 'A risk-reduced Korean OEM/ODM supplier shortlist with evidence, MOQ notes, risk signals, and an English RFQ draft.',
     url: 'https://glosource-ai.vercel.app/en',
     siteName: 'GloSource AI',
     locale: 'en_US',
@@ -40,14 +43,14 @@ export const metadata: Metadata = {
         url: '/en/opengraph-image',
         width: 1200,
         height: 630,
-        alt: 'GloSource AI — Source Korean Suppliers with AI',
+        alt: 'GloSource AI Korean K-Beauty OEM supplier shortlist',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'GloSource AI — Source Korean Suppliers with AI',
-    description: 'Find Korean manufacturer candidates for K-beauty, K-food, K-fashion & more. Start with 5 free searches.',
+    title: 'GloSource AI — Korean K-Beauty OEM Supplier Intelligence',
+    description: 'Shortlist Korean OEM/ODM supplier candidates with evidence, risk signals, MOQ notes, and an English RFQ.',
     images: ['/en/opengraph-image'],
     creator: '@glosourceai',
   },
@@ -65,16 +68,16 @@ const PLANS = [
   {
     id: 'starter',
     name: 'Starter',
-    tag: 'Test the waters',
+    tag: 'For one active product',
     price: '$19',
     unit: '/mo',
-    per: '30 searches / month · $0.63 per search',
+    per: '30 shortlist searches / month',
     features: [
-      'Up to 3–5 AI-surfaced Korean supplier candidates per search',
-      'Trust & risk scoring 0–100 with Listing Quality breakdown',
-      'Unit price, MOQ & lead-time comparison',
-      'Auto-generated English RFQ email — ready to send',
-      'MFDS / KC / HACCP certification signal check',
+      '3–5 Korean OEM/ODM candidates per search',
+      'Manufacturer-vs-trader and risk signals',
+      'Certification evidence and MOQ notes',
+      'English RFQ draft ready to review',
+      'Source links for independent verification',
     ],
     highlight: false,
     envKey: 'NEXT_PUBLIC_POLAR_STARTER_LINK',
@@ -82,117 +85,92 @@ const PLANS = [
   {
     id: 'pro',
     name: 'Pro',
-    tag: '⭐ Best for Amazon FBA sellers',
+    tag: 'Best for multiple launches',
     price: '$49',
     unit: '/mo',
-    per: '60 searches / month · $0.82 per search · Korea + China sourcing',
+    per: '60 shortlist searches / month',
     features: [
       'Everything in Starter',
-      'China supplier add-on — compare Korea vs. China side-by-side',
-      'Full PDF sourcing report — shareable with your prep center',
-      'Amazon FBA-ready: FBA labeling & packaging notes included',
+      'Compare multiple K-Beauty product briefs',
+      'Full PDF sourcing report',
+      'Buyer checklist and follow-up email draft',
       'Priority support',
     ],
     highlight: true,
     envKey: 'NEXT_PUBLIC_POLAR_PRO_LINK',
   },
-  {
-    id: 'agency',
-    name: 'Agency',
-    tag: 'For teams & sourcing agents',
-    price: '$149',
-    unit: '/mo',
-    per: '999 searches / month · high-volume usage',
-    features: [
-      '999 monthly searches for high-volume sourcing',
-      'Team workflow support by request — multi-seat accounts are not self-serve yet',
-      'Project sourcing history & saved supplier lists',
-      'Custom supplier report templates',
-      'Priority email support',
-    ],
-    highlight: false,
-    envKey: 'NEXT_PUBLIC_POLAR_AGENCY_LINK',
-  },
 ] as const;
 
 
-const WHY_KOREA = [
+const PROBLEMS = [
   {
-    title: 'BuyKorea — KOTRA-Operated Export Marketplace',
-    desc: 'BuyKorea is operated by KOTRA (Korea Trade-Investment Promotion Agency), a Korean government agency. It focuses on registered, export-oriented Korean companies. Compared to open marketplaces where anyone can list, it can be a useful starting point for supplier screening — but buyers should still verify each supplier independently.',
-    badge: 'Listed on BuyKorea (KOTRA)',
-    badgeColor: 'bg-blue-50 text-blue-700 border-blue-200',
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-      </svg>
-    ),
+    number: '01',
+    title: 'Manufacturer or middleman?',
+    desc: 'Review public signals that suggest factory capability, trading activity, or an unclear operating role.',
   },
   {
-    title: 'World-Class Certifications',
-    desc: 'Many Korean manufacturers provide MFDS (Ministry of Food and Drug Safety — Korean FDA equivalent), HACCP (Hazard Analysis Critical Control Points — food safety), KC (Korea Certification — electronics/electrical safety), KS (Korean Standards), or ISO documentation. These are useful screening signals, but buyers must confirm destination-market requirements before import.',
-    badge: 'MFDS (Korean FDA) · HACCP · KC · KS',
-    badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-      </svg>
-    ),
+    number: '02',
+    title: 'Which claims need verification?',
+    desc: 'See certification claims beside their source and the exact documents you still need to request.',
   },
   {
-    title: 'K-Wave Is a Real Opportunity',
-    desc: 'K-beauty, K-food, and K-fashion continue to show strong global demand across the US, EU, and Southeast Asia. Korean beauty exports reached $8.5B in 2023 — importers who source Korean products now are positioning themselves ahead of growing global competition.',
-    badge: '$8.5B K-beauty exports (2023)',
-    badgeColor: 'bg-orange-50 text-orange-700 border-orange-200',
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-      </svg>
-    ),
+    number: '03',
+    title: 'Will the MOQ fit your launch?',
+    desc: 'Separate public MOQ information, estimates, and unknowns instead of treating them as equally reliable.',
+  },
+  {
+    number: '04',
+    title: 'What should you ask first?',
+    desc: 'Start with a product-specific English RFQ rather than a generic request for a catalog and price list.',
   },
 ];
 
+const STEPS = [
+  {
+    number: '1',
+    title: 'Define the product brief',
+    desc: 'Enter the product type, target market, desired MOQ, packaging, claims, and launch timing.',
+  },
+  {
+    number: '2',
+    title: 'Review Korean candidates',
+    desc: 'Compare OEM/ODM candidates using source evidence, manufacturer signals, certifications, MOQ context, and risk notes.',
+  },
+  {
+    number: '3',
+    title: 'Send a stronger RFQ',
+    desc: 'Edit the prepared RFQ, contact multiple candidates, and use the buyer checklist before paying for samples.',
+  },
+] as const;
 
 const FAQ = [
   {
-    q: 'What kinds of Korean products can I source?',
-    a: 'K-beauty (skincare, cosmetics, OEM), K-food (instant noodles, snacks, sauces, beverages), K-fashion (clothing, accessories, streetwear), electronics (components, wearables), supplements, industrial parts, and more. If it is manufactured in Korea and sold globally, GloSource AI can usually build a supplier shortlist for it.',
+    q: 'Is GloSource AI a sourcing agent?',
+    a: 'No. GloSource AI prepares research, supplier-candidate comparisons, and RFQ drafts. You contact, verify, negotiate with, and pay suppliers directly.',
   },
   {
-    q: 'Why not just search Alibaba for Korean suppliers?',
-    a: 'Alibaba includes Korean traders, re-exporters, and resellers mixed together with manufacturers — it\'s hard to tell them apart. GloSource specifically filters for Korean manufacturers with MFDS/HACCP/KC certification signals, which Alibaba does not surface. You also get an English RFQ pre-filled with supplier-specific details, saving hours of manual cross-referencing across BuyKorea, EC21, and tradeKorea.',
+    q: 'Are the suppliers verified?',
+    a: 'No. GloSource AI surfaces public evidence and risk signals for first-pass review. Every supplier, certificate, bank account, sample, and manufacturing claim requires independent verification.',
   },
   {
-    q: 'Why not just use BuyKorea or EC21 directly? They\'re free.',
-    a: 'You can — but each platform requires separate browsing, has its own search interface, and gives you no cross-platform trust scoring or English RFQ. A typical manual search across BuyKorea + EC21 + tradeKorea takes 2–3 hours. GloSource queries all three simultaneously, ranks results by AI trust signals, and delivers a pre-written English RFQ in about 90 seconds. If your time is worth more than $0.63, it pays for itself on the first search.',
+    q: 'How do you distinguish a manufacturer from a trader?',
+    a: 'We review public signals such as OEM/ODM language, factory addresses, production capabilities, company registrations, export listings, and company-site evidence. The result is a signal, not a legal determination.',
   },
   {
-    q: 'How is BuyKorea (KOTRA) different from Alibaba?',
-    a: 'BuyKorea is operated by KOTRA, a Korean government agency. It focuses on registered, export-oriented Korean companies, giving buyers more structured company information than a fully open marketplace. For Korean products specifically, KOTRA-listed suppliers can be a stronger starting point for due diligence.',
+    q: 'Which certifications do you check?',
+    a: 'Depending on the product and available evidence, a report may surface ISO 22716, cosmetics GMP/CGMP, ISO 9001, MFDS-related manufacturing information, and vegan or cruelty-free claims. Confirm every claim with the supplier and issuing body.',
   },
   {
-    q: 'What certifications do Korean suppliers typically hold?',
-    a: 'MFDS-related documentation for cosmetics, food, and health products, HACCP for food safety, KC for Korean electronics safety, and KS for industrial standards. These are useful screening signals, but buyers must still confirm destination-market compliance.',
+    q: 'Will the report include MOQ and pricing?',
+    a: 'Only when publicly available or reasonably supported. Estimates are labeled as estimates. Unknown information is turned into an RFQ question rather than invented.',
   },
   {
-    q: 'Do I need to create an account?',
-    a: 'No account needed for the first 5 free anonymous searches. Creating a verified free account gives you a monthly free quota; paid subscriptions unlock higher monthly limits. No credit card required for the free tier.',
+    q: 'Can you guarantee US or EU compliance?',
+    a: 'No. Regulatory suitability depends on the formula, claims, testing, labeling, responsible parties, and target market. Consult qualified regulatory professionals before sale.',
   },
   {
-    q: 'Is GloSource AI an actual sourcing agent?',
-    a: 'No. We are a research and preparation tool — we surface, compare, score, and prepare RFQ drafts. You contact suppliers and negotiate directly. We do not handle transactions, logistics, or payments on your behalf.',
-  },
-  {
-    q: 'What if suppliers don\'t respond to my RFQ?',
-    a: 'GloSource finds and ranks candidates — supplier response rates depend on your RFQ quality, the specificity of your specs, and follow-up timing. Most buyers need 2–5 outreach rounds before getting a useful reply. Tips: send RFQs to at least 3 candidates, include your target MOQ and price range, and follow up within 3 business days.',
-  },
-  {
-    q: 'How do I subscribe to a paid plan?',
-    a: 'Click "Get started" on any paid plan. You will be taken to a secure checkout. Use the same email as your GloSource AI account when possible. If activation does not appear automatically, email hello@glosource.ai and we will activate it manually. No Korean business registration or ID is required.',
-  },
-  {
-    q: 'Does a failed or errored search count against my free quota?',
-    a: 'No. Only successful searches that return supplier results count toward your free tier or monthly plan quota. If a search fails due to a technical error or timeout, your count is not affected.',
+    q: 'What should I do after receiving a shortlist?',
+    a: 'Contact at least three candidates, request company and certification documents, compare samples, verify legal and bank identities, confirm formula ownership and testing, and use a written manufacturing agreement.',
   },
 ];
 
@@ -202,7 +180,7 @@ const JSON_LD_ORGANIZATION = {
   '@type': 'Organization',
   name: 'GloSource AI',
   url: 'https://glosource-ai.vercel.app/en',
-  description: 'AI-powered sourcing assistant for international buyers. Find Korean supplier candidates (K-beauty, K-food, K-fashion) from EC21, BuyKorea, KOTRA, and tradeKorea.',
+  description: 'Korea-only supplier intelligence for overseas K-Beauty buyers researching Korean OEM/ODM manufacturer candidates.',
   contactPoint: {
     '@type': 'ContactPoint',
     email: 'hello@glosource.ai',
@@ -244,7 +222,7 @@ export default async function EnPage({
           <BrandLogo compact />
           <div className="flex items-center gap-3">
             <Link href="/" className="text-xs font-semibold text-slate-400 hover:text-white transition-colors">KO</Link>
-            <a href="#why-korea" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden sm:block">Why Korea</a>
+            <a href="#sample-reports" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden sm:block">Sample report</a>
             <a href="#pricing" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden sm:block">Pricing</a>
             <Link href="/en/blog" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden sm:block">Blog</Link>
             <Link href="/en/case-studies" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden md:block">Examples</Link>
@@ -269,7 +247,7 @@ export default async function EnPage({
               </>
             )}
             <ScrollCTA targetId="sourcing-tool" className="text-xs font-bold bg-[#EA580C] text-white px-4 py-2 rounded-lg hover:bg-[#DC4C00] transition-colors">
-              Try Free →
+              Get my shortlist →
             </ScrollCTA>
           </div>
         </div>
@@ -279,27 +257,41 @@ export default async function EnPage({
       <HeroSection lang="en" />
 
 
-      {/* ── ROI STRIP ──────────────────────────────────────── */}
-      <section className="bg-[#0D1B2A] border-b border-white/10">
-        <div className="max-w-5xl mx-auto px-6 py-6">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:divide-x sm:divide-white/10">
-            {[
-              { before: 'Manual search', after: '~90 sec', label: 'Time to supplier shortlist (AI-assisted)' },
-              { before: '5+ tabs', after: '1 search', label: 'EC21 (Korea #1 B2B) · BuyKorea (KOTRA gov) · tradeKorea (KITA)' },
-              { before: 'Manual RFQ', after: 'Auto-drafted', label: 'English RFQ template, ready to edit' },
-            ].map(({ before, after, label }) => (
-              <div key={label} className="flex items-center gap-4 sm:px-6 first:pl-0 last:pr-0">
-                <div className="flex items-center gap-2 shrink-0">
-                  <span className="text-slate-500 text-sm font-semibold line-through">{before}</span>
-                  <svg className="w-4 h-4 text-[#EA580C] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
-                  <span className="text-white text-sm font-black">{after}</span>
-                </div>
-                <p className="text-[11px] text-slate-400 leading-tight">{label}</p>
-              </div>
+      {/* ── PROBLEM ─────────────────────────────────────────── */}
+      <section className="border-b border-slate-200 bg-white">
+        <div className="mx-auto max-w-5xl px-6 py-16">
+          <div className="max-w-3xl">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#EA580C]">The sourcing gap</p>
+            <h2 className="mt-3 text-3xl font-black leading-tight text-[#0D1B2A] sm:text-4xl">
+              Finding a Korean factory is easy. Knowing who is worth contacting is not.
+            </h2>
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-500">
+              Supplier directories give you names. They do not clearly tell you who manufactures, which claims need evidence, whether the MOQ fits, or what to ask in the first email.
+            </p>
+          </div>
+          <div className="mt-10 grid gap-px overflow-hidden rounded-2xl border border-slate-200 bg-slate-200 sm:grid-cols-2">
+            {PROBLEMS.map((item) => (
+              <article key={item.number} className="bg-white p-6 sm:p-8">
+                <p className="font-mono text-xs font-bold text-[#EA580C]">{item.number}</p>
+                <h3 className="mt-3 text-lg font-black text-[#0D1B2A]">{item.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-500">{item.desc}</p>
+              </article>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ── SAMPLE REPORTS ─────────────────────────────────── */}
+      <section id="sample-reports" className="border-b border-slate-200 bg-slate-50">
+        <div className="mx-auto max-w-5xl px-6 py-16">
+          <div className="mb-10 max-w-2xl">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#EA580C]">Free sample reports</p>
+            <h2 className="mt-3 text-3xl font-black text-[#0D1B2A]">See the shortlist format before you pay</h2>
+            <p className="mt-3 text-sm leading-7 text-slate-500">
+              Choose a K-Beauty category and request the report structure used to compare supplier candidates, evidence, unresolved risks, and RFQ questions.
+            </p>
+          </div>
+          <SampleReportLeadForm />
         </div>
       </section>
 
@@ -307,62 +299,33 @@ export default async function EnPage({
       <section id="sourcing-tool" className="bg-slate-50 border-b border-slate-100">
         <div className="max-w-4xl mx-auto px-6 py-16">
           <div className="mb-10 text-center">
-            <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-3">Try it free — 5 searches</p>
-            <h2 className="text-2xl font-black text-[#0D1B2A] mb-2">Find your Korean supplier now</h2>
+            <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-3">Build your first shortlist</p>
+            <h2 className="text-2xl font-black text-[#0D1B2A] mb-2">Get my Korean supplier shortlist</h2>
             <p className="text-sm text-slate-500 max-w-lg mx-auto">
-              Select a category below or type your own product. AI searches publicly available listings on EC21 · BuyKorea · tradeKorea, then returns ranked suppliers with AI-detected certification signals (unverified), MOQ estimates, and an RFQ draft.
+              Describe the K-Beauty product you want to make. Review Korean supplier candidates with source links, unverified certification signals, MOQ context, and an English RFQ draft.
             </p>
           </div>
           <KSourceWrapper initialProduct={initialProduct} plan={plan} freeSearchLimit={freeSearchLimit} />
         </div>
       </section>
 
-      {/* ── WHY KOREA ──────────────────────────────────────── */}
-      <section id="why-korea" className="bg-white border-b border-slate-100">
+      {/* ── HOW IT WORKS ───────────────────────────────────── */}
+      <section className="bg-white border-b border-slate-100">
         <div className="max-w-5xl mx-auto px-6 py-16">
-          {/* Image C — K-Wave demand visual with overlay */}
-          <div className="relative w-full rounded-2xl overflow-hidden mb-12 h-56 sm:h-72 shadow-md">
-            <Image
-              src="/images/k-wave-demand.png"
-              alt="K-wave — K-drama, K-pop, and K-fashion driving global demand for Korean products"
-              fill
-              className="object-cover object-center"
-              sizes="(max-width: 1024px) 100vw, 1024px"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#0D1B2A]/90 via-[#0D1B2A]/60 to-transparent flex items-center">
-              <div className="px-8 sm:px-12 max-w-lg">
-                <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-2">K-Wave × Global Trade</p>
-                <h3 className="text-white font-black text-2xl sm:text-3xl leading-tight mb-3">
-                  K-drama, K-pop, K-food.<br />The demand is real.
-                </h3>
-                <p className="text-slate-300 text-sm leading-relaxed">
-                  Korean content has created measurable global consumer demand. Buyers who source Korean products early can test markets before competition catches up.
-                </p>
-              </div>
-            </div>
-          </div>
-
           <div className="mb-10 text-center">
-            <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-3">Why source from Korea?</p>
-            <h2 className="text-2xl font-black text-[#0D1B2A] mb-3">Three reasons Korean suppliers are different</h2>
+            <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-3">How it works</p>
+            <h2 className="text-2xl font-black text-[#0D1B2A] mb-3">From product idea to a usable Korean supplier shortlist</h2>
             <p className="text-sm text-slate-500 max-w-xl mx-auto">
-              Not all sourcing channels are equal. Here is what makes Korea a stronger starting point for many K-product buyers.
+              The output is a first-pass research shortcut, not a supplier guarantee, audit, or sourcing-agent service.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {WHY_KOREA.map(item => (
-              <div key={item.title} className="bg-slate-50 rounded-2xl border border-slate-200 p-6 flex flex-col gap-4">
-                <div className="w-11 h-11 rounded-xl bg-[#0D1B2A] flex items-center justify-center text-slate-300">
-                  {item.icon}
-                </div>
-                <div>
-                  <h3 className="font-black text-[#0D1B2A] mb-2 leading-snug">{item.title}</h3>
-                  <p className="text-sm text-slate-500 leading-relaxed">{item.desc}</p>
-                </div>
-                <span className={`self-start text-xs font-bold border rounded-full px-2.5 py-1 ${item.badgeColor}`}>
-                  {item.badge}
-                </span>
-              </div>
+            {STEPS.map(item => (
+              <article key={item.number} className="border-t-2 border-[#0D1B2A] pt-5">
+                <p className="text-4xl font-black text-orange-100">{item.number}</p>
+                <h3 className="mt-3 font-black text-[#0D1B2A]">{item.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-500">{item.desc}</p>
+              </article>
             ))}
           </div>
         </div>
@@ -371,12 +334,13 @@ export default async function EnPage({
 
       {/* ── PRICING ────────────────────────────────────────── */}
       <section id="pricing" className="bg-white border-b border-slate-200">
+        <PricingViewTracker />
         <div className="max-w-5xl mx-auto px-6 py-16">
           <div className="mb-10 text-center">
             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Pricing</p>
-            <h2 className="text-2xl font-black text-[#0D1B2A] mb-3">Simple, transparent pricing</h2>
+            <h2 className="text-2xl font-black text-[#0D1B2A] mb-3">Start with evidence. Upgrade for an active sourcing project.</h2>
             <p className="text-sm text-slate-500 max-w-xl mx-auto">
-              1 search = up to 3–5 Korean supplier candidates + AI trust signals + certification signals (AI-detected, unverified) + English RFQ draft.
+              Start with a free sample report. Paid plans support repeated Korean OEM/ODM shortlist research for real product launches.
             </p>
             <p className="mt-2 text-xs text-slate-400">For international buyers · Priced in USD · Korean-market plans available at <Link href="/" className="underline text-[#0D1B2A] hover:text-slate-700">glosource-ai.vercel.app</Link></p>
             <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-500 max-w-lg mx-auto text-left">
@@ -384,7 +348,7 @@ export default async function EnPage({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-3xl mx-auto">
             {PLANS.map(plan => (
               <div key={plan.id}
                 className={`rounded-2xl border p-6 flex flex-col relative ${plan.highlight ? 'bg-[#0D1B2A] border-[#0D1B2A]' : 'bg-white border-slate-200'}`}>
