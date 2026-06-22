@@ -8,7 +8,7 @@
 
 ## BLOCKED (게이트/외부 필요)
 
-- GLO-003 — 실제 ICP 리드 20명 1차 배치: intent 채널(LinkedIn/커뮤니티) 또는 사람 큐레이션 필요. 콜드 스크래핑은 운영사만 잡혀 부적합([outreach-icp.md](../growth/outreach-icp.md)). 가짜 리드 금지. (스키마·SOP는 이미 존재: lead-sources.json / outreach-targets.json / preflight 게이트)
+- GLO-003 — 실제 ICP 리드 20명 1차 배치: **SOP/플레이북 완료**([kbeauty-lead-sourcing-playbook.md](../growth/kbeauty-lead-sourcing-playbook.md)) — 채널별 쿼리·인테이크 스키마·게이트 워크플로우 준비됨. **남은 것=실 수집**: intent 채널(LinkedIn/커뮤니티) 사람 판정 또는 인바운드(배포 후). 콜드 스크래핑 부적합·가짜 리드 금지.
 - GLO-005 — 1차 20명 발송 후 응답 분류: EXT-001(발송 승인) + tianxiawudi1996 Gmail OAuth 필요.
 - GLO-006 — 다음 30명 타깃·메시지 개선: GLO-005 응답 데이터 필요.
 - GLO-007 — 인터뷰 및 $19/$49 가격 제시: 실제 리드 응답 필요.
@@ -29,3 +29,5 @@
 - GLO-002 @ working-tree — 샘플 리포트 3종 증거 감사 통과 · 8/8 섹션, 금지표현 0, 폼 매핑 일치. 델리버리=수동(검증단계 적절).
 - GLO-004 @ working-tree — 아웃바운드 preflight dry-run green · 게이트(도메인불일치/중복/provenance) 정상. 단 신규 발송 리드 0(예시뿐).
 - KDE-001 @ working-tree — K-DEFENSE 쇼츠 후킹 가설 3종 + KPI 캡처표 ([kdefense-shorts-hooks.md](../growth/kdefense-shorts-hooks.md)).
+- GLO-003-SOP @ sprint/kbeauty-leads — 리드 소싱 플레이북(채널 쿼리·인테이크 스키마·게이트 워크플로우). 실 리드 수집은 채널/인바운드 대기.
+- DEPLOY @ 1fcd30b — 5커밋 master 병합(FF) + pre-deploy 게이트 green(audit/payments). push만 사람 대기.

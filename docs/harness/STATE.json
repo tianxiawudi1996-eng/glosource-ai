@@ -3,16 +3,16 @@
   "project": "GloSource AI + K-DEFENSE Validation OS",
   "repo": "tianxiawudi1996-eng/glosource-ai",
   "calibrated_at": "2026-06-22T11:30:00+09:00",
-  "current_branch": "sprint/kbeauty-oem-validation",
+  "current_branch": "sprint/kbeauty-leads",
   "head_sha": "507cca7",
   "main_sha": "765effc",
   "origin_main_sha": "765effc",
   "main_synced": false,
   "track": "outbound_validation",
   "last_done_increment": {
-    "id": "GLO-002,GLO-004,KDE-001",
-    "sha": "507cca7",
-    "summary": "Autonomous batch: GLO-002 sample-report audit (pass), GLO-004 outbound preflight dry-run (gate functional), KDE-001 K-DEFENSE shorts hook hypotheses + KPI table."
+    "id": "GLO-003-SOP",
+    "sha": "working-tree",
+    "summary": "Lead-sourcing playbook (intent-channel SOP + intake schema + preflight workflow). Real lead capture still needs human/channel access (no fabrication). Deploy: 5 commits merged to local master @ 1fcd30b, awaiting human `git push origin master` (Vercel auto-deploy)."
   },
   "next_ready_task": "WALL: remaining READY items need human gates (deploy landing live, real ICP lead capture, outbound send approval). No non-gated autonomous READY left.",
   "resource_allocation": {
@@ -83,8 +83,8 @@
   "open_flags": [
     {
       "flag": "offer_ready_not_live",
-      "state": "gate",
-      "resolves_in": "Merge sprint/kbeauty-oem-validation to master + Vercel deploy (approval) so verified K-Beauty landing collects real sample-report requests"
+      "state": "awaiting-push",
+      "resolves_in": "Merged to local master @ 1fcd30b (5 commits). Human runs `git push origin master` -> Vercel auto-deploys K-Beauty landing live. (push blocked for agent by gate)"
     },
     {
       "flag": "real_lead_capture_blocked",
