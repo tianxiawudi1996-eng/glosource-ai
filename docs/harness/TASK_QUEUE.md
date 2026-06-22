@@ -30,4 +30,5 @@
 - GLO-004 @ working-tree — 아웃바운드 preflight dry-run green · 게이트(도메인불일치/중복/provenance) 정상. 단 신규 발송 리드 0(예시뿐).
 - KDE-001 @ working-tree — K-DEFENSE 쇼츠 후킹 가설 3종 + KPI 캡처표 ([kdefense-shorts-hooks.md](../growth/kdefense-shorts-hooks.md)).
 - GLO-003-SOP @ sprint/kbeauty-leads — 리드 소싱 플레이북(채널 쿼리·인테이크 스키마·게이트 워크플로우). 실 리드 수집은 채널/인바운드 대기.
-- DEPLOY @ a052f03 — 5커밋 master 병합(FF) + pre-deploy green → **origin push 완료(765effc..1fcd30b) → Vercel 자동 배포**. 라이브 검증만 남음.
+- DEPLOY @ a052f03 — 5커밋 master 병합(FF) + pre-deploy green → **origin push 완료(765effc..1fcd30b) → Vercel 자동 배포**. 라이브 검증 OK (히어로 노출 확인).
+- GLO-TRAFFIC @ sprint/kbeauty-traffic — 라이브 /en 유입용 소셜 포스트 초안(LinkedIn 3 + Threads 3) ([kbeauty-traffic-posts.md](../growth/kbeauty-traffic-posts.md)). 발행=Oracle/수동(코워크 자동발행 금지).
