@@ -1,0 +1,121 @@
+{
+  "schema_version": "1.0.0",
+  "project": "GloSource AI + K-DEFENSE Validation OS",
+  "repo": "tianxiawudi1996-eng/glosource-ai",
+  "calibrated_at": "2026-06-22T08:00:00+09:00",
+  "current_branch": "master",
+  "head_sha": "765effc",
+  "main_sha": "765effc",
+  "origin_main_sha": "765effc",
+  "main_synced": true,
+  "track": "validation_setup",
+  "last_done_increment": {
+    "id": "GH-BOOTSTRAP",
+    "sha": "working-tree-uncommitted",
+    "summary": "Installed Goal Harness documents and enforcement scripts without commit or push."
+  },
+  "next_ready_task": "GLO-001",
+  "resource_allocation": {
+    "glosource_percent": 80,
+    "k_defense_percent": 20,
+    "completed_units": {
+      "glosource": 0,
+      "k_defense": 0
+    }
+  },
+  "kpi_baseline": {
+    "glosource": {
+      "leads_contacted": 0,
+      "replies": 0,
+      "sample_report_requests": 0,
+      "interviews": 0,
+      "paid_intent": 0,
+      "payments": 0
+    },
+    "k_defense": {
+      "shorts_uploaded": 0,
+      "shorts_views": 0,
+      "itch_clicks": 0,
+      "plays": 0,
+      "comments_shares_saves": 0,
+      "education_requests": 0,
+      "purchases": 0
+    }
+  },
+  "done_bar": [
+    {
+      "id": "DB-1",
+      "text": "100 real GloSource ICP leads contacted with evidence",
+      "met": false,
+      "evidence": "reports/growth/kbeauty-sprint-kpi.csv"
+    },
+    {
+      "id": "DB-2",
+      "text": "GloSource paid-intent and payment evidence audited",
+      "met": false,
+      "evidence": "No external paid-intent or payment evidence yet"
+    },
+    {
+      "id": "DB-3",
+      "text": "K-Beauty landing and conversion funnel verified",
+      "met": false,
+      "evidence": "Typecheck, lint, and build green; browser smoke pending"
+    },
+    {
+      "id": "DB-4",
+      "text": "K-DEFENSE educational content response evidence audited",
+      "met": false,
+      "evidence": "No platform KPI export yet"
+    },
+    {
+      "id": "DB-5",
+      "text": "80:20 allocation maintained",
+      "met": false,
+      "evidence": "No completed RUN increments yet"
+    },
+    {
+      "id": "DB-6",
+      "text": "Day 14 final decision report completed",
+      "met": false,
+      "evidence": "docs/harness/FINAL_14_DAY_REPORT.md not created"
+    }
+  ],
+  "open_flags": [
+    {
+      "flag": "dirty_default_branch",
+      "state": "open",
+      "resolves_in": "Create a feature branch before the next product increment"
+    },
+    {
+      "flag": "browser_smoke_missing",
+      "state": "open",
+      "resolves_in": "GLO-001"
+    },
+    {
+      "flag": "k_defense_metrics_access",
+      "state": "open",
+      "resolves_in": "KDE-DATA-001"
+    },
+    {
+      "flag": "hook_ignition",
+      "state": "pending",
+      "resolves_in": "Verify local agent hook schema before activation"
+    }
+  ],
+  "gates_pending": [
+    "outbound_send_approval",
+    "deployment_approval",
+    "payment_test_approval",
+    "social_publish_approval",
+    "private_platform_analytics_access"
+  ],
+  "verification": {
+    "last_green_at": "2026-06-22T08:00:00+09:00",
+    "commands": [
+      "npx tsc --noEmit",
+      "npm run lint",
+      "npm run build"
+    ],
+    "summary": "Application checks green. Harness checks pending bootstrap verification."
+  }
+}
