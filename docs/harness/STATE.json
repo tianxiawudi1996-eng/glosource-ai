@@ -2,24 +2,24 @@
   "schema_version": "1.0.0",
   "project": "GloSource AI + K-DEFENSE Validation OS",
   "repo": "tianxiawudi1996-eng/glosource-ai",
-  "calibrated_at": "2026-06-22T08:00:00+09:00",
-  "current_branch": "master",
-  "head_sha": "765effc",
+  "calibrated_at": "2026-06-22T10:30:00+09:00",
+  "current_branch": "sprint/kbeauty-oem-validation",
+  "head_sha": "5158e03",
   "main_sha": "765effc",
   "origin_main_sha": "765effc",
-  "main_synced": true,
+  "main_synced": false,
   "track": "validation_setup",
   "last_done_increment": {
-    "id": "GH-BOOTSTRAP",
-    "sha": "working-tree-uncommitted",
-    "summary": "Installed Goal Harness documents and enforcement scripts without commit or push."
+    "id": "GLO-001",
+    "sha": "5158e03",
+    "summary": "Repositioned /en to K-Beauty OEM + verified: tsc/lint/build green and 360/1440 browser smoke green (no overflow, all landmarks). Fixed mobile horizontal overflow (overflow-x-hidden)."
   },
-  "next_ready_task": "GLO-001",
+  "next_ready_task": "GLO-002",
   "resource_allocation": {
     "glosource_percent": 80,
     "k_defense_percent": 20,
     "completed_units": {
-      "glosource": 0,
+      "glosource": 1,
       "k_defense": 0
     }
   },
@@ -58,8 +58,8 @@
     {
       "id": "DB-3",
       "text": "K-Beauty landing and conversion funnel verified",
-      "met": false,
-      "evidence": "Typecheck, lint, and build green; browser smoke pending"
+      "met": true,
+      "evidence": "tsc+lint+build green; 360/1440 browser smoke green (status 200, hero/shortlist CTA/sample form/email/pricing present, no horizontal overflow). reports/growth/glo-001-smoke/result.json"
     },
     {
       "id": "DB-4",
@@ -71,7 +71,7 @@
       "id": "DB-5",
       "text": "80:20 allocation maintained",
       "met": false,
-      "evidence": "No completed RUN increments yet"
+      "evidence": "1 GloSource increment done (GLO-001); 0 K-DEFENSE"
     },
     {
       "id": "DB-6",
@@ -82,14 +82,14 @@
   ],
   "open_flags": [
     {
-      "flag": "dirty_default_branch",
-      "state": "open",
-      "resolves_in": "Create a feature branch before the next product increment"
+      "flag": "browser_smoke_missing",
+      "state": "resolved",
+      "resolves_in": "Done: puppeteer chromium installed; 360/1440 smoke green. Tool: scripts/smoke-screenshot.mjs"
     },
     {
-      "flag": "browser_smoke_missing",
-      "state": "open",
-      "resolves_in": "GLO-001"
+      "flag": "landing_code_uncommitted",
+      "state": "resolved",
+      "resolves_in": "Done: committed 5158e03 (+ overflow fix)"
     },
     {
       "flag": "k_defense_metrics_access",
@@ -100,6 +100,11 @@
       "flag": "hook_ignition",
       "state": "pending",
       "resolves_in": "Verify local agent hook schema before activation"
+    },
+    {
+      "flag": "branch_unmerged",
+      "state": "open",
+      "resolves_in": "Merge sprint/kbeauty-oem-validation to master (gate: approval) after increment review"
     }
   ],
   "gates_pending": [
@@ -107,15 +112,21 @@
     "deployment_approval",
     "payment_test_approval",
     "social_publish_approval",
-    "private_platform_analytics_access"
+    "private_platform_analytics_access",
+    "branch_merge_approval"
   ],
   "verification": {
-    "last_green_at": "2026-06-22T08:00:00+09:00",
+    "last_green_at": "2026-06-22T10:30:00+09:00",
     "commands": [
+      "node scripts/check-state-json.mjs docs/harness/STATE.json",
+      "node scripts/check-harness-placeholders.mjs docs/harness",
+      "node scripts/check-sensitive-strings.mjs .harness-blocklist.local",
+      "git diff --check",
       "npx tsc --noEmit",
       "npm run lint",
-      "npm run build"
+      "npm run build",
+      "node scripts/smoke-screenshot.mjs http://localhost:3000/en reports/growth/glo-001-smoke"
     ],
-    "summary": "Application checks green. Harness checks pending bootstrap verification."
+    "summary": "GLO-001 complete and green: code checks + 360/1440 browser smoke pass (no overflow). Harness self-checks green. Next: GLO-002 (sample report evidence audit)."
   }
 }

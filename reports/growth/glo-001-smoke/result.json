@@ -1,0 +1,29 @@
+{
+  "url": "http://localhost:3000/en",
+  "capturedViewports": [
+    "mobile-360",
+    "desktop-1440"
+  ],
+  "results": [
+    {
+      "viewport": "mobile-360",
+      "status": 200,
+      "hero": "Find the Right Korean K-Beauty OEM\nBefore You Waste Weeks",
+      "shortlistCta": true,
+      "sampleForm": true,
+      "pricing": true,
+      "emailInput": true,
+      "horizontalOverflow": false
+    },
+    {
+      "viewport": "desktop-1440",
+      "status": 200,
+      "hero": "Find the Right Korean K-Beauty OEM\nBefore You Waste Weeks",
+      "shortlistCta": true,
+      "sampleForm": true,
+      "pricing": true,
+      "emailInput": true,
+      "horizontalOverflow": false
+    }
+  ]
+}

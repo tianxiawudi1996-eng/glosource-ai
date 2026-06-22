@@ -4,24 +4,23 @@
 
 ## READY
 
-1. GLO-001 — K-Beauty 랜딩과 샘플 리포트 요청 흐름 스모크 검증
-   - Done: `/en` Hero, primary CTA, 샘플 카테고리 선택, 이메일 폼 상태, $19/$49 가격 CTA가 360px와 1440px에서 동작하고 증거가 저장된다.
-   - Scope: 현재 랜딩 변경, 로컬 브라우저 스모크, 테스트 증거, 하네스 상태 갱신.
-   - Verify: `npx tsc --noEmit`, `npm run lint`, `npm run build`, 로컬 DOM·스크린샷 또는 자동 브라우저 테스트.
-   - Risk: 현재 master의 미커밋 변경을 보존해야 하며 외부 이메일 발송과 실제 결제는 금지.
+1. GLO-002 — Serum/Sunscreen/Sheet Mask 샘플 리포트 증거 감사
+   - Done: 3종 리포트가 정직성 기준 통과(“verified supplier” 표현 없음, 후보는 실재·공개 기업 + “verify directly” 프레이밍, RFQ/후속/체크리스트 존재), 위반 시 수정. 다운로드 폼 카테고리 키(serum/sunscreen/sheet-mask)와 리포트 파일 일치 확인.
+   - Scope: `docs/growth/sample-reports/*.md` 검토·수정, 폼 카테고리 매핑 확인, PDF 호스팅 경로 결정 기록.
+   - Verify: 각 리포트 필수 9섹션 존재 · 금지표현 grep 0 · `SampleReportLeadForm` 카테고리 키 일치.
+   - Risk: 문서 전용. 외부 발송·결제 없음.
 
 ## QUEUED
 
-1. GLO-002 — Serum/Sunscreen/Sheet Mask 샘플 리포트 증거 감사
-2. GLO-003 — 실제 ICP 리드 스키마와 20명 1차 배치 구축
-3. GLO-004 — 아웃바운드 preflight와 발송 증거 로깅 dry-run
-4. KDE-001 — 교육형 쇼츠 3개 후킹 가설과 KPI 캡처표 작성
-5. GLO-005 — 승인된 1차 20명 발송 후 응답 분류
-6. GLO-006 — 다음 30명 타깃·메시지 개선
-7. GLO-007 — 인터뷰 및 $19/$49 가격 제시
-8. GLO-008 — 결제 전환 또는 거절 이유 정리
-9. KDE-002 — 쇼츠·itch.io·교육자료 CTA 반응 판정
-10. FINAL-001 — Day 14 계속/수정/중단 보고서
+1. GLO-003 — 실제 ICP 리드 스키마와 20명 1차 배치 구축
+2. GLO-004 — 아웃바운드 preflight와 발송 증거 로깅 dry-run
+3. KDE-001 — 교육형 쇼츠 3개 후킹 가설과 KPI 캡처표 작성
+4. GLO-005 — 승인된 1차 20명 발송 후 응답 분류
+5. GLO-006 — 다음 30명 타깃·메시지 개선
+6. GLO-007 — 인터뷰 및 $19/$49 가격 제시
+7. GLO-008 — 결제 전환 또는 거절 이유 정리
+8. KDE-002 — 쇼츠·itch.io·교육자료 CTA 반응 판정
+9. FINAL-001 — Day 14 계속/수정/중단 보고서
 
 ## BLOCKED
 
@@ -32,4 +31,5 @@
 
 ## DONE
 
-- GH-BOOTSTRAP @ working-tree-uncommitted — Goal Harness Project OS와 guardrail 설치 · Verify: harness checks.
+- GH-BOOTSTRAP @ a67f3f7 — Goal Harness Project OS와 guardrail 설치 · Verify: harness checks green.
+- GLO-001 @ 5158e03(+overflow fix) — `/en` K-Beauty OEM 재포지셔닝 + 검증. Verify: tsc/lint/build green, 360·1440 브라우저 스모크 green(오버플로우 0, 핵심요소 전부 존재). Evidence: reports/growth/glo-001-smoke/.
