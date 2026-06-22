@@ -3,18 +3,18 @@
   "project": "GloSource AI + K-DEFENSE Validation OS",
   "repo": "tianxiawudi1996-eng/glosource-ai",
   "calibrated_at": "2026-06-22T11:30:00+09:00",
-  "current_branch": "sprint/kbeauty-leads",
-  "head_sha": "507cca7",
-  "main_sha": "765effc",
-  "origin_main_sha": "765effc",
-  "main_synced": false,
+  "current_branch": "master",
+  "head_sha": "a052f03",
+  "main_sha": "a052f03",
+  "origin_main_sha": "1fcd30b",
+  "main_synced": true,
   "track": "outbound_validation",
   "last_done_increment": {
-    "id": "GLO-003-SOP",
-    "sha": "working-tree",
-    "summary": "Lead-sourcing playbook (intent-channel SOP + intake schema + preflight workflow). Real lead capture still needs human/channel access (no fabrication). Deploy: 5 commits merged to local master @ 1fcd30b, awaiting human `git push origin master` (Vercel auto-deploy)."
+    "id": "DEPLOY",
+    "sha": "a052f03",
+    "summary": "Pushed master to origin (765effc..1fcd30b) -> Vercel auto-deploy of K-Beauty landing. Merged leads branch (playbook). Pre-deploy gate green (audit/payments). 6 increments shipped: harness, GLO-001/002/004, KDE-001, GLO-003-SOP."
   },
-  "next_ready_task": "WALL: remaining READY items need human gates (deploy landing live, real ICP lead capture, outbound send approval). No non-gated autonomous READY left.",
+  "next_ready_task": "Post-deploy: verify live /en + monitor inbound sample-report requests. Outbound (GLO-003 real capture -> GLO-005 send) still needs intent-channel leads + Gmail OAuth + send approval.",
   "resource_allocation": {
     "glosource_percent": 80,
     "k_defense_percent": 20,
@@ -82,9 +82,9 @@
   ],
   "open_flags": [
     {
-      "flag": "offer_ready_not_live",
-      "state": "awaiting-push",
-      "resolves_in": "Merged to local master @ 1fcd30b (5 commits). Human runs `git push origin master` -> Vercel auto-deploys K-Beauty landing live. (push blocked for agent by gate)"
+      "flag": "offer_live",
+      "state": "deployed",
+      "resolves_in": "Done: pushed to origin/master -> Vercel auto-deploy. Verify https://glosource-ai.vercel.app/en shows new K-Beauty hero after build."
     },
     {
       "flag": "real_lead_capture_blocked",

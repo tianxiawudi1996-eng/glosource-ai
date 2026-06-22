@@ -19,8 +19,8 @@
 
 ## GATES (사람 결정 필요 — 진행의 핵심 잠금)
 
-1. **병합 + 배포**: `sprint/kbeauty-oem-validation`(4 commit) → master 병합 + Vercel 배포 → 검증된 K-Beauty 랜딩이 라이브로 실제 샘플 요청 수집 시작. (검증 사이클의 실질적 출발점)
-2. **아웃바운드 가동**: tianxiawudi1996 Gmail OAuth 토큰 발급 + 실 리드 확보 → 발송 승인.
+1. ✅ **병합 + 배포 완료**: master push(765effc..1fcd30b) → Vercel 자동 배포. 라이브 검증만 남음.
+2. **아웃바운드 가동**(남은 핵심): tianxiawudi1996 Gmail OAuth 토큰 발급 + 실 리드 확보(플레이북 채널) → 발송 승인.
 
 ## DONE
 
@@ -30,4 +30,4 @@
 - GLO-004 @ working-tree — 아웃바운드 preflight dry-run green · 게이트(도메인불일치/중복/provenance) 정상. 단 신규 발송 리드 0(예시뿐).
 - KDE-001 @ working-tree — K-DEFENSE 쇼츠 후킹 가설 3종 + KPI 캡처표 ([kdefense-shorts-hooks.md](../growth/kdefense-shorts-hooks.md)).
 - GLO-003-SOP @ sprint/kbeauty-leads — 리드 소싱 플레이북(채널 쿼리·인테이크 스키마·게이트 워크플로우). 실 리드 수집은 채널/인바운드 대기.
-- DEPLOY @ 1fcd30b — 5커밋 master 병합(FF) + pre-deploy 게이트 green(audit/payments). push만 사람 대기.
+- DEPLOY @ a052f03 — 5커밋 master 병합(FF) + pre-deploy green → **origin push 완료(765effc..1fcd30b) → Vercel 자동 배포**. 라이브 검증만 남음.
