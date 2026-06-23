@@ -33,13 +33,15 @@
       "payments": 0
     },
     "k_defense": {
-      "shorts_uploaded": 0,
-      "shorts_views": 0,
-      "itch_clicks": 0,
-      "plays": 0,
+      "shorts_uploaded": 12,
+      "shorts_views": 4831,
+      "itch_clicks": null,
+      "plays": null,
       "comments_shares_saves": 0,
       "education_requests": 0,
-      "purchases": 0
+      "purchases": null,
+      "captured_at": "2026-06-23T20:32:00+09:00",
+      "evidence": "reports/growth/kdefense-youtube-kpi-2026-06-23.json (public YouTube Data API). Day-1 baseline was 0; this is first real capture. External engagement=0 (all 13 comments are owner self-promo, excluded); itch_clicks/plays/purchases null=blocked (private, KDE-DATA-001)."
     }
   },
   "done_bar": [
@@ -65,7 +67,7 @@
       "id": "DB-4",
       "text": "K-DEFENSE educational content response evidence audited",
       "met": false,
-      "evidence": "KDE-001 hypotheses + KPI table ready; real data blocked (KDE-DATA-001)"
+      "evidence": "2026-06-23 public capture (kdefense-youtube-kpi-2026-06-23.json): 12 shorts, 4831 views, but 0 external comments/replies and 0 education-material requests. Passive views only. View->play->education conversion still blocked on private analytics (KDE-DATA-001). Bar unmet: needs >=1 real education request."
     },
     {
       "id": "DB-5",
@@ -98,8 +100,8 @@
     },
     {
       "flag": "k_defense_metrics_access",
-      "state": "blocked",
-      "resolves_in": "KDE-DATA-001"
+      "state": "partial",
+      "resolves_in": "Public KPIs captured 2026-06-23 (views/comments/likes via YouTube Data API). Still blocked: itch.io clicks/plays/purchases + Studio private analytics (impressions/CTR/retention/traffic-source) need studio.youtube.com + itch.io owner access (KDE-DATA-001)."
     },
     {
       "flag": "hook_ignition",

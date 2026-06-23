@@ -1,0 +1,55 @@
+{
+  "capturedAt": "2026-06-23T20:32:00+09:00",
+  "source": "YouTube Data API v3 (public, read-only) via PlayMCP YouTubeData",
+  "channel": {
+    "id": "UCZueGUugQ2mKx7JtF71YhFw",
+    "title": "Sound of Seoul",
+    "customUrl": "@like2buyglobal",
+    "url": "https://www.youtube.com/channel/UCZueGUugQ2mKx7JtF71YhFw",
+    "country": "KR",
+    "subscriberCount": 2,
+    "viewCountAggregate": 4824,
+    "videoCount": 12
+  },
+  "kpi_public": {
+    "shorts_uploaded": 12,
+    "shorts_views_sum": 4831,
+    "comments_total": 13,
+    "comments_external": 0,
+    "comments_owner_self": 13,
+    "replies_external": 0,
+    "likes": 12,
+    "external_engagement_rate_pct": 0.0,
+    "note": "All 12 videos are #Shorts (Korean-history / K-DEFENSE OST). CRITICAL: every one of the 13 comments is the channel owner's own (@like2buyglobal) pinned promo comment linking itch.io — 0 external audience comments and 0 replies. Per harness data rule (본인/self excluded from external KPI), external conversation = 0. Likes=12 attribution uncertain (could be owner). shorts_views_sum is per-video total; channel aggregate viewCount=4824."
+  },
+  "kpi_private_blocked": {
+    "itch_clicks": "blocked: not in public API (itch.io analytics / Studio traffic-source)",
+    "plays": "blocked: itch.io private analytics",
+    "shares_saves": "blocked: not exposed by public API",
+    "education_requests": "0 observed in public counts; comment-content review pending",
+    "purchases": "blocked: no commerce data in public API",
+    "private_studio_metrics": "blocked: impressions / CTR / retention / traffic-source require studio.youtube.com auth (KDE-DATA-001)"
+  },
+  "videos": [
+    { "rank": 1, "videoId": "abYF_WkQz7o", "title": "고조선 — 단군의 첫 나라 | Gojoseon, Dawn of Korea | K-DEFENSE OST #Shorts", "publishedAt": "2026-06-08T23:19:46Z", "views": 1403, "likes": 6, "comments": 1, "url": "https://www.youtube.com/shorts/abYF_WkQz7o" },
+    { "rank": 2, "videoId": "nPidc8jcOYI", "title": "⚔️ 이순신 23 Victories — K-DEFENSE OST 필승! #Shorts", "publishedAt": "2026-06-07T06:48:08Z", "views": 653, "likes": 0, "comments": 0, "url": "https://www.youtube.com/shorts/nPidc8jcOYI" },
+    { "rank": 3, "videoId": "_GsWXxCds5M", "title": "👑 광개토대왕 — Conqueror of Manju | K-DEFENSE OST #Shorts", "publishedAt": "2026-06-07T06:54:29Z", "views": 646, "likes": 0, "comments": 2, "url": "https://www.youtube.com/shorts/_GsWXxCds5M" },
+    { "rank": 4, "videoId": "mINFB2lfI-4", "title": "Hwacha 🔥 Joseon's Fire-Arrow Launcher | Battle of Haengju 1593 #Shorts", "publishedAt": "2026-06-14T11:00:11Z", "views": 508, "likes": 1, "comments": 1, "url": "https://www.youtube.com/shorts/mINFB2lfI-4" },
+    { "rank": 5, "videoId": "qCJMOGvixvk", "title": "🏹 주몽 — Jumong, Founder of Goguryeo | K-DEFENSE OST #Shorts", "publishedAt": "2026-06-08T22:17:42Z", "views": 465, "likes": 0, "comments": 1, "url": "https://www.youtube.com/shorts/qCJMOGvixvk" },
+    { "rank": 6, "videoId": "5oASzfuCZNs", "title": "Cheok Jun-gyeong — Goryeo's Greatest Sword 척준경 #Shorts", "publishedAt": "2026-06-12T11:51:54Z", "views": 439, "likes": 2, "comments": 1, "url": "https://www.youtube.com/shorts/5oASzfuCZNs" },
+    { "rank": 7, "videoId": "1h2d_8zA0gA", "title": "🎮 Defend Korea (Main Theme) 🔥 K-DEFENSE OST #Shorts", "publishedAt": "2026-06-07T08:42:39Z", "views": 243, "likes": 0, "comments": 2, "url": "https://www.youtube.com/shorts/1h2d_8zA0gA" },
+    { "rank": 8, "videoId": "cmvk1Az8HOI", "title": "Wiman Joseon — The Refugee Who Seized Korea's Throne | 194 BC #Shorts", "publishedAt": "2026-06-11T11:45:39Z", "views": 199, "likes": 0, "comments": 1, "url": "https://www.youtube.com/shorts/cmvk1Az8HOI" },
+    { "rank": 9, "videoId": "g5_s2vdShr0", "title": "Buyeo & Samhan: Seeds of the Three Kingdoms #Shorts", "publishedAt": "2026-06-13T11:41:15Z", "views": 132, "likes": 1, "comments": 1, "url": "https://www.youtube.com/shorts/g5_s2vdShr0" },
+    { "rank": 10, "videoId": "j5fa4Y8UedE", "title": "Jumong, Founder of Goguryeo 🏹 BC 37 #Shorts", "publishedAt": "2026-06-10T15:55:28Z", "views": 109, "likes": 0, "comments": 1, "url": "https://www.youtube.com/shorts/j5fa4Y8UedE" },
+    { "rank": 11, "videoId": "m6eZNapHooo", "title": "⚙️ Jang Yeong-sil — The Slave Who Built Joseon's Clocks | K-DEFENSE OST #Shorts", "publishedAt": "2026-06-10T11:40:59Z", "views": 21, "likes": 1, "comments": 1, "url": "https://www.youtube.com/shorts/m6eZNapHooo" },
+    { "rank": 12, "videoId": "yCNSOQ8eKcU", "title": "13 Ships vs 133: Admiral Yi Sun-sin's Miracle at Myeongnyang 1597 #shortsvideos", "publishedAt": "2026-06-20T12:08:33Z", "views": 13, "likes": 1, "comments": 1, "url": "https://www.youtube.com/shorts/yCNSOQ8eKcU" }
+  ],
+  "reading": {
+    "signal": "Shorts get PASSIVE views (4831 total) but ZERO active engagement: 0 external comments, 0 replies, ~12 likes. Views are feed/impression-driven, not community-driven. Per sanity band, treat near-zero interaction like low reaction -> fix hook/topic/title, do NOT build game features.",
+    "top_hook": "Founding-myth / origin framing wins on views: 고조선(Gojoseon) 1403 = ~2x next best. Heroic-individual (이순신 653 / 광개토대왕 646) cluster next. But none converted views into comments.",
+    "weak": "Lowest views are newest uploads (Myeongnyang 13, Jang Yeong-sil 21) — partly recency; recheck after 7-day maturation. Bigger weakness: no comment-to-action loop — owner asks 'which hero next?' in pinned comments but gets 0 audience replies.",
+    "conversion_gap": "External engagement 0% and 0 education-material requests. itch.io click/play/purchase unknown (private). The real unproven step is view -> itch.io click -> play; high views with 0 comments suggests weak CTA pull-through.",
+    "education_request_audit": "Read all 13 comments 2026-06-23: 0 are from external viewers; 0 request educational/classroom materials; 0 purchase intent. DB-4 education-request bar still unmet.",
+    "next": "1) Hook iteration leaning into founding-myth angle (best view driver). 2) Strengthen first-comment/CTA to provoke replies. 3) Obtain itch.io + Studio private analytics (KDE-DATA-001) to measure view->play conversion that public API cannot see."
+  }
+}

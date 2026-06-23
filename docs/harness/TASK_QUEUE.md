@@ -32,4 +32,5 @@
 - GLO-003-SOP @ sprint/kbeauty-leads — 리드 소싱 플레이북(채널 쿼리·인테이크 스키마·게이트 워크플로우). 실 리드 수집은 채널/인바운드 대기.
 - DEPLOY @ a052f03 — 5커밋 master 병합(FF) + pre-deploy green → **origin push 완료(765effc..1fcd30b) → Vercel 자동 배포**.
 - GLO-TRAFFIC @ 433045b — 라이브 /en 유입용 소셜 포스트 초안(LinkedIn 3 + Threads 3) ([kbeauty-traffic-posts.md](../growth/kbeauty-traffic-posts.md)). 발행=Oracle/수동(코워크 자동발행 금지). master 병합 + origin push 완료.
-- HARNESS-CAL-0623 @ working-tree — 하네스 상태를 repo 진실(433045b, origin 동기화)에 재정렬 + 라이브 `/en` 검증(HTTP 200, K-Beauty 히어로). STATE/STATUS/TASK_QUEUE 갱신, 하네스 self-check green. 커밋=게이트.
+- HARNESS-CAL-0623 @ d401aa3(chore/harness-cal-0623) — 하네스 상태를 repo 진실(433045b, origin 동기화)에 재정렬 + 라이브 `/en` 검증(HTTP 200, K-Beauty 히어로). STATE/STATUS/TASK_QUEUE 갱신, 하네스 self-check green.
+- KDE-PUBLIC-KPI-0623 @ working-tree — K-DEFENSE 공개 YouTube KPI 1차 캡처([kdefense-youtube-kpi-2026-06-23.json](../../reports/growth/kdefense-youtube-kpi-2026-06-23.json)): 12쇼츠·4,831뷰지만 **외부 댓글 0·답글 0·교육요청 0**(댓글 13건 전부 본인 홍보글, 외부 제외). 판정=후킹/CTA 수정(게임기능 X). itch/플레이/구매·Studio 비공개 지표는 KDE-DATA-001 대기.
