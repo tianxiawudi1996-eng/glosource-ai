@@ -3,31 +3,31 @@
 ## Snapshot
 
 - Project: GloSource AI + K-DEFENSE Validation OS
-- Last calibrated: 2026-06-22 Asia/Seoul
+- Last calibrated: 2026-06-23 20:32 Asia/Seoul
 - Current branch: master
-- Head SHA: 765effc
-- Main synced: true with origin/master at calibration
-- Current track: validation_setup
-- Next READY: GLO-001 — K-Beauty 랜딩과 샘플 리포트 요청 흐름 스모크 검증
+- Head SHA: 433045b
+- Main synced: true (master == origin/master == 433045b)
+- Current track: outbound_validation
+- Next READY: (없음) 자율 비게이트 작업 없음 — 남은 진행은 모두 게이트(실 리드 확보·Gmail OAuth·발송 승인). BLOCKED 참조.
 
 ## Last Done Increment
 
-GH-BOOTSTRAP — Goal Harness 문서, 상태 파일, 검증 스크립트, 로컬 blocklist 정책을 설치했다. 커밋과 push는 수행하지 않았다.
+HARNESS-CAL-0623 — 하네스 상태를 repo 진실(433045b, origin 동기화)에 재정렬하고 라이브 `/en`을 검증했다. STATE/STATUS/TASK_QUEUE를 갱신했다. 커밋·push는 게이트로 남겼다.
 
 ## Current State
 
-- 작업 트리는 기존 사용자·성장 운영 산출물과 이번 K-Beauty 랜딩 변경으로 dirty 상태다.
-- `/en` K-Beauty OEM 포지셔닝 변경은 typecheck, lint, build를 통과했으나 브라우저 스크린샷 검증은 Chrome 실행 파일 부재로 완료되지 않았다.
-- 최신 확인 가능한 자동 집계는 GloSource 사용자 2명, 최근 7일 검색 0건, 결제 0건, 활성 구독 0건이다.
-- K-DEFENSE는 itch.io URL과 홍보 초안은 있으나 KPI 원본 데이터가 없다.
-- 실제 100명 아웃바운드와 교육형 콘텐츠 반응 검증은 아직 시작 증거가 없다.
+- master/origin/HEAD 모두 433045b로 동기화됨. 직전 두 커밋(5a23d48 deploy 기록, 433045b 트래픽 포스트 초안)이 origin에 반영됨.
+- 라이브 검증: `GET https://glosource-ai.vercel.app/en` → HTTP 200, title "Korean K-Beauty OEM Supplier Intelligence", 히어로 키워드(OEM/ODM/MOQ/RFQ/shortlist/supplier) 노출 확인. 새 K-Beauty 랜딩이 프로덕션에 살아있음.
+- 결제 퍼널 건강: Polar checkout 링크 3종 302, 상품 ID 3종 200 (reports/growth/payment-health-2026-06-23.json).
+- KPI 전 항목 0 유지. 실제 고객 반응 증거 없음 — 예시/더미/내부 테스트는 0으로 처리, 조작 없음.
+- 작업 트리는 기존 사용자·자동화 산출물(날짜별 growth 리포트, 2건의 사용자 수정 추적 파일)로 dirty. 이번 세션은 `docs/harness/*`만 편집했고 사용자 파일은 건드리지 않음.
+- K-DEFENSE는 가설·KPI 캡처표만 있고 플랫폼 원본 데이터 없음.
 
 ## Open Flags
 
-- 기본 브랜치에 미커밋 변경이 많다. 다음 제품 증분 전 feature branch 분리가 필요하다.
-- 샘플 리포트 3종 파일의 실제 공개·전달 경로를 확인해야 한다.
-- 브라우저 시각 검증 도구가 준비되지 않았다.
-- K-DEFENSE 플랫폼 분석 데이터 접근 경로가 정의되지 않았다.
+- 작업 트리에 사용자/자동화 미커밋 변경 다수 → 덮어쓰기 금지, `git add .` 금지. 제품 증분은 feature branch에서만.
+- 남은 모든 진행이 게이트: 실제 ICP 리드 확보(intent 채널/인바운드), tianxiawudi1996 Gmail OAuth, 외부 발송 승인.
+- K-DEFENSE 플랫폼 분석 데이터 접근 경로(KDE-DATA-001) 미정.
 - `.claude/settings.json` hook은 현재 환경 schema 확인 전 점화하지 않는다.
 
 ## Gates Pending
@@ -38,13 +38,18 @@ GH-BOOTSTRAP — Goal Harness 문서, 상태 파일, 검증 스크립트, 로컬
 - 실제 결제 또는 환불 테스트 승인
 - 비공개 플랫폼 분석 데이터 접근 승인
 
-## Recent Verification
+## Recent Verification (2026-06-23)
 
-- `npx tsc --noEmit`: green
-- `npm run lint`: green
-- `npm run build`: green, 기존 next-auth Edge Runtime warning 존재
-- Goal Harness 자체 검증: 설치 후 실행 예정
+- `node scripts/check-state-json.mjs`: green
+- `node scripts/check-harness-placeholders.mjs`: green
+- `node scripts/check-sensitive-strings.mjs`: green
+- `git diff --check`: clean (CRLF 경고만)
+- 라이브 `GET /en`: HTTP 200, K-Beauty 히어로 확인
+- 코드 변경 없음 → tsc/lint/build 생략(하네스 문서 증분, REPORT에 사유 기록)
 
 ## Notes for Next Session
 
-READY 최상단 GLO-001만 수행한다. 먼저 현재 변경을 보존하는 feature branch를 만든 뒤, `/en` Hero, 샘플 리포트 폼, 가격 CTA를 360px·1440px에서 스모크 검증한다. 폼 제출은 로컬 또는 테스트 데이터로만 수행하고 외부 이메일 발송은 금지한다.
+자율 비게이트 READY 없음. 다음 진행은 사람이 게이트를 풀어야 한다:
+1. 실제 ICP 리드 확보(플레이북 채널 또는 라이브 /en 인바운드) → GLO-003.
+2. tianxiawudi1996 Gmail OAuth 토큰 + 1차 20명 발송 승인 → GLO-005(EXT-001).
+게이트 전까지는 큐 정리·증거 감사만 수행한다. 사용자 미커밋 변경은 덮어쓰지 않는다.

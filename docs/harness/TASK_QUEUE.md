@@ -19,8 +19,8 @@
 
 ## GATES (사람 결정 필요 — 진행의 핵심 잠금)
 
-1. ✅ **병합 + 배포 완료**: master push(765effc..1fcd30b) → Vercel 자동 배포. 라이브 검증만 남음.
-2. **아웃바운드 가동**(남은 핵심): tianxiawudi1996 Gmail OAuth 토큰 발급 + 실 리드 확보(플레이북 채널) → 발송 승인.
+1. ✅ **병합 + 배포 + 라이브 검증 완료**: master==origin/master==433045b. `GET /en` HTTP 200, K-Beauty 히어로 프로덕션 노출 확인(2026-06-23). offer_live=verified.
+2. **아웃바운드 가동**(남은 핵심 잠금): tianxiawudi1996 Gmail OAuth 토큰 발급 + 실 리드 확보(플레이북 채널/라이브 인바운드) → 발송 승인.
 
 ## DONE
 
@@ -30,5 +30,6 @@
 - GLO-004 @ working-tree — 아웃바운드 preflight dry-run green · 게이트(도메인불일치/중복/provenance) 정상. 단 신규 발송 리드 0(예시뿐).
 - KDE-001 @ working-tree — K-DEFENSE 쇼츠 후킹 가설 3종 + KPI 캡처표 ([kdefense-shorts-hooks.md](../growth/kdefense-shorts-hooks.md)).
 - GLO-003-SOP @ sprint/kbeauty-leads — 리드 소싱 플레이북(채널 쿼리·인테이크 스키마·게이트 워크플로우). 실 리드 수집은 채널/인바운드 대기.
-- DEPLOY @ a052f03 — 5커밋 master 병합(FF) + pre-deploy green → **origin push 완료(765effc..1fcd30b) → Vercel 자동 배포**. 라이브 검증 OK (히어로 노출 확인).
-- GLO-TRAFFIC @ sprint/kbeauty-traffic — 라이브 /en 유입용 소셜 포스트 초안(LinkedIn 3 + Threads 3) ([kbeauty-traffic-posts.md](../growth/kbeauty-traffic-posts.md)). 발행=Oracle/수동(코워크 자동발행 금지).
+- DEPLOY @ a052f03 — 5커밋 master 병합(FF) + pre-deploy green → **origin push 완료(765effc..1fcd30b) → Vercel 자동 배포**.
+- GLO-TRAFFIC @ 433045b — 라이브 /en 유입용 소셜 포스트 초안(LinkedIn 3 + Threads 3) ([kbeauty-traffic-posts.md](../growth/kbeauty-traffic-posts.md)). 발행=Oracle/수동(코워크 자동발행 금지). master 병합 + origin push 완료.
+- HARNESS-CAL-0623 @ working-tree — 하네스 상태를 repo 진실(433045b, origin 동기화)에 재정렬 + 라이브 `/en` 검증(HTTP 200, K-Beauty 히어로). STATE/STATUS/TASK_QUEUE 갱신, 하네스 self-check green. 커밋=게이트.

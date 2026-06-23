@@ -2,19 +2,19 @@
   "schema_version": "1.0.0",
   "project": "GloSource AI + K-DEFENSE Validation OS",
   "repo": "tianxiawudi1996-eng/glosource-ai",
-  "calibrated_at": "2026-06-22T11:30:00+09:00",
+  "calibrated_at": "2026-06-23T20:32:00+09:00",
   "current_branch": "master",
-  "head_sha": "a052f03",
-  "main_sha": "a052f03",
-  "origin_main_sha": "1fcd30b",
+  "head_sha": "433045b",
+  "main_sha": "433045b",
+  "origin_main_sha": "433045b",
   "main_synced": true,
   "track": "outbound_validation",
   "last_done_increment": {
-    "id": "DEPLOY",
-    "sha": "a052f03",
-    "summary": "Pushed master to origin (765effc..1fcd30b) -> Vercel auto-deploy of K-Beauty landing. Merged leads branch (playbook). Pre-deploy gate green (audit/payments). 6 increments shipped: harness, GLO-001/002/004, KDE-001, GLO-003-SOP."
+    "id": "GLO-TRAFFIC",
+    "sha": "433045b",
+    "summary": "Live /en verified in production (HTTP 200, title 'Korean K-Beauty OEM Supplier Intelligence', hero keywords OEM/ODM/MOQ/RFQ/shortlist present). master==origin/master==433045b after 5a23d48 (deploy record) + 433045b (traffic post drafts). 7 increments shipped: harness, GLO-001/002/004, KDE-001, GLO-003-SOP, GLO-TRAFFIC + DEPLOY."
   },
-  "next_ready_task": "Post-deploy: verify live /en + monitor inbound sample-report requests. Outbound (GLO-003 real capture -> GLO-005 send) still needs intent-channel leads + Gmail OAuth + send approval.",
+  "next_ready_task": "Live offer verified. Remaining progress is gated: GLO-003 real ICP lead capture via intent channels (human/inbound) -> GLO-005 send needs tianxiawudi1996 Gmail OAuth + send approval (EXT-001). No fabrication; KPIs stay 0 until real evidence.",
   "resource_allocation": {
     "glosource_percent": 80,
     "k_defense_percent": 20,
@@ -59,7 +59,7 @@
       "id": "DB-3",
       "text": "K-Beauty landing and conversion funnel verified",
       "met": true,
-      "evidence": "GLO-001: tsc+lint+build green; 360/1440 browser smoke green. reports/growth/glo-001-smoke/"
+      "evidence": "GLO-001: tsc+lint+build green; 360/1440 browser smoke green (reports/growth/glo-001-smoke/). 2026-06-23 live verify: GET /en HTTP 200, K-Beauty OEM hero served in production."
     },
     {
       "id": "DB-4",
@@ -83,8 +83,8 @@
   "open_flags": [
     {
       "flag": "offer_live",
-      "state": "deployed",
-      "resolves_in": "Done: pushed to origin/master -> Vercel auto-deploy. Verify https://glosource-ai.vercel.app/en shows new K-Beauty hero after build."
+      "state": "verified",
+      "resolves_in": "Resolved 2026-06-23: GET https://glosource-ai.vercel.app/en -> HTTP 200, title 'GloSource AI — Korean K-Beauty OEM Supplier Intelligence', hero keywords (OEM/ODM/MOQ/RFQ/shortlist/supplier) present. New K-Beauty landing is live."
     },
     {
       "flag": "real_lead_capture_blocked",
@@ -116,13 +116,14 @@
     "private_platform_analytics_access"
   ],
   "verification": {
-    "last_green_at": "2026-06-22T11:30:00+09:00",
+    "last_green_at": "2026-06-23T20:32:00+09:00",
     "commands": [
       "node scripts/check-state-json.mjs docs/harness/STATE.json",
       "node scripts/check-harness-placeholders.mjs docs/harness",
       "node scripts/check-sensitive-strings.mjs .harness-blocklist.local",
-      "npm run growth:outreach:preflight"
+      "git diff --check",
+      "curl -sL https://glosource-ai.vercel.app/en (HTTP 200, K-Beauty hero verified)"
     ],
-    "summary": "Autonomous loop ran 4 increments (GLO-001/002/004 + KDE-001) to green. Now at wall: all remaining READY need human gates (deploy, real lead capture, outbound send, payment). Harness self-checks green."
+    "summary": "2026-06-23 calibration: harness state realigned to repo truth (head/main/origin all 433045b, origin synced). Live /en verified in production. Evidence audit: all KPIs remain 0 (no real customer evidence yet; no fabrication). Wall unchanged: remaining progress is gated (real lead capture, Gmail OAuth, outbound send, payment)."
   }
 }
