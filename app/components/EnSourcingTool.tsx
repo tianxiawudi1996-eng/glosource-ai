@@ -8,6 +8,7 @@ import TrustScoreGauge from './TrustScoreGauge';
 import ExportButton from './ExportButton';
 import EmptyState from './EmptyState';
 import { trackSearch, trackBeginCheckout } from '@/app/lib/analytics';
+import GloSourceVoiceModal from './GloSourceVoiceModal';
 
 type SourceRegion = 'china' | 'korea';
 
@@ -218,8 +219,9 @@ async function trackAbuseEvent(event: string, metadata: Record<string, unknown>)
   } catch { /* best-effort telemetry */ }
 }
 
-function SupplierCard({ s, rank, keyword, locked }: { s: Supplier; rank: number; keyword: string; locked: boolean }) {
+function SupplierCard({ s, rank, keyword, locked, onStartVoiceCall }: { s: Supplier; rank: number; keyword: string; locked: boolean; onStartVoiceCall?: (supplier: Supplier) => void }) {
   const isVerified = s.verificationStatus === 'grounding_confirmed';
+  const dbVerified = s.dbVerified === true;
   const trustEvidence = Array.isArray(s.trustEvidence) ? s.trustEvidence : [];
   const redFlags = Array.isArray(s.redFlags) ? s.redFlags : [];
   const certs = extractCerts(trustEvidence);
@@ -237,11 +239,19 @@ function SupplierCard({ s, rank, keyword, locked }: { s: Supplier; rank: number;
             <p className="text-xs text-slate-400 mt-0.5">{s.platform} · {s.country}</p>
           </div>
         </div>
-        <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold border flex-shrink-0 ${isVerified ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-slate-100 border-slate-200 text-slate-500'}`}>
-          <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${isVerified ? 'bg-emerald-500' : 'bg-slate-400'}`} />
-          <span className="hidden sm:inline">{isVerified ? 'Search-grounded URL signal' : 'AI Estimate - Not Search-Grounded'}</span>
-          <span className="sm:hidden">{isVerified ? 'Grounded' : 'AI Est.'}</span>
-        </span>
+        {dbVerified ? (
+          <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold border flex-shrink-0 bg-blue-50 border-blue-300 text-blue-700" title="Matched a manually-curated supplier in the GloSource verified database">
+            <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 bg-blue-500" />
+            <span className="hidden sm:inline">GloSource Verified (curated)</span>
+            <span className="sm:hidden">Verified</span>
+          </span>
+        ) : (
+          <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold border flex-shrink-0 ${isVerified ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-slate-100 border-slate-200 text-slate-500'}`}>
+            <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${isVerified ? 'bg-emerald-500' : 'bg-slate-400'}`} />
+            <span className="hidden sm:inline">{isVerified ? 'Search-grounded URL signal' : 'AI Estimate - Not Search-Grounded'}</span>
+            <span className="sm:hidden">{isVerified ? 'Grounded' : 'AI Est.'}</span>
+          </span>
+        )}
       </div>
 
       {/* Cert badges — only shown for grounding_confirmed suppliers */}
@@ -339,6 +349,20 @@ function SupplierCard({ s, rank, keyword, locked }: { s: Supplier; rank: number;
       {s.url && !isVerified && (
         <p className="text-[11px] text-slate-400 italic">Verify supplier contact details independently before outreach.</p>
       )}
+
+      {/* GloSource Voice Call Button */}
+      {!locked && (
+        <button
+          type="button"
+          onClick={() => onStartVoiceCall?.(s)}
+          className="mt-2 w-full min-h-[38px] py-2 px-4 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 transition-all flex items-center justify-center gap-1.5 shadow-sm hover:scale-[1.01]"
+        >
+          <svg className="w-3.5 h-3.5 fill-current shrink-0" viewBox="0 0 24 24">
+            <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 00-1.01.24l-2.2 2.2a15.045 15.045 0 01-6.59-6.59l2.2-2.21a.96.96 0 00.25-1A11.56 11.56 0 018.82 4c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1 0 9.39 7.61 17 17 17 .55 0 1-.45 1-1v-3.62c0-.55-.45-1-1-1z" />
+          </svg>
+          GloSource Voice (live interpreted negotiation)
+        </button>
+      )}
     </div>
   );
 }
@@ -394,6 +418,14 @@ export default function EnSourcingTool({
   const [freeCount, setFreeCount] = useState(0);
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [autoSubmitPending, setAutoSubmitPending] = useState(false);
+  const [activeCallSupplier, setActiveCallSupplier] = useState<Supplier | null>(null);
+  const [isCallModalOpen, setIsCallModalOpen] = useState(false);
+
+  const handleStartVoiceCall = (supplier: Supplier) => {
+    setActiveCallSupplier(supplier);
+    setIsCallModalOpen(true);
+  };
+
   const formRef = useRef<HTMLFormElement>(null);
   const loadingSteps = region === 'china' ? CHINA_LOADING_STEPS : KOREA_LOADING_STEPS;
   const submitLabel = region === 'china' ? 'Find China Suppliers →' : 'Find Korean Suppliers →';
@@ -460,7 +492,9 @@ export default function EnSourcingTool({
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
-      if (msg === '__quota_exceeded__' || /quota|subscription|limit/i.test(msg)) {
+      if (/verify your email|email_verification_required/i.test(msg)) {
+        setError("We've emailed you a verification link — click it to unlock your free monthly searches. Didn't get it? Check your spam folder, or email hello@glosource.ai and we'll help you in.");
+      } else if (msg === '__quota_exceeded__' || /quota|subscription|limit/i.test(msg)) {
         if (isFreePlan) {
           setShowUpgrade(true);
         } else {
@@ -748,7 +782,7 @@ export default function EnSourcingTool({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {result.suppliers.map((s, i) => (
                   <div key={s.rank}>
-                    <SupplierCard s={s} rank={i + 1} keyword={product} locked={result.access?.supplierDetailsLocked ?? false} />
+                    <SupplierCard s={s} rank={i + 1} keyword={product} locked={result.access?.supplierDetailsLocked ?? false} onStartVoiceCall={handleStartVoiceCall} />
                   </div>
                 ))}
               </div>
@@ -848,6 +882,13 @@ export default function EnSourcingTool({
           {isFreePlan && searchesLeft <= 2 && <SourcingEmailCapture />}
         </div>
       )}
+
+      {/* GloSource Voice Call Modal */}
+      <GloSourceVoiceModal
+        supplier={activeCallSupplier}
+        isOpen={isCallModalOpen}
+        onClose={() => setIsCallModalOpen(false)}
+      />
     </div>
   );
 }

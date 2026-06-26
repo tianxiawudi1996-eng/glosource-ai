@@ -15,7 +15,7 @@ const ORG_SCHEMA = {
   alternateName: 'GloSource',
   url: 'https://glosource-ai.vercel.app',
   logo: 'https://glosource-ai.vercel.app/images/glosource-logo.png',
-  email: 'glosourceai@gmail.com',
+  email: 'hello@glosource.ai',
   description:
     'AI-powered Korean supplier research tool that helps international buyers find K-beauty, K-food, K-fashion and other Korean manufacturer candidates from EC21, BuyKorea (KOTRA), and tradeKorea in under 90 seconds.',
   sameAs: [
@@ -25,7 +25,7 @@ const ORG_SCHEMA = {
   contactPoint: {
     '@type': 'ContactPoint',
     contactType: 'customer support',
-    email: 'glosourceai@gmail.com',
+    email: 'hello@glosource.ai',
     availableLanguage: ['English', 'Korean'],
   },
 };
@@ -68,13 +68,6 @@ const APP_SCHEMA = {
       price: '49',
       priceCurrency: 'USD',
       description: '60 searches / month · Korea + China sourcing',
-    },
-    {
-      '@type': 'Offer',
-      name: 'Agency',
-      price: '149',
-      priceCurrency: 'USD',
-      description: '999 searches / month · high-volume sourcing support',
     },
   ],
   aggregateRating: undefined, // TODO: add after 5+ verified user reviews

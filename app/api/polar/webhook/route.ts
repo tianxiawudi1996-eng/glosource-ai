@@ -32,7 +32,15 @@ async function verifyPolarSignature(request: NextRequest, body: string): Promise
   if (isNaN(ts) || Math.abs(Date.now() / 1000 - ts) > 300) return false;
 
   const signedContent = `${msgId}.${msgTimestamp}.${body}`;
-  const secretBytes = Buffer.from(secret.startsWith('whsec_') ? secret.slice(6) : secret, 'base64');
+  // HMAC key derivation differs by secret format:
+  // - Native StandardWebhooks `whsec_<base64>`: key = base64-decode of the part after the prefix.
+  // - Polar `polar_whs_<...>`: Polar's validateEvent base64-ENCODES the whole secret string and
+  //   hands it to standardwebhooks (which base64-DECODES it back), so the effective key is the
+  //   raw UTF-8 bytes of the full secret string. Base64-decoding it (the old behavior) produced a
+  //   wrong key → every genuine Polar webhook failed verification (401) → paid users never upgraded.
+  const secretBytes = secret.startsWith('whsec_')
+    ? Buffer.from(secret.slice(6), 'base64')
+    : Buffer.from(secret, 'utf-8');
 
   const key = await crypto.subtle.importKey(
     'raw', secretBytes, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'],

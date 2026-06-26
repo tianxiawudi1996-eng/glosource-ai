@@ -10,11 +10,11 @@
   "main_synced": true,
   "track": "outbound_validation",
   "last_done_increment": {
-    "id": "GLO-TRAFFIC",
-    "sha": "433045b",
-    "summary": "Live /en verified in production (HTTP 200, title 'Korean K-Beauty OEM Supplier Intelligence', hero keywords OEM/ODM/MOQ/RFQ/shortlist present). master==origin/master==433045b after 5a23d48 (deploy record) + 433045b (traffic post drafts). 7 increments shipped: harness, GLO-001/002/004, KDE-001, GLO-003-SOP, GLO-TRAFFIC + DEPLOY."
+    "id": "GLO-EN-VERIFYGUIDE",
+    "sha": "working-tree (uncommitted, build green)",
+    "summary": "2026-06-26 /en payment-readiness sprint after a 5-agent audit. 3 verified increments in the working tree (next build exit 0), NOT yet deployed (deploy=human gate). (1) PHASE0-FIX: Polar webhook signature bug fixed — the polar_whs_ secret was base64-decoded, producing the wrong HMAC key; proven via the real standardwebhooks lib that the old code 401-rejected every genuine Polar webhook (paid users never got upgraded). Also removed /api/voice/token raw GEMINI_API_KEY exposure (now 501), removed the modal NEXT_PUBLIC key fallback, fixed 4 lint errors that broke next build. (2) GLO-EN-INTEGRITY: removed phantom JSON-LD Agency $149 tier + gmail->hello@; waitlist responses locale-aware EN/KO; /en voice CTA Korean->English; sample-report lead form now actually delivers (public/sample-reports/ + link on submit) instead of a false 'we will send' promise. (3) GLO-EN-URLVERIFY: server-side supplier URL liveness check downgrades dead-link suppliers from web-confirmed to ai_estimated (audit finding #1)."
   },
-  "next_ready_task": "Live offer verified. Remaining progress is gated: GLO-003 real ICP lead capture via intent channels (human/inbound) -> GLO-005 send needs tianxiawudi1996 Gmail OAuth + send approval (EXT-001). No fabrication; KPIs stay 0 until real evidence.",
+  "next_ready_task": "GATE: deploy the 3 working-tree increments (EXT-002, human approval; build green). The Polar webhook fix is the critical one — proven by a standardwebhooks signature test; recommend one live Polar test-mode payment post-deploy to double-confirm. Non-gated code increments remaining: GLO-EN-DBCROSS (cross-check vs verified_suppliers, but DB is empty = Phase 1b data gate), GLO-EN-PAYHIST (handle Polar order.* events), GLO-EN-VERIFYRESEND. No fabrication; KPIs stay 0 until real evidence.",
   "resource_allocation": {
     "glosource_percent": 80,
     "k_defense_percent": 20,

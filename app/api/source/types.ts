@@ -38,6 +38,7 @@ export interface Supplier {
   moq: string;
   summary: string;
   verificationStatus: VerificationStatus;
+  dbVerified?: boolean; // matched a manually-curated row in verified_suppliers (real, GloSource-curated)
   productStage: ProductStage;
   leadTimeDays: string;
   hscode: string;

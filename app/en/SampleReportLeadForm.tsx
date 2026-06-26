@@ -26,6 +26,7 @@ export default function SampleReportLeadForm() {
   const [category, setCategory] = useState<ReportKey>('serum');
   const [status, setStatus] = useState<Status>('idle');
   const [message, setMessage] = useState('');
+  const [reportUrl, setReportUrl] = useState('');
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -52,8 +53,9 @@ export default function SampleReportLeadForm() {
       }
 
       trackSampleReportRequest(category);
+      setReportUrl(`/sample-reports/${category}-oem-sample-report.md`);
       setStatus('done');
-      setMessage(`Request received. We will send the ${REPORTS[category].label} sample report to ${email.trim()}.`);
+      setMessage(`Your ${REPORTS[category].label} sample report is ready — open it below.`);
     } catch {
       setStatus('error');
       setMessage('Network error. Please try again or email hello@glosource.ai.');
@@ -120,14 +122,26 @@ export default function SampleReportLeadForm() {
         </p>
 
         {message ? (
-          <p
-            role="status"
-            className={`mt-4 rounded-lg px-3 py-2 text-xs leading-5 ${
-              status === 'done' ? 'bg-emerald-500/15 text-emerald-200' : 'bg-red-500/15 text-red-200'
-            }`}
-          >
-            {message}
-          </p>
+          <div className="mt-4">
+            <p
+              role="status"
+              className={`rounded-lg px-3 py-2 text-xs leading-5 ${
+                status === 'done' ? 'bg-emerald-500/15 text-emerald-200' : 'bg-red-500/15 text-red-200'
+              }`}
+            >
+              {message}
+            </p>
+            {status === 'done' && reportUrl ? (
+              <a
+                href={reportUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 block w-full rounded-xl bg-white px-4 py-3 text-center text-sm font-black text-[#0D1B2A] transition-colors hover:bg-slate-100"
+              >
+                Open your {REPORTS[category].label} sample report →
+              </a>
+            ) : null}
+          </div>
         ) : null}
       </form>
     </div>

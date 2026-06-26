@@ -9,7 +9,7 @@ import { checkAuthAndQuota, logUsage } from '../../lib/authMiddleware';
 import { enforceVerifiedSupplierQualityGate, verifiedSupplierUnavailableMessage } from '../../lib/supplier-verification';
 import { matchAeoCompanies } from '../../lib/aeo-companies';
 import { logAbuseSignal } from '@/app/lib/abuse';
-import { db, usageLogs, searchHistory } from '@/app/lib/db';
+import { db, usageLogs, searchHistory, verifiedSuppliers } from '@/app/lib/db';
 import { and, eq, gte, or } from 'drizzle-orm';
 
 export const maxDuration = 120;
@@ -27,6 +27,62 @@ const GOOGLE_SEARCH_TOOLS_15: Tool[] = [{
 // Gemini 2.x: uses { googleSearch: {} } — different API from 1.5
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const GOOGLE_SEARCH_TOOLS_20: Tool[] = [{ googleSearch: {} } as any];
+
+// Best-effort server-side liveness check: a supplier keeps its "web-confirmed" badge only
+// if its listed URL actually resolves. Hard failures (DNS/connection error, 404/410) downgrade
+// the supplier to ai_estimated + add a red flag, so a buyer is never shown a "confirmed"
+// supplier whose link is dead (audit finding #1). Timeouts / 403 / anti-bot are treated as
+// ambiguous (not penalized). Runs in parallel, 4s per-URL timeout, and never throws.
+async function verifySupplierUrls(suppliers: Supplier[]): Promise<void> {
+  await Promise.allSettled(
+    suppliers.map(async (s) => {
+      if (!s.url || !/^https?:\/\//i.test(s.url)) return;
+      let dead = false;
+      try {
+        const res = await fetch(s.url, {
+          method: 'GET',
+          redirect: 'follow',
+          signal: AbortSignal.timeout(4000),
+          headers: { 'User-Agent': 'Mozilla/5.0 (compatible; GloSourceBot/1.0; +https://glosource-ai.vercel.app)' },
+        });
+        if (res.status === 404 || res.status === 410) dead = true;
+      } catch (err) {
+        const name = (err as { name?: string } | null)?.name;
+        if (name === 'AbortError' || name === 'TimeoutError') return; // slow/blocking site — don't penalize
+        dead = true; // DNS / connection failure → treat as dead
+      }
+      if (dead) {
+        s.verificationStatus = 'ai_estimated';
+        const existing = Array.isArray(s.redFlags) ? s.redFlags : [];
+        s.redFlags = ['Listed URL did not resolve on an automated check — verify the supplier and link directly.', ...existing];
+      }
+    }),
+  );
+}
+
+// Cross-check LLM results against the manually-curated verified_suppliers DB: if a returned
+// supplier's URL host matches a curated row, flag it dbVerified (a real GloSource-curated
+// signal) and surface the curated certifications. No-op when the DB is empty.
+async function crossCheckVerifiedDb(suppliers: Supplier[]): Promise<void> {
+  const rows = await db
+    .select({ url: verifiedSuppliers.url, certifications: verifiedSuppliers.certifications })
+    .from(verifiedSuppliers)
+    .where(eq(verifiedSuppliers.active, true))
+    .limit(500);
+  if (rows.length === 0) return;
+  const host = (u: string) => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch { return ''; } };
+  const byHost = new Map<string, string | null>();
+  for (const r of rows) { const h = r.url ? host(r.url) : ''; if (h) byHost.set(h, r.certifications); }
+  for (const s of suppliers) {
+    const h = s.url ? host(s.url) : '';
+    if (h && byHost.has(h)) {
+      s.dbVerified = true;
+      s.verificationStatus = 'grounding_confirmed';
+      const certs = byHost.get(h);
+      if (certs) s.trustEvidence = [certs, ...(Array.isArray(s.trustEvidence) ? s.trustEvidence : [])];
+    }
+  }
+}
 
 function sanitizeInput(raw: string): string {
   return raw
@@ -797,6 +853,11 @@ export async function POST(request: NextRequest) {
     }
 
     const output = qualityGate.output;
+
+    // Verify listed URLs actually resolve before any "web-confirmed" badge is shown (best-effort).
+    try { await verifySupplierUrls(output.suppliers); } catch { /* never block the response */ }
+    // Flag any result that matches a real, manually-curated supplier in our verified DB.
+    try { await crossCheckVerifiedDb(output.suppliers); } catch { /* never block the response */ }
 
     // AEO 매칭: 제품 검색어 기준으로 한국/중국 AEO 공인기업 매칭
     const aeoQuery = `${req.productDescription} ${req.categoryCode ?? ''}`.trim();
