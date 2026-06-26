@@ -5,7 +5,6 @@
 ## READY (다음 비게이트 증분 — /en 결제-준비, 5에이전트 감사 기반)
 
 - GLO-EN-PAYHIST — Polar `order.*` 이벤트 처리해 결제내역/영수증 기록(billing "내역 없음" 해소). 결제 인접 — 주의.
-- GLO-EN-VERIFYRESEND (full) — 인증메일 **재발송 엔드포인트 + 버튼**(현재는 안내 메시지까지 완료=VERIFYGUIDE). 이메일 인프라(Resend) 신뢰성 선결 권장.
 - GLO-EN-TRUSTANCHOR — 창업자 실명/사진/LinkedIn/사업자등록번호 신뢰앵커(실데이터, 날조 X). 일부 사람 입력 필요.
 
 ## BLOCKED (게이트/외부 필요)
@@ -22,12 +21,14 @@
 ## GATES (사람 결정 필요 — 진행의 핵심 잠금)
 
 1. ✅ **병합 + 배포 + 라이브 검증 완료**(2026-06-23): master==origin/master==433045b. `GET /en` HTTP 200.
-2. **/en 결제-준비 수정 배포**(신규 핵심 잠금): PHASE0-FIX + GLO-EN-INTEGRITY가 working tree에 빌드 green으로 대기 중. **배포(EXT-002) = 사람 승인** 필요(외부·결제 영향). 특히 Polar 웹훅 수정은 라이브 결제 경로라, 배포 후 **Polar 테스트모드 결제 1회로 최종 확인** 권장(코드는 standardwebhooks 실서명으로 이미 입증됨).
+2. ✅ **/en 결제-준비 배포 완료**(2026-06-26, 3b306dc): 5증분 origin/master FF 푸시 → Vercel 배포 → 라이브 검증(/en 200, 유령 Agency 제거, sample-report 200, hello@ 반영). **남은 활성화**: (a) `scripts/seed-suppliers.ts`를 prod DB에 실행해야 DBCROSS Verified 배지 작동(DATABASE_URL 필요), (b) Polar 테스트결제 1회로 웹훅 end-to-end 확인.
 3. **Phase 1b — 실 공급사 데이터**: `verified_suppliers` DB가 비어있음(시드 없음). "진짜화"의 진짜 자료는 사람이 큐레이션 수집해야 함(날조 금지). 1a 코드 배선은 비게이트로 선행 가능.
 4. **아웃바운드 가동**: tianxiawudi1996 Gmail OAuth + 실 리드 → 발송 승인.
 
 ## DONE
 
+- GLO-EN-VERIFYRESEND-FULL @ working-tree(2026-06-26) — 인증메일 재발송: 세션-게이트 엔드포인트 `POST /api/auth/verify-email/resend`(register 토큰 흐름 미러, 이메일 열거 방지) + EnSourcingTool에 amber 안내박스 + "Resend verification email" 버튼(sending/sent/error 상태). build green.
+- DEPLOY-EN-0626 @ 3b306dc(2026-06-26) — /en 결제-준비 5증분(PHASE0-FIX·INTEGRITY·URLVERIFY·DBCROSS·VERIFYGUIDE) origin/master FF 푸시 → Vercel 자동배포 → **라이브 검증**(/en HTTP 200, 유령 Agency/149 제거, `/sample-reports/*.md` 200, hello@glosource.ai 반영). pre-deploy: sensitive/state/placeholder clean + next build green. SupplierCard.tsx(한국 voice WIP, 부모 미배선)·무관 reports/data/ops 제외.
 - PHASE0-FIX @ working-tree(2026-06-26) — **Polar 웹훅 서명검증 버그 수정**(`polar_whs_` 시크릿을 base64디코드하던 것 → utf-8 키로; standardwebhooks 실서명으로 **결정적 입증**: 구버전은 진짜 웹훅 100% 401거부 = 결제해도 권한 미부여) · `/api/voice/token` Gemini 키 무인증 노출 제거(501, 키 미전송) · 모달 `NEXT_PUBLIC` 키 fallback 제거 · 모달 lint 4건 → `next build` **exit 0**.
 - GLO-EN-INTEGRITY @ working-tree(2026-06-26) — JSON-LD 유령 Agency $149 티어 제거 + 연락처 gmail→hello@glosource.ai · waitlist 응답 locale-aware(EN/KO) · /en 음성 CTA 한국어→영어 · **샘플리포트 리드폼 실배송**(`public/sample-reports/` + 제출 후 실제 리포트 링크 노출, "보내드립니다" 거짓약속 제거). build green. (SupplierCard.tsx 한국어는 한국 랜딩 전용이라 유지.)
 - GLO-EN-URLVERIFY @ working-tree(2026-06-26, Phase 1a) — `app/api/source/route.ts`에 서버측 공급사 URL 생존검증 추가: 하드 실패(DNS/연결오류·404/410)면 verificationStatus를 'web-confirmed'→ai_estimated로 강등 + redFlag 추가 → **죽은 링크가 'confirmed'로 표시되던 감사 #1 직접 차단**. 타임아웃/403=미penalize, 병렬·4s 타임아웃·응답 절대 안 깸. build green.

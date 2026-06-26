@@ -417,6 +417,8 @@ export default function EnSourcingTool({
   const [rfqTranslateError, setRfqTranslateError] = useState<string | null>(null);
   const [freeCount, setFreeCount] = useState(0);
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const [verifyBlocked, setVerifyBlocked] = useState(false);
+  const [resendState, setResendState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
   const [autoSubmitPending, setAutoSubmitPending] = useState(false);
   const [activeCallSupplier, setActiveCallSupplier] = useState<Supplier | null>(null);
   const [isCallModalOpen, setIsCallModalOpen] = useState(false);
@@ -479,6 +481,7 @@ export default function EnSourcingTool({
     setError(null);
     setResult(null);
     setShowUpgrade(false);
+    setVerifyBlocked(false);
     try {
       const output = await callAPI(product, quantity, budget, region, buyerCountry);
       setResult(output);
@@ -493,7 +496,8 @@ export default function EnSourcingTool({
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
       if (/verify your email|email_verification_required/i.test(msg)) {
-        setError("We've emailed you a verification link — click it to unlock your free monthly searches. Didn't get it? Check your spam folder, or email hello@glosource.ai and we'll help you in.");
+        setVerifyBlocked(true);
+        setResendState('idle');
       } else if (msg === '__quota_exceeded__' || /quota|subscription|limit/i.test(msg)) {
         if (isFreePlan) {
           setShowUpgrade(true);
@@ -505,6 +509,16 @@ export default function EnSourcingTool({
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    setResendState('sending');
+    try {
+      const res = await fetch('/api/auth/verify-email/resend', { method: 'POST' });
+      setResendState(res.ok ? 'sent' : 'error');
+    } catch {
+      setResendState('error');
     }
   };
 
@@ -650,7 +664,29 @@ export default function EnSourcingTool({
       </form>
 
       {/* Error */}
-      {error && (
+      {verifyBlocked && (
+        <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 p-5">
+          <p className="text-sm font-bold text-amber-800 mb-1">Verify your email to start searching</p>
+          <p className="text-sm text-amber-700 leading-relaxed">
+            We&apos;ve emailed you a verification link — click it to unlock your free monthly searches.
+            Didn&apos;t get it? Check your spam folder, resend below, or email{' '}
+            <a href="mailto:hello@glosource.ai" className="font-semibold underline">hello@glosource.ai</a>.
+          </p>
+          <button
+            type="button"
+            onClick={handleResendVerification}
+            disabled={resendState === 'sending' || resendState === 'sent'}
+            className="mt-3 rounded-xl bg-[#EA580C] px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-[#DC4C00] disabled:opacity-60"
+          >
+            {resendState === 'sent' ? 'Verification email sent ✓' : resendState === 'sending' ? 'Sending…' : 'Resend verification email'}
+          </button>
+          {resendState === 'error' && (
+            <p className="mt-2 text-xs text-red-600">Could not resend right now. Please email hello@glosource.ai.</p>
+          )}
+        </div>
+      )}
+
+      {error && !verifyBlocked && (
         <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-5 flex items-start gap-3">
           <svg className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
