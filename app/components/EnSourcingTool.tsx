@@ -515,7 +515,7 @@ export default function EnSourcingTool({
   const handleResendVerification = async () => {
     setResendState('sending');
     try {
-      const res = await fetch('/api/auth/verify-email/resend', { method: 'POST' });
+      const res = await fetch('/api/resend-verification', { method: 'POST' });
       setResendState(res.ok ? 'sent' : 'error');
     } catch {
       setResendState('error');

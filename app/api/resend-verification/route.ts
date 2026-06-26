@@ -5,7 +5,9 @@ import { db, users, verificationTokens } from '@/app/lib/db';
 import { sendVerificationEmail } from '@/app/lib/email';
 
 // Resend the email-verification link for the currently logged-in user.
-// Session-gated (only the logged-in user can trigger it for their own email) — no enumeration.
+// NOTE: deliberately NOT under /api/auth/* — Auth.js intercepts POSTs there with CSRF and
+// returns 400 before the handler runs. Session-gated (only the logged-in user can trigger it
+// for their own email) — no enumeration.
 export async function POST() {
   const session = await auth();
   const email = session?.user?.email?.toLowerCase();
