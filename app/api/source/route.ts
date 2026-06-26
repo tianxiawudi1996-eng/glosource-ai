@@ -920,6 +920,21 @@ export async function POST(request: NextRequest) {
     try { await verifySupplierUrls(output.suppliers); } catch { /* never block the response */ }
     // Flag any result that matches a real, manually-curated supplier in our verified DB.
     try { await crossCheckVerifiedDb(output.suppliers); } catch { /* never block the response */ }
+    // Surface up to 2 curated verified suppliers ahead of LLM candidates (deduped by host).
+    // They carry the dbVerified badge + their notes (incl. MOQ caveats), so high-MOQ ODMs are
+    // labelled honestly rather than implied to fit every buyer.
+    try {
+      const fb = await dbFallbackOutput(req, lang);
+      const dbSups = fb?.suppliers ?? [];
+      if (dbSups.length) {
+        const host = (u: string) => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch { return ''; } };
+        const seen = new Set((output.suppliers ?? []).map(s => host(s.url)).filter(Boolean));
+        const fresh = dbSups.filter(s => { const h = host(s.url); return !h || !seen.has(h); }).slice(0, 2);
+        if (fresh.length) {
+          output.suppliers = [...fresh, ...output.suppliers].map((s, i) => ({ ...s, rank: i + 1 }));
+        }
+      }
+    } catch { /* never block the response */ }
 
     // AEO 매칭: 제품 검색어 기준으로 한국/중국 AEO 공인기업 매칭
     const aeoQuery = `${req.productDescription} ${req.categoryCode ?? ''}`.trim();
