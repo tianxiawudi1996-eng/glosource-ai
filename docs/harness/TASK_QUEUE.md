@@ -22,12 +22,13 @@
 
 1. ✅ **병합 + 배포 + 라이브 검증 완료**(2026-06-23): master==origin/master==433045b. `GET /en` HTTP 200.
 2. ✅ **/en 결제-준비 배포 완료**(2026-06-26, 3b306dc): 5증분 origin/master FF 푸시 → Vercel 배포 → 라이브 검증(/en 200, 유령 Agency 제거, sample-report 200, hello@ 반영). **남은 활성화**: (a) `scripts/seed-suppliers.ts`를 prod DB에 실행해야 DBCROSS Verified 배지 작동(DATABASE_URL 필요), (b) Polar 테스트결제 1회로 웹훅 end-to-end 확인.
-3. **Phase 1b — 실 공급사 데이터**: `verified_suppliers` DB가 비어있음(시드 없음). "진짜화"의 진짜 자료는 사람이 큐레이션 수집해야 함(날조 금지). 1a 코드 배선은 비게이트로 선행 가능.
+3. 🔴 **Phase 1b — 시드 실행(신뢰성 필수 잠금)**: `verified_suppliers` DB가 비어있어, 라이브 검색이 LLM 그라운딩 실패 시 424/500으로 **0건**을 반환함(점검 확인). DBCROSS+DBFALLBACK 코드는 배포됐으나 **시드 전까지 inert** → 시드를 실행해야 검색이 LLM 실패에도 실제 공급사를 반환(신뢰성 확보). `scripts/seed-suppliers.ts`는 실제 회사(날조 0)·멱등. **prod DB 쓰기는 classifier가 막아(일반 '진행'/'자율' 불충분) 명시 승인 필요**: "시드 prod 실행 승인" 또는 사람이 직접 `node --env-file=.env.local --import tsx scripts/seed-suppliers.ts`. 저MOQ 인디 공장 확장은 추가 큐레이션.
 4. **아웃바운드 가동**: tianxiawudi1996 Gmail OAuth + 실 리드 → 발송 승인.
 
 ## DONE
 
-- GLO-EN-VERIFYRESEND-FULL @ working-tree(2026-06-26) — 인증메일 재발송: 세션-게이트 엔드포인트 `POST /api/auth/verify-email/resend`(register 토큰 흐름 미러, 이메일 열거 방지) + EnSourcingTool에 amber 안내박스 + "Resend verification email" 버튼(sending/sent/error 상태). build green.
+- GLO-EN-DBFALLBACK @ 2026-06-26 — 라이브 스모크 점검에서 검색이 **424**(quality gate가 LLM 후보 전부 기각)·**500**("All AI models unavailable", 무거운 grounding 3연타로 자가 rate-limit 추정)으로 **0건 반환** 확인. 제 변경 회귀 아님(URL검증·DB교차는 gate 이후). **DB 폴백 추가**: 500/424 시 `verified_suppliers`의 카테고리 매치를 `dbVerified`로 반환 → LLM 변덕에도 실제 공급사 제공. 빈 DB면 no-op(안전). build green. **활성화=시드 실행 필수.**
+- GLO-EN-VERIFYRESEND-FULL @ 996a7fb(2026-06-26, 배포+검증) — 인증메일 재발송: 세션-게이트 엔드포인트 `POST /api/resend-verification`(register 토큰 흐름 미러, 이메일 열거 방지) + EnSourcingTool amber 안내박스 + "Resend verification email" 버튼. **NextAuth가 /api/auth/* POST를 CSRF로 400 가로채던 것 발견 → /api/auth 밖으로 이동(fix-forward)**. 라이브 검증: POST→401(세션게이트 정상).
 - DEPLOY-EN-0626 @ 3b306dc(2026-06-26) — /en 결제-준비 5증분(PHASE0-FIX·INTEGRITY·URLVERIFY·DBCROSS·VERIFYGUIDE) origin/master FF 푸시 → Vercel 자동배포 → **라이브 검증**(/en HTTP 200, 유령 Agency/149 제거, `/sample-reports/*.md` 200, hello@glosource.ai 반영). pre-deploy: sensitive/state/placeholder clean + next build green. SupplierCard.tsx(한국 voice WIP, 부모 미배선)·무관 reports/data/ops 제외.
 - PHASE0-FIX @ working-tree(2026-06-26) — **Polar 웹훅 서명검증 버그 수정**(`polar_whs_` 시크릿을 base64디코드하던 것 → utf-8 키로; standardwebhooks 실서명으로 **결정적 입증**: 구버전은 진짜 웹훅 100% 401거부 = 결제해도 권한 미부여) · `/api/voice/token` Gemini 키 무인증 노출 제거(501, 키 미전송) · 모달 `NEXT_PUBLIC` 키 fallback 제거 · 모달 lint 4건 → `next build` **exit 0**.
 - GLO-EN-INTEGRITY @ working-tree(2026-06-26) — JSON-LD 유령 Agency $149 티어 제거 + 연락처 gmail→hello@glosource.ai · waitlist 응답 locale-aware(EN/KO) · /en 음성 CTA 한국어→영어 · **샘플리포트 리드폼 실배송**(`public/sample-reports/` + 제출 후 실제 리포트 링크 노출, "보내드립니다" 거짓약속 제거). build green. (SupplierCard.tsx 한국어는 한국 랜딩 전용이라 유지.)

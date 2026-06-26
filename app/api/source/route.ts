@@ -84,6 +84,61 @@ async function crossCheckVerifiedDb(suppliers: Supplier[]): Promise<void> {
   }
 }
 
+// DB-backed fallback: when live web search yields no usable candidates (LLM down -> 500, or the
+// quality gate rejects everything -> 424), serve manually-curated verified Korean suppliers from
+// the DB instead of an error — making the product resilient to LLM-grounding flakiness. Returns
+// null when the DB has no category match (then the original error stands). No-op on empty DB.
+async function dbFallbackOutput(req: SourcingRequest, lang: string): Promise<SourcingOutput | null> {
+  const cp = req.countryPreference;
+  if (cp !== 'korea' && cp !== 'both' && cp !== 'any') return null; // curated set is Korea-only
+  let rows: (typeof verifiedSuppliers.$inferSelect)[];
+  try {
+    rows = await db.select().from(verifiedSuppliers).where(eq(verifiedSuppliers.active, true)).limit(50);
+  } catch {
+    return null;
+  }
+  if (!rows.length) return null;
+  const hay = `${req.productDescription} ${req.categoryCode ?? ''}`.toLowerCase();
+  const KW: Record<string, string[]> = {
+    'K-Beauty': ['beauty', 'cosmetic', 'skincare', 'serum', 'cream', 'mask', 'sunscreen', 'ampoule', 'cleanser', 'toner', 'essence', 'makeup', 'lotion', 'spf'],
+    'K-Food': ['food', 'snack', 'ramyun', 'ramen', 'sauce', 'kimchi', 'beverage', 'drink', 'seasoning', 'noodle'],
+    'K-Fashion': ['fashion', 'apparel', 'clothing', 'garment', 'textile', 'accessory', 'bag', 'shoe'],
+  };
+  const matches = rows.filter(r => (KW[r.category] ?? []).some(k => hay.includes(k))).slice(0, 4);
+  if (!matches.length) return null;
+  const suppliers: Supplier[] = matches.map((r, i) => ({
+    rank: i + 1,
+    name: r.nameEn || r.name,
+    platform: r.platform,
+    country: r.country,
+    url: r.url ?? '',
+    trustScore: r.trustScore ?? 0,
+    trustEvidence: [r.certifications, 'Manually curated in the GloSource verified-supplier database.'].filter((x): x is string => !!x),
+    redFlags: [],
+    productMatch: r.notes ?? '',
+    estimatedPrice: '',
+    moq: r.moqMin != null ? `${r.moqMin}+` : '',
+    summary: r.notes ?? '',
+    verificationStatus: 'grounding_confirmed',
+    dbVerified: true,
+    productStage: 'finished_product',
+    leadTimeDays: r.leadTimeDays != null ? String(r.leadTimeDays) : '',
+    hscode: '',
+    exportToKoreaExperience: false,
+  }));
+  return {
+    suppliers,
+    recommendation: lang === 'en'
+      ? 'Live web search returned no fresh candidates right now, so these are manually-curated, verified Korean manufacturers from the GloSource database. Confirm MOQ, certificates, and terms directly before contracting.'
+      : '실시간 검색에서 새 후보가 나오지 않아, GloSource DB의 수동 검증 한국 제조사를 보여드립니다. 계약 전 MOQ·인증·조건을 직접 확인하세요.',
+    rfqEmail: { en: '', zh: '' },
+    disclaimer: lang === 'en'
+      ? 'GloSource AI is a research tool, not an audit or agency. These are candidates, not verified suppliers — verify certificates, MOQ, and terms directly.'
+      : 'GloSource AI는 감사·대행이 아닌 리서치 도구입니다. 검증된 공급사가 아닌 후보이며, 인증·MOQ·조건은 직접 확인하세요.',
+    groundingUsed: false,
+  };
+}
+
 function sanitizeInput(raw: string): string {
   return raw
     .replace(/[​-‍­﻿⁠]/g, '') // zero-width / soft-hyphen chars
@@ -800,6 +855,9 @@ export async function POST(request: NextRequest) {
       const friendlyMsg = isRateLimit
         ? (lang === 'en' ? 'AI is temporarily busy. Please try again in 30 seconds.' : 'AI가 잠시 바쁩니다. 30초 후 다시 시도해주세요.')
         : (lang === 'en' ? 'All AI models are unavailable. Please try again shortly.' : '모든 AI 모델이 응답하지 않습니다. 잠시 후 다시 시도해주세요.');
+      // LLM unavailable — serve DB-curated verified suppliers instead of failing, if any match.
+      const fb500 = await dbFallbackOutput(req, lang);
+      if (fb500) return NextResponse.json({ success: true, data: lockSupplierDetailsForFree(fb500, plan) });
       throw new Error(friendlyMsg);
     }
 
@@ -835,6 +893,10 @@ export async function POST(request: NextRequest) {
     const qualityGate = enforceVerifiedSupplierQualityGate(normalizedOutput);
 
     if (!qualityGate.ok) {
+      // No search-grounded candidates passed the gate — serve DB-curated verified suppliers if any match.
+      const fb424 = await dbFallbackOutput(req, lang);
+      if (fb424) return NextResponse.json({ success: true, data: lockSupplierDetailsForFree(fb424, plan) });
+
       kvSaveHistory({
         id: `${Date.now()}-ai-rejected`,
         timestamp: new Date().toISOString(),
