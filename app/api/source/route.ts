@@ -951,8 +951,8 @@ export async function POST(request: NextRequest) {
         s.dbVerified = true;
         const ev = m.isManufacturer
           ? (en
-              ? `MFDS-registered cosmetics MANUFACTURER${m.bizrno ? ` · biz reg ${m.bizrno}` : ''}${m.ageYears ? ` · ${m.ageYears}y in business` : ''}${m.sido ? ` · ${m.sido}` : ''}`
-              : `식약처 등록 화장품 제조사${m.bizrno ? ` · 사업자 ${m.bizrno}` : ''}${m.ageYears ? ` · 업력 ${m.ageYears}년` : ''}${m.sido ? ` · ${m.sido}` : ''}`)
+              ? `MFDS-registered ${m.cgmp ? 'CGMP-certified ' : ''}cosmetics MANUFACTURER${m.bizrno ? ` · biz reg ${m.bizrno}` : ''}${m.ageYears ? ` · ${m.ageYears}y in business` : ''}${m.sido ? ` · ${m.sido}` : ''}`
+              : `식약처 등록 ${m.cgmp ? 'CGMP 인증 ' : ''}화장품 제조사${m.bizrno ? ` · 사업자 ${m.bizrno}` : ''}${m.ageYears ? ` · 업력 ${m.ageYears}년` : ''}${m.sido ? ` · ${m.sido}` : ''}`)
           : (en
               ? `MFDS-registered as a cosmetics BRAND/DISTRIBUTOR (책임판매), not a manufacturer of record${m.bizrno ? ` · biz reg ${m.bizrno}` : ''}`
               : `식약처 등록상 화장품 책임판매사(브랜드/유통) — 직접 제조사 아님${m.bizrno ? ` · 사업자 ${m.bizrno}` : ''}`);

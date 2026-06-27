@@ -1,5 +1,9 @@
 import { inArray } from 'drizzle-orm';
 import { db, krCosmeticsFirms } from '@/app/lib/db';
+import cgmpData from '@/app/data/cgmp-firms.json';
+
+// CGMP-certified cosmetics manufacturers (MFDS 화장품 GMP 적합업체), keyed by business-reg number.
+const CGMP_BIZRNOS = new Set((cgmpData.bizrnos as string[]).map((b) => b.replace(/\D/g, '')));
 
 // Normalize a company name for cross-listing matching (strip corp suffixes, spaces, punctuation).
 // Cross-language (EN<->KO) matching is out of scope here; this catches exact/near Korean-name matches.
@@ -15,6 +19,7 @@ export interface MfdsMatch {
   name: string;
   induty: string;
   isManufacturer: boolean;
+  cgmp: boolean;
   bizrno: string | null;
   permitDate: string | null;
   ageYears: number | null;
@@ -45,6 +50,7 @@ export async function lookupMfdsFirms(names: string[]): Promise<Map<string, Mfds
       name: r.name,
       induty: r.induty,
       isManufacturer: r.isManufacturer,
+      cgmp: CGMP_BIZRNOS.has(String(r.bizrno || '').replace(/\D/g, '')),
       bizrno: r.bizrno,
       permitDate: r.permitDate,
       ageYears: ageFrom(r.permitDate),
