@@ -190,6 +190,20 @@ export const verifiedSuppliers = pgTable('verified_suppliers', {
   updatedAt: timestamp('updated_at', { mode: 'date' }).defaultNow().notNull(),
 });
 
+// ── 식약처(MFDS) 등록 화장품 기업 (실데이터: 제조/책임판매 · 사업자번호 · 등록일 · 공장주소) ──
+export const krCosmeticsFirms = pgTable('kr_cosmetics_firms', {
+  entpSeq: text('entp_seq').primaryKey(),
+  name: text('name').notNull(),
+  nameNorm: text('name_norm').notNull(), // 매칭용 정규화 상호
+  induty: text('induty').notNull(),      // 화장품제조 | 화장품책임판매
+  isManufacturer: boolean('is_manufacturer').notNull(),
+  bossName: text('boss_name'),
+  permitDate: text('permit_date'),       // YYYYMMDD (등록일 → 업력)
+  factoryAddr: text('factory_addr'),
+  bizrno: text('bizrno'),                // 사업자등록번호
+  fetchedAt: timestamp('fetched_at', { mode: 'date' }).defaultNow(),
+});
+
 // ── 플랜별 한도 ───────────────────────────────────────────────────────
 
 export const PLAN_LIMITS = {

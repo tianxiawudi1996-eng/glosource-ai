@@ -5,6 +5,7 @@ import { getCategoryByCode } from '../../lib/categories';
 import type { Category } from '../../lib/categories';
 import type { MarketRiskFlag, SourcingRequest, SourcingOutput, Supplier } from './types';
 import { kvConsumeFreeCredit, kvSaveHistory, extractTrustedIp } from '../../lib/kv';
+import { lookupMfdsFirms, normFirmName } from '../../lib/mfds';
 import { checkAuthAndQuota, logUsage } from '../../lib/authMiddleware';
 import { enforceVerifiedSupplierQualityGate, verifiedSupplierUnavailableMessage } from '../../lib/supplier-verification';
 import { matchAeoCompanies } from '../../lib/aeo-companies';
@@ -932,6 +933,31 @@ export async function POST(request: NextRequest) {
         const fresh = dbSups.filter(s => { const h = host(s.url); return !h || !seen.has(h); }).slice(0, 2);
         if (fresh.length) {
           output.suppliers = [...fresh, ...output.suppliers].map((s, i) => ({ ...s, rank: i + 1 }));
+        }
+      }
+    } catch { /* never block the response */ }
+
+    // Real MFDS (식약처) registry enrichment: confirm manufacturer vs brand/seller, business
+    // registration number, and years in business — replacing AI-guessed manufacturer/trust signals.
+    try {
+      const mfds = await lookupMfdsFirms((output.suppliers ?? []).map((s) => s.name));
+      const en = lang === 'en';
+      for (const s of output.suppliers ?? []) {
+        const m = mfds.get(normFirmName(s.name));
+        if (!m) continue;
+        s.dbVerified = true;
+        const ev = m.isManufacturer
+          ? (en
+              ? `MFDS-registered cosmetics MANUFACTURER${m.bizrno ? ` · biz reg ${m.bizrno}` : ''}${m.ageYears ? ` · ${m.ageYears}y in business` : ''}${m.sido ? ` · ${m.sido}` : ''}`
+              : `식약처 등록 화장품 제조사${m.bizrno ? ` · 사업자 ${m.bizrno}` : ''}${m.ageYears ? ` · 업력 ${m.ageYears}년` : ''}${m.sido ? ` · ${m.sido}` : ''}`)
+          : (en
+              ? `MFDS-registered as a cosmetics BRAND/DISTRIBUTOR (책임판매), not a manufacturer of record${m.bizrno ? ` · biz reg ${m.bizrno}` : ''}`
+              : `식약처 등록상 화장품 책임판매사(브랜드/유통) — 직접 제조사 아님${m.bizrno ? ` · 사업자 ${m.bizrno}` : ''}`);
+        s.trustEvidence = [ev, ...(Array.isArray(s.trustEvidence) ? s.trustEvidence : [])];
+        if (!m.isManufacturer) {
+          s.redFlags = [(en
+            ? 'Registered with MFDS as a brand/distributor, not a manufacturer — verify who actually manufactures.'
+            : 'MFDS상 책임판매사(브랜드/유통)로 등록 — 실제 제조사 직접 확인 필요.'), ...(Array.isArray(s.redFlags) ? s.redFlags : [])];
         }
       }
     } catch { /* never block the response */ }
