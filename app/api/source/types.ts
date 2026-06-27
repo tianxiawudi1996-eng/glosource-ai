@@ -39,6 +39,7 @@ export interface Supplier {
   summary: string;
   verificationStatus: VerificationStatus;
   dbVerified?: boolean; // matched a manually-curated row in verified_suppliers (real, GloSource-curated)
+  koreanName?: string; // Korean registered company name (한글 상호) for MFDS registry matching
   productStage: ProductStage;
   leadTimeDays: string;
   hscode: string;

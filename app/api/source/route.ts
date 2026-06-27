@@ -110,6 +110,7 @@ async function dbFallbackOutput(req: SourcingRequest, lang: string): Promise<Sou
   const suppliers: Supplier[] = matches.map((r, i) => ({
     rank: i + 1,
     name: r.nameEn || r.name,
+    koreanName: r.name, // for MFDS registry matching (verified_suppliers.name is the Korean 상호)
     platform: r.platform,
     country: r.country,
     url: r.url ?? '',
@@ -940,10 +941,12 @@ export async function POST(request: NextRequest) {
     // Real MFDS (식약처) registry enrichment: confirm manufacturer vs brand/seller, business
     // registration number, and years in business — replacing AI-guessed manufacturer/trust signals.
     try {
-      const mfds = await lookupMfdsFirms((output.suppliers ?? []).map((s) => s.name));
+      const mfds = await lookupMfdsFirms(
+        (output.suppliers ?? []).flatMap((s) => [s.koreanName, s.name].filter(Boolean) as string[]),
+      );
       const en = lang === 'en';
       for (const s of output.suppliers ?? []) {
-        const m = mfds.get(normFirmName(s.name));
+        const m = (s.koreanName ? mfds.get(normFirmName(s.koreanName)) : undefined) ?? mfds.get(normFirmName(s.name));
         if (!m) continue;
         s.dbVerified = true;
         const ev = m.isManufacturer
