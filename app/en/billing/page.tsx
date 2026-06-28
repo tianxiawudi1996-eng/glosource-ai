@@ -11,30 +11,39 @@ const PLANS = [
   {
     id: 'starter',
     name: 'Starter',
-    price: '$19',
+    price: '$39',
     unit: '/mo',
-    searches: '30 searches / month',
+    searches: '40 searches / month',
     envKey: 'NEXT_PUBLIC_POLAR_STARTER_LINK',
     features: ['Up to 3–5 supplier candidates per search', 'Trust score 0–100', 'English RFQ draft', 'MFDS / KC signals'],
   },
   {
     id: 'pro',
     name: 'Pro',
-    price: '$49',
+    price: '$99',
     unit: '/mo',
-    searches: '60 searches / month',
+    searches: '100 searches / month',
     envKey: 'NEXT_PUBLIC_POLAR_PRO_LINK',
     highlight: true,
-    features: ['All Starter features', 'HACCP / KS / ISO signals', 'Priority support', 'Full PDF report'],
+    features: ['All Starter features', 'HACCP / ISO / medical-device signals', 'Saved projects & comparison', 'Full PDF report', 'Priority support'],
   },
   {
     id: 'enterprise',
-    name: 'Agency',
-    price: '$149',
+    name: 'Business',
+    price: '$249',
     unit: '/mo',
-    searches: '999 searches / month',
+    searches: '300 searches / month',
     envKey: 'NEXT_PUBLIC_POLAR_AGENCY_LINK',
-    features: ['High-volume usage', 'Team workflow support by request', 'Project history', 'Custom templates'],
+    features: ['All Pro features', 'High-volume usage', 'CSV / PDF export', 'Team workflow by request', 'Project history'],
+  },
+  {
+    id: 'contact',
+    name: 'Enterprise',
+    price: 'Custom',
+    unit: '',
+    searches: 'Unlimited volume',
+    envKey: 'NEXT_PUBLIC_POLAR_ENTERPRISE_CONTACT',
+    features: ['Everything in Business', 'Dedicated onboarding', 'Team seats & SSO by request', 'API access by request', 'Priority SLA support'],
   },
 ] as const;
 
@@ -119,7 +128,7 @@ export default async function EnBillingPage({
         </header>
 
         {/* Plan cards */}
-        <section className="grid gap-4 sm:grid-cols-3 mb-8">
+        <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-8">
           {PLANS.map((plan) => {
             const isCurrent = currentPlan === plan.id;
             const checkoutUrl = process.env[plan.envKey];
@@ -163,7 +172,7 @@ export default async function EnBillingPage({
                     Get {plan.name} &rarr;
                   </CheckoutLink>
                 ) : (
-                  <a href="mailto:hello@glosource.ai?subject=GloSource%20AI%20Plan%20Access"
+                  <a href="mailto:hello@glosourceai.com?subject=GloSource%20AI%20Enterprise"
                     className="block w-full rounded-xl bg-[#EA580C] px-4 py-3 text-center text-sm font-black text-white hover:bg-[#DC4C00] transition-colors">
                     Contact us
                   </a>

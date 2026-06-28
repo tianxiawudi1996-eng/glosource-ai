@@ -254,9 +254,9 @@ export const krQuasiDrugFirms = pgTable('kr_quasi_drug_firms', {
 
 export const PLAN_LIMITS = {
   free:       { monthly: 10,  label: '무료 회원' }, // [C-4] 가입 회원 월 10회 — 익명 체험(kv.ts FREE_DAILY_LIMIT=일 5회)보다 가입이 나은 구조
-  starter:    { monthly: 30,  label: 'Starter' },
-  pro:        { monthly: 60,  label: 'Pro' },
-  enterprise: { monthly: 999, label: 'Enterprise' },
+  starter:    { monthly: 40,  label: 'Starter' },
+  pro:        { monthly: 100, label: 'Pro' },
+  enterprise: { monthly: 300, label: 'Business' },
 } as const;
 
 export type PlanTier = keyof typeof PLAN_LIMITS;

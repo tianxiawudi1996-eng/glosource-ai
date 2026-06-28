@@ -72,7 +72,7 @@ export default async function EnDashboardPage() {
             <p className="text-sm font-bold text-slate-500">Searches this month</p>
             <div className="mt-3 flex items-end gap-2">
               <strong className="text-4xl font-black text-[#0D1B2A]">{usageCount}</strong>
-              <span className="pb-1 text-sm font-bold text-slate-500">/ {limit === 999 ? '∞' : limit}</span>
+              <span className="pb-1 text-sm font-bold text-slate-500">/ {limit}</span>
             </div>
             <div className="mt-5 h-3 overflow-hidden rounded-full bg-slate-100">
               <div className={`h-full rounded-full bg-[#EA580C] transition-all ${usageWidthClass(usagePercent)}`} />

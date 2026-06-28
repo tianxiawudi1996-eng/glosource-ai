@@ -69,9 +69,9 @@ const PLANS = [
     id: 'starter',
     name: 'Starter',
     tag: 'For one active product',
-    price: '$19',
+    price: '$39',
     unit: '/mo',
-    per: '30 shortlist searches / month',
+    per: '40 shortlist searches / month',
     features: [
       '3–5 Korean OEM/ODM candidates per search',
       'Manufacturer-vs-trader and risk signals',
@@ -86,18 +86,52 @@ const PLANS = [
     id: 'pro',
     name: 'Pro',
     tag: 'Best for multiple launches',
-    price: '$49',
+    price: '$99',
     unit: '/mo',
-    per: '60 shortlist searches / month',
+    per: '100 shortlist searches / month',
     features: [
       'Everything in Starter',
-      'Compare multiple K-Beauty product briefs',
+      'Compare multiple product briefs side by side',
       'Full PDF sourcing report',
       'Buyer checklist and follow-up email draft',
       'Priority support',
     ],
     highlight: true,
     envKey: 'NEXT_PUBLIC_POLAR_PRO_LINK',
+  },
+  {
+    id: 'enterprise',
+    name: 'Business',
+    tag: 'High-volume sourcing',
+    price: '$249',
+    unit: '/mo',
+    per: '300 shortlist searches / month',
+    features: [
+      'Everything in Pro',
+      'Saved projects & comparison',
+      'CSV / PDF export',
+      'Team workflow by request',
+    ],
+    highlight: false,
+    envKey: 'NEXT_PUBLIC_POLAR_AGENCY_LINK',
+  },
+  {
+    id: 'contact',
+    name: 'Enterprise',
+    tag: 'Custom & API',
+    price: 'Custom',
+    unit: '',
+    per: 'Unlimited volume · team · API',
+    features: [
+      'Everything in Business',
+      'Dedicated onboarding',
+      'Team seats & SSO by request',
+      'API access by request',
+      'Priority SLA support',
+    ],
+    highlight: false,
+    cta: 'Contact sales →',
+    envKey: 'NEXT_PUBLIC_POLAR_ENTERPRISE_CONTACT',
   },
 ] as const;
 
@@ -349,7 +383,7 @@ export default async function EnPage({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-3xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-6xl mx-auto">
             {PLANS.map(plan => (
               <div key={plan.id}
                 className={`rounded-2xl border p-6 flex flex-col relative ${plan.highlight ? 'bg-[#0D1B2A] border-[#0D1B2A]' : 'bg-white border-slate-200'}`}>
@@ -382,8 +416,8 @@ export default async function EnPage({
                   ))}
                 </ul>
                 <PolarCheckoutButton
-                  checkoutUrl={process.env[plan.envKey] ?? 'mailto:hello@glosource.ai?subject=GloSource%20AI%20Plan%20Access'}
-                  label={`Get ${plan.name} →`}
+                  checkoutUrl={process.env[plan.envKey] ?? 'mailto:hello@glosourceai.com?subject=GloSource%20AI%20Enterprise'}
+                  label={'cta' in plan && plan.cta ? plan.cta : `Get ${plan.name} →`}
                 />
               </div>
             ))}

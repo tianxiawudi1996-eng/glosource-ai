@@ -86,9 +86,10 @@ Vision @ GloSource AI`,
 
 Great to hear you want to upgrade! Here are your options:
 
-• Starter ($19/mo) — 30 searches/month
-• Pro ($49/mo) — 60 searches/month
-• Agency ($149/mo) — 999 searches/month + priority support
+• Starter ($39/mo) — 40 searches/month
+• Pro ($99/mo) — 100 searches/month
+• Business ($249/mo) — 300 searches/month + priority support
+• Enterprise — custom pricing (contact sales) for unlimited volume, team & API
 
 You can upgrade directly at: glosourceai.com/en/billing
 
@@ -297,7 +298,7 @@ To get more results:
 • Search for the product category (e.g., "K-beauty serum" returns more than "collagen serum 50ml with peptide")
 • Try an alternative keyword
 
-Pro and Agency plans also get deeper search results. Check glosourceai.com/en/billing if you want to upgrade.
+Pro and Business plans also get deeper search results. Check glosourceai.com/en/billing if you want to upgrade.
 
 Best,
 Vision @ GloSource AI`,
@@ -444,7 +445,7 @@ Vision @ GloSource AI`,
     tone: 'informative',
     response: `Hi {{name}},
 
-GloSource AI doesn't currently offer public API access, but it's on the roadmap for the Agency tier.
+GloSource AI doesn't currently offer public API access, but it's available by request on the Enterprise tier (contact sales).
 
 If you're looking for bulk sourcing or integration capabilities, reply here with your use case — I'm exploring early access partnerships for API users.
 
@@ -509,7 +510,7 @@ Vision @ GloSource AI`,
     tone: 'informative',
     response: `Hi {{name}},
 
-Team accounts aren't available yet, but the Agency plan ($149/mo) includes 999 searches for high-volume sourcing workflows.
+For high volume, the Business plan ($249/mo) includes 300 searches, and the Enterprise tier (contact sales) covers unlimited volume with team seats by request.
 
 If you need multiple user accounts, reply here with how many seats you need and I can put together a custom quote.
 
@@ -523,7 +524,7 @@ Vision @ GloSource AI`,
     tone: 'informative',
     response: `Hi {{name}},
 
-Excel/CSV export is on the roadmap for the Pro and Agency tiers.
+Excel/CSV export is on the roadmap for the Business tier.
 
 In the meantime, you can copy the RFQ draft and supplier details from each result card.
 
@@ -652,7 +653,7 @@ Good question! Here's how GloSource AI compares:
 | Multi-platform search | ✅ (3 platforms) | ❌ | ❌ | ❌ |
 | English RFQ auto-draft | ✅ | ❌ | ❌ | ❌ |
 | Time to find suppliers | ~30 seconds | Hours | Hours | Hours |
-| Cost | From $19/mo | Free | Free | Free |
+| Cost | From $39/mo | Free | Free | Free |
 
 We're not a replacement for Alibaba (different market). We're for buyers who specifically need Korean manufacturers.
 
@@ -686,9 +687,9 @@ Vision @ GloSource AI`,
 
 You've used all 5 free searches! To continue, you can upgrade to a paid plan:
 
-• **Starter** ($19/mo) — 30 searches/month = $0.63/search
-• **Pro** ($49/mo) — 60 searches/month = $0.82/search
-• **Agency** ($149/mo) — 999 searches/month = $0.15/search
+• **Starter** ($39/mo) — 40 searches/month = ~$0.98/search
+• **Pro** ($99/mo) — 100 searches/month = ~$0.99/search
+• **Business** ($249/mo) — 300 searches/month = ~$0.83/search
 
 Upgrade at: glosourceai.com/en/billing
 
