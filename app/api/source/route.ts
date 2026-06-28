@@ -5,7 +5,8 @@ import { getCategoryByCode } from '../../lib/categories';
 import type { Category } from '../../lib/categories';
 import type { MarketRiskFlag, SourcingRequest, SourcingOutput, Supplier } from './types';
 import { kvConsumeFreeCredit, kvSaveHistory, extractTrustedIp } from '../../lib/kv';
-import { lookupMfdsFirms, lookupHaccpFirms, normFirmName } from '../../lib/mfds';
+import { lookupMfdsFirms, lookupHaccpFirms, normFirmName, type MfdsMatch } from '../../lib/mfds';
+import { checkBusinessStatus } from '../../lib/nts';
 import { checkAuthAndQuota, logUsage } from '../../lib/authMiddleware';
 import { enforceVerifiedSupplierQualityGate, verifiedSupplierUnavailableMessage } from '../../lib/supplier-verification';
 import { matchAeoCompanies } from '../../lib/aeo-companies';
@@ -945,9 +946,14 @@ export async function POST(request: NextRequest) {
         (output.suppliers ?? []).flatMap((s) => [s.koreanName, s.name].filter(Boolean) as string[]),
       );
       const en = lang === 'en';
+      const matched: { s: NonNullable<typeof output.suppliers>[number]; m: MfdsMatch }[] = [];
       for (const s of output.suppliers ?? []) {
         const m = (s.koreanName ? mfds.get(normFirmName(s.koreanName)) : undefined) ?? mfds.get(normFirmName(s.name));
-        if (!m) continue;
+        if (m) matched.push({ s, m });
+      }
+      // Real-time 국세청 status check for matched firms that carry a biz-reg number.
+      const nts = await checkBusinessStatus(matched.map(({ m }) => m.bizrno));
+      for (const { s, m } of matched) {
         s.dbVerified = true;
         const ev = m.isManufacturer
           ? (en
@@ -957,6 +963,19 @@ export async function POST(request: NextRequest) {
               ? `MFDS-registered as a cosmetics BRAND/DISTRIBUTOR (책임판매), not a manufacturer of record${m.bizrno ? ` · biz reg ${m.bizrno}` : ''}`
               : `식약처 등록상 화장품 책임판매사(브랜드/유통) — 직접 제조사 아님${m.bizrno ? ` · 사업자 ${m.bizrno}` : ''}`);
         s.trustEvidence = [ev, ...(Array.isArray(s.trustEvidence) ? s.trustEvidence : [])];
+        // Prepend live NTS (국세청) business-status signal when we have a registration number.
+        const st = m.bizrno ? nts.get(m.bizrno.replace(/\D/g, '')) : undefined;
+        if (st?.registered) {
+          if (st.active) {
+            s.trustEvidence = [(en
+              ? `✓ Active registered business — verified live with Korea NTS${st.taxType ? ` (${st.taxType})` : ''}`
+              : `✓ 국세청 실시간 계속사업자 확인${st.taxType ? ` · ${st.taxType}` : ''}`), ...s.trustEvidence];
+          } else {
+            s.redFlags = [(en
+              ? `⚠ Not an active business per Korea NTS: ${st.statusText} — do not transact before reconfirming.`
+              : `⚠ 국세청 실시간 조회상 정상영업 아님: ${st.statusText} — 거래 전 재확인 필수.`), ...(Array.isArray(s.redFlags) ? s.redFlags : [])];
+          }
+        }
         if (!m.isManufacturer) {
           s.redFlags = [(en
             ? 'Registered with MFDS as a brand/distributor, not a manufacturer — verify who actually manufactures.'
