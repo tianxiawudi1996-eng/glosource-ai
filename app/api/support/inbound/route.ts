@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
+import { Resend } from 'resend';
 import { processSupportMessage } from '@/app/lib/support/agent';
 
 export const maxDuration = 30;
@@ -13,12 +14,8 @@ function verifySignature(rawBody: string, headers: Headers): boolean {
   const sigHeader = headers.get('svix-signature') ?? headers.get('webhook-signature') ?? '';
   if (!id || !ts || !sigHeader) return false;
   try {
-    const key = secret.startsWith('whsec_')
-      ? Buffer.from(secret.slice(6), 'base64')
-      : Buffer.from(secret, 'utf-8');
-    const signed = `${id}.${ts}.${rawBody}`;
-    const expected = crypto.createHmac('sha256', key).update(signed).digest('base64');
-    // header is space-separated "v1,<b64sig>" entries
+    const key = secret.startsWith('whsec_') ? Buffer.from(secret.slice(6), 'base64') : Buffer.from(secret, 'utf-8');
+    const expected = crypto.createHmac('sha256', key).update(`${id}.${ts}.${rawBody}`).digest('base64');
     return sigHeader.split(' ').some((part) => {
       const sig = part.includes(',') ? part.split(',')[1] : part;
       if (!sig || sig.length !== expected.length) return false;
@@ -54,24 +51,48 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   let payload: Record<string, unknown>;
   try { payload = JSON.parse(rawBody); } catch { return NextResponse.json({ error: 'bad_json' }, { status: 400 }); }
 
-  // Resend inbound payloads wrap the email under `data` (event type e.g. email.received / inbound.*).
-  const data = (payload.data ?? payload) as Record<string, unknown>;
-  const { email, name } = parseFrom(data.from);
-  const subject = String((data.subject as string) ?? '').trim();
-  const text = (data.text as string) ?? (data.html ? htmlToText(String(data.html)) : '');
-  const message = String(text || '').trim();
+  const type = String(payload.type ?? '');
+  if (type && type !== 'email.received') {
+    return NextResponse.json({ ok: true, skipped: `ignored_event:${type}` });
+  }
 
-  if (!email || !message) {
-    // Not an inbound email we can act on (other event type, or empty) — ack so Resend stops retrying.
+  const data = (payload.data ?? {}) as Record<string, unknown>;
+  const emailId = String(data.email_id ?? data.id ?? '');
+  let from = parseFrom(data.from);
+  const subject = String((data.subject as string) ?? '').trim();
+  if (!emailId) {
+    return NextResponse.json({ ok: true, skipped: 'no_email_id' });
+  }
+
+  // Resend inbound webhooks carry metadata only — fetch the body via the Receiving API.
+  // Requires a read-capable key (the send-only key cannot read received emails).
+  const readKey = process.env.RESEND_FULL_API_KEY ?? process.env.RESEND_API_KEY;
+  let message = '';
+  try {
+    const resend = new Resend(readKey);
+    const { data: full, error } = await resend.emails.receiving.get(emailId);
+    if (error || !full) {
+      console.error('[support/inbound] receiving.get error', error);
+      return NextResponse.json({ ok: false, error: 'fetch_failed' });
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const f = full as any;
+    message = String(f.text ?? (f.html ? htmlToText(String(f.html)) : '') ?? '').trim();
+    if (!from.email && f.from) from = parseFrom(f.from);
+  } catch (e) {
+    console.error('[support/inbound] fetch body failed', e);
+    return NextResponse.json({ ok: false, error: 'fetch_exception' });
+  }
+
+  if (!from.email || !message) {
     return NextResponse.json({ ok: true, skipped: 'no_email_or_body' });
   }
 
   try {
-    const result = await processSupportMessage({ name, email, message, subject, source: 'email' });
+    const result = await processSupportMessage({ name: from.name, email: from.email, message, subject, source: 'email' });
     return NextResponse.json({ ok: true, ...result });
   } catch (e) {
     console.error('[support/inbound]', e);
-    // Return 200 to avoid infinite Resend retries; the failure is logged.
     return NextResponse.json({ ok: false, error: 'processing_failed' });
   }
 }
