@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import BrandLogo from '@/app/components/BrandLogo';
+import { auth } from '@/auth';
 import AssistantExperience from './AssistantExperience';
 
 export const metadata: Metadata = {
@@ -9,7 +10,8 @@ export const metadata: Metadata = {
   alternates: { canonical: '/en/assistant' },
 };
 
-export default function AssistantPage() {
+export default async function AssistantPage() {
+  const session = await auth();
   return (
     <main className="min-h-screen bg-slate-50 text-[#0D1B2A]">
       <nav className="border-b border-white/10 bg-[#0D1B2A]">
@@ -28,7 +30,19 @@ export default function AssistantPage() {
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-slate-500 sm:text-base">Search Korean companies in natural language, review government-registry evidence, and turn a shortlist into supplier outreach.</p>
         </div>
       </section>
-      <AssistantExperience />
+      {session?.user ? <AssistantExperience /> : (
+        <section className="mx-auto max-w-2xl px-6 py-14 text-center">
+          <div className="rounded-3xl border border-orange-200 bg-white p-8 shadow-sm sm:p-12">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#EA580C]">Free account required</p>
+            <h2 className="mt-3 text-2xl font-black sm:text-3xl">Sign up to use the AI Sourcing Assistant</h2>
+            <p className="mt-4 text-sm leading-7 text-slate-500">Your account includes 10 free searches per month and keeps government-verification results connected to your sourcing workspace.</p>
+            <div className="mt-7 flex flex-wrap justify-center gap-3">
+              <Link href="/en/register" className="rounded-xl bg-[#EA580C] px-6 py-3 text-sm font-black text-white hover:bg-[#DC4C00]">Create free account</Link>
+              <Link href="/en/login" className="rounded-xl border border-slate-300 bg-white px-6 py-3 text-sm font-black text-[#0D1B2A] hover:bg-slate-50">Sign in</Link>
+            </div>
+          </div>
+        </section>
+      )}
     </main>
   );
 }

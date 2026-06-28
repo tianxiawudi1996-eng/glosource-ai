@@ -60,10 +60,12 @@ export default function KSourceWrapper({
   initialProduct = '',
   plan = 'free',
   freeSearchLimit = 5,
+  authenticated = false,
 }: {
   initialProduct?: string;
   plan?: PlanTier;
   freeSearchLimit?: number;
+  authenticated?: boolean;
 }) {
   const [prefill, setPrefill] = useState(initialProduct);
   const [prefillQuantity, setPrefillQuantity] = useState('');
@@ -93,7 +95,20 @@ export default function KSourceWrapper({
         </div>
       </div>
 
+      {!authenticated && (
+        <div className="mb-8 rounded-2xl border border-orange-200 bg-orange-50 p-6 text-center">
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-[#EA580C]">Free account required</p>
+          <h3 className="mt-2 text-xl font-black text-[#0D1B2A]">Sign up before searching Korean companies</h3>
+          <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-slate-600">Create an account to receive 10 free searches per month, save your results, and keep supplier research tied to your workspace.</p>
+          <div className="mt-5 flex flex-wrap justify-center gap-3">
+            <a href="/en/register" className="rounded-xl bg-[#EA580C] px-5 py-3 text-sm font-black text-white hover:bg-[#DC4C00]">Create free account</a>
+            <a href="/en/login" className="rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-black text-[#0D1B2A] hover:bg-slate-50">Sign in</a>
+          </div>
+        </div>
+      )}
+
       {/* Category quick-select */}
+      {authenticated && (
       <div className="mb-10">
         <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-5 text-center">
           Popular categories — click to prefill product and quantity
@@ -122,14 +137,15 @@ export default function KSourceWrapper({
           ))}
         </div>
       </div>
+      )}
 
       {/* Sourcing tool */}
-      <EnSourcingTool
+      {authenticated && <EnSourcingTool
         initialProduct={prefill}
         initialQuantity={prefillQuantity}
         plan={plan}
         freeSearchLimit={freeSearchLimit}
-      />
+      />}
     </div>
   );
 }

@@ -6,7 +6,7 @@ import { extractTrustedIp } from './kv';
 import { logAbuseSignal } from './abuse';
 
 export type AuthResult =
-  | { ok: true; userId: string | null; plan: keyof typeof PLAN_LIMITS }
+  | { ok: true; userId: string; plan: keyof typeof PLAN_LIMITS }
   | { ok: false; response: NextResponse };
 
 export type ActionType = 'source' | 'factory_direct' | 'wechat' | 'image_analyze' | 'chat';
@@ -159,30 +159,17 @@ export async function checkAuthAndQuota(
     return { ok: true, userId, plan };
   }
 
-  // 비로그인 — IP 기반 무료 크레딧 (Redis)
-  const { kvCheckFreeCredit } = await import('./kv');
-  const allowed = await kvCheckFreeCredit(ip);
-  if (!allowed) {
-    const message = lang === 'en'
-      ? 'Free trial limit reached (5 searches). Sign up to get 10 free searches per month.'
-      : '무료 체험 5회를 모두 사용했습니다. 회원가입하면 월 10회 무료로 이용할 수 있습니다.';
-    logAbuseSignal({
-      event: 'quota_blocked',
-      severity: 2,
-      ip,
-      metadata: { type: 'anonymous_daily' },
-    }).catch(() => {});
-    return {
-      ok: false,
-      response: NextResponse.json({
-        error: 'quota_exceeded',
-        type: 'anonymous',
-        message,
-      }, { status: 429 }),
-    };
-  }
-
-  return { ok: true, userId: null, plan: 'free' };
+  const message = lang === 'en'
+    ? 'Create a free account or sign in to use GloSource AI.'
+    : 'GloSource AI를 사용하려면 무료 회원가입 또는 로그인이 필요합니다.';
+  return {
+    ok: false,
+    response: NextResponse.json({
+      error: 'authentication_required',
+      type: 'anonymous',
+      message,
+    }, { status: 401 }),
+  };
 }
 
 export async function logUsage(

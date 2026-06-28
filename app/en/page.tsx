@@ -242,7 +242,7 @@ export default async function EnPage({
   const session = await auth();
   const isLoggedIn = !!session?.user;
   const plan = session?.user?.plan ?? 'free';
-  const freeSearchLimit = isLoggedIn ? 10 : 5;
+  const freeSearchLimit = 10;
 
   return (
     <div className="min-h-screen bg-white overflow-x-hidden">
@@ -340,7 +340,7 @@ export default async function EnPage({
               Describe the K-Beauty product you want to make. Review Korean supplier candidates with source links, unverified certification signals, MOQ context, and an English RFQ draft.
             </p>
           </div>
-          <KSourceWrapper initialProduct={initialProduct} plan={plan} freeSearchLimit={freeSearchLimit} />
+          <KSourceWrapper initialProduct={initialProduct} plan={plan} freeSearchLimit={freeSearchLimit} authenticated={isLoggedIn} />
         </div>
       </section>
 
