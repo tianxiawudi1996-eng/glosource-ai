@@ -726,7 +726,7 @@ export default function EnSourcingTool({
           <p className="text-sm text-amber-700 leading-relaxed">
             We&apos;ve emailed you a verification link — click it to unlock your free monthly searches.
             Didn&apos;t get it? Check your spam folder, resend below, or email{' '}
-            <a href="mailto:hello@glosource.ai" className="font-semibold underline">hello@glosource.ai</a>.
+            <a href="mailto:hello@glosourceai.com" className="font-semibold underline">hello@glosourceai.com</a>.
           </p>
           <button
             type="button"
@@ -737,7 +737,7 @@ export default function EnSourcingTool({
             {resendState === 'sent' ? 'Verification email sent ✓' : resendState === 'sending' ? 'Sending…' : 'Resend verification email'}
           </button>
           {resendState === 'error' && (
-            <p className="mt-2 text-xs text-red-600">Could not resend right now. Please email hello@glosource.ai.</p>
+            <p className="mt-2 text-xs text-red-600">Could not resend right now. Please email hello@glosourceai.com.</p>
           )}
         </div>
       )}

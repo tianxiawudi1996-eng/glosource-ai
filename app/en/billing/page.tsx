@@ -234,8 +234,8 @@ export default async function EnBillingPage({
 
         <p className="mt-8 text-center text-xs text-slate-400">
           Questions about billing?{' '}
-            <a href="mailto:hello@glosource.ai" className="font-semibold text-slate-600 hover:text-[#EA580C]">
-            hello@glosource.ai
+            <a href="mailto:hello@glosourceai.com" className="font-semibold text-slate-600 hover:text-[#EA580C]">
+            hello@glosourceai.com
           </a>
         </p>
       </div>

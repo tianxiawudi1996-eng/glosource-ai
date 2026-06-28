@@ -45,9 +45,12 @@ The outreach is sent from **tianxiawudi1996@gmail.com**, so the token must be fo
    - **Set publishing status to "In production."** (Testing-mode refresh tokens expire after 7 days.
      You will click through a one-time "Google hasn't verified this app → Advanced → Go to (unsafe)" warning
      because it's your own unverified personal app. That is expected and fine for single-user use.)
-3. **Credentials → Create credentials → OAuth client ID → Desktop app.** Copy the **Client ID** and **Client secret**.
+3. **Credentials → Create credentials → OAuth client ID → Web application** (NOT Desktop — the OAuth
+   Playground needs a registered redirect URI, which Desktop clients do not allow). Under
+   **Authorized redirect URIs** add `https://developers.google.com/oauthplayground`. Create, then copy
+   the **Client ID** and **Client secret**.
 4. **Get a refresh token** via the OAuth Playground (no code):
-   - In the OAuth client, add `https://developers.google.com/oauthplayground` as an authorized redirect URI.
+   - The playground redirect URI is already registered on the client from step 3.
    - Open https://developers.google.com/oauthplayground → gear icon (top right) → check
      **"Use your own OAuth credentials"** → paste Client ID + secret.
    - Left panel scope box: enter `https://www.googleapis.com/auth/gmail.modify` → **Authorize APIs** →

@@ -15,7 +15,7 @@ const ORG_SCHEMA = {
   alternateName: 'GloSource',
   url: 'https://glosourceai.com',
   logo: 'https://glosourceai.com/images/glosource-logo.png',
-  email: 'hello@glosource.ai',
+  email: 'hello@glosourceai.com',
   description:
     'AI-powered Korean supplier research tool that helps international buyers find K-beauty, K-food, K-fashion and other Korean manufacturer candidates from EC21, BuyKorea (KOTRA), and tradeKorea in under 90 seconds.',
   sameAs: [
@@ -25,7 +25,7 @@ const ORG_SCHEMA = {
   contactPoint: {
     '@type': 'ContactPoint',
     contactType: 'customer support',
-    email: 'hello@glosource.ai',
+    email: 'hello@glosourceai.com',
     availableLanguage: ['English', 'Korean'],
   },
 };

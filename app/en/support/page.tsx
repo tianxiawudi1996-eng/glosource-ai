@@ -74,7 +74,7 @@ export default function SupportPage() {
               />
             </div>
             {status === 'error' && (
-              <p className="text-red-500 text-sm">Something went wrong. Please email support@glosource.ai directly.</p>
+              <p className="text-red-500 text-sm">Something went wrong. Please email support@glosourceai.com directly.</p>
             )}
             <button
               type="submit"
@@ -88,8 +88,8 @@ export default function SupportPage() {
 
         <p className="text-center text-xs text-slate-400 mt-6">
           Or email directly:{' '}
-          <a href="mailto:support@glosource.ai" className="text-[#EA580C] hover:underline">
-            support@glosource.ai
+          <a href="mailto:support@glosourceai.com" className="text-[#EA580C] hover:underline">
+            support@glosourceai.com
           </a>
         </p>
       </div>

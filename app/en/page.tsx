@@ -217,7 +217,7 @@ const JSON_LD_ORGANIZATION = {
   description: 'Korea-only supplier intelligence for overseas K-Beauty buyers researching Korean OEM/ODM manufacturer candidates.',
   contactPoint: {
     '@type': 'ContactPoint',
-    email: 'hello@glosource.ai',
+    email: 'hello@glosourceai.com',
     contactType: 'customer service',
   },
 };
@@ -457,7 +457,7 @@ export default async function EnPage({
           <BrandLogo compact />
           <p className="text-xs text-slate-600 text-center">
             GloSource AI is a sourcing research tool, not a trade agent. Contact:{' '}
-            <a href="mailto:hello@glosource.ai" className="underline hover:text-slate-400">hello@glosource.ai</a>
+            <a href="mailto:hello@glosourceai.com" className="underline hover:text-slate-400">hello@glosourceai.com</a>
           </p>
           <div className="flex items-center gap-4 text-xs text-slate-600">
             <Link href="/en/about" className="hover:text-slate-400 transition-colors">About</Link>

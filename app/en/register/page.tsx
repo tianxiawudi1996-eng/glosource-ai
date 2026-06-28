@@ -124,7 +124,7 @@ export default function EnRegisterPage() {
               <span className="text-xs text-slate-600 leading-relaxed">
                 <strong className="text-[#0D1B2A]">[Required]</strong>{' '}
                 I understand that my data will be processed in accordance with GDPR and applicable data protection laws. I may request deletion at any time by emailing{' '}
-                <a href="mailto:hello@glosource.ai" className="underline">hello@glosource.ai</a>.
+                <a href="mailto:hello@glosourceai.com" className="underline">hello@glosourceai.com</a>.
               </span>
             </label>
             <label className="flex items-start gap-2.5 cursor-pointer">

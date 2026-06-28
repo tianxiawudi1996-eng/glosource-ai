@@ -126,7 +126,7 @@ Vision @ GloSource AI`,
 
 I'd love to help with your promo code! Could you reply with the code you're trying to use and I'll look into it personally.
 
-If you're having trouble at checkout, you can also reach us directly at hello@glosource.ai and we'll apply any valid discount manually to your account.
+If you're having trouble at checkout, you can also reach us directly at hello@glosourceai.com and we'll apply any valid discount manually to your account.
 
 Best,
 Vision @ GloSource AI`,
@@ -733,7 +733,7 @@ Thanks for reaching out to GloSource AI!
 
 I've received your message and will personally review it within 24 hours (usually much faster).
 
-If this is urgent, you can also reach me directly at support@glosource.ai.
+If this is urgent, you can also reach me directly at support@glosourceai.com.
 
 Best,
 Vision @ GloSource AI`,

@@ -58,7 +58,7 @@ export default function SampleReportLeadForm() {
       setMessage(`Your ${REPORTS[category].label} sample report is ready — open it below.`);
     } catch {
       setStatus('error');
-      setMessage('Network error. Please try again or email hello@glosource.ai.');
+      setMessage('Network error. Please try again or email hello@glosourceai.com.');
     }
   }
 

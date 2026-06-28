@@ -42,7 +42,7 @@ async function sendFailureAlert(message: string): Promise<void> {
       method: 'POST',
       headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from: process.env.RESEND_EMAIL_FROM ?? 'noreply@glosource.ai',
+        from: process.env.RESEND_EMAIL_FROM ?? 'noreply@glosourceai.com',
         to: process.env.ADMIN_EMAIL ?? 'tianxiawudi1996@gmail.com',
         subject: '[GloSource] 소셜 자동화 발행 실패',
         text: message,

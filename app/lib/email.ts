@@ -1,7 +1,7 @@
 import { Resend } from 'resend';
 import { welcomeEmail, receiptEmail, passwordResetEmail, verifyEmailTemplate } from '@/app/emails/templates';
 
-const FROM = process.env.RESEND_EMAIL_FROM ?? 'noreply@glosource.ai';
+const FROM = process.env.RESEND_EMAIL_FROM ?? 'noreply@glosourceai.com';
 const IS_PROD = process.env.NODE_ENV === 'production';
 
 function getResend(): Resend | null {
@@ -172,7 +172,7 @@ export async function sendPolarResetReminderEmail(
   <h1 style="font-size:22px;font-weight:900;margin-bottom:8px">One step left: set your password</h1>
   <p style="color:#475569;margin-bottom:24px">Hi ${name}, your GloSource AI subscription is active, but you haven't set your password yet — so you can't sign in. It only takes a moment:</p>
   <a href="${resetLink}" style="display:inline-block;background:#EA580C;color:#fff;font-weight:700;padding:14px 28px;border-radius:10px;text-decoration:none;font-size:15px">Set my password →</a>
-  <p style="color:#94a3b8;font-size:12px;margin-top:32px">This link expires in 7 days. If you've already set your password, you can ignore this email. Need help? Email hello@glosource.ai.</p>
+  <p style="color:#94a3b8;font-size:12px;margin-top:32px">This link expires in 7 days. If you've already set your password, you can ignore this email. Need help? Email hello@glosourceai.com.</p>
 </body>
 </html>`;
 

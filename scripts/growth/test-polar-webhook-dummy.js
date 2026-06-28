@@ -73,6 +73,9 @@ function postJson(port, body, headers) {
       res.on('data', chunk => { responseBody += chunk; });
       res.on('end', () => resolve({ status: res.statusCode, body: responseBody }));
     });
+    req.setTimeout(60000, () => {
+      req.destroy(new Error('webhook request timed out after 60000ms'));
+    });
     req.on('error', reject);
     req.write(body);
     req.end();
@@ -174,6 +177,7 @@ async function cleanup(sql, email, subscriptionId, invoiceId) {
       webhookStatus: response.status,
       webhookBody: response.body,
       checks,
+      serverOutput: failed.length ? output.slice(-4000) : undefined,
       cleanedUp: true,
     });
 

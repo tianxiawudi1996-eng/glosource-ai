@@ -44,8 +44,8 @@ export default function NotFound() {
           </div>
           <p className="mt-10 text-xs text-slate-600">
             Looking for something specific? Email{' '}
-            <a href="mailto:hello@glosource.ai" className="underline hover:text-slate-400">
-              hello@glosource.ai
+            <a href="mailto:hello@glosourceai.com" className="underline hover:text-slate-400">
+              hello@glosourceai.com
             </a>
           </p>
         </div>
