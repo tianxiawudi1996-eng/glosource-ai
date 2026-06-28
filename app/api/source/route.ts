@@ -5,7 +5,7 @@ import { getCategoryByCode } from '../../lib/categories';
 import type { Category } from '../../lib/categories';
 import type { MarketRiskFlag, SourcingRequest, SourcingOutput, Supplier } from './types';
 import { kvConsumeFreeCredit, kvSaveHistory, extractTrustedIp } from '../../lib/kv';
-import { lookupMfdsFirms, lookupHaccpFirms, normFirmName, type MfdsMatch } from '../../lib/mfds';
+import { lookupMfdsFirms, lookupHaccpFirms, lookupMedicalDeviceFirms, normFirmName, type MfdsMatch, type MedicalMatch } from '../../lib/mfds';
 import { checkBusinessStatus } from '../../lib/nts';
 import { checkAuthAndQuota, logUsage } from '../../lib/authMiddleware';
 import { enforceVerifiedSupplierQualityGate, verifiedSupplierUnavailableMessage } from '../../lib/supplier-verification';
@@ -999,6 +999,52 @@ export async function POST(request: NextRequest) {
           ? `HACCP-certified ${gb} manufacturer${m.area1 ? ` · ${m.area1}` : ''}`
           : `HACCP 인증 ${gb} 제조사${m.area1 ? ` · ${m.area1}` : ''}`;
         s.trustEvidence = [ev, ...(Array.isArray(s.trustEvidence) ? s.trustEvidence : [])];
+      }
+    } catch { /* never block the response */ }
+
+    // Real MFDS medical-device manufacturer/importer enrichment + live NTS status.
+    try {
+      const mdeq = await lookupMedicalDeviceFirms(
+        (output.suppliers ?? []).flatMap((s) => [s.koreanName, s.name].filter(Boolean) as string[]),
+      );
+      const en = lang === 'en';
+      const matched: { s: NonNullable<typeof output.suppliers>[number]; m: MedicalMatch }[] = [];
+      for (const s of output.suppliers ?? []) {
+        const m = (s.koreanName ? mdeq.get(normFirmName(s.koreanName)) : undefined) ?? mdeq.get(normFirmName(s.name));
+        if (m) matched.push({ s, m });
+      }
+      const nts = await checkBusinessStatus(matched.map(({ m }) => m.bizrno));
+      for (const { s, m } of matched) {
+        s.dbVerified = true;
+        const ev = m.isManufacturer
+          ? (en
+              ? `MFDS-licensed medical-device MANUFACTURER${m.bizrno ? ` · biz reg ${m.bizrno}` : ''}${m.sido ? ` · ${m.sido}` : ''}`
+              : `식약처 허가 의료기기 제조업체${m.bizrno ? ` · 사업자 ${m.bizrno}` : ''}${m.sido ? ` · ${m.sido}` : ''}`)
+          : (en
+              ? `MFDS-licensed medical-device IMPORTER/distributor (not a manufacturer of record)${m.bizrno ? ` · biz reg ${m.bizrno}` : ''}`
+              : `식약처 허가 의료기기 수입업체(제조사 아님)${m.bizrno ? ` · 사업자 ${m.bizrno}` : ''}`);
+        s.trustEvidence = [ev, ...(Array.isArray(s.trustEvidence) ? s.trustEvidence : [])];
+        const st = m.bizrno ? nts.get(m.bizrno.replace(/\D/g, '')) : undefined;
+        if (st?.registered) {
+          if (st.active) {
+            s.trustEvidence = [(en
+              ? `✓ Active registered business — verified live with Korea NTS${st.taxType ? ` (${st.taxType})` : ''}`
+              : `✓ 국세청 실시간 계속사업자 확인${st.taxType ? ` · ${st.taxType}` : ''}`), ...s.trustEvidence];
+          } else {
+            s.redFlags = [(en
+              ? `⚠ Not an active business per Korea NTS: ${st.statusText} — do not transact before reconfirming.`
+              : `⚠ 국세청 실시간 조회상 정상영업 아님: ${st.statusText} — 거래 전 재확인 필수.`), ...(Array.isArray(s.redFlags) ? s.redFlags : [])];
+          }
+        } else if (m.closeDate) {
+          s.redFlags = [(en
+            ? `⚠ MFDS records show this medical-device license closed (${m.closeDate}).`
+            : `⚠ 식약처상 의료기기 허가 폐업 이력 (${m.closeDate}).`), ...(Array.isArray(s.redFlags) ? s.redFlags : [])];
+        }
+        if (!m.isManufacturer) {
+          s.redFlags = [(en
+            ? 'Licensed as a medical-device importer/distributor, not a manufacturer — confirm who actually manufactures.'
+            : '의료기기 수입/유통업으로 허가 — 실제 제조사 직접 확인 필요.'), ...(Array.isArray(s.redFlags) ? s.redFlags : [])];
+        }
       }
     } catch { /* never block the response */ }
 

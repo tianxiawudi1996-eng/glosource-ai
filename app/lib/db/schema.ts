@@ -217,6 +217,19 @@ export const krHaccpFirms = pgTable('kr_haccp_firms', {
   issueDate: text('issue_date'),
 });
 
+// ── 의료기기 제조/수입 업체 (식약처 통합업체 정보, 업체명+사업자번호 매칭) ──
+export const krMedicalDeviceFirms = pgTable('kr_medical_device_firms', {
+  id: text('id').primaryKey(),             // 합성 키 (원본에 고유 ID 없음)
+  name: text('name').notNull(),
+  nameNorm: text('name_norm').notNull(),
+  induty: text('induty').notNull(),        // 제조업 | 수입업
+  isManufacturer: boolean('is_manufacturer').notNull(),
+  bizrno: text('bizrno'),                  // 사업자등록번호 (BRNO)
+  permitDate: text('permit_date'),
+  closeDate: text('close_date'),           // 폐업일자 (CLSBIZ_YMD)
+  addr: text('addr'),
+});
+
 // ── 플랜별 한도 ───────────────────────────────────────────────────────
 
 export const PLAN_LIMITS = {

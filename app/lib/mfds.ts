@@ -1,5 +1,5 @@
 import { inArray } from 'drizzle-orm';
-import { db, krCosmeticsFirms, krHaccpFirms } from '@/app/lib/db';
+import { db, krCosmeticsFirms, krHaccpFirms, krMedicalDeviceFirms } from '@/app/lib/db';
 import cgmpData from '@/app/data/cgmp-firms.json';
 
 // CGMP-certified cosmetics manufacturers (MFDS 화장품 GMP 적합업체), keyed by business-reg number.
@@ -88,6 +88,42 @@ export async function lookupHaccpFirms(names: string[]): Promise<Map<string, Hac
     if (!out.has(r.companyNorm)) {
       out.set(r.companyNorm, { company: r.company, productGb: r.productGb, businessItem: r.businessItem, area1: r.area1 });
     }
+  }
+  return out;
+}
+
+export interface MedicalMatch {
+  name: string;
+  induty: string;
+  isManufacturer: boolean;
+  bizrno: string | null;
+  closeDate: string | null;
+  sido: string | null;
+}
+
+// Look up company names against the MFDS medical-device manufacturer/importer registry.
+export async function lookupMedicalDeviceFirms(names: string[]): Promise<Map<string, MedicalMatch>> {
+  const norms = [...new Set(names.map(normFirmName).filter((n) => n.length >= 2))];
+  const out = new Map<string, MedicalMatch>();
+  if (!norms.length) return out;
+  let rows: (typeof krMedicalDeviceFirms.$inferSelect)[];
+  try {
+    rows = await db.select().from(krMedicalDeviceFirms).where(inArray(krMedicalDeviceFirms.nameNorm, norms)).limit(300);
+  } catch {
+    return out;
+  }
+  for (const r of rows) {
+    const m: MedicalMatch = {
+      name: r.name,
+      induty: r.induty,
+      isManufacturer: r.isManufacturer,
+      bizrno: r.bizrno,
+      closeDate: r.closeDate,
+      sido: r.addr ? r.addr.split(/\s+/)[0] : null,
+    };
+    const ex = out.get(r.nameNorm);
+    // Prefer a manufacturer record, and an open (not closed) record, on collision.
+    if (!ex || (m.isManufacturer && !ex.isManufacturer) || (!m.closeDate && ex.closeDate)) out.set(r.nameNorm, m);
   }
   return out;
 }
