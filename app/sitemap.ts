@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { BLOG_POSTS } from './lib/blog-posts';
 
-const BASE = 'https://glosource-ai.vercel.app';
+const BASE = 'https://glosourceai.com';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const blogEntries: MetadataRoute.Sitemap = BLOG_POSTS.map(post => ({

@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Korean Supplier Search Examples — GloSource AI',
     description: 'Demo searches with AI-generated results: K-beauty OEM, K-food wholesale, K-fashion suppliers.',
-    url: 'https://glosource-ai.vercel.app/en/case-studies',
+    url: 'https://glosourceai.com/en/case-studies',
     siteName: 'GloSource AI',
     locale: 'en_US',
     type: 'website',
@@ -32,10 +32,10 @@ export const metadata: Metadata = {
     'Korea sourcing case study',
   ],
   alternates: {
-    canonical: 'https://glosource-ai.vercel.app/en/case-studies',
+    canonical: 'https://glosourceai.com/en/case-studies',
     languages: {
-      'en-US': 'https://glosource-ai.vercel.app/en/case-studies',
-      'x-default': 'https://glosource-ai.vercel.app/en/case-studies',
+      'en-US': 'https://glosourceai.com/en/case-studies',
+      'x-default': 'https://glosourceai.com/en/case-studies',
     },
   },
 };
@@ -87,8 +87,8 @@ export default function CaseStudiesPage() {
     <div className="min-h-screen bg-white">
       <JsonLdBreadcrumb
         items={[
-          { name: 'Home', url: 'https://glosource-ai.vercel.app/en' },
-          { name: 'Examples', url: 'https://glosource-ai.vercel.app/en/case-studies' },
+          { name: 'Home', url: 'https://glosourceai.com/en' },
+          { name: 'Examples', url: 'https://glosourceai.com/en/case-studies' },
         ]}
       />
       {/* Nav */}

@@ -15,7 +15,7 @@ const RSS_FEEDS = [
 
 // [FIX 1] "verified" 제거, MFDS/HACCP 보장 표현 제거, #ad 표기 추가
 const GLOSOURCE_MENTIONS = [
-  '#ad Sourcing from Korea? GloSource AI (glosource-ai.vercel.app) finds supplier candidates via EC21, BuyKorea & tradeKorea in ~90 sec.',
+  '#ad Sourcing from Korea? GloSource AI (glosourceai.com) finds supplier candidates via EC21, BuyKorea & tradeKorea in ~90 sec.',
   '#ad Korean supplier research used to take hours of tab-switching. GloSource AI searches multiple B2B platforms simultaneously.',
   '#ad For buyers exploring Korean cosmetics, food, or fashion suppliers — GloSource AI surfaces candidates with AI-detected cert signals. Results require your own verification.',
 ];

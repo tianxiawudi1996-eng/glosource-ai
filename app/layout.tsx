@@ -24,7 +24,7 @@ const inter = Inter({
   display: "swap",
 });
 
-const BASE_URL = "https://glosource-ai.vercel.app";
+const BASE_URL = "https://glosourceai.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),

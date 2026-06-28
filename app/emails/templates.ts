@@ -55,7 +55,7 @@ export function welcomeEmail(vars: TemplateVars = {}): string {
         </td>
       </tr>
     </table>
-    <a href="https://glosource-ai.vercel.app/#sourcing-tool" style="display:inline-block;background:#EA580C;color:#ffffff;text-decoration:none;font-size:14px;font-weight:800;padding:12px 18px;border-radius:10px;">첫 소싱 시작하기</a>
+    <a href="https://glosourceai.com/#sourcing-tool" style="display:inline-block;background:#EA580C;color:#ffffff;text-decoration:none;font-size:14px;font-weight:800;padding:12px 18px;border-radius:10px;">첫 소싱 시작하기</a>
   `);
 }
 
@@ -92,7 +92,7 @@ export function creditLowEmail(vars: TemplateVars = {}): string {
       <div style="font-size:13px;font-weight:800;color:#9a3412;">운영 팁</div>
       <p style="margin:8px 0 0;font-size:13px;line-height:22px;color:#9a3412;">반복 품목은 기존 PDF 리포트와 RFQ 초안을 재사용하면 분석 크레딧을 절약할 수 있습니다.</p>
     </div>
-    <a href="https://glosource-ai.vercel.app/billing" style="display:inline-block;background:#0D1B2A;color:#ffffff;text-decoration:none;font-size:14px;font-weight:800;padding:12px 18px;border-radius:10px;">구독 관리 보기</a>
+    <a href="https://glosourceai.com/billing" style="display:inline-block;background:#0D1B2A;color:#ffffff;text-decoration:none;font-size:14px;font-weight:800;padding:12px 18px;border-radius:10px;">구독 관리 보기</a>
   `);
 }
 

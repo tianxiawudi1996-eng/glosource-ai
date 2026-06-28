@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const base = process.env.AUTH_URL ?? 'https://glosource-ai.vercel.app';
+  const base = process.env.AUTH_URL ?? 'https://glosourceai.com';
   const now = Date.now();
   const cutoff48h = new Date(now - 48 * 60 * 60 * 1000);   // 가입 후 48시간 경과
   const cutoffCap = new Date(now - 14 * 24 * 60 * 60 * 1000); // 너무 오래된 계정 제외 (14일)

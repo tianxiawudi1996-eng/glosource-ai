@@ -3,8 +3,8 @@
  *
  * 사용법:
  *   <JsonLdBreadcrumb items={[
- *     { name: 'Home', url: 'https://glosource-ai.vercel.app/en' },
- *     { name: 'About', url: 'https://glosource-ai.vercel.app/en/about' },
+ *     { name: 'Home', url: 'https://glosourceai.com/en' },
+ *     { name: 'About', url: 'https://glosourceai.com/en/about' },
  *   ]} />
  *
  * 5/27 자비스 자율 /loop iter 8.

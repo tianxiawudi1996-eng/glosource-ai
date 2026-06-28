@@ -4,7 +4,7 @@ export const metadata: Metadata = {
   title: 'GloSource AI — Source Korean Suppliers with AI',
   description:
     'AI-powered sourcing assistant for international buyers. Find Korean manufacturers for K-beauty, K-food, K-fashion, electronics, and more with supplier risk scores and RFQ drafts.',
-  metadataBase: new URL('https://glosource-ai.vercel.app'),
+  metadataBase: new URL('https://glosourceai.com'),
   alternates: {
     canonical: '/en',
     languages: {
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     title: 'GloSource AI — Source Korean Suppliers with AI',
     description:
       'Find Korean supplier candidates from EC21, BuyKorea, KOTRA, tradeKorea, and direct factory search with AI trust scoring and RFQ drafts.',
-    url: 'https://glosource-ai.vercel.app/en',
+    url: 'https://glosourceai.com/en',
     siteName: 'GloSource AI',
     type: 'website',
     locale: 'en_US',

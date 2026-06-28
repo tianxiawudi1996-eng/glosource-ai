@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: 'Page Not Found - GloSource AI',
   description: 'The page you are looking for does not exist. Try the GloSource AI supplier search instead.',
   robots: { index: false, follow: true },
-  alternates: { canonical: 'https://glosource-ai.vercel.app/en' },
+  alternates: { canonical: 'https://glosourceai.com/en' },
 };
 
 export default function NotFound() {

@@ -9,11 +9,11 @@ interface ShareButtonProps {
 export default function ShareButton({ keyword, supplierCount }: ShareButtonProps) {
   const [copied, setCopied] = useState(false);
 
-  const shareText = `GloSource AI로 "${keyword}" 공급자 후보 ${supplierCount}개 발굴 완료! 🔍\n신뢰도 점수·가격·RFQ 초안 자동 작성\n👉 https://glosource-ai.vercel.app`;
+  const shareText = `GloSource AI로 "${keyword}" 공급자 후보 ${supplierCount}개 발굴 완료! 🔍\n신뢰도 점수·가격·RFQ 초안 자동 작성\n👉 https://glosourceai.com`;
   const encodedText = encodeURIComponent(shareText);
 
   function handleCopy() {
-    navigator.clipboard.writeText(`https://glosource-ai.vercel.app?q=${encodeURIComponent(keyword)}`).then(() => {
+    navigator.clipboard.writeText(`https://glosourceai.com?q=${encodeURIComponent(keyword)}`).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }).catch(() => {});
@@ -21,7 +21,7 @@ export default function ShareButton({ keyword, supplierCount }: ShareButtonProps
 
   function handleKakao() {
     // 카카오 공유 — kakao SDK 없이 링크 공유 방식
-    const url = `https://story.kakao.com/share?url=${encodeURIComponent('https://glosource-ai.vercel.app')}&text=${encodedText}`;
+    const url = `https://story.kakao.com/share?url=${encodeURIComponent('https://glosourceai.com')}&text=${encodedText}`;
     window.open(url, '_blank', 'width=600,height=500');
   }
 
@@ -30,7 +30,7 @@ export default function ShareButton({ keyword, supplierCount }: ShareButtonProps
   }
 
   function handleLinkedIn() {
-    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://glosource-ai.vercel.app')}`, '_blank', 'width=600,height=500');
+    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://glosourceai.com')}`, '_blank', 'width=600,height=500');
   }
 
   return (

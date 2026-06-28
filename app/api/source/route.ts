@@ -61,7 +61,7 @@ async function verifySupplierUrls(suppliers: Supplier[]): Promise<void> {
           method: 'GET',
           redirect: 'follow',
           signal: AbortSignal.timeout(4000),
-          headers: { 'User-Agent': 'Mozilla/5.0 (compatible; GloSourceBot/1.0; +https://glosource-ai.vercel.app)' },
+          headers: { 'User-Agent': 'Mozilla/5.0 (compatible; GloSourceBot/1.0; +https://glosourceai.com)' },
         });
         if (res.status === 404 || res.status === 410) dead = true;
       } catch (err) {

@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
     const verifyExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24h
     await db.delete(verificationTokens).where(eq(verificationTokens.identifier, verifyIdentifier));
     await db.insert(verificationTokens).values({ identifier: verifyIdentifier, token: verifyToken, expires: verifyExpires });
-    const base = process.env.AUTH_URL ?? 'https://glosource-ai.vercel.app';
+    const base = process.env.AUTH_URL ?? 'https://glosourceai.com';
     const verifyLink = `${base}/api/auth/verify-email?token=${verifyToken}&email=${encodeURIComponent(email)}`;
     sendVerificationEmail(email, name, verifyLink).catch(() => {});
 

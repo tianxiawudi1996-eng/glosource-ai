@@ -33,7 +33,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: '/',
       },
     ],
-    sitemap: 'https://glosource-ai.vercel.app/sitemap.xml',
-    host: 'https://glosource-ai.vercel.app',
+    sitemap: 'https://glosourceai.com/sitemap.xml',
+    host: 'https://glosourceai.com',
   };
 }

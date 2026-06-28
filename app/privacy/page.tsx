@@ -37,7 +37,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-lg font-bold text-white mb-3">1. Who We Are</h2>
             <p>
-              GloSource AI (&ldquo;we&rdquo;, &ldquo;us&rdquo;) operates the sourcing research tool at glosource-ai.vercel.app.
+              GloSource AI (&ldquo;we&rdquo;, &ldquo;us&rdquo;) operates the sourcing research tool at glosourceai.com.
               Questions about this policy can be sent to{' '}
               <a href="mailto:glosourceai@gmail.com" className="underline text-[#EA580C] hover:text-orange-400">
                 glosourceai@gmail.com

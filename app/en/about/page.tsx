@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'About GloSource AI — Korean Supplier Research Tool',
     description: 'AI-powered research for finding Korean supplier candidates from EC21, BuyKorea (KOTRA), and tradeKorea in under 90 seconds.',
-    url: 'https://glosource-ai.vercel.app/en/about',
+    url: 'https://glosourceai.com/en/about',
     siteName: 'GloSource AI',
     locale: 'en_US',
     type: 'website',
@@ -32,10 +32,10 @@ export const metadata: Metadata = {
     'trust scoring',
   ],
   alternates: {
-    canonical: 'https://glosource-ai.vercel.app/en/about',
+    canonical: 'https://glosourceai.com/en/about',
     languages: {
-      'en-US': 'https://glosource-ai.vercel.app/en/about',
-      'x-default': 'https://glosource-ai.vercel.app/en/about',
+      'en-US': 'https://glosourceai.com/en/about',
+      'x-default': 'https://glosourceai.com/en/about',
     },
   },
 };
@@ -45,8 +45,8 @@ export default function AboutPage() {
     <div className="min-h-screen bg-white">
       <JsonLdBreadcrumb
         items={[
-          { name: 'Home', url: 'https://glosource-ai.vercel.app/en' },
-          { name: 'About', url: 'https://glosource-ai.vercel.app/en/about' },
+          { name: 'Home', url: 'https://glosourceai.com/en' },
+          { name: 'About', url: 'https://glosourceai.com/en/about' },
         ]}
       />
       {/* Nav */}

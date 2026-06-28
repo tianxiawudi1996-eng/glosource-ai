@@ -35,7 +35,7 @@ export async function POST() {
   await db.delete(verificationTokens).where(eq(verificationTokens.identifier, identifier));
   await db.insert(verificationTokens).values({ identifier, token: verifyToken, expires });
 
-  const base = process.env.AUTH_URL ?? 'https://glosource-ai.vercel.app';
+  const base = process.env.AUTH_URL ?? 'https://glosourceai.com';
   const verifyLink = `${base}/api/auth/verify-email?token=${verifyToken}&email=${encodeURIComponent(email)}`;
   sendVerificationEmail(email, user.name ?? email.split('@')[0], verifyLink).catch(() => {});
 

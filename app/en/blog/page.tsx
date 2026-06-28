@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Korean Supplier Sourcing Blog — GloSource AI',
     description: 'Guides for K-sourcing — MFDS/KC/HACCP certifications, RFQ templates, EC21 vs BuyKorea, K-beauty FBA.',
-    url: 'https://glosource-ai.vercel.app/en/blog',
+    url: 'https://glosourceai.com/en/blog',
     siteName: 'GloSource AI',
     locale: 'en_US',
     type: 'website',
@@ -34,10 +34,10 @@ export const metadata: Metadata = {
     'Amazon FBA from Korea',
   ],
   alternates: {
-    canonical: 'https://glosource-ai.vercel.app/en/blog',
+    canonical: 'https://glosourceai.com/en/blog',
     languages: {
-      'en-US': 'https://glosource-ai.vercel.app/en/blog',
-      'x-default': 'https://glosource-ai.vercel.app/en/blog',
+      'en-US': 'https://glosourceai.com/en/blog',
+      'x-default': 'https://glosourceai.com/en/blog',
     },
   },
 };
@@ -48,8 +48,8 @@ export default async function EnBlogIndex() {
     <div className="min-h-screen bg-white">
       <JsonLdBreadcrumb
         items={[
-          { name: 'Home', url: 'https://glosource-ai.vercel.app/en' },
-          { name: 'Blog', url: 'https://glosource-ai.vercel.app/en/blog' },
+          { name: 'Home', url: 'https://glosourceai.com/en' },
+          { name: 'Blog', url: 'https://glosourceai.com/en/blog' },
         ]}
       />
       {/* Nav */}

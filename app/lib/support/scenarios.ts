@@ -55,7 +55,7 @@ I've received your cancellation request and passed it to our billing team. They'
 
 Before you go: was there something specific that didn't work for you? Even a quick note helps me improve GloSource for others.
 
-You can always come back — the 5 free searches are always available at glosource-ai.vercel.app/en.
+You can always come back — the 5 free searches are always available at glosourceai.com/en.
 
 Best,
 Vision @ GloSource AI`,
@@ -90,7 +90,7 @@ Great to hear you want to upgrade! Here are your options:
 • Pro ($49/mo) — 60 searches/month
 • Agency ($149/mo) — 999 searches/month + priority support
 
-You can upgrade directly at: glosource-ai.vercel.app/en/billing
+You can upgrade directly at: glosourceai.com/en/billing
 
 The upgrade takes effect immediately, and the price difference is prorated for your current billing period.
 
@@ -106,7 +106,7 @@ Vision @ GloSource AI`,
     tone: 'informative',
     response: `Hi {{name}},
 
-No problem at all! You can switch to any plan at glosource-ai.vercel.app/en/billing.
+No problem at all! You can switch to any plan at glosourceai.com/en/billing.
 
 The downgrade takes effect at your next billing cycle, so you'll keep your current search allowance until then.
 
@@ -297,7 +297,7 @@ To get more results:
 • Search for the product category (e.g., "K-beauty serum" returns more than "collagen serum 50ml with peptide")
 • Try an alternative keyword
 
-Pro and Agency plans also get deeper search results. Check glosource-ai.vercel.app/en/billing if you want to upgrade.
+Pro and Agency plans also get deeper search results. Check glosourceai.com/en/billing if you want to upgrade.
 
 Best,
 Vision @ GloSource AI`,
@@ -588,7 +588,7 @@ GloSource AI is a Korean supplier discovery tool. Here's how it works:
 
 It's built for Amazon FBA sellers, K-beauty importers, and anyone who sources from Korea.
 
-5 free searches at glosource-ai.vercel.app/en — no signup needed.
+5 free searches at glosourceai.com/en — no signup needed.
 
 Best,
 Vision @ GloSource AI`,
@@ -690,7 +690,7 @@ You've used all 5 free searches! To continue, you can upgrade to a paid plan:
 • **Pro** ($49/mo) — 60 searches/month = $0.82/search
 • **Agency** ($149/mo) — 999 searches/month = $0.15/search
 
-Upgrade at: glosource-ai.vercel.app/en/billing
+Upgrade at: glosourceai.com/en/billing
 
 Use code **PRODUCTHUNT** for 1 month free!
 

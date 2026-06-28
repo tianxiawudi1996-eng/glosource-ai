@@ -270,7 +270,7 @@ export async function POST(request: NextRequest) {
 
       // Welcome + set-password email (7-day link). Brand-new accounts get it immediately;
       // existing temp-password accounts get a resend safety net (idempotent).
-      const base = process.env.AUTH_URL ?? 'https://glosource-ai.vercel.app';
+      const base = process.env.AUTH_URL ?? 'https://glosourceai.com';
       const planLabels: Record<string, string> = { starter: 'Starter', pro: 'Pro', enterprise: 'Agency' };
       const planLabel = planLabels[plan] ?? plan;
       try {

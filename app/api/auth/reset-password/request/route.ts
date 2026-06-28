@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
       await db.delete(verificationTokens).where(eq(verificationTokens.identifier, identifier));
       await db.insert(verificationTokens).values({ identifier, token, expires });
 
-      const base = process.env.AUTH_URL ?? 'https://glosource-ai.vercel.app';
+      const base = process.env.AUTH_URL ?? 'https://glosourceai.com';
       const link = `${base}/auth/reset-password/confirm?token=${token}&email=${encodeURIComponent(email)}`;
       sendPasswordResetEmail(email, link).catch(() => {});
     }

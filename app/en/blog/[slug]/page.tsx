@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     title: post.title,
     description: post.description,
-    alternates: { canonical: `https://glosource-ai.vercel.app/en/blog/${post.slug}` },
+    alternates: { canonical: `https://glosourceai.com/en/blog/${post.slug}` },
     openGraph: { title: post.title, description: post.description, type: 'article', publishedTime: post.publishedAt },
   };
 }
@@ -41,19 +41,19 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     author: {
       '@type': 'Organization',
       name: 'GloSource AI',
-      url: 'https://glosource-ai.vercel.app',
+      url: 'https://glosourceai.com',
     },
     publisher: {
       '@type': 'Organization',
       name: 'GloSource AI',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://glosource-ai.vercel.app/images/glosource-logo.png',
+        url: 'https://glosourceai.com/images/glosource-logo.png',
       },
     },
     mainEntityOfPage: {
       '@type': 'WebPage',
-      '@id': `https://glosource-ai.vercel.app/en/blog/${post.slug}`,
+      '@id': `https://glosourceai.com/en/blog/${post.slug}`,
     },
     articleSection: post.category,
     timeRequired: `PT${post.readingTimeMin}M`,
@@ -68,9 +68,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       />
       <JsonLdBreadcrumb
         items={[
-          { name: 'Home', url: 'https://glosource-ai.vercel.app/en' },
-          { name: 'Blog', url: 'https://glosource-ai.vercel.app/en/blog' },
-          { name: post.title, url: `https://glosource-ai.vercel.app/en/blog/${post.slug}` },
+          { name: 'Home', url: 'https://glosourceai.com/en' },
+          { name: 'Blog', url: 'https://glosourceai.com/en/blog' },
+          { name: post.title, url: `https://glosourceai.com/en/blog/${post.slug}` },
         ]}
       />
       {/* Nav */}

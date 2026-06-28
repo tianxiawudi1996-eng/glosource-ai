@@ -13,8 +13,8 @@ const ORG_SCHEMA = {
   '@type': 'Organization',
   name: 'GloSource AI',
   alternateName: 'GloSource',
-  url: 'https://glosource-ai.vercel.app',
-  logo: 'https://glosource-ai.vercel.app/images/glosource-logo.png',
+  url: 'https://glosourceai.com',
+  logo: 'https://glosourceai.com/images/glosource-logo.png',
   email: 'hello@glosource.ai',
   description:
     'AI-powered Korean supplier research tool that helps international buyers find K-beauty, K-food, K-fashion and other Korean manufacturer candidates from EC21, BuyKorea (KOTRA), and tradeKorea in under 90 seconds.',
@@ -34,12 +34,12 @@ const WEBSITE_SCHEMA = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
   name: 'GloSource AI',
-  url: 'https://glosource-ai.vercel.app/en',
+  url: 'https://glosourceai.com/en',
   potentialAction: {
     '@type': 'SearchAction',
     target: {
       '@type': 'EntryPoint',
-      urlTemplate: 'https://glosource-ai.vercel.app/en?q={search_term_string}',
+      urlTemplate: 'https://glosourceai.com/en?q={search_term_string}',
     },
     'query-input': 'required name=search_term_string',
   },
