@@ -47,7 +47,7 @@ const searchDecl = {
   },
 } as unknown as FunctionDeclaration;
 
-function systemPrompt(canSearch: boolean): string {
+function systemPrompt(): string {
   return [
     'You are the GloSource sourcing assistant for FOREIGN B2B buyers sourcing products from Korean suppliers.',
     '',
@@ -55,9 +55,7 @@ function systemPrompt(canSearch: boolean): string {
     '- You verify Korean suppliers against REAL government registries (MFDS cosmetics, HACCP food, medical devices, health-functional-food, quasi-drugs) plus a live National Tax Service business-status check. NEVER invent verification facts — only state exactly what the verifyKoreanCompany tool returns.',
     '- Whenever the user asks whether a company is real/legit/registered/a manufacturer, OR names a specific Korean company, call verifyKoreanCompany. ALWAYS pass the company\'s KOREAN registered name (한글 상호); translate English/brand names first.',
     '- After verifying: if found, briefly summarize which registries matched and whether it is an active business. If NOT found, say it is not in the registries you check — explain that this does not necessarily mean it is fake, but you cannot confirm it, and suggest the buyer ask the supplier for its 사업자등록번호 (business-registration number).',
-    canSearch
-      ? '- For sourcing requests (find/source suppliers for a product), call searchSuppliers.'
-      : '- Your current plan includes VERIFICATION ONLY. If the user wants to find/search suppliers, tell them supplier sourcing search is available on the Pro plan, and offer to verify any specific supplier name they already have.',
+    '- For sourcing requests (find/source suppliers for a product), call searchSuppliers. All plans may search; the sourcing results endpoint applies each plan\'s usage and detail limits.',
     '- Be concise, factual and buyer-friendly. Reply in the user\'s language (default English). Do not use markdown tables.',
     '- CRITICAL: always answer in natural, friendly PROSE of 1–3 sentences. NEVER output JSON, code, field names, or the raw tool result — the structured verification details are shown to the user separately, so just summarize them conversationally (e.g. "Yes — 코스맥스 is a government-registered cosmetics and medical-device manufacturer, and it\'s an active business per today\'s live tax-office check.").',
   ].join('\n');
@@ -71,8 +69,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
   const auth = await checkAuthAndQuota(request, 'chat');
   if (!auth.ok) return auth.response;
-  const canSearch = auth.plan === 'pro' || auth.plan === 'enterprise';
-
   let body: { messages?: ChatMessage[] };
   try { body = await request.json(); } catch { return NextResponse.json({ error: 'bad request' }, { status: 400 }); }
   const messages = Array.isArray(body.messages) ? body.messages.filter((m) => m && typeof m.content === 'string') : [];
@@ -81,8 +77,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   const model = genAI.getGenerativeModel({
     model: 'gemini-2.5-flash',
-    tools: [{ functionDeclarations: canSearch ? [verifyDecl, searchDecl] : [verifyDecl] }],
-    systemInstruction: systemPrompt(canSearch),
+    tools: [{ functionDeclarations: [verifyDecl, searchDecl] }],
+    systemInstruction: systemPrompt(),
   });
 
   const history = messages.slice(0, -1).map((m) => ({
@@ -103,7 +99,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         const r2 = await chat.sendMessage([{ functionResponse: { name: call.name, response: { result: v } } }]);
         return NextResponse.json({ reply: r2.response.text(), verification: v });
       }
-      if (call.name === 'searchSuppliers' && canSearch) {
+      if (call.name === 'searchSuppliers') {
         const a = call.args as { product?: string; quantity?: string; country?: string; buyerCountry?: string };
         return NextResponse.json({
           reply: `Searching government-verified Korean suppliers for “${a.product ?? ''}”…`,

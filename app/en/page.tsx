@@ -222,6 +222,7 @@ export default async function EnPage({
           <BrandLogo compact />
           <div className="flex items-center gap-3">
             <Link href="/" className="text-xs font-semibold text-slate-400 hover:text-white transition-colors">KO</Link>
+            <Link href="/en/assistant" className="text-xs font-bold text-orange-300 hover:text-orange-200 transition-colors">AI Assistant</Link>
             <a href="#sample-reports" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden sm:block">Sample report</a>
             <a href="#pricing" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden sm:block">Pricing</a>
             <Link href="/en/blog" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden sm:block">Blog</Link>
