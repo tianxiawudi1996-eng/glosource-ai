@@ -22,7 +22,8 @@ function formatCurrency(amount: number): string {
 export default async function AdminPage() {
   const session = await auth();
   const adminEmails = (process.env.ADMIN_EMAILS ?? process.env.ADMIN_EMAIL ?? '').split(',').map(e => e.trim()).filter(Boolean);
-  if (!session?.user?.email || !adminEmails.includes(session.user.email)) redirect('/');
+  if (!session?.user) redirect('/admin/login');
+  if (!session.user.email || !adminEmails.includes(session.user.email)) redirect('/');
 
   const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
 

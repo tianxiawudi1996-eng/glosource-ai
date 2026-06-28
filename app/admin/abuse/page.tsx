@@ -20,7 +20,8 @@ function compact(value: string | null | undefined, max = 80): string {
 export default async function AbuseAdminPage() {
   const session = await auth();
   const adminEmails = (process.env.ADMIN_EMAILS ?? process.env.ADMIN_EMAIL ?? '').split(',').map(e => e.trim()).filter(Boolean);
-  if (!session?.user?.email || !adminEmails.includes(session.user.email)) redirect('/');
+  if (!session?.user) redirect('/admin/login');
+  if (!session.user.email || !adminEmails.includes(session.user.email)) redirect('/');
 
   const [identityCountRows, eventCountRows, topIdentities, recentEvents] = await Promise.all([
     db.select({ value: count() }).from(abuseIdentities),
