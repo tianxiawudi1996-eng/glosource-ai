@@ -9,8 +9,9 @@ export type AuthResult =
   | { ok: true; userId: string | null; plan: keyof typeof PLAN_LIMITS }
   | { ok: false; response: NextResponse };
 
-export type ActionType = 'source' | 'factory_direct' | 'wechat' | 'image_analyze';
-const BILLABLE_ACTIONS: ActionType[] = ['source', 'factory_direct', 'wechat', 'image_analyze'];
+export type ActionType = 'source' | 'factory_direct' | 'wechat' | 'image_analyze' | 'chat';
+// 'chat' is intentionally excluded — it is non-billable and never written to usage_logs.action.
+const BILLABLE_ACTIONS: Exclude<ActionType, 'chat'>[] = ['source', 'factory_direct', 'wechat', 'image_analyze'];
 const FREE_IP_MONTHLY_LIMIT = Number(process.env.FREE_IP_MONTHLY_LIMIT ?? 0);
 
 function detectLang(request: NextRequest): 'en' | 'ko' {
@@ -60,7 +61,7 @@ export async function checkAuthAndQuota(
       return { ok: true, userId, plan };
     }
 
-    if (plan !== 'enterprise' && BILLABLE_ACTIONS.includes(action)) {
+    if (plan !== 'enterprise' && action !== 'chat' && BILLABLE_ACTIONS.includes(action)) {
       const startOfMonth = new Date();
       startOfMonth.setDate(1);
       startOfMonth.setHours(0, 0, 0, 0);
@@ -187,7 +188,7 @@ export async function checkAuthAndQuota(
 export async function logUsage(
   userId: string | null,
   ip: string,
-  action: ActionType,
+  action: Exclude<ActionType, 'chat'>,
   product?: string,
   supplierCount?: number,
   durationMs?: number,

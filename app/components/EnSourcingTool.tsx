@@ -9,6 +9,7 @@ import ExportButton from './ExportButton';
 import EmptyState from './EmptyState';
 import { trackSearch, trackBeginCheckout } from '@/app/lib/analytics';
 import GloSourceVoiceModal from './GloSourceVoiceModal';
+import SourcingChatWidget from './SourcingChatWidget';
 
 type SourceRegion = 'china' | 'korea';
 
@@ -515,19 +516,18 @@ export default function EnSourcingTool({
     return () => clearInterval(iv);
   }, [loading, loadingSteps.length]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!product.trim() || !quantity.trim()) return;
+  const runSearch = async (p: string, q: string, c: SourceRegion, bc: BuyerCountry): Promise<void> => {
+    if (!p.trim() || !q.trim()) return;
     setLoading(true);
     setError(null);
     setResult(null);
     setShowUpgrade(false);
     setVerifyBlocked(false);
     try {
-      const output = await callAPI(product, quantity, budget, region, buyerCountry);
+      const output = await callAPI(p, q, budget, c, bc);
       setResult(output);
       // GA4 funnel — metadata only, never the search term (privacy posture).
-      trackSearch({ region, buyer_country: buyerCountry, results: output.suppliers?.length ?? 0, plan });
+      trackSearch({ region: c, buyer_country: bc, results: output.suppliers?.length ?? 0, plan });
       if (isFreePlan) {
         // Successful free searches consume quota server-side; keep the local display in sync.
         const newCount = freeCount + 1;
@@ -551,6 +551,21 @@ export default function EnSourcingTool({
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await runSearch(product, quantity, region, buyerCountry);
+  };
+
+  // Invoked by the AI assistant when the buyer asks it to source a product (Pro+).
+  const handleChatSearch = (params: { product: string; quantity: string; country: 'korea' | 'china'; buyerCountry: string }) => {
+    setProduct(params.product);
+    setQuantity(params.quantity);
+    setRegion(params.country);
+    setBuyerCountry(params.buyerCountry as BuyerCountry);
+    formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    void runSearch(params.product, params.quantity, params.country, params.buyerCountry as BuyerCountry);
   };
 
   const handleResendVerification = async () => {
@@ -979,6 +994,9 @@ export default function EnSourcingTool({
         isOpen={isCallModalOpen}
         onClose={() => setIsCallModalOpen(false)}
       />
+
+      {/* AI sourcing & verification assistant (free: verify-only; Pro+: also sources) */}
+      <SourcingChatWidget onSearch={handleChatSearch} />
     </div>
   );
 }
