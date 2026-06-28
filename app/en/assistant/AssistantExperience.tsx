@@ -4,7 +4,15 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import type { BuyerCountry, SourcingOutput, Supplier } from '@/app/api/source/types';
 
-type Message = { role: 'user' | 'assistant'; content: string };
+type Verification = {
+  query: string;
+  found: boolean;
+  registries: string[];
+  evidence: string[];
+  redFlags: string[];
+  activeBusiness: boolean | null;
+};
+type Message = { role: 'user' | 'assistant'; content: string; verification?: Verification | null };
 type SearchAction = { product: string; quantity: string; country: 'korea' | 'china'; buyerCountry: string };
 
 const STARTERS = [
@@ -38,6 +46,24 @@ function AssistantSupplierCard({ supplier, locked }: { supplier: Supplier; locke
         {locked ? <span className="text-xs font-bold text-[#EA580C]">Full comparison on paid plans</span> : <a href={supplier.url} target="_blank" rel="noopener noreferrer" className="text-xs font-black text-[#EA580C] hover:underline">Visit company source →</a>}
       </div>
     </article>
+  );
+}
+
+function VerificationResult({ verification }: { verification: Verification }) {
+  return verification.found ? (
+    <div className="mt-2 max-w-[88%] rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+      <div className="flex flex-wrap items-center gap-2">
+        <p className="text-xs font-black uppercase tracking-wide text-emerald-800">Government record found</p>
+        {verification.activeBusiness && <span className="rounded-full bg-emerald-700 px-2 py-0.5 text-[10px] font-black text-white">Active business</span>}
+      </div>
+      <ul className="mt-3 space-y-1.5">{verification.evidence.map((evidence) => <li key={evidence} className="text-xs leading-5 text-emerald-950">✓ {evidence}</li>)}</ul>
+      {verification.registries.length > 0 && <div className="mt-3 flex flex-wrap gap-1.5">{verification.registries.map((registry) => <span key={registry} className="rounded-full border border-emerald-200 bg-white px-2 py-1 text-[10px] font-bold text-emerald-800">{registry}</span>)}</div>}
+      {verification.redFlags.map((flag) => <p key={flag} className="mt-2 text-xs text-red-700">⚠ {flag}</p>)}
+    </div>
+  ) : (
+    <div className="mt-2 max-w-[88%] rounded-2xl border border-amber-200 bg-amber-50 p-4 text-xs leading-5 text-amber-900">
+      No match was found for <strong>{verification.query}</strong> in the supported government registries. This does not prove the company is invalid; request its Korean registered name and business-registration number before proceeding.
+    </div>
   );
 }
 
@@ -85,7 +111,7 @@ export default function AssistantExperience() {
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data?.reply || 'The assistant is unavailable.');
-      setMessages((current) => [...current, { role: 'assistant', content: data.reply || 'I found a next step.' }]);
+      setMessages((current) => [...current, { role: 'assistant', content: data.reply || 'I found a next step.', verification: data.verification ?? null }]);
       if (data.action?.type === 'search') await searchSuppliers(data.action.params as SearchAction);
     } catch (error) {
       setMessages((current) => [...current, { role: 'assistant', content: error instanceof Error ? error.message : 'Please try again.' }]);
@@ -108,7 +134,10 @@ export default function AssistantExperience() {
         <div className="flex-1 space-y-4 overflow-y-auto bg-slate-50 p-4" aria-live="polite">
           {messages.map((message, index) => (
             <div key={`${message.role}-${index}`} className={message.role === 'user' ? 'flex justify-end' : 'flex justify-start'}>
-              <p className={`max-w-[88%] rounded-2xl px-4 py-3 text-sm leading-6 ${message.role === 'user' ? 'bg-[#0D1B2A] text-white' : 'border border-slate-200 bg-white text-slate-700'}`}>{message.content}</p>
+              <div className="max-w-[88%]">
+                <p className={`rounded-2xl px-4 py-3 text-sm leading-6 ${message.role === 'user' ? 'bg-[#0D1B2A] text-white' : 'border border-slate-200 bg-white text-slate-700'}`}>{message.content}</p>
+                {message.verification && <VerificationResult verification={message.verification} />}
+              </div>
             </div>
           ))}
           {busy && <p className="text-xs font-semibold text-slate-400">Checking your request…</p>}

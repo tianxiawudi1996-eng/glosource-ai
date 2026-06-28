@@ -102,7 +102,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       if (call.name === 'searchSuppliers') {
         const a = call.args as { product?: string; quantity?: string; country?: string; buyerCountry?: string };
         return NextResponse.json({
-          reply: `Searching government-verified Korean suppliers for “${a.product ?? ''}”…`,
+          reply: `Searching Korean supplier candidates for “${a.product ?? ''}” and checking available government-registry signals…`,
           action: {
             type: 'search',
             params: {
