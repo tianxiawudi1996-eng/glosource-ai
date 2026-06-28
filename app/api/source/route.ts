@@ -16,6 +16,22 @@ import { and, eq, gte, or } from 'drizzle-orm';
 
 export const maxDuration = 120;
 
+// Tag a supplier with a hard government-registry fact (kept separate from AI trustEvidence).
+function addGov(s: Supplier, registry: string, ev: string): void {
+  s.govVerified = true;
+  if (!s.govRegistries) s.govRegistries = [];
+  if (!s.govRegistries.includes(registry)) s.govRegistries.push(registry);
+  s.govEvidence = [...(Array.isArray(s.govEvidence) ? s.govEvidence : []), ev];
+}
+
+// Prepend the live National Tax Service "active business" signal (the strongest anti-fraud fact).
+function addGovActive(s: Supplier, ev: string): void {
+  s.govActiveBusiness = true;
+  if (!s.govRegistries) s.govRegistries = [];
+  if (!s.govRegistries.includes('NTS')) s.govRegistries.push('NTS');
+  s.govEvidence = [ev, ...(Array.isArray(s.govEvidence) ? s.govEvidence : [])];
+}
+
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 // Gemini 1.5: googleSearchRetrieval with dynamicThreshold:0 (always search)
 const GOOGLE_SEARCH_TOOLS_15: Tool[] = [{
@@ -954,7 +970,6 @@ export async function POST(request: NextRequest) {
       // Real-time 국세청 status check for matched firms that carry a biz-reg number.
       const nts = await checkBusinessStatus(matched.map(({ m }) => m.bizrno));
       for (const { s, m } of matched) {
-        s.dbVerified = true;
         const ev = m.isManufacturer
           ? (en
               ? `MFDS-registered ${m.cgmp ? 'CGMP-certified ' : ''}cosmetics MANUFACTURER${m.bizrno ? ` · biz reg ${m.bizrno}` : ''}${m.ageYears ? ` · ${m.ageYears}y in business` : ''}${m.sido ? ` · ${m.sido}` : ''}`
@@ -962,14 +977,14 @@ export async function POST(request: NextRequest) {
           : (en
               ? `MFDS-registered as a cosmetics BRAND/DISTRIBUTOR (책임판매), not a manufacturer of record${m.bizrno ? ` · biz reg ${m.bizrno}` : ''}`
               : `식약처 등록상 화장품 책임판매사(브랜드/유통) — 직접 제조사 아님${m.bizrno ? ` · 사업자 ${m.bizrno}` : ''}`);
-        s.trustEvidence = [ev, ...(Array.isArray(s.trustEvidence) ? s.trustEvidence : [])];
-        // Prepend live NTS (국세청) business-status signal when we have a registration number.
+        addGov(s, m.cgmp ? 'CGMP' : 'MFDS', ev);
+        // Live NTS (국세청) business-status signal when we have a registration number.
         const st = m.bizrno ? nts.get(m.bizrno.replace(/\D/g, '')) : undefined;
         if (st?.registered) {
           if (st.active) {
-            s.trustEvidence = [(en
+            addGovActive(s, en
               ? `✓ Active registered business — verified live with Korea NTS${st.taxType ? ` (${st.taxType})` : ''}`
-              : `✓ 국세청 실시간 계속사업자 확인${st.taxType ? ` · ${st.taxType}` : ''}`), ...s.trustEvidence];
+              : `✓ 국세청 실시간 계속사업자 확인${st.taxType ? ` · ${st.taxType}` : ''}`);
           } else {
             s.redFlags = [(en
               ? `⚠ Not an active business per Korea NTS: ${st.statusText} — do not transact before reconfirming.`
@@ -993,12 +1008,11 @@ export async function POST(request: NextRequest) {
       for (const s of output.suppliers ?? []) {
         const m = (s.koreanName ? haccp.get(normFirmName(s.koreanName)) : undefined) ?? haccp.get(normFirmName(s.name));
         if (!m) continue;
-        s.dbVerified = true;
         const gb = m.productGb === '축산물' ? (en ? 'livestock' : '축산물') : (en ? 'food' : '식품');
         const ev = en
           ? `HACCP-certified ${gb} manufacturer${m.area1 ? ` · ${m.area1}` : ''}`
           : `HACCP 인증 ${gb} 제조사${m.area1 ? ` · ${m.area1}` : ''}`;
-        s.trustEvidence = [ev, ...(Array.isArray(s.trustEvidence) ? s.trustEvidence : [])];
+        addGov(s, 'HACCP', ev);
       }
     } catch { /* never block the response */ }
 
@@ -1015,7 +1029,6 @@ export async function POST(request: NextRequest) {
       }
       const nts = await checkBusinessStatus(matched.map(({ m }) => m.bizrno));
       for (const { s, m } of matched) {
-        s.dbVerified = true;
         const ev = m.isManufacturer
           ? (en
               ? `MFDS-licensed medical-device MANUFACTURER${m.bizrno ? ` · biz reg ${m.bizrno}` : ''}${m.sido ? ` · ${m.sido}` : ''}`
@@ -1023,13 +1036,13 @@ export async function POST(request: NextRequest) {
           : (en
               ? `MFDS-licensed medical-device IMPORTER/distributor (not a manufacturer of record)${m.bizrno ? ` · biz reg ${m.bizrno}` : ''}`
               : `식약처 허가 의료기기 수입업체(제조사 아님)${m.bizrno ? ` · 사업자 ${m.bizrno}` : ''}`);
-        s.trustEvidence = [ev, ...(Array.isArray(s.trustEvidence) ? s.trustEvidence : [])];
+        addGov(s, 'Medical', ev);
         const st = m.bizrno ? nts.get(m.bizrno.replace(/\D/g, '')) : undefined;
         if (st?.registered) {
           if (st.active) {
-            s.trustEvidence = [(en
+            addGovActive(s, en
               ? `✓ Active registered business — verified live with Korea NTS${st.taxType ? ` (${st.taxType})` : ''}`
-              : `✓ 국세청 실시간 계속사업자 확인${st.taxType ? ` · ${st.taxType}` : ''}`), ...s.trustEvidence];
+              : `✓ 국세청 실시간 계속사업자 확인${st.taxType ? ` · ${st.taxType}` : ''}`);
           } else {
             s.redFlags = [(en
               ? `⚠ Not an active business per Korea NTS: ${st.statusText} — do not transact before reconfirming.`
@@ -1057,11 +1070,10 @@ export async function POST(request: NextRequest) {
       for (const s of output.suppliers ?? []) {
         const m = (s.koreanName ? htfs.get(normFirmName(s.koreanName)) : undefined) ?? htfs.get(normFirmName(s.name));
         if (!m) continue;
-        s.dbVerified = true;
         const ev = en
           ? `MFDS-registered health-functional-food (건강기능식품) maker${m.productCount ? ` · ${m.productCount} registered product${m.productCount > 1 ? 's' : ''}` : ''}`
           : `식약처 등록 건강기능식품 제조/신고 업체${m.productCount ? ` · 등록품목 ${m.productCount}건` : ''}`;
-        s.trustEvidence = [ev, ...(Array.isArray(s.trustEvidence) ? s.trustEvidence : [])];
+        addGov(s, 'Health-food', ev);
       }
     } catch { /* never block the response */ }
 
@@ -1074,11 +1086,10 @@ export async function POST(request: NextRequest) {
       for (const s of output.suppliers ?? []) {
         const m = (s.koreanName ? qdrg.get(normFirmName(s.koreanName)) : undefined) ?? qdrg.get(normFirmName(s.name));
         if (!m) continue;
-        s.dbVerified = true;
         const ev = m.isManufacturer
           ? (en ? 'MFDS-licensed quasi-drug (의약외품) MANUFACTURER' : '식약처 허가 의약외품 제조업체')
           : (en ? 'MFDS-licensed quasi-drug (의약외품) importer/distributor' : '식약처 허가 의약외품 수입/유통업체');
-        s.trustEvidence = [ev, ...(Array.isArray(s.trustEvidence) ? s.trustEvidence : [])];
+        addGov(s, 'Quasi-drug', ev);
         if (!m.hasActive) {
           s.redFlags = [(en
             ? 'All MFDS quasi-drug permits for this firm are cancelled/closed — verify before transacting.'

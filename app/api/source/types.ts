@@ -40,6 +40,11 @@ export interface Supplier {
   verificationStatus: VerificationStatus;
   dbVerified?: boolean; // matched a manually-curated row in verified_suppliers (real, GloSource-curated)
   koreanName?: string; // Korean registered company name (한글 상호) for MFDS registry matching
+  // ── Government-registry verification (real data, distinct from AI trustEvidence) ──
+  govVerified?: boolean; // matched ≥1 Korean government registry (MFDS/HACCP/medical/health/quasi-drug)
+  govRegistries?: string[]; // human labels of the registries matched, for the badge/tooltip
+  govEvidence?: string[]; // government-sourced facts (hard signals), rendered separately from AI signals
+  govActiveBusiness?: boolean; // National Tax Service live check returned an active business (계속사업자)
   productStage: ProductStage;
   leadTimeDays: string;
   hscode: string;

@@ -222,6 +222,9 @@ async function trackAbuseEvent(event: string, metadata: Record<string, unknown>)
 function SupplierCard({ s, rank, keyword, locked, onStartVoiceCall }: { s: Supplier; rank: number; keyword: string; locked: boolean; onStartVoiceCall?: (supplier: Supplier) => void }) {
   const isVerified = s.verificationStatus === 'grounding_confirmed';
   const dbVerified = s.dbVerified === true;
+  const govVerified = s.govVerified === true;
+  const govEvidence = Array.isArray(s.govEvidence) ? s.govEvidence : [];
+  const govRegistries = Array.isArray(s.govRegistries) ? s.govRegistries : [];
   const trustEvidence = Array.isArray(s.trustEvidence) ? s.trustEvidence : [];
   const redFlags = Array.isArray(s.redFlags) ? s.redFlags : [];
   const certs = extractCerts(trustEvidence);
@@ -239,7 +242,13 @@ function SupplierCard({ s, rank, keyword, locked, onStartVoiceCall }: { s: Suppl
             <p className="text-xs text-slate-400 mt-0.5">{s.platform} · {s.country}</p>
           </div>
         </div>
-        {dbVerified ? (
+        {govVerified ? (
+          <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-black border flex-shrink-0 bg-emerald-600 border-emerald-700 text-white shadow-sm" title={`Cross-checked against Korean government registries: ${govRegistries.join(', ')}`}>
+            <svg className="w-2.5 h-2.5 fill-current flex-shrink-0" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-1.06 13.54L7.4 11l1.41-1.41 2.12 2.12 4.24-4.24 1.41 1.41-5.65 5.65z" /></svg>
+            <span className="hidden sm:inline">Gov-Verified{s.govActiveBusiness ? ' · Active biz' : ''}</span>
+            <span className="sm:hidden">Gov ✓</span>
+          </span>
+        ) : dbVerified ? (
           <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold border flex-shrink-0 bg-blue-50 border-blue-300 text-blue-700" title="Matched a manually-curated supplier in the GloSource verified database">
             <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 bg-blue-500" />
             <span className="hidden sm:inline">GloSource Verified (curated)</span>
@@ -253,6 +262,34 @@ function SupplierCard({ s, rank, keyword, locked, onStartVoiceCall }: { s: Suppl
           </span>
         )}
       </div>
+
+      {/* Government-verified facts — hard signals, distinct from AI estimates */}
+      {govVerified && govEvidence.length > 0 && (
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50/70 px-3 py-2.5">
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <svg className="w-3.5 h-3.5 text-emerald-600 fill-current flex-shrink-0" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-1.06 13.54L7.4 11l1.41-1.41 2.12 2.12 4.24-4.24 1.41 1.41-5.65 5.65z" /></svg>
+            <p className="text-[10px] font-black text-emerald-700 uppercase tracking-wide">Verified · Korean government registries</p>
+          </div>
+          <ul className="space-y-1">
+            {govEvidence.map((e, i) => (
+              <li key={i} className="flex items-start gap-1.5 text-[11px] font-semibold text-emerald-900 leading-snug">
+                <svg className="w-3 h-3 text-emerald-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                </svg>
+                {e}
+              </li>
+            ))}
+          </ul>
+          {govRegistries.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-2">
+              {govRegistries.map(r => (
+                <span key={r} className="text-[9px] font-bold text-emerald-700 bg-emerald-100 border border-emerald-200 rounded px-1.5 py-0.5">{r}</span>
+              ))}
+            </div>
+          )}
+          <p className="text-[9px] text-emerald-600/80 mt-1.5">Matched against official MFDS / HACCP / medical-device registries{s.govActiveBusiness ? ' + live National Tax Service status' : ''}.</p>
+        </div>
+      )}
 
       {/* Cert badges — only shown for grounding_confirmed suppliers */}
       {isVerified && certs.length > 0 && (
@@ -299,18 +336,21 @@ function SupplierCard({ s, rank, keyword, locked, onStartVoiceCall }: { s: Suppl
       {/* Summary */}
       {s.summary && <p className="text-xs text-slate-500 leading-relaxed">{s.summary}</p>}
 
-      {/* Trust evidence */}
+      {/* AI-noted evidence (LLM signals, unverified — distinct from the gov panel above) */}
       {trustEvidence.length > 0 && (
-        <ul className="space-y-0.5">
-          {trustEvidence.slice(0, 4).map((e, i) => (
-            <li key={i} className="flex items-center gap-1.5 text-[11px] text-slate-600">
-              <svg className="w-3 h-3 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-              </svg>
-              {e}
-            </li>
-          ))}
-        </ul>
+        <div>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">AI-noted (unverified — confirm directly)</p>
+          <ul className="space-y-0.5">
+            {trustEvidence.slice(0, 4).map((e, i) => (
+              <li key={i} className="flex items-center gap-1.5 text-[11px] text-slate-600">
+                <svg className="w-3 h-3 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                </svg>
+                {e}
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
 
       {/* Red flags */}
@@ -421,6 +461,7 @@ export default function EnSourcingTool({
   const [resendState, setResendState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
   const [autoSubmitPending, setAutoSubmitPending] = useState(false);
   const [activeCallSupplier, setActiveCallSupplier] = useState<Supplier | null>(null);
+  const [govOnly, setGovOnly] = useState(false);
   const [isCallModalOpen, setIsCallModalOpen] = useState(false);
 
   const handleStartVoiceCall = (supplier: Supplier) => {
@@ -801,28 +842,41 @@ export default function EnSourcingTool({
 
           <div>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 flex-wrap">
                 <p className="text-sm font-black text-[#0D1B2A]">
                   {result.suppliers.length} supplier{result.suppliers.length !== 1 ? 's' : ''} found
                 </p>
-                <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-blue-50 border border-blue-200 px-3 py-1 text-[11px] font-bold text-blue-700">
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                  Search-grounded URLs (AI-searched)
-                </span>
+                {result.suppliers.filter((s) => s.govVerified).length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setGovOnly((v) => !v)}
+                    className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-bold transition-colors ${govOnly ? 'bg-emerald-600 border-emerald-700 text-white' : 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100'}`}
+                    title="Show only suppliers matched to a Korean government registry"
+                  >
+                    <svg className="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-1.06 13.54L7.4 11l1.41-1.41 2.12 2.12 4.24-4.24 1.41 1.41-5.65 5.65z" /></svg>
+                    {govOnly ? 'Gov-verified only ✓' : `Gov-verified (${result.suppliers.filter((s) => s.govVerified).length})`}
+                  </button>
+                )}
               </div>
               <ExportButton suppliers={result.suppliers} keyword={product} lang="en" locked={result.access?.supplierDetailsLocked ?? false} />
             </div>
             {result.suppliers.length === 0 ? (
               <EmptyState type="no_results" lang="en" region={region} />
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {result.suppliers.map((s, i) => (
-                  <div key={s.rank}>
-                    <SupplierCard s={s} rank={i + 1} keyword={product} locked={result.access?.supplierDetailsLocked ?? false} onStartVoiceCall={handleStartVoiceCall} />
-                  </div>
-                ))}
-              </div>
-            )}
+            ) : (() => {
+              const displayed = (govOnly ? result.suppliers.filter((s) => s.govVerified) : [...result.suppliers])
+                .sort((a, b) => ((b.govActiveBusiness ? 2 : 0) + (b.govVerified ? 1 : 0)) - ((a.govActiveBusiness ? 2 : 0) + (a.govVerified ? 1 : 0)));
+              return displayed.length === 0 ? (
+                <p className="text-sm text-slate-500 italic py-4">No government-verified suppliers in this result — toggle off to see all.</p>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {displayed.map((s, i) => (
+                    <div key={s.rank}>
+                      <SupplierCard s={s} rank={i + 1} keyword={product} locked={result.access?.supplierDetailsLocked ?? false} onStartVoiceCall={handleStartVoiceCall} />
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
           </div>
 
           {result.recommendation && (
