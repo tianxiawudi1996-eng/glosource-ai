@@ -11,7 +11,7 @@ import SampleReportLeadForm from './SampleReportLeadForm';
 import PricingViewTracker from './PricingViewTracker';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://glosource-ai.vercel.app'),
+  metadataBase: new URL('https://glosourceai.com'),
   title: 'GloSource AI — Korean K-Beauty OEM Supplier Intelligence',
   description: 'Build a risk-reduced shortlist of Korean K-Beauty OEM/ODM supplier candidates with manufacturer-vs-trader signals, certification evidence, MOQ notes, and an English RFQ draft.',
   keywords: [
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'GloSource AI — Korean K-Beauty OEM Supplier Intelligence',
     description: 'A risk-reduced Korean OEM/ODM supplier shortlist with evidence, MOQ notes, risk signals, and an English RFQ draft.',
-    url: 'https://glosource-ai.vercel.app/en',
+    url: 'https://glosourceai.com/en',
     siteName: 'GloSource AI',
     locale: 'en_US',
     type: 'website',
@@ -55,11 +55,11 @@ export const metadata: Metadata = {
     creator: '@glosourceai',
   },
   alternates: {
-    canonical: 'https://glosource-ai.vercel.app/en',
+    canonical: 'https://glosourceai.com/en',
     languages: {
-      'en-US': 'https://glosource-ai.vercel.app/en',
-      'x-default': 'https://glosource-ai.vercel.app/en',
-      // 'ko-KR': 'https://glosource-ai.vercel.app/' — TODO: 한국어 버전 공개 시 추가
+      'en-US': 'https://glosourceai.com/en',
+      'x-default': 'https://glosourceai.com/en',
+      // 'ko-KR': 'https://glosourceai.com/' — TODO: 한국어 버전 공개 시 추가
     },
   },
 };
@@ -179,7 +179,7 @@ const JSON_LD_ORGANIZATION = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
   name: 'GloSource AI',
-  url: 'https://glosource-ai.vercel.app/en',
+  url: 'https://glosourceai.com/en',
   description: 'Korea-only supplier intelligence for overseas K-Beauty buyers researching Korean OEM/ODM manufacturer candidates.',
   contactPoint: {
     '@type': 'ContactPoint',
@@ -343,7 +343,7 @@ export default async function EnPage({
             <p className="text-sm text-slate-500 max-w-xl mx-auto">
               Start with a free sample report. Paid plans support repeated Korean OEM/ODM shortlist research for real product launches.
             </p>
-            <p className="mt-2 text-xs text-slate-400">For international buyers · Priced in USD · Korean-market plans available at <Link href="/" className="underline text-[#0D1B2A] hover:text-slate-700">glosource-ai.vercel.app</Link></p>
+            <p className="mt-2 text-xs text-slate-400">For international buyers · Priced in USD · Korean-market plans available at <Link href="/" className="underline text-[#0D1B2A] hover:text-slate-700">glosourceai.com</Link></p>
             <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-500 max-w-lg mx-auto text-left">
               <strong className="text-slate-700">Research tool disclaimer:</strong> GloSource AI provides AI-generated supplier research only. We do not verify suppliers, guarantee product quality, or handle transactions. Trust scores are AI-estimated signals — always conduct independent due diligence before signing any contract.
             </div>
