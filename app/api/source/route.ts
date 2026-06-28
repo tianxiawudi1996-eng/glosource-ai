@@ -5,7 +5,7 @@ import { getCategoryByCode } from '../../lib/categories';
 import type { Category } from '../../lib/categories';
 import type { MarketRiskFlag, SourcingRequest, SourcingOutput, Supplier } from './types';
 import { kvConsumeFreeCredit, kvSaveHistory, extractTrustedIp } from '../../lib/kv';
-import { lookupMfdsFirms, lookupHaccpFirms, lookupMedicalDeviceFirms, normFirmName, type MfdsMatch, type MedicalMatch } from '../../lib/mfds';
+import { lookupMfdsFirms, lookupHaccpFirms, lookupMedicalDeviceFirms, lookupHealthFoodFirms, lookupQuasiDrugFirms, normFirmName, type MfdsMatch, type MedicalMatch } from '../../lib/mfds';
 import { checkBusinessStatus } from '../../lib/nts';
 import { checkAuthAndQuota, logUsage } from '../../lib/authMiddleware';
 import { enforceVerifiedSupplierQualityGate, verifiedSupplierUnavailableMessage } from '../../lib/supplier-verification';
@@ -1044,6 +1044,45 @@ export async function POST(request: NextRequest) {
           s.redFlags = [(en
             ? 'Licensed as a medical-device importer/distributor, not a manufacturer — confirm who actually manufactures.'
             : '의료기기 수입/유통업으로 허가 — 실제 제조사 직접 확인 필요.'), ...(Array.isArray(s.redFlags) ? s.redFlags : [])];
+        }
+      }
+    } catch { /* never block the response */ }
+
+    // Real MFDS health-functional-food (건강기능식품) maker enrichment.
+    try {
+      const htfs = await lookupHealthFoodFirms(
+        (output.suppliers ?? []).flatMap((s) => [s.koreanName, s.name].filter(Boolean) as string[]),
+      );
+      const en = lang === 'en';
+      for (const s of output.suppliers ?? []) {
+        const m = (s.koreanName ? htfs.get(normFirmName(s.koreanName)) : undefined) ?? htfs.get(normFirmName(s.name));
+        if (!m) continue;
+        s.dbVerified = true;
+        const ev = en
+          ? `MFDS-registered health-functional-food (건강기능식품) maker${m.productCount ? ` · ${m.productCount} registered product${m.productCount > 1 ? 's' : ''}` : ''}`
+          : `식약처 등록 건강기능식품 제조/신고 업체${m.productCount ? ` · 등록품목 ${m.productCount}건` : ''}`;
+        s.trustEvidence = [ev, ...(Array.isArray(s.trustEvidence) ? s.trustEvidence : [])];
+      }
+    } catch { /* never block the response */ }
+
+    // Real MFDS quasi-drug (의약외품) maker enrichment.
+    try {
+      const qdrg = await lookupQuasiDrugFirms(
+        (output.suppliers ?? []).flatMap((s) => [s.koreanName, s.name].filter(Boolean) as string[]),
+      );
+      const en = lang === 'en';
+      for (const s of output.suppliers ?? []) {
+        const m = (s.koreanName ? qdrg.get(normFirmName(s.koreanName)) : undefined) ?? qdrg.get(normFirmName(s.name));
+        if (!m) continue;
+        s.dbVerified = true;
+        const ev = m.isManufacturer
+          ? (en ? 'MFDS-licensed quasi-drug (의약외품) MANUFACTURER' : '식약처 허가 의약외품 제조업체')
+          : (en ? 'MFDS-licensed quasi-drug (의약외품) importer/distributor' : '식약처 허가 의약외품 수입/유통업체');
+        s.trustEvidence = [ev, ...(Array.isArray(s.trustEvidence) ? s.trustEvidence : [])];
+        if (!m.hasActive) {
+          s.redFlags = [(en
+            ? 'All MFDS quasi-drug permits for this firm are cancelled/closed — verify before transacting.'
+            : '식약처상 의약외품 허가가 모두 취하/폐업 — 거래 전 확인 필요.'), ...(Array.isArray(s.redFlags) ? s.redFlags : [])];
         }
       }
     } catch { /* never block the response */ }

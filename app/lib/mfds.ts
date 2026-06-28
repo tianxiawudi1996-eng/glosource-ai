@@ -1,5 +1,5 @@
 import { inArray } from 'drizzle-orm';
-import { db, krCosmeticsFirms, krHaccpFirms, krMedicalDeviceFirms } from '@/app/lib/db';
+import { db, krCosmeticsFirms, krHaccpFirms, krMedicalDeviceFirms, krHealthFoodFirms, krQuasiDrugFirms } from '@/app/lib/db';
 import cgmpData from '@/app/data/cgmp-firms.json';
 
 // CGMP-certified cosmetics manufacturers (MFDS 화장품 GMP 적합업체), keyed by business-reg number.
@@ -124,6 +124,56 @@ export async function lookupMedicalDeviceFirms(names: string[]): Promise<Map<str
     const ex = out.get(r.nameNorm);
     // Prefer a manufacturer record, and an open (not closed) record, on collision.
     if (!ex || (m.isManufacturer && !ex.isManufacturer) || (!m.closeDate && ex.closeDate)) out.set(r.nameNorm, m);
+  }
+  return out;
+}
+
+export interface HealthFoodMatch {
+  name: string;
+  sampleProduct: string | null;
+  productCount: number | null;
+}
+
+// Look up company names against the MFDS health-functional-food (건강기능식품) registry.
+export async function lookupHealthFoodFirms(names: string[]): Promise<Map<string, HealthFoodMatch>> {
+  const norms = [...new Set(names.map(normFirmName).filter((n) => n.length >= 2))];
+  const out = new Map<string, HealthFoodMatch>();
+  if (!norms.length) return out;
+  let rows: (typeof krHealthFoodFirms.$inferSelect)[];
+  try {
+    rows = await db.select().from(krHealthFoodFirms).where(inArray(krHealthFoodFirms.nameNorm, norms)).limit(300);
+  } catch {
+    return out;
+  }
+  for (const r of rows) {
+    if (!out.has(r.nameNorm)) out.set(r.nameNorm, { name: r.name, sampleProduct: r.sampleProduct, productCount: r.productCount });
+  }
+  return out;
+}
+
+export interface QuasiDrugMatch {
+  name: string;
+  induty: string | null;
+  isManufacturer: boolean;
+  sampleItem: string | null;
+  hasActive: boolean;
+}
+
+// Look up company names against the MFDS quasi-drug (의약외품) registry.
+export async function lookupQuasiDrugFirms(names: string[]): Promise<Map<string, QuasiDrugMatch>> {
+  const norms = [...new Set(names.map(normFirmName).filter((n) => n.length >= 2))];
+  const out = new Map<string, QuasiDrugMatch>();
+  if (!norms.length) return out;
+  let rows: (typeof krQuasiDrugFirms.$inferSelect)[];
+  try {
+    rows = await db.select().from(krQuasiDrugFirms).where(inArray(krQuasiDrugFirms.nameNorm, norms)).limit(300);
+  } catch {
+    return out;
+  }
+  for (const r of rows) {
+    const m: QuasiDrugMatch = { name: r.name, induty: r.induty, isManufacturer: r.isManufacturer, sampleItem: r.sampleItem, hasActive: r.hasActive };
+    const ex = out.get(r.nameNorm);
+    if (!ex || (m.isManufacturer && !ex.isManufacturer) || (m.hasActive && !ex.hasActive)) out.set(r.nameNorm, m);
   }
   return out;
 }

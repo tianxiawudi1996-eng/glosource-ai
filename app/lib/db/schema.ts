@@ -230,6 +230,26 @@ export const krMedicalDeviceFirms = pgTable('kr_medical_device_firms', {
   addr: text('addr'),
 });
 
+// ── 건강기능식품 제조/신고 업소 (식약처 건강기능식품정보, 업소명 매칭) ──
+export const krHealthFoodFirms = pgTable('kr_health_food_firms', {
+  nameNorm: text('name_norm').primaryKey(),
+  name: text('name').notNull(),            // ENTRPS 업소명
+  sampleProduct: text('sample_product'),   // 대표 PRDUCT
+  productCount: integer('product_count'),
+});
+
+// ── 의약외품 제조/수입 업체 (식약처 의약외품 제품 허가, 업체명 매칭) ──
+export const krQuasiDrugFirms = pgTable('kr_quasi_drug_firms', {
+  entpSeq: text('entp_seq').primaryKey(),  // ENTP_SEQ 업체 식별
+  name: text('name').notNull(),            // ENTP_NAME 업체명
+  nameNorm: text('name_norm').notNull(),
+  induty: text('induty'),                  // 제조 | 수입
+  isManufacturer: boolean('is_manufacturer').notNull(),
+  sampleItem: text('sample_item'),         // 대표 ITEM_NAME
+  hasActive: boolean('has_active').notNull(), // 미취하/미폐업 품목 보유 여부
+  permitDate: text('permit_date'),
+});
+
 // ── 플랜별 한도 ───────────────────────────────────────────────────────
 
 export const PLAN_LIMITS = {
