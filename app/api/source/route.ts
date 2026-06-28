@@ -5,7 +5,7 @@ import { getCategoryByCode } from '../../lib/categories';
 import type { Category } from '../../lib/categories';
 import type { MarketRiskFlag, SourcingRequest, SourcingOutput, Supplier } from './types';
 import { kvConsumeFreeCredit, kvSaveHistory, extractTrustedIp } from '../../lib/kv';
-import { lookupMfdsFirms, normFirmName } from '../../lib/mfds';
+import { lookupMfdsFirms, lookupHaccpFirms, normFirmName } from '../../lib/mfds';
 import { checkAuthAndQuota, logUsage } from '../../lib/authMiddleware';
 import { enforceVerifiedSupplierQualityGate, verifiedSupplierUnavailableMessage } from '../../lib/supplier-verification';
 import { matchAeoCompanies } from '../../lib/aeo-companies';
@@ -962,6 +962,24 @@ export async function POST(request: NextRequest) {
             ? 'Registered with MFDS as a brand/distributor, not a manufacturer — verify who actually manufactures.'
             : 'MFDS상 책임판매사(브랜드/유통)로 등록 — 실제 제조사 직접 확인 필요.'), ...(Array.isArray(s.redFlags) ? s.redFlags : [])];
         }
+      }
+    } catch { /* never block the response */ }
+
+    // Real HACCP (한국식품안전관리인증원) food-manufacturer enrichment.
+    try {
+      const haccp = await lookupHaccpFirms(
+        (output.suppliers ?? []).flatMap((s) => [s.koreanName, s.name].filter(Boolean) as string[]),
+      );
+      const en = lang === 'en';
+      for (const s of output.suppliers ?? []) {
+        const m = (s.koreanName ? haccp.get(normFirmName(s.koreanName)) : undefined) ?? haccp.get(normFirmName(s.name));
+        if (!m) continue;
+        s.dbVerified = true;
+        const gb = m.productGb === '축산물' ? (en ? 'livestock' : '축산물') : (en ? 'food' : '식품');
+        const ev = en
+          ? `HACCP-certified ${gb} manufacturer${m.area1 ? ` · ${m.area1}` : ''}`
+          : `HACCP 인증 ${gb} 제조사${m.area1 ? ` · ${m.area1}` : ''}`;
+        s.trustEvidence = [ev, ...(Array.isArray(s.trustEvidence) ? s.trustEvidence : [])];
       }
     } catch { /* never block the response */ }
 

@@ -1,5 +1,5 @@
 import { inArray } from 'drizzle-orm';
-import { db, krCosmeticsFirms } from '@/app/lib/db';
+import { db, krCosmeticsFirms, krHaccpFirms } from '@/app/lib/db';
 import cgmpData from '@/app/data/cgmp-firms.json';
 
 // CGMP-certified cosmetics manufacturers (MFDS 화장품 GMP 적합업체), keyed by business-reg number.
@@ -58,6 +58,36 @@ export async function lookupMfdsFirms(names: string[]): Promise<Map<string, Mfds
     };
     const ex = out.get(r.nameNorm);
     if (!ex || (m.isManufacturer && !ex.isManufacturer)) out.set(r.nameNorm, m);
+  }
+  return out;
+}
+
+export interface HaccpMatch {
+  company: string;
+  productGb: string | null;
+  businessItem: string | null;
+  area1: string | null;
+}
+
+// Look up company names against the HACCP-certified food manufacturer registry.
+export async function lookupHaccpFirms(names: string[]): Promise<Map<string, HaccpMatch>> {
+  const norms = [...new Set(names.map(normFirmName).filter((n) => n.length >= 2))];
+  const out = new Map<string, HaccpMatch>();
+  if (!norms.length) return out;
+  let rows: { company: string; companyNorm: string; productGb: string | null; businessItem: string | null; area1: string | null }[];
+  try {
+    rows = await db
+      .select({ company: krHaccpFirms.company, companyNorm: krHaccpFirms.companyNorm, productGb: krHaccpFirms.productGb, businessItem: krHaccpFirms.businessItem, area1: krHaccpFirms.area1 })
+      .from(krHaccpFirms)
+      .where(inArray(krHaccpFirms.companyNorm, norms))
+      .limit(300);
+  } catch {
+    return out;
+  }
+  for (const r of rows) {
+    if (!out.has(r.companyNorm)) {
+      out.set(r.companyNorm, { company: r.company, productGb: r.productGb, businessItem: r.businessItem, area1: r.area1 });
+    }
   }
   return out;
 }

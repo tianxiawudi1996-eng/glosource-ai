@@ -204,6 +204,19 @@ export const krCosmeticsFirms = pgTable('kr_cosmetics_firms', {
   fetchedAt: timestamp('fetched_at', { mode: 'date' }).defaultNow(),
 });
 
+// ── HACCP 인증 식품 제조사 (한국식품안전관리인증원, 업체명 매칭) ──
+export const krHaccpFirms = pgTable('kr_haccp_firms', {
+  appointno: text('appointno').primaryKey(), // HACCP 지정번호
+  company: text('company').notNull(),
+  companyNorm: text('company_norm').notNull(),
+  productGb: text('product_gb'),       // 식품 | 축산물
+  businessItem: text('business_item'), // 품목명
+  companykindNm: text('companykind_nm'),
+  area1: text('area1'),
+  area2: text('area2'),
+  issueDate: text('issue_date'),
+});
+
 // ── 플랜별 한도 ───────────────────────────────────────────────────────
 
 export const PLAN_LIMITS = {
