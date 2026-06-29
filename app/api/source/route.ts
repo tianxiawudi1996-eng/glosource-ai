@@ -826,9 +826,9 @@ export async function POST(request: NextRequest) {
     type ModelConfig = { model: string; ms: number; tools: Tool[] | null };
     const MODELS: ModelConfig[] = [
       { model: 'gemini-2.5-flash',      ms: 40000, tools: GOOGLE_SEARCH_TOOLS_20 },
-      { model: 'gemini-1.5-flash-002',  ms: 25000, tools: GOOGLE_SEARCH_TOOLS_15 },
+      { model: 'gemini-2.5-flash',  ms: 25000, tools: GOOGLE_SEARCH_TOOLS_15 },
       { model: 'gemini-2.5-flash',      ms: 20000, tools: null },
-      { model: 'gemini-2.0-flash',      ms: 10000, tools: null },
+      { model: 'gemini-2.5-flash',      ms: 10000, tools: null },
     ];
 
     let text = '';

@@ -37,7 +37,7 @@ export interface AgentResult {
 async function classifyScenario(message: string): Promise<string> {
   try {
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? '');
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
     const ids = SCENARIOS.map((s) => s.id).join(', ');
     const prompt = `You are a customer-support classifier for GloSource AI, a B2B Korean-supplier sourcing tool.
 Classify the message below into ONE of these scenario IDs:

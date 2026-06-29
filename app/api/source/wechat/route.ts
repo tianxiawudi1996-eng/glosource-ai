@@ -55,7 +55,7 @@ async function translateKeywordToZh(keyword: string): Promise<string> {
 - 너무 일반적인 단어 하나만 반환 금지 (예: 铝材, 钢材)
 - 좋은 예: "6063-T5 铝合金门窗型材", "SS400 热轧钢板 6mm", "40x40 工业铝型材"`;
 
-  for (const modelId of ['gemini-2.0-flash', 'gemini-2.0-flash-lite']) {
+  for (const modelId of ['gemini-2.5-flash', 'gemini-2.5-flash']) {
     try {
       const model = genAI.getGenerativeModel({ model: modelId });
       const result = await Promise.race([
@@ -203,7 +203,7 @@ async function searchWithGrounding(keyword: string, zhKeyword: string): Promise<
 }`;
 
   // Try grounding-enabled models first
-  for (const [modelId, ms] of [['gemini-2.0-flash', 18000], ['gemini-2.5-flash', 22000]] as [string, number][]) {
+  for (const [modelId, ms] of [['gemini-2.5-flash', 18000], ['gemini-2.5-flash', 22000]] as [string, number][]) {
     try {
       const model = genAI.getGenerativeModel({
         model: modelId,
@@ -224,7 +224,7 @@ async function searchWithGrounding(keyword: string, zhKeyword: string): Promise<
   }
 
   // Fallback: no grounding
-  for (const [modelId, ms] of [['gemini-2.0-flash', 15000], ['gemini-2.0-flash-lite', 12000]] as [string, number][]) {
+  for (const [modelId, ms] of [['gemini-2.5-flash', 15000], ['gemini-2.5-flash', 12000]] as [string, number][]) {
     try {
       const model = genAI.getGenerativeModel({ model: modelId });
       const result = await Promise.race([
@@ -301,7 +301,7 @@ ${articleList}
 }
 
 async function analyzeArticles(prompt: string): Promise<WeChatSourcingOutput> {
-  for (const [modelId, ms] of [['gemini-2.0-flash', 15000], ['gemini-2.0-flash-lite', 12000], ['gemini-2.5-flash', 20000]] as [string, number][]) {
+  for (const [modelId, ms] of [['gemini-2.5-flash', 15000], ['gemini-2.5-flash', 12000], ['gemini-2.5-flash', 20000]] as [string, number][]) {
     try {
       const model = genAI.getGenerativeModel({ model: modelId });
       const result = await Promise.race([

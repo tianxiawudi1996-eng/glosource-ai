@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer();
     const base64 = Buffer.from(bytes).toString('base64');
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     const prompt = `당신은 글로벌 B2B 소싱 전문가입니다. 이미지에 있는 제품/자재를 분석하여 1688.com, Alibaba 소싱에 최적화된 정보를 추출해주세요.
 
