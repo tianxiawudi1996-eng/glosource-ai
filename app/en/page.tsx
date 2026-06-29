@@ -267,7 +267,7 @@ export default async function EnPage({
                 <Link href="/en/dashboard" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden sm:block">
                   Dashboard
                 </Link>
-                <Link href="/account" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden sm:block">
+                <Link href="/en/account" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden sm:block">
                   Settings
                 </Link>
               </>
