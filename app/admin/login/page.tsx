@@ -1,11 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { signIn } from 'next-auth/react';
 
 export default function AdminLoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Auth.js redirects back here with ?error=... on a failed credentials sign-in.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('error')) setError('Incorrect email or password.');
+  }, []);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -14,13 +20,9 @@ export default function AdminLoginPage() {
     const formData = new FormData(event.currentTarget);
     const email = String(formData.get('email') ?? '').trim();
     const password = String(formData.get('password') ?? '');
-    const res = await signIn('credentials', { email, password, redirect: false });
-    setIsSubmitting(false);
-    if (res?.error) {
-      setError('Incorrect email or password.');
-      return;
-    }
-    window.location.href = '/admin';
+    // Use the redirect flow (same as the customer /en/login) — redirect:false does not
+    // reliably establish the session for Credentials in Auth.js v5.
+    await signIn('credentials', { email, password, redirectTo: '/admin' });
   }
 
   return (
