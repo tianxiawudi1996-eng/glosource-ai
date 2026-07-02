@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI, DynamicRetrievalMode } from '@google/generative-ai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import type { EnhancedGenerateContentResponse, Tool } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
 import { getCategoryByCode } from '../../lib/categories';
@@ -33,16 +33,8 @@ function addGovActive(s: Supplier, ev: string): void {
 }
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-// Gemini 1.5: googleSearchRetrieval with dynamicThreshold:0 (always search)
-const GOOGLE_SEARCH_TOOLS_15: Tool[] = [{
-  googleSearchRetrieval: {
-    dynamicRetrievalConfig: {
-      mode: DynamicRetrievalMode.MODE_DYNAMIC,
-      dynamicThreshold: 0,
-    },
-  },
-}];
-// Gemini 2.x: uses { googleSearch: {} } — different API from 1.5
+// Gemini 2.x grounding: { googleSearch: {} }. (The older 1.5 googleSearchRetrieval tool
+// 400s as "not supported" on 2.5 models, so it is no longer used.)
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const GOOGLE_SEARCH_TOOLS_20: Tool[] = [{ googleSearch: {} } as any];
 
@@ -824,14 +816,19 @@ export async function POST(request: NextRequest) {
           ? buildChinaEnPrompt(req, categoryContext)
           : buildPrompt(req, categoryContext);
 
-    // 전략: 1차(2.5-flash googleSearch 40s) → 2차(1.5-flash-002 googleSearchRetrieval 25s) → 3차(2.5-flash 20s) → 4차(2.0-flash 10s)
-    // 총합 40+25+20+10+retry_delays ≈ 97s → maxDuration=120s 기준 23s 버퍼 확보
+    // Strategy: TWO independent grounded attempts, then a fast ungrounded last resort.
+    // Observed grounded successes return in ~20–40s; failures are intermittent upstream
+    // hangs (>120s) on certain query terms, not slow-but-returning results. So a longer
+    // single window doesn't help — a second *fresh* grounded roll does (a hang-prone term
+    // often succeeds on a retry). The 2nd attempt replaces a broken googleSearchRetrieval
+    // (1.5-only) call that 400s instantly on 2.5 — i.e. there used to be only one real
+    // grounded attempt. 45+45+15 ≈ 105s leaves headroom under maxDuration 120s for the
+    // government-registry/NTS enrichment that runs after a successful search.
     type ModelConfig = { model: string; ms: number; tools: Tool[] | null };
     const MODELS: ModelConfig[] = [
-      { model: 'gemini-2.5-flash',      ms: 40000, tools: GOOGLE_SEARCH_TOOLS_20 },
-      { model: 'gemini-2.5-flash',  ms: 25000, tools: GOOGLE_SEARCH_TOOLS_15 },
-      { model: 'gemini-2.5-flash',      ms: 20000, tools: null },
-      { model: 'gemini-2.5-flash',      ms: 10000, tools: null },
+      { model: 'gemini-2.5-flash', ms: 45000, tools: GOOGLE_SEARCH_TOOLS_20 },
+      { model: 'gemini-2.5-flash', ms: 45000, tools: GOOGLE_SEARCH_TOOLS_20 },
+      { model: 'gemini-2.5-flash', ms: 15000, tools: null },
     ];
 
     let text = '';
