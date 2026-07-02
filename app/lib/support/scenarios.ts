@@ -1734,7 +1734,7 @@ Thanks for reaching out to GloSource AI!
 
 I've received your message and will personally review it within 24 hours (usually much faster).
 
-If this is urgent, you can also reach me directly at support@glosourceai.com.
+If this is urgent, you can also reach me directly at hello@glosourceai.com.
 
 Best,
 Vision @ GloSource AI`,

@@ -74,6 +74,9 @@ export default async function EnBlogIndex() {
         </header>
 
         <div className="space-y-8">
+          {posts.length === 0 && (
+            <p className="text-sm text-slate-400 py-8 text-center">No articles yet — check back soon.</p>
+          )}
           {posts.map(post => (
             <article key={post.slug} className="border-b border-slate-100 pb-8 last:border-0">
               <div className="flex items-center gap-2 mb-3">

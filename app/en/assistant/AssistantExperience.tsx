@@ -75,7 +75,10 @@ export default function AssistantExperience() {
   const [query, setQuery] = useState('');
   const endRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages, busy]);
+  useEffect(() => {
+    const reduce = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    endRef.current?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
+  }, [messages, busy]);
 
   async function searchSuppliers(action: SearchAction) {
     setQuery(action.product);
@@ -114,7 +117,12 @@ export default function AssistantExperience() {
       setMessages((current) => [...current, { role: 'assistant', content: data.reply || 'I found a next step.', verification: data.verification ?? null }]);
       if (data.action?.type === 'search') await searchSuppliers(data.action.params as SearchAction);
     } catch (error) {
-      setMessages((current) => [...current, { role: 'assistant', content: error instanceof Error ? error.message : 'Please try again.' }]);
+      // Surface controlled API messages (rate limit, quota, etc.) but never a raw network/stack string.
+      const raw = error instanceof Error ? error.message : '';
+      const content = !raw || /fetch|network|load failed|json/i.test(raw)
+        ? 'Sorry — something went wrong. Please try again.'
+        : raw;
+      setMessages((current) => [...current, { role: 'assistant', content }]);
     } finally {
       setBusy(false);
     }

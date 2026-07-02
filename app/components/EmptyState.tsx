@@ -20,7 +20,9 @@ const COPY = {
     },
     no_results: {
       title: '공급자를 찾지 못했습니다',
-      desc: '더 구체적인 제품명이나 중문 키워드로 검색해보세요',
+      desc: (region?: string) => region === 'korea'
+        ? '더 구체적인 제품명 또는 영문 키워드로 검색해보세요'
+        : '더 구체적인 제품명이나 중문 키워드로 검색해보세요',
       tags: ['알루미늄 창호 프레임', '6063-T5 铝型材', 'SS400 강판 6T'],
     },
     error: {
@@ -37,7 +39,9 @@ const COPY = {
     },
     no_results: {
       title: 'No suppliers found',
-      desc: 'Try a more specific product name or a Chinese keyword',
+      desc: (region?: string) => region === 'china'
+        ? 'Try a more specific product name, or an alternative keyword in Chinese'
+        : "Try a more specific product name, or the supplier's English or Korean name",
       tags: ['Korean collagen serum OEM', 'HACCP food manufacturer', 'K-beauty private label'],
     },
     error: {
@@ -82,7 +86,7 @@ export default function EmptyState({ type, errorMessage, onRetry, lang = 'en', r
 
         <p className="text-sm leading-relaxed text-slate-400">
           {isInitial && c.initial.desc(region)}
-          {isNoResults && c.no_results.desc}
+          {isNoResults && c.no_results.desc(region)}
           {isError && c.error.desc}
         </p>
 

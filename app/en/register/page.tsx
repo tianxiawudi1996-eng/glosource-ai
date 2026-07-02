@@ -16,6 +16,9 @@ export default function EnRegisterPage() {
   const [gdprConsent, setGdprConsent] = useState(false);
   const [ageConsent, setAgeConsent] = useState(false);
   const [marketingConsent, setMarketingConsent] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState<string | null>(null);
+
+  const allConsents = tosConsent && dataConsent && gdprConsent && ageConsent;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -26,6 +29,10 @@ export default function EnRegisterPage() {
     const password = String(formData.get('password') ?? '');
     const passwordConfirm = String(formData.get('passwordConfirm') ?? '');
 
+    if (!allConsents) {
+      setError('Please accept the required agreements to continue.');
+      return;
+    }
     if (password !== passwordConfirm) {
       setError('Passwords do not match.');
       return;
@@ -51,15 +58,15 @@ export default function EnRegisterPage() {
         return;
       }
       trackSignup('email');
-      await signIn('credentials', { email, password, redirectTo: '/en' });
+      // Sign in without an immediate redirect so we can show the "verify your email" notice.
+      await signIn('credentials', { email, password, redirect: false });
+      setRegisteredEmail(email);
     } catch {
       setError('An error occurred. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   }
-
-  const allConsents = tosConsent && dataConsent && gdprConsent && ageConsent;
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-50 px-6 py-10">
@@ -72,8 +79,23 @@ export default function EnRegisterPage() {
           <p className="mt-2 text-sm text-slate-500">Get 10 free searches per month after email verification. No credit card required.</p>
         </div>
 
+        {registeredEmail ? (
+          <div className="text-center" role="status" aria-live="polite">
+            <div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-5">
+              <p className="text-base font-black text-emerald-800">Account created!</p>
+              <p className="mt-2 text-sm leading-relaxed text-emerald-700">
+                We&apos;ve sent a verification link to <strong>{registeredEmail}</strong>. Open it to confirm your email and unlock your 10 free monthly searches.
+              </p>
+              <p className="mt-2 text-xs text-emerald-600">Can&apos;t find it? Check your spam folder, or email hello@glosourceai.com.</p>
+            </div>
+            <Link href="/en" className="block w-full rounded-xl bg-[#0D1B2A] px-4 py-3.5 text-sm font-black text-white hover:bg-slate-800">
+              Continue to GloSource →
+            </Link>
+          </div>
+        ) : (
+        <>
         {error ? (
-          <p className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">{error}</p>
+          <p className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700" role="alert">{error}</p>
         ) : null}
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -145,9 +167,9 @@ export default function EnRegisterPage() {
             </label>
           </div>
 
-          <button type="submit" disabled={isSubmitting || !allConsents}
+          <button type="submit" disabled={isSubmitting}
             className="w-full rounded-xl bg-[#0D1B2A] px-4 py-3.5 text-sm font-black text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60">
-            {isSubmitting ? 'Creating account...' : 'Create free account'}
+            {isSubmitting ? 'Creating account…' : 'Create free account'}
           </button>
         </form>
 
@@ -155,6 +177,8 @@ export default function EnRegisterPage() {
           Already have an account?{' '}
           <Link href="/en/login" className="font-black text-[#EA580C]">Sign in</Link>
         </p>
+        </>
+        )}
       </section>
     </main>
   );

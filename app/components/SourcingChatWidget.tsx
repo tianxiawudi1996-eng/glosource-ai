@@ -57,7 +57,7 @@ function VerificationPanel({ v }: { v: Verification }) {
   return (
     <div className="mt-1.5 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2">
       <p className="text-[11px] text-amber-800">
-        <span className="font-bold">“{v.query}”</span> isn’t in the government registries I check. That doesn’t prove it’s fake — ask the supplier for their 사업자등록번호 (business-registration number) so it can be verified.
+        <span className="font-bold">“{v.query}”</span> isn’t in the government registries I check. That doesn’t prove it’s fake — ask the supplier for their business-registration number (사업자등록번호) so it can be verified.
       </p>
     </div>
   );
@@ -106,14 +106,14 @@ export default function SourcingChatWidget({ onSearch }: { onSearch?: (p: Search
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-label="Open GloSource verification assistant"
-        className="fixed bottom-5 right-5 z-[60] flex items-center gap-2 rounded-full bg-[#0D1B2A] text-white pl-4 pr-5 py-3 shadow-xl hover:scale-[1.03] transition-transform"
+        className="fixed bottom-5 right-5 z-40 flex items-center gap-2 rounded-full bg-[#0D1B2A] text-white pl-4 pr-5 py-3 shadow-xl hover:scale-[1.03] transition-transform"
       >
         <svg className="w-5 h-5 text-emerald-400 fill-current" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-1.06 13.54L7.4 11l1.41-1.41 2.12 2.12 4.24-4.24 1.41 1.41-5.65 5.65z" /></svg>
         <span className="text-sm font-bold">{open ? 'Close' : 'Verify a supplier'}</span>
       </button>
 
       {open && (
-        <div className="fixed bottom-20 right-3 sm:right-5 z-[60] w-[94vw] max-w-sm h-[72vh] max-h-[580px] flex flex-col rounded-2xl border border-slate-200 bg-white shadow-2xl overflow-hidden">
+        <div role="dialog" aria-label="GloSource verification assistant" className="fixed bottom-20 right-3 sm:right-5 z-40 w-[94vw] max-w-sm h-[72vh] max-h-[580px] flex flex-col rounded-2xl border border-slate-200 bg-white shadow-2xl overflow-hidden">
           <div className="flex items-center gap-2 px-4 py-3 bg-[#0D1B2A] text-white">
             <svg className="w-5 h-5 text-emerald-400 fill-current" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-1.06 13.54L7.4 11l1.41-1.41 2.12 2.12 4.24-4.24 1.41 1.41-5.65 5.65z" /></svg>
             <div className="min-w-0">
@@ -122,7 +122,7 @@ export default function SourcingChatWidget({ onSearch }: { onSearch?: (p: Search
             </div>
           </div>
 
-          <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-3 space-y-3 bg-slate-50">
+          <div ref={scrollRef} aria-live="polite" aria-atomic="false" className="flex-1 overflow-y-auto px-3 py-3 space-y-3 bg-slate-50">
             {messages.map((m, i) => (
               <div key={i} className={m.role === 'user' ? 'flex justify-end' : ''}>
                 <div className={m.role === 'user' ? 'max-w-[85%]' : 'max-w-[92%]'}>
@@ -149,6 +149,7 @@ export default function SourcingChatWidget({ onSearch }: { onSearch?: (p: Search
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void send(); } }}
                 rows={1}
+                aria-label="Message the verification assistant"
                 placeholder="Paste a Korean supplier name…"
                 className="flex-1 resize-none rounded-xl border border-slate-300 px-3 py-2 text-[12px] focus:outline-none focus:ring-2 focus:ring-[#EA580C]/40 max-h-24"
               />
@@ -156,9 +157,10 @@ export default function SourcingChatWidget({ onSearch }: { onSearch?: (p: Search
                 type="button"
                 onClick={() => void send()}
                 disabled={loading || !input.trim()}
+                aria-label="Send message"
                 className="rounded-xl bg-[#EA580C] text-white px-3.5 py-2 text-sm font-bold disabled:opacity-40 hover:bg-orange-600 transition-colors"
               >
-                ➤
+                <span aria-hidden="true">➤</span>
               </button>
             </div>
             <p className="text-[9px] text-slate-400 mt-1 px-1">Verification reflects Korean government registries + live tax-office status. Not legal/financial advice.</p>
