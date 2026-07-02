@@ -71,24 +71,38 @@ async function verifySupplierUrls(suppliers: Supplier[]): Promise<void> {
 }
 
 // Cross-check LLM results against the manually-curated verified_suppliers DB: if a returned
-// supplier's URL host matches a curated row, flag it dbVerified (a real GloSource-curated
-// signal) and surface the curated certifications. No-op when the DB is empty.
+// supplier matches a curated row by URL host OR by normalized company name (Korean 상호 or
+// English name), flag it dbVerified (a real GloSource-curated signal) and surface the curated
+// certifications. Name matching lets curated makers (esp. K-Fashion, which has no government
+// registry) still earn the badge when a search returns them under a different URL. No-op on empty DB.
 async function crossCheckVerifiedDb(suppliers: Supplier[]): Promise<void> {
   const rows = await db
-    .select({ url: verifiedSuppliers.url, certifications: verifiedSuppliers.certifications })
+    .select({ url: verifiedSuppliers.url, certifications: verifiedSuppliers.certifications, name: verifiedSuppliers.name, nameEn: verifiedSuppliers.nameEn })
     .from(verifiedSuppliers)
     .where(eq(verifiedSuppliers.active, true))
     .limit(500);
   if (rows.length === 0) return;
   const host = (u: string) => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch { return ''; } };
+  // A normalized name is specific enough to match on if it has a Korean character (2+ Hangul
+  // is distinctive) or is a 4+ char Latin token (avoids ambiguous abbreviations like "cj"/"lg").
+  const nameKeyOk = (n: string) => n.length >= 2 && (/[가-힣]/.test(n) || n.length >= 4);
   const byHost = new Map<string, string | null>();
-  for (const r of rows) { const h = r.url ? host(r.url) : ''; if (h) byHost.set(h, r.certifications); }
+  const byName = new Map<string, string | null>();
+  for (const r of rows) {
+    const h = r.url ? host(r.url) : ''; if (h) byHost.set(h, r.certifications);
+    for (const nm of [r.name, r.nameEn]) { const n = normFirmName(nm); if (nameKeyOk(n) && !byName.has(n)) byName.set(n, r.certifications); }
+  }
   for (const s of suppliers) {
     const h = s.url ? host(s.url) : '';
-    if (h && byHost.has(h)) {
+    const nk = normFirmName(s.koreanName); const ne = normFirmName(s.name);
+    const key = (h && byHost.has(h)) ? { m: byHost, k: h }
+      : (nameKeyOk(nk) && byName.has(nk)) ? { m: byName, k: nk }
+      : (nameKeyOk(ne) && byName.has(ne)) ? { m: byName, k: ne }
+      : null;
+    if (key) {
       s.dbVerified = true;
       s.verificationStatus = 'grounding_confirmed';
-      const certs = byHost.get(h);
+      const certs = key.m.get(key.k);
       if (certs) s.trustEvidence = [certs, ...(Array.isArray(s.trustEvidence) ? s.trustEvidence : [])];
     }
   }
