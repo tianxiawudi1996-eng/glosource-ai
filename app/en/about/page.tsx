@@ -118,7 +118,7 @@ export default function AboutPage() {
         <section className="mb-10">
           <h2 className="text-lg font-black text-[#0D1B2A] mb-3">Who built this</h2>
           <p className="text-slate-600 text-sm leading-relaxed mb-4">
-            GloSource AI is operated by Vision Kim, based in Korea. The product is built on top of Google Gemini with Search Grounding and is focused specifically on Korean manufacturer sourcing for international buyers.
+            GloSource AI is operated by Vision Kim, based in Korea. The product is built on top of Google Gemini with Search Grounding and is focused specifically on Korean manufacturer sourcing for international buyers. Payments are processed by Polar as merchant of record, so card details never touch our servers.
           </p>
           <p className="text-slate-600 text-sm leading-relaxed">
             The goal is simple: if you want to source from Korea, GloSource AI should save you hours of research per product category. You still do the relationship-building, negotiation, and due diligence — we just help you find the right starting list faster.

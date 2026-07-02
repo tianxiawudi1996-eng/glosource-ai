@@ -18,8 +18,12 @@ export default function EnResetPasswordPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       });
-      const json = await res.json() as { error?: string };
-      if (!res.ok) { setErrorMsg(json.error ?? 'An error occurred.'); setStatus('error'); return; }
+      await res.json().catch(() => null);
+      if (!res.ok) {
+        setErrorMsg(res.status === 429 ? 'Too many requests. Please wait and try again.' : 'Please enter a valid email address and try again.');
+        setStatus('error');
+        return;
+      }
       setStatus('done');
     } catch {
       setErrorMsg('A network error occurred. Please try again.'); setStatus('error');
@@ -46,17 +50,17 @@ export default function EnResetPasswordPage() {
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             {status === 'error' && (
-              <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">{errorMsg}</p>
+              <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">{errorMsg}</p>
             )}
             <label className="block">
               <span className="mb-1.5 block text-xs font-bold text-slate-600">Email</span>
-              <input type="email" required value={email} onChange={e => setEmail(e.target.value)}
+              <input name="email" type="email" required autoComplete="email" value={email} onChange={e => setEmail(e.target.value)}
                 placeholder="name@company.com"
                 className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-[#0D1B2A] outline-none focus:border-[#0D1B2A]" />
             </label>
             <button type="submit" disabled={status === 'submitting'}
               className="w-full rounded-xl bg-[#0D1B2A] px-4 py-3.5 text-sm font-black text-white hover:bg-slate-800 disabled:opacity-60">
-              {status === 'submitting' ? 'Sending...' : 'Send reset link'}
+              {status === 'submitting' ? 'Sending…' : 'Send reset link'}
             </button>
             <p className="text-center text-sm text-slate-500">
               <Link href="/en/login" className="font-black text-[#EA580C]">Back to sign in</Link>

@@ -18,14 +18,21 @@ function LoginContent() {
   // Only allow same-origin relative paths to prevent open redirect phishing
   const callbackUrl = rawCallback.startsWith('/') && !rawCallback.startsWith('//') ? rawCallback : '/en';
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSubmitting(true);
-    const formData = new FormData(event.currentTarget);
-    const email = String(formData.get('email') ?? '');
-    const password = String(formData.get('password') ?? '');
-    await signIn('credentials', { email, password, redirectTo: callbackUrl });
+    setSubmitError('');
+    try {
+      const formData = new FormData(event.currentTarget);
+      const email = String(formData.get('email') ?? '');
+      const password = String(formData.get('password') ?? '');
+      await signIn('credentials', { email, password, redirectTo: callbackUrl });
+    } catch {
+      setSubmitError('We could not sign you in. Check your connection and try again.');
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -39,9 +46,9 @@ function LoginContent() {
           <p className="mt-2 text-sm text-slate-500">Welcome back. Sign in to your account.</p>
         </div>
 
-        {error ? (
-          <p className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
-            {errorMessages[error] ?? 'An error occurred. Please try again.'}
+        {error || submitError ? (
+          <p role="alert" className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+            {submitError || errorMessages[error ?? ''] || 'An error occurred. Please try again.'}
           </p>
         ) : null}
 
@@ -58,7 +65,7 @@ function LoginContent() {
           </label>
           <button type="submit" disabled={isSubmitting}
             className="w-full rounded-xl bg-[#0D1B2A] px-4 py-3.5 text-sm font-black text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60">
-            {isSubmitting ? 'Signing in...' : 'Sign in'}
+            {isSubmitting ? 'Signing in…' : 'Sign in'}
           </button>
           <div className="text-center">
             <Link href="/en/reset-password" className="text-xs text-slate-400 hover:text-slate-600">Forgot your password?</Link>
@@ -72,7 +79,7 @@ function LoginContent() {
               <span className="text-xs font-bold text-slate-400">or</span>
               <div className="h-px flex-1 bg-slate-200" />
             </div>
-            <button type="button" onClick={() => signIn('google', { redirectTo: '/en' })}
+            <button type="button" onClick={() => signIn('google', { redirectTo: callbackUrl })}
               className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-black text-[#0D1B2A] hover:bg-slate-50">
               <span className="flex h-5 w-5 items-center justify-center rounded-full border border-slate-200 text-xs font-black text-blue-600">G</span>
               Sign in with Google

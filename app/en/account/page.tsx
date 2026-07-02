@@ -1,7 +1,5 @@
 'use client';
 
-export const dynamic = 'force-dynamic';
-
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -16,10 +14,10 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({ id, label, children }: { id: string; label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="mb-1.5 block text-xs font-bold text-slate-500">{label}</label>
+      <label htmlFor={id} className="mb-1.5 block text-xs font-bold text-slate-500">{label}</label>
       {children}
     </div>
   );
@@ -28,7 +26,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 const inputCls = 'w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-[#0D1B2A] outline-none focus:border-[#0D1B2A] focus:bg-white transition-colors';
 
 export default function EnAccountPage() {
-  const { data: session, update } = useSession();
+  const { data: session, status, update } = useSession();
   const router = useRouter();
 
   const [name, setName] = useState(session?.user?.name ?? '');
@@ -44,8 +42,12 @@ export default function EnAccountPage() {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteError, setDeleteError] = useState('');
 
+  if (status === 'loading') {
+    return <main className="flex min-h-screen items-center justify-center bg-slate-50"><p className="text-sm font-bold text-slate-500">Loading account…</p></main>;
+  }
+
   if (!session?.user) {
-    return null;
+    return <main className="flex min-h-screen items-center justify-center bg-slate-50"><Link href="/en/login?callbackUrl=/en/account" className="font-bold text-[#EA580C]">Sign in to manage your account</Link></main>;
   }
 
   const saveName = async () => {
@@ -57,10 +59,12 @@ export default function EnAccountPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name }),
       });
-      const json = await res.json() as { error?: string };
-      if (!res.ok) { setNameMsg(json.error ?? 'Something went wrong.'); return; }
+      await res.json().catch(() => null);
+      if (!res.ok) { setNameMsg('Could not save your name. Please check it and try again.'); return; }
       await update({ name });
       setNameMsg('Saved.');
+    } catch {
+      setNameMsg('Could not save your name. Please try again.');
     } finally {
       setNameLoading(false);
     }
@@ -75,11 +79,13 @@ export default function EnAccountPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ currentPassword: curPw, newPassword: newPw }),
       });
-      const json = await res.json() as { error?: string };
-      if (!res.ok) { setPwMsg(json.error ?? 'Something went wrong.'); return; }
+      await res.json().catch(() => null);
+      if (!res.ok) { setPwMsg('Your current password is incorrect, or the new password is invalid.'); return; }
       setCurPw('');
       setNewPw('');
       setPwMsg('Password changed.');
+    } catch {
+      setPwMsg('Could not change your password. Please try again.');
     } finally {
       setPwLoading(false);
     }
@@ -91,8 +97,10 @@ export default function EnAccountPage() {
     setDeleteError('');
     try {
       const res = await fetch('/api/account', { method: 'DELETE' });
-      if (!res.ok) { const j = await res.json() as { error?: string }; setDeleteError(j.error ?? 'Something went wrong.'); return; }
+      if (!res.ok) { await res.json().catch(() => null); setDeleteError('Could not delete your account. Please try again or contact support.'); return; }
       router.replace('/en');
+    } catch {
+      setDeleteError('Could not delete your account. Please try again.');
     } finally {
       setDeleteLoading(false);
     }
@@ -119,11 +127,11 @@ export default function EnAccountPage() {
         <div className="space-y-5">
           <Section title="Account">
             <div className="space-y-4">
-              <Field label="Email">
-                <input className={`${inputCls} cursor-not-allowed opacity-60`} value={session.user.email ?? ''} disabled />
+              <Field id="account-email" label="Email">
+                <input id="account-email" name="email" className={`${inputCls} cursor-not-allowed opacity-60`} value={session.user.email ?? ''} disabled />
               </Field>
-              <Field label="Plan">
-                <div className="flex items-center gap-2">
+              <Field id="account-plan" label="Plan">
+                <div id="account-plan" className="flex items-center gap-2">
                   <span className="rounded-full bg-[#0D1B2A] px-3 py-1 text-xs font-black text-white">
                     {planLabel[session.user.plan ?? 'free'] ?? session.user.plan}
                   </span>
@@ -137,8 +145,11 @@ export default function EnAccountPage() {
 
           <Section title="Profile">
             <div className="space-y-4">
-              <Field label="Name">
+              <Field id="account-name" label="Name">
                 <input
+                  id="account-name"
+                  name="name"
+                  autoComplete="name"
                   className={inputCls}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -146,7 +157,7 @@ export default function EnAccountPage() {
                 />
               </Field>
               {nameMsg && (
-                <p className={`text-xs font-bold ${nameMsg === 'Saved.' ? 'text-emerald-600' : 'text-red-500'}`}>
+                <p role="status" className={`text-xs font-bold ${nameMsg === 'Saved.' ? 'text-emerald-600' : 'text-red-500'}`}>
                   {nameMsg}
                 </p>
               )}
@@ -163,8 +174,10 @@ export default function EnAccountPage() {
 
           <Section title="Change password">
             <div className="space-y-4">
-              <Field label="Current password">
+              <Field id="current-password" label="Current password">
                 <input
+                  id="current-password"
+                  name="currentPassword"
                   className={inputCls}
                   type="password"
                   value={curPw}
@@ -173,10 +186,13 @@ export default function EnAccountPage() {
                   autoComplete="current-password"
                 />
               </Field>
-              <Field label="New password">
+              <Field id="new-password" label="New password">
                 <input
+                  id="new-password"
+                  name="newPassword"
                   className={inputCls}
                   type="password"
+                  minLength={8}
                   value={newPw}
                   onChange={(e) => setNewPw(e.target.value)}
                   placeholder="At least 8 characters"
@@ -184,7 +200,7 @@ export default function EnAccountPage() {
                 />
               </Field>
               {pwMsg && (
-                <p className={`text-xs font-bold ${pwMsg === 'Password changed.' ? 'text-emerald-600' : 'text-red-500'}`}>
+                <p role="status" className={`text-xs font-bold ${pwMsg === 'Password changed.' ? 'text-emerald-600' : 'text-red-500'}`}>
                   {pwMsg}
                 </p>
               )}
@@ -202,15 +218,17 @@ export default function EnAccountPage() {
           <Section title="Delete account">
             <p className="mb-4 text-sm text-slate-500">Deleting your account permanently removes all your data. This cannot be undone.</p>
             <div className="space-y-3">
-              <Field label={`Type "DELETE" to confirm`}>
+              <Field id="delete-confirm" label={`Type "DELETE" to confirm`}>
                 <input
+                  id="delete-confirm"
+                  name="deleteConfirm"
                   className={inputCls}
                   value={deleteConfirm}
                   onChange={e => setDeleteConfirm(e.target.value)}
                   placeholder="DELETE"
                 />
               </Field>
-              {deleteError && <p className="text-xs font-bold text-red-500">{deleteError}</p>}
+              {deleteError && <p role="alert" className="text-xs font-bold text-red-500">{deleteError}</p>}
               <button
                 type="button"
                 onClick={deleteAccount}

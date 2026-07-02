@@ -401,7 +401,7 @@ function SupplierCard({ s, rank, keyword, locked, onStartVoiceCall }: { s: Suppl
           <svg className="w-3.5 h-3.5 fill-current shrink-0" viewBox="0 0 24 24">
             <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 00-1.01.24l-2.2 2.2a15.045 15.045 0 01-6.59-6.59l2.2-2.21a.96.96 0 00.25-1A11.56 11.56 0 018.82 4c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1 0 9.39 7.61 17 17 17 .55 0 1-.45 1-1v-3.62c0-.55-.45-1-1-1z" />
           </svg>
-          GloSource Voice (live interpreted negotiation)
+          Preview interpreted negotiation (demo)
         </button>
       )}
     </div>
@@ -511,7 +511,7 @@ export default function EnSourcingTool({
   useEffect(() => {
     if (!loading) { setLoadingStep(0); return; }
     const iv = setInterval(() => {
-      setLoadingStep(prev => (prev + 1) % loadingSteps.length);
+      setLoadingStep(prev => Math.min(prev + 1, loadingSteps.length - 1));
     }, 8000);
     return () => clearInterval(iv);
   }, [loading, loadingSteps.length]);
@@ -791,8 +791,8 @@ export default function EnSourcingTool({
           <div className="px-6 py-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
               {[
-                { name: 'Starter', price: '$19/mo', searches: '30 searches/month · All cert signals incl.', highlight: false },
-                { name: 'Pro', price: '$49/mo', searches: '60 searches + China sourcing + PDF report', highlight: true },
+                { name: 'Starter', price: '$39/mo', searches: '40 searches/month · All certification signals', highlight: false },
+                { name: 'Pro', price: '$99/mo', searches: '100 searches/month · China sourcing · PDF reports', highlight: true },
               ].map(p => (
                 <div key={p.name} className={`rounded-xl border p-4 ${p.highlight ? 'border-[#EA580C] bg-orange-50' : 'border-slate-200 bg-white'}`}>
                   <div className="flex items-center justify-between mb-1">
@@ -809,7 +809,7 @@ export default function EnSourcingTool({
                 target="_blank" rel="noopener noreferrer"
                 onClick={() => trackBeginCheckout('starter')}
                 className="block w-full text-center py-3.5 rounded-xl font-bold text-sm text-white bg-[#EA580C] hover:bg-[#DC4C00] transition-all shadow-lg shadow-orange-900/20">
-                Get Starter — $19/mo →
+                Get Starter — $39/mo →
               </a>
               <a href="/en/billing"
                 className="block w-full text-center py-2.5 rounded-xl font-semibold text-sm text-[#0D1B2A] bg-slate-100 hover:bg-slate-200 transition-all">
@@ -993,6 +993,7 @@ export default function EnSourcingTool({
         supplier={activeCallSupplier}
         isOpen={isCallModalOpen}
         onClose={() => setIsCallModalOpen(false)}
+        lang="en"
       />
 
       {/* AI sourcing & verification assistant (free: verify-only; Pro+: also sources) */}

@@ -31,13 +31,13 @@ const copy = {
     supplier2: { name: '공급사 B (샘플 데이터)', platform: 'Alibaba', score: 74, moq: 'MOQ 200개 · ¥15.2/개', lead: '납기 14일 · 한국 수출 ✓' },
   },
   en: {
-    badge: 'Korea-only supplier intelligence for K-Beauty buyers',
-    h1: 'Find the Right Korean K-Beauty OEM',
-    h1sub: 'Before You Waste Weeks',
-    desc: 'Get a risk-reduced shortlist of Korean OEM/ODM supplier candidates with manufacturer-vs-trader signals, certification signals, MOQ notes, source evidence, and a ready-to-send English RFQ.',
+    badge: 'AI-powered Korean supplier intelligence for global buyers',
+    h1: 'Find the Right Korean Suppliers',
+    h1sub: 'Without Weeks of Manual Research',
+    desc: 'Discover and compare Korean manufacturers and exporters across industries. Get a focused shortlist with company signals, certification evidence, MOQ context, source links, and a ready-to-send English RFQ.',
     cta1: 'Get My Korean Supplier Shortlist →',
     cta2: 'Download a Free Sample Report',
-    note: 'Built for indie beauty founders, Amazon sellers, and importers sourcing directly from Korea. Research support only — always verify suppliers independently.',
+    note: 'Built for brands, retailers, Amazon sellers, and importers sourcing directly from Korea. Research support only — always verify suppliers independently.',
     features: ['Manufacturer vs. trader signals', 'Certification evidence to verify', 'MOQ and risk notes', 'Product-specific English RFQ'],
     stats: [
       { num: 'Korea-only', label: 'Focused supplier research' },
@@ -45,12 +45,12 @@ const copy = {
       { num: '1 RFQ', label: 'Ready to review and send' },
       { num: '0 claims', label: 'No “verified supplier” promises' },
     ],
-    mockQuery: 'Korean collagen serum OEM 1000 units',
+    mockQuery: 'Korean stainless bottle manufacturer 2,000 units',
     mockDone: 'Analysis complete · 54s',
     mockRfq: 'RFQ draft ready',
     aiSignalNote: 'AI signal · not a verified certification',
-    supplier1: { name: 'Supplier A (sample data)', platform: 'BuyKorea', score: 91, moq: 'MOQ 1,000 pcs · $8.50/pc', lead: 'Lead time: 21 days · MFDS signal' },
-    supplier2: { name: 'Supplier B (sample data)', platform: 'EC21', score: 83, moq: 'MOQ 500 pcs · $11.20/pc', lead: 'Lead time: 28 days · Export history' },
+    supplier1: { name: 'Supplier A (sample data)', platform: 'BuyKorea', score: 91, moq: 'MOQ 2,000 pcs · quote required', lead: 'Lead time: 21 days · ISO 9001 signal' },
+    supplier2: { name: 'Supplier B (sample data)', platform: 'EC21', score: 83, moq: 'MOQ 1,000 pcs · quote required', lead: 'Lead time: 28 days · Export history' },
   },
 };
 
@@ -243,7 +243,7 @@ export default function HeroSection({ lang = 'ko' }: HeroSectionProps) {
                   sizes="420px"
                 />
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent px-5 py-4">
-                  <p className="text-white text-xs font-bold tracking-wide">K-Beauty OEM candidate shortlist</p>
+                  <p className="text-white text-xs font-bold tracking-wide">Korean supplier intelligence workspace</p>
                   <p className="text-slate-300 text-[10px] mt-0.5">Evidence, risk signals, MOQ notes, and RFQ preparation</p>
                 </div>
               </div>

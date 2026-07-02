@@ -204,6 +204,7 @@ export function SupplierRow({ supplier: s, isSelected, onClick }: SupplierRowPro
 
 interface SupplierDetailProps {
   supplier: Supplier;
+  onStartVoiceCall?: (supplier: Supplier) => void;
 }
 
 async function trackAbuseEvent(event: string, metadata: Record<string, unknown>): Promise<void> {
@@ -216,7 +217,7 @@ async function trackAbuseEvent(event: string, metadata: Record<string, unknown>)
   } catch { /* best-effort telemetry */ }
 }
 
-export function SupplierDetail({ supplier: s }: SupplierDetailProps) {
+export function SupplierDetail({ supplier: s, onStartVoiceCall }: SupplierDetailProps) {
   const verdict = getVerdict(s);
   const vs = getVerdictStyle(verdict);
   const pilot = getPilotCost(s);
@@ -250,6 +251,18 @@ export function SupplierDetail({ supplier: s }: SupplierDetailProps) {
           </a>
         )}
       </div>
+
+      {/* GloSource Voice Call Button */}
+      <button
+        type="button"
+        onClick={() => onStartVoiceCall?.(s)}
+        className="mb-3 w-full min-h-[40px] py-2 px-4 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 transition-all flex items-center justify-center gap-1.5 shadow-md shadow-orange-600/10 hover:scale-[1.01]"
+      >
+        <svg className="w-4 h-4 fill-current shrink-0" viewBox="0 0 24 24">
+          <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 00-1.01.24l-2.2 2.2a15.045 15.045 0 01-6.59-6.59l2.2-2.21a.96.96 0 00.25-1A11.56 11.56 0 018.82 4c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1 0 9.39 7.61 17 17 17 .55 0 1-.45 1-1v-3.62c0-.55-.45-1-1-1z" />
+        </svg>
+        Preview interpreted negotiation (demo)
+      </button>
 
       {/* 단가 + MOQ */}
       <div className="grid grid-cols-2 gap-3 mb-3">

@@ -53,7 +53,7 @@ export default function SampleReportLeadForm() {
       }
 
       trackSampleReportRequest(category);
-      setReportUrl(`/sample-reports/${category}-oem-sample-report.md`);
+      setReportUrl(`/en/sample-reports/${category}`);
       setStatus('done');
       setMessage(`Your ${REPORTS[category].label} sample report is ready — open it below.`);
     } catch {
@@ -102,6 +102,10 @@ export default function SampleReportLeadForm() {
         <input
           id="sample-report-email"
           type="email"
+          name="email"
+          autoComplete="email"
+          spellCheck={false}
+          inputMode="email"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
           placeholder="you@yourbrand.com"
@@ -119,6 +123,9 @@ export default function SampleReportLeadForm() {
 
         <p className="mt-3 text-[11px] leading-5 text-slate-400">
           No supplier is presented as verified. Sample reports are research examples and require independent due diligence.
+        </p>
+        <p className="mt-2 text-[11px] leading-5 text-slate-400">
+          We only use your email to send sourcing insights. No spam, unsubscribe anytime.
         </p>
 
         {message ? (

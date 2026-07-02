@@ -19,7 +19,7 @@ export default async function AssistantPage() {
           <Link href="/en" aria-label="GloSource AI home"><BrandLogo compact /></Link>
           <div className="flex items-center gap-3 text-xs font-semibold">
             <Link href="/en#sourcing-tool" className="hidden text-slate-300 hover:text-white sm:block">Supplier Search</Link>
-            <Link href="/en/billing" className="rounded-lg bg-[#EA580C] px-4 py-2 font-bold text-white hover:bg-[#DC4C00]">View plans</Link>
+            <Link href="/en#pricing" className="rounded-lg bg-[#EA580C] px-4 py-2 font-bold text-white hover:bg-[#DC4C00]">View plans</Link>
           </div>
         </div>
       </nav>

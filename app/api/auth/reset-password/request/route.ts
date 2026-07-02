@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
       await db.insert(verificationTokens).values({ identifier, token, expires });
 
       const base = process.env.AUTH_URL ?? 'https://glosourceai.com';
-      const link = `${base}/auth/reset-password/confirm?token=${token}&email=${encodeURIComponent(email)}`;
+      const link = `${base}/en/reset-password/confirm?token=${token}&email=${encodeURIComponent(email)}`;
       sendPasswordResetEmail(email, link).catch(() => {});
     }
 

@@ -18,7 +18,7 @@ export default function EnBillingFailPage() {
           Your payment didn&apos;t go through, so you haven&apos;t been charged. You can try again or pick a different plan.
         </p>
         <div className="mt-6 space-y-3">
-          <Link href="/en/billing" className="block w-full rounded-xl bg-[#EA580C] px-4 py-3.5 text-sm font-black text-white hover:bg-orange-600">
+          <Link href="/en#pricing" className="block w-full rounded-xl bg-[#EA580C] px-4 py-3.5 text-sm font-black text-white hover:bg-orange-600">
             View plans &amp; try again →
           </Link>
           <Link href="/en" className="block w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50">

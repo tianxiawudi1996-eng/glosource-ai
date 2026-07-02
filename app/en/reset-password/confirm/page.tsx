@@ -25,8 +25,12 @@ function ConfirmContent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token, email, password }),
       });
-      const json = await res.json() as { error?: string };
-      if (!res.ok) { setErrorMsg(json.error ?? 'An error occurred.'); setStatus('error'); return; }
+      await res.json().catch(() => null);
+      if (!res.ok) {
+        setErrorMsg('This link has expired or is no longer valid. Request a new reset link.');
+        setStatus('error');
+        return;
+      }
       setStatus('done');
     } catch {
       setErrorMsg('A network error occurred. Please try again.'); setStatus('error');
@@ -49,7 +53,7 @@ function ConfirmContent() {
           <BrandLogo onDark={false} />
         </Link>
         <h1 className="mt-6 text-2xl font-black text-[#0D1B2A]">Set your password</h1>
-        <p className="mt-2 text-sm text-slate-500">Choose a password to finish activating your account.</p>
+        <p className="mt-2 text-sm text-slate-500">Choose a new password for your account.</p>
       </div>
 
       {status === 'done' ? (
@@ -60,18 +64,21 @@ function ConfirmContent() {
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           {status === 'error' && (
-            <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">{errorMsg}</p>
+            <div role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+              <p>{errorMsg}</p>
+              <Link href="/en/reset-password" className="mt-2 inline-block underline">Request a new link</Link>
+            </div>
           )}
           <label className="block">
             <span className="mb-1.5 block text-xs font-bold text-slate-600">New password</span>
-            <input type="password" required value={password} onChange={e => setPassword(e.target.value)}
+            <input name="password" type="password" required minLength={8} autoComplete="new-password" value={password} onChange={e => setPassword(e.target.value)}
               placeholder="At least 8 characters"
               className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-[#0D1B2A] outline-none focus:border-[#0D1B2A]"
             />
           </label>
           <label className="block">
             <span className="mb-1.5 block text-xs font-bold text-slate-600">Confirm password</span>
-            <input type="password" required value={confirm} onChange={e => setConfirm(e.target.value)}
+            <input name="passwordConfirm" type="password" required minLength={8} autoComplete="new-password" value={confirm} onChange={e => setConfirm(e.target.value)}
               placeholder="Re-enter password"
               className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-[#0D1B2A] outline-none focus:border-[#0D1B2A]"
             />
@@ -79,7 +86,7 @@ function ConfirmContent() {
           <button type="submit" disabled={status === 'submitting'}
             className="w-full rounded-xl bg-[#EA580C] px-4 py-3.5 text-sm font-black text-white hover:bg-orange-600 disabled:opacity-60"
           >
-            {status === 'submitting' ? 'Saving...' : 'Set password'}
+            {status === 'submitting' ? 'Saving…' : 'Set password'}
           </button>
         </form>
       )}

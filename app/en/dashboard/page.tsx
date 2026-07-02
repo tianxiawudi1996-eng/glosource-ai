@@ -47,7 +47,7 @@ export default async function EnDashboardPage() {
   const usagePercent = limit > 0 ? Math.min(100, Math.round((usageCount / limit) * 100)) : 0;
   const subscription = subscriptionRows[0];
 
-  const planLabel = plan === 'enterprise' ? 'Agency' : plan.charAt(0).toUpperCase() + plan.slice(1);
+  const planLabel = plan === 'enterprise' ? 'Business' : plan.charAt(0).toUpperCase() + plan.slice(1);
 
   return (
     <main className="min-h-screen bg-slate-50">

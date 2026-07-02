@@ -12,15 +12,18 @@ import PricingViewTracker from './PricingViewTracker';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://glosourceai.com'),
-  title: 'GloSource AI — Korean K-Beauty OEM Supplier Intelligence',
-  description: 'Build a risk-reduced shortlist of Korean K-Beauty OEM/ODM supplier candidates with manufacturer-vs-trader signals, certification evidence, MOQ notes, and an English RFQ draft.',
+  title: 'GloSource AI — Find Korean Manufacturers and Exporters',
+  description: 'Discover and compare Korean manufacturers and exporters across industries with company signals, certification evidence, MOQ context, source links, and English RFQ drafts.',
   keywords: [
-    'Korean K-beauty OEM',
-    'Korean cosmetics manufacturer',
-    'K-beauty private label',
-    'Korean skincare ODM',
+    'Korean manufacturers',
+    'Korean suppliers',
+    'Korean exporters',
+    'source products from Korea',
     'Korean supplier shortlist',
-    'K-beauty manufacturer',
+    'Korean OEM ODM',
+    'Korean food manufacturers',
+    'Korean cosmetics manufacturers',
+    'Korean electronics suppliers',
     'EC21',
     'BuyKorea KOTRA',
     'tradeKorea',
@@ -32,8 +35,8 @@ export const metadata: Metadata = {
   creator: 'GloSource AI',
   publisher: 'GloSource AI',
   openGraph: {
-    title: 'GloSource AI — Korean K-Beauty OEM Supplier Intelligence',
-    description: 'A risk-reduced Korean OEM/ODM supplier shortlist with evidence, MOQ notes, risk signals, and an English RFQ draft.',
+    title: 'GloSource AI — Find Korean Manufacturers and Exporters',
+    description: 'Build a focused Korean supplier shortlist with source evidence, company signals, MOQ context, and an English RFQ draft.',
     url: 'https://glosourceai.com/en',
     siteName: 'GloSource AI',
     locale: 'en_US',
@@ -43,14 +46,14 @@ export const metadata: Metadata = {
         url: '/en/opengraph-image',
         width: 1200,
         height: 630,
-        alt: 'GloSource AI Korean K-Beauty OEM supplier shortlist',
+        alt: 'GloSource AI Korean supplier intelligence workspace',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'GloSource AI — Korean K-Beauty OEM Supplier Intelligence',
-    description: 'Shortlist Korean OEM/ODM supplier candidates with evidence, risk signals, MOQ notes, and an English RFQ.',
+    title: 'GloSource AI — Find Korean Manufacturers and Exporters',
+    description: 'Shortlist Korean supplier candidates with source evidence, company signals, MOQ context, and an English RFQ.',
     images: ['/en/opengraph-image'],
     creator: '@glosourceai',
   },
@@ -73,7 +76,7 @@ const PLANS = [
     unit: '/mo',
     per: '40 shortlist searches / month',
     features: [
-      '3–5 Korean OEM/ODM candidates per search',
+      '3–5 Korean supplier candidates per search',
       'Manufacturer-vs-trader and risk signals',
       'Certification evidence and MOQ notes',
       'English RFQ draft ready to review',
@@ -214,7 +217,7 @@ const JSON_LD_ORGANIZATION = {
   '@type': 'Organization',
   name: 'GloSource AI',
   url: 'https://glosourceai.com/en',
-  description: 'Korea-only supplier intelligence for overseas K-Beauty buyers researching Korean OEM/ODM manufacturer candidates.',
+  description: 'AI-powered Korean supplier intelligence for international buyers researching manufacturers and exporters across industries.',
   contactPoint: {
     '@type': 'ContactPoint',
     email: 'hello@glosourceai.com',
@@ -255,10 +258,9 @@ export default async function EnPage({
         <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between gap-4">
           <BrandLogo compact />
           <div className="flex items-center gap-3">
-            <Link href="/" className="text-xs font-semibold text-slate-400 hover:text-white transition-colors">KO</Link>
             <Link href="/en/assistant" className="text-xs font-bold text-orange-300 hover:text-orange-200 transition-colors">AI Assistant</Link>
             <a href="#sample-reports" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden sm:block">Sample report</a>
-            <a href="#pricing" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden sm:block">Pricing</a>
+            <a href="#pricing" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors">Pricing</a>
             <Link href="/en/blog" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden sm:block">Blog</Link>
             <Link href="/en/case-studies" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden md:block">Examples</Link>
             <Link href="/en/about" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden md:block">About</Link>
@@ -273,7 +275,7 @@ export default async function EnPage({
               </>
             ) : (
               <>
-                <Link href="/en/login" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden sm:block">
+                <Link href="/en/login" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors">
                   Sign in
                 </Link>
                 <Link href="/en/register" className="text-xs font-bold border border-white/30 text-white px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors">
@@ -317,7 +319,7 @@ export default async function EnPage({
       </section>
 
       {/* ── SAMPLE REPORTS ─────────────────────────────────── */}
-      <section id="sample-reports" className="border-b border-slate-200 bg-slate-50">
+      <section id="sample-reports" className="scroll-mt-16 border-b border-slate-200 bg-slate-50">
         <div className="mx-auto max-w-5xl px-6 py-16">
           <div className="mb-10 max-w-2xl">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-[#EA580C]">Free sample reports</p>
@@ -331,13 +333,13 @@ export default async function EnPage({
       </section>
 
       {/* ── SOURCING TOOL ──────────────────────────────────── */}
-      <section id="sourcing-tool" className="bg-slate-50 border-b border-slate-100">
+      <section id="sourcing-tool" className="scroll-mt-16 bg-slate-50 border-b border-slate-100">
         <div className="max-w-4xl mx-auto px-6 py-16">
           <div className="mb-10 text-center">
             <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-3">Build your first shortlist</p>
             <h2 className="text-2xl font-black text-[#0D1B2A] mb-2">Get my Korean supplier shortlist</h2>
             <p className="text-sm text-slate-500 max-w-lg mx-auto">
-              Describe the K-Beauty product you want to make. Review Korean supplier candidates with source links, unverified certification signals, MOQ context, and an English RFQ draft.
+              Describe the product you want to source from Korea. Review supplier candidates with source links, company and certification signals, MOQ context, and an English RFQ draft.
             </p>
           </div>
           <KSourceWrapper initialProduct={initialProduct} plan={plan} freeSearchLimit={freeSearchLimit} authenticated={isLoggedIn} />
@@ -368,16 +370,16 @@ export default async function EnPage({
 
 
       {/* ── PRICING ────────────────────────────────────────── */}
-      <section id="pricing" className="bg-white border-b border-slate-200">
+      <section id="pricing" className="scroll-mt-16 bg-white border-b border-slate-200">
         <PricingViewTracker />
         <div className="max-w-5xl mx-auto px-6 py-16">
           <div className="mb-10 text-center">
             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Pricing</p>
             <h2 className="text-2xl font-black text-[#0D1B2A] mb-3">Start with evidence. Upgrade for an active sourcing project.</h2>
             <p className="text-sm text-slate-500 max-w-xl mx-auto">
-              Start with a free sample report. Paid plans support repeated Korean OEM/ODM shortlist research for real product launches.
+              Start with a free sample report. Paid plans support repeated Korean supplier research for active sourcing projects.
             </p>
-            <p className="mt-2 text-xs text-slate-400">For international buyers · Priced in USD · Korean-market plans available at <Link href="/" className="underline text-[#0D1B2A] hover:text-slate-700">glosourceai.com</Link></p>
+            <p className="mt-2 text-xs text-slate-400">For international buyers · Priced in USD · Source directly from Korean manufacturers</p>
             <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-500 max-w-lg mx-auto text-left">
               <strong className="text-slate-700">Research tool disclaimer:</strong> GloSource AI provides AI-generated supplier research only. We do not verify suppliers, guarantee product quality, or handle transactions. Trust scores are AI-estimated signals — always conduct independent due diligence before signing any contract.
             </div>
@@ -401,7 +403,7 @@ export default async function EnPage({
                     <span className={`text-3xl font-black ${plan.highlight ? 'text-white' : 'text-[#0D1B2A]'}`}>{plan.price}</span>
                     <span className={`text-sm mb-1 ${plan.highlight ? 'text-slate-300' : 'text-slate-400'}`}>{plan.unit}</span>
                   </div>
-                  <p className={`text-xs ${plan.highlight ? 'text-slate-400' : 'text-slate-400'}`}>{plan.per}</p>
+                  <p className="text-xs text-slate-400">{plan.per}</p>
                 </div>
                 <ul className="space-y-2.5 mb-6 flex-1">
                   {plan.features.map(f => (
@@ -416,8 +418,9 @@ export default async function EnPage({
                   ))}
                 </ul>
                 <PolarCheckoutButton
-                  checkoutUrl={process.env[plan.envKey] ?? 'mailto:hello@glosourceai.com?subject=GloSource%20AI%20Enterprise'}
+                  checkoutUrl={process.env[plan.envKey] ?? `mailto:hello@glosourceai.com?subject=${encodeURIComponent(`GloSource AI ${plan.name} plan inquiry`)}`}
                   label={'cta' in plan && plan.cta ? plan.cta : `Get ${plan.name} →`}
+                  planId={plan.id}
                 />
               </div>
             ))}
@@ -427,7 +430,7 @@ export default async function EnPage({
             <strong className="text-slate-700">Free tier:</strong> 5 anonymous trial searches; verified free accounts get 10 searches/month · up to 3–5 AI-surfaced Korean supplier candidates per search · Trust score · English RFQ draft
           </div>
           <p className="mt-3 text-center text-xs text-slate-400">
-            Secure checkout · Email fallback for early access · No Korean entity required
+            Secure checkout via Polar · 14-day refund policy · No Korean entity required
           </p>
         </div>
       </section>

@@ -55,7 +55,7 @@ function formatDate(date: Date | null): string {
 function formatAmount(amount: number, currency: string): string {
   const c = currency.toUpperCase();
   if (c === 'USD') return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount / 100);
-  if (c === 'KRW') return new Intl.NumberFormat('en-US').format(amount / 100) + ' KRW';
+  if (c === 'KRW') return new Intl.NumberFormat('en-US').format(amount) + ' KRW';
   return `${amount} ${c}`;
 }
 
@@ -80,8 +80,7 @@ export default async function EnBillingPage({
   const currentPlan = subscription?.plan ?? session.user.plan ?? 'free';
   const hasActivePolarSub = subscription?.status === 'active' && Boolean(subscription.polarSubscriptionId);
 
-  // plan name for display (starter→Starter, enterprise→Agency)
-  const planDisplayName = currentPlan === 'enterprise' ? 'Agency'
+  const planDisplayName = currentPlan === 'enterprise' ? 'Business'
     : currentPlan === 'starter' ? 'Starter'
     : currentPlan === 'pro' ? 'Pro'
     : 'Free';
@@ -93,9 +92,9 @@ export default async function EnBillingPage({
         {showSuccess && (
           <div className="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4">
             <PurchaseTracker plan={currentPlan} />
-            <p className="text-sm font-black text-emerald-800">🎉 Payment successful! Your plan is now active.</p>
+            <p className="text-sm font-black text-emerald-800">Payment received. We are activating your plan.</p>
             <p className="mt-1 text-xs text-emerald-700 leading-5">
-              Your account has been upgraded. Start searching below — your new quota is ready.
+              Activation usually completes within moments. Refresh this page before starting a paid search.
             </p>
             <a href="/en#sourcing-tool" className="mt-3 inline-block rounded-lg bg-emerald-600 px-4 py-2 text-xs font-black text-white hover:bg-emerald-700 transition-colors">
               Start sourcing →

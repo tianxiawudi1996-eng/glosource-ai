@@ -4,8 +4,7 @@ import { useEffect } from 'react';
 import { trackBeginCheckout, trackPurchase } from '@/app/lib/analytics';
 
 // Client wrappers so funnel events can be fired from server components
-// (billing page). The checkout links open in a new tab, so the current page
-// stays alive and the gtag event has time to send.
+// (billing page).
 
 export function CheckoutLink({
   href,
@@ -21,8 +20,6 @@ export function CheckoutLink({
   return (
     <a
       href={href}
-      target="_blank"
-      rel="noopener noreferrer"
       onClick={() => trackBeginCheckout(plan)}
       className={className}
     >
@@ -45,6 +42,9 @@ export function PurchaseTracker({
   currency?: string;
 }) {
   useEffect(() => {
+    const key = `glosource_purchase_tracked:${window.location.pathname}:${window.location.search}`;
+    if (sessionStorage.getItem(key)) return;
+    sessionStorage.setItem(key, '1');
     trackPurchase(plan, value, currency);
   }, [plan, value, currency]);
   return null;

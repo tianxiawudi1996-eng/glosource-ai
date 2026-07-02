@@ -1,21 +1,20 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'GloSource AI — Source Korean Suppliers with AI',
+  title: 'GloSource AI — Find Korean Manufacturers and Exporters',
   description:
-    'AI-powered sourcing assistant for international buyers. Find Korean manufacturers for K-beauty, K-food, K-fashion, electronics, and more with supplier risk scores and RFQ drafts.',
+    'AI-powered Korean supplier research for international buyers. Discover manufacturers and exporters across industries, review company signals, and draft English RFQs.',
   metadataBase: new URL('https://glosourceai.com'),
   alternates: {
     canonical: '/en',
     languages: {
-      'ko': '/',
       'en': '/en',
     },
   },
   openGraph: {
-    title: 'GloSource AI — Source Korean Suppliers with AI',
+    title: 'GloSource AI — Find Korean Manufacturers and Exporters',
     description:
-      'Find Korean supplier candidates from EC21, BuyKorea, KOTRA, tradeKorea, and direct factory search with AI trust scoring and RFQ drafts.',
+      'Discover Korean manufacturers and exporters with public-data company signals, source evidence, and English RFQ drafts.',
     url: 'https://glosourceai.com/en',
     siteName: 'GloSource AI',
     type: 'website',
@@ -23,8 +22,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'GloSource AI — Source Korean Suppliers with AI',
-    description: 'Source K-beauty, K-food, K-fashion, electronics, and more from Korean suppliers with AI risk scoring and RFQ drafts.',
+    title: 'GloSource AI — Find Korean Manufacturers and Exporters',
+    description: 'Research Korean suppliers across industries with public-data company signals and English RFQ drafts.',
   },
 };
 

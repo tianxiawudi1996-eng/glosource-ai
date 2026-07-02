@@ -10,7 +10,7 @@ export const authConfig: NextAuthConfig = {
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
-      const protectedPrefixes = ['/dashboard', '/billing', '/admin', '/account', '/en/billing', '/en/dashboard'];
+      const protectedPrefixes = ['/dashboard', '/billing', '/admin', '/account', '/en/billing', '/en/dashboard', '/en/account'];
       const isProtected = protectedPrefixes.some(p => nextUrl.pathname.startsWith(p));
       if (isProtected) {
         if (isLoggedIn) return true;
