@@ -1,308 +1,131 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db, socialPosts } from '@/app/lib/db';
 import { eq } from 'drizzle-orm';
+import { db, socialPosts } from '@/app/lib/db';
 
-const BUFFER_API = 'https://api.buffer.com/graphql';
-const CHANNELS = {
-  threads: process.env.BUFFER_CHANNEL_THREADS!,
-  twitter: process.env.BUFFER_CHANNEL_TWITTER!,
-};
+const DAILY_POSTS = [
+  'Finding a Korean supplier is easy. Verifying whether they can actually export, meet your MOQ, and support your category is the hard part.',
+  'A supplier list is not sourcing intelligence. Buyers need evidence: certifications, export signals, product fit, MOQ context, and clear next steps.',
+  'Before contacting a Korean manufacturer, check three things: category fit, export readiness, and whether the claimed certifications match the product.',
+  'The fastest supplier is not always the right supplier. A better shortlist reduces wasted outreach, sample costs, and compliance risk.',
+  'Korean sourcing should not require hours of translating directories and guessing which companies are export-ready. That is the problem GloSource AI is built to solve.',
+  'A strong RFQ gives suppliers enough context to answer accurately: product specification, target quantity, market, certification needs, and timeline.',
+  'Good sourcing software should show its uncertainty. GloSource AI presents risk signals and public evidence so buyers can decide what to verify next.',
+] as const;
 
-const RSS_FEEDS = [
-  'https://techcrunch.com/category/artificial-intelligence/feed/',
-  'https://venturebeat.com/category/ai/feed/',
-];
-
-// [FIX 1] "verified" 제거, MFDS/HACCP 보장 표현 제거, #ad 표기 추가
-const GLOSOURCE_MENTIONS = [
-  '#ad Sourcing from Korea? GloSource AI (glosourceai.com) finds supplier candidates via EC21, BuyKorea & tradeKorea in ~90 sec.',
-  '#ad Korean supplier research used to take hours of tab-switching. GloSource AI searches multiple B2B platforms simultaneously.',
-  '#ad For buyers exploring Korean cosmetics, food, or fashion suppliers — GloSource AI surfaces candidates with AI-detected cert signals. Results require your own verification.',
-];
-
-// [FIX 2] 부적절한 뉴스 블랙리스트
-const BLOCKED_KEYWORDS = [
-  'scam', 'fraud', 'bankrupt', 'bankruptcy', 'lawsuit', 'layoff',
-  'hack', 'breach', 'arrested', 'indicted', 'collapse', 'shutdown',
-  'exploit', 'vulnerability', 'death', 'fatal',
-];
-
-// [FIX 3] GloSource 멘션은 소싱/무역 관련 뉴스에만 삽입
-const SOURCING_KEYWORDS = [
-  'supply chain', 'manufacturing', 'supplier', 'sourcing', 'import',
-  'export', 'trade', 'b2b', 'factory', 'procurement', 'logistics',
-  'warehouse', 'inventory', 'wholesale', 'vendor',
-];
-
-async function sendFailureAlert(message: string): Promise<void> {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) return;
-  try {
-    await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        from: process.env.RESEND_EMAIL_FROM ?? 'noreply@glosourceai.com',
-        to: process.env.ADMIN_EMAIL ?? 'tianxiawudi1996@gmail.com',
-        subject: '[GloSource] 소셜 자동화 발행 실패',
-        text: message,
-      }),
-    });
-  } catch {
-    // 알림 실패는 무시
-  }
+function kstDate(date = new Date()) {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Seoul',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(date);
 }
 
-// [FIX 6] DB에서 이미 발행된 URL 조회 (dedup)
-async function isAlreadyPublished(articleUrl: string): Promise<boolean> {
-  try {
-    const rows = await db
-      .select({ id: socialPosts.id })
-      .from(socialPosts)
-      .where(eq(socialPosts.articleUrl, articleUrl))
-      .limit(1);
-    return rows.length > 0;
-  } catch {
-    // DB 오류 시 dedup 건너뜀 (중단 방지)
-    return false;
-  }
-}
+function getDailyPost(date = new Date()) {
+  const dayNumber = Math.floor(date.getTime() / 86_400_000);
+  const index = dayNumber % DAILY_POSTS.length;
+  const url = new URL('https://glosourceai.com/en');
+  url.searchParams.set('utm_source', 'threads');
+  url.searchParams.set('utm_medium', 'organic');
+  url.searchParams.set('utm_campaign', '2026-07-korean-supplier-intelligence');
+  url.searchParams.set('utm_content', `daily-${index + 1}`);
 
-async function fetchRSSItem(): Promise<{ title: string; link: string; summary: string } | null> {
-  for (const feed of RSS_FEEDS) {
-    try {
-      const res = await fetch(feed, { next: { revalidate: 0 } });
-      const xml = await res.text();
-      const items = xml.match(/<item>([\s\S]*?)<\/item>/g);
-      if (!items || items.length === 0) continue;
-
-      // 최신 10개 중 랜덤 선택 (더 다양한 뉴스)
-      const candidates = items.slice(0, 10);
-      for (let attempt = 0; attempt < candidates.length; attempt++) {
-        const randomItem = candidates[Math.floor(Math.random() * candidates.length)];
-        const cdataTitle = /<title><!\[CDATA\[([\s\S]*?)\]\]><\/title>/.exec(randomItem)?.[1];
-        const plainTitle = /<title>([\s\S]*?)<\/title>/.exec(randomItem)?.[1];
-        const title = cdataTitle ?? plainTitle ?? '';
-        const link = randomItem.match(/<link>(.*?)<\/link>/)?.[1]
-          ?? randomItem.match(/<link[^>]*href="([^"]+)"/)?.[1]
-          ?? '';
-        const cdataDesc = /<description><!\[CDATA\[([\s\S]*?)\]\]><\/description>/.exec(randomItem)?.[1];
-        const plainDesc = /<description>([\s\S]*?)<\/description>/.exec(randomItem)?.[1];
-        const desc = cdataDesc ?? plainDesc ?? '';
-        const summary = desc.replace(/<[^>]+>/g, '').slice(0, 200).trim();
-
-        if (!title || !link) continue;
-
-        // [FIX 2] 블랙리스트 필터 — 부적절한 뉴스 건너뜀
-        const titleLower = title.toLowerCase();
-        const isBlocked = BLOCKED_KEYWORDS.some(kw => titleLower.includes(kw));
-        if (isBlocked) continue;
-
-        // [FIX 6] 중복 발행 방지 — 이미 DB에 있는 URL 건너뜀
-        const alreadyPublished = await isAlreadyPublished(link);
-        if (alreadyPublished) continue;
-
-        return { title, link, summary };
-      }
-    } catch {
-      continue;
-    }
-  }
-  return null;
-}
-
-async function generatePost(newsItem: { title: string; link: string; summary: string }): Promise<{ threads: string; twitter: string }> {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) throw new Error('GEMINI_API_KEY missing');
-
-  // [FIX 3] 소싱/무역 관련 뉴스에서만 GloSource 멘션 삽입
-  const combined = (newsItem.title + ' ' + newsItem.summary).toLowerCase();
-  const isRelevantTopic = SOURCING_KEYWORDS.some(kw => combined.includes(kw));
-  const shouldMentionGlosource = isRelevantTopic && Math.random() < 0.5;
-  const glosourceMention = shouldMentionGlosource
-    ? GLOSOURCE_MENTIONS[Math.floor(Math.random() * GLOSOURCE_MENTIONS.length)]
-    : '';
-
-  const prompt = `You are a B2B sourcing and AI industry content writer targeting international buyers and entrepreneurs.
-
-Write TWO versions of a social media post about this AI news:
-
-NEWS TITLE: ${newsItem.title}
-SUMMARY: ${newsItem.summary}
-LINK: ${newsItem.link}
-
-VERSION 1 (Threads) — max 380 characters total including link and hashtags. Conversational, 1-2 hashtags. Keep it tight.
-VERSION 2 (Twitter/X) — max 250 characters total including link and hashtag. Punchy, 1 hashtag max.
-
-Rules:
-- Focus on practical implications for business/sourcing/trade
-- No hype words: "game-changer", "revolutionary", "mindblowing", "groundbreaking"
-- Sound like a knowledgeable professional, not a marketer
-- Always include the original news link
-- Output valid JSON only — no markdown, no code block
-
-Respond in this exact JSON format:
-{"threads": "...", "twitter": "..."}`;
-
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
-    }
-  );
-
-  const data = await res.json();
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
-  const jsonMatch = text.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) throw new Error('Invalid Gemini response');
-
-  const parsed = JSON.parse(jsonMatch[0]);
-  let threadsText = String(parsed.threads ?? '').trim();
-  const twitterText = String(parsed.twitter ?? '').trim();
-
-  // [FIX 4] 맥락 있을 때만 GloSource 멘션 append (문자수 초과 방지)
-  if (glosourceMention && threadsText.length + glosourceMention.length + 2 <= 500) {
-    threadsText = `${threadsText}\n\n${glosourceMention}`;
-  }
-
-  // 안전 truncate
   return {
-    threads: threadsText.slice(0, 500),
-    twitter: twitterText.slice(0, 280),
+    index,
+    text: `${DAILY_POSTS[index]}\n\nSearch and assess Korean suppliers:\n${url.toString()}`,
   };
 }
 
-async function scheduleBufferPost(channelId: string, text: string): Promise<{ ok: boolean; postId?: string; error?: string }> {
-  const bufferToken = process.env.BUFFER_API_KEY;
-  if (!bufferToken) return { ok: false, error: 'BUFFER_API_KEY missing' };
-  if (!channelId) return { ok: false, error: 'Buffer channel id missing' };
+async function publishToBuffer(text: string) {
+  const accessToken = process.env.BUFFER_API_KEY;
+  const channelId = process.env.BUFFER_CHANNEL_THREADS;
+  if (!accessToken || !channelId) {
+    throw new Error('BUFFER_API_KEY or BUFFER_CHANNEL_THREADS is missing');
+  }
 
-  const mutation = `
-    mutation CreatePost($input: CreatePostInput!) {
-      createPost(input: $input) {
-        ... on PostActionSuccess { post { id status } }
-        ... on InvalidInputError { message }
-        ... on LimitReachedError { message }
-        ... on UnexpectedError { message }
-      }
-    }
-  `;
-
-  const res = await fetch(BUFFER_API, {
+  const response = await fetch('https://api.buffer.com/graphql', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${bufferToken}`,
+      Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      query: mutation,
+      query: `
+        mutation CreatePost($input: CreatePostInput!) {
+          createPost(input: $input) {
+            ... on PostActionSuccess { post { id } }
+            ... on MutationError { message }
+          }
+        }
+      `,
       variables: {
         input: {
           channelId,
           text,
-          schedulingType: 'automatic',
-          mode: 'addToQueue',
-          assets: [],
+          mode: 'shareNow',
         },
       },
     }),
   });
 
-  const data = await res.json();
-  if (data.errors) {
-    return { ok: false, error: JSON.stringify(data.errors) };
+  if (!response.ok) {
+    throw new Error(`Buffer HTTP ${response.status}`);
   }
-  const result = data.data?.createPost;
-  if (result?.message) {
-    return { ok: false, error: result.message };
-  }
-  const postId = result?.post?.id as string | undefined;
-  return { ok: !!postId, postId };
-}
 
-// [FIX 8] 발행 성공 후 DB에 기록
-async function logPublishedPost(
-  newsItem: { title: string; link: string },
-  threadsPostId: string | undefined,
-  twitterPostId: string | undefined,
-  status: 'published' | 'partial' | 'failed',
-): Promise<void> {
-  try {
-    await db.insert(socialPosts).values({
-      articleUrl: newsItem.link,
-      articleTitle: newsItem.title,
-      threadsPostId: threadsPostId ?? null,
-      twitterPostId: twitterPostId ?? null,
-      status,
-    });
-  } catch {
-    // 로그 실패는 무시 (발행 성공이 우선)
+  const payload = await response.json() as {
+    data?: { createPost?: { post?: { id?: string }; message?: string } };
+    errors?: Array<{ message?: string }>;
+  };
+  const postId = payload.data?.createPost?.post?.id;
+  if (!postId) {
+    throw new Error(payload.data?.createPost?.message ?? payload.errors?.[0]?.message ?? 'Buffer did not return a post id');
   }
+
+  return postId;
 }
 
 export async function GET(request: NextRequest) {
-  // [FIX 5] 항상 CRON_SECRET 검증 (개발환경 무인증 제거)
-  const authHeader = request.headers.get('authorization');
   const cronSecret = process.env.CRON_SECRET;
-  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+  if (!cronSecret || request.headers.get('authorization') !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  const date = kstDate();
+  const articleUrl = `https://glosourceai.com/social/daily/${date}`;
+
   try {
-    const newsItem = await fetchRSSItem();
-    if (!newsItem) {
-      await sendFailureAlert('소셜 자동화: RSS에서 적합한 뉴스를 찾지 못했습니다. (모두 중복이거나 블랙리스트 필터됨)');
-      return NextResponse.json({ error: 'No suitable news found' }, { status: 500 });
+    const existing = await db
+      .select({ id: socialPosts.id, status: socialPosts.status })
+      .from(socialPosts)
+      .where(eq(socialPosts.articleUrl, articleUrl))
+      .limit(1);
+
+    if (existing.length > 0) {
+      return NextResponse.json({ success: true, skipped: true, reason: 'already-processed', date });
     }
 
-    const posts = await generatePost(newsItem);
-
-    const [threadsResult, twitterResult] = await Promise.all([
-      scheduleBufferPost(CHANNELS.threads, posts.threads),
-      scheduleBufferPost(CHANNELS.twitter, posts.twitter),
-    ]);
-
-    // [FIX 5] 발행 실패 시 success:false + 이메일 알림
-    const allOk = threadsResult.ok && twitterResult.ok;
-    const status = allOk ? 'published' : (threadsResult.ok || twitterResult.ok ? 'partial' : 'failed');
-
-    // [FIX 8] 발행 결과 DB 기록 (성공·부분 성공 모두 기록)
-    if (status !== 'failed') {
-      await logPublishedPost(
-        newsItem,
-        threadsResult.postId,
-        twitterResult.postId,
-        status,
-      );
+    const dailyPost = getDailyPost();
+    if (dailyPost.text.length > 500) {
+      throw new Error('Daily Threads post exceeds 500 characters');
     }
 
-    if (!allOk) {
-      const errorMsg = [
-        `뉴스: ${newsItem.title}`,
-        threadsResult.error ? `Threads 실패: ${threadsResult.error}` : '',
-        twitterResult.error ? `Twitter 실패: ${twitterResult.error}` : '',
-      ].filter(Boolean).join('\n');
-      await sendFailureAlert(errorMsg);
-    }
+    const [reservation] = await db.insert(socialPosts).values({
+      articleUrl,
+      articleTitle: `Daily supplier intelligence ${date}`,
+      status: 'failed',
+    }).returning({ id: socialPosts.id });
 
-    return NextResponse.json(
-      {
-        success: allOk,
-        news: newsItem.title,
-        scheduled: {
-          threads: threadsResult.ok,
-          twitter: twitterResult.ok,
-          ...(threadsResult.error && { threadsError: threadsResult.error }),
-          ...(twitterResult.error && { twitterError: twitterResult.error }),
-        },
-      },
-      { status: allOk ? 200 : 500 }
-    );
+    const postId = await publishToBuffer(dailyPost.text);
+
+    await db.update(socialPosts).set({
+      threadsPostId: postId,
+      status: 'published',
+      publishedAt: new Date(),
+    }).where(eq(socialPosts.id, reservation.id));
+
+    return NextResponse.json({ success: true, skipped: false, date, postId });
   } catch (error) {
     console.error('[social-post cron]', error);
-    await sendFailureAlert(`소셜 자동화 예외 발생: ${String(error)}`);
-    return NextResponse.json({ error: String(error) }, { status: 500 });
+    return NextResponse.json({ error: 'Daily social post failed' }, { status: 500 });
   }
 }
