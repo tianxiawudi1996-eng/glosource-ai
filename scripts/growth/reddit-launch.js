@@ -51,7 +51,7 @@ So I built **GloSource AI** — you type a product, it scans EC21 · BuyKorea (K
 - Est. MOQ, unit price, lead time
 - AEO customs-certified companies flagged separately
 
-5 free anonymous searches, no credit card. Free account gets 10 searches/month after email verification: **glosource-ai.vercel.app/en**
+5 free anonymous searches, no credit card. Free account gets 10 searches/month after email verification: **glosourceai.com/en**
 
 Would love brutal feedback from people who actually source from Korea.`,
   },
@@ -69,7 +69,7 @@ Would love brutal feedback from people who actually source from Korea.`,
 
 Best for: K-beauty OEM, Korean food wholesale, private label cosmetics, electronics (KC-certified).
 
-**Free search:** glosource-ai.vercel.app/en
+**Free search:** glosourceai.com/en
 
 Happy to answer questions about Korean sourcing in general too.`,
   },
@@ -80,7 +80,7 @@ Happy to answer questions about Korean sourcing in general too.`,
 
 **GloSource AI** scans EC21 · BuyKorea (KOTRA) · tradeKorea and returns ranked supplier candidates with trust scores, certification signals (MFDS, HACCP, KC), and a ready-to-send English RFQ.
 
-5 free anonymous searches: glosource-ai.vercel.app/en
+5 free anonymous searches: glosourceai.com/en
 
 Feedback welcome.`,
   },

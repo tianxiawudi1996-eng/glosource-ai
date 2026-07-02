@@ -11,7 +11,7 @@ async function main() {
 
   // Screenshot 1: Hero + search form
   console.log('Taking screenshot 1...');
-  await page.goto('https://glosource-ai.vercel.app/en', { waitUntil: 'networkidle2', timeout: 30000 });
+  await page.goto('https://glosourceai.com/en', { waitUntil: 'networkidle2', timeout: 30000 });
   await page.screenshot({ path: path.join(DESKTOP, 'glosource-screenshot-1-hero.png'), fullPage: false });
 
   // Screenshot 2: Scroll down to show categories + tool
@@ -21,7 +21,7 @@ async function main() {
 
   // Screenshot 3: Pricing page
   console.log('Taking screenshot 3...');
-  await page.goto('https://glosource-ai.vercel.app/en/billing', { waitUntil: 'networkidle2', timeout: 30000 });
+  await page.goto('https://glosourceai.com/en/billing', { waitUntil: 'networkidle2', timeout: 30000 });
   await page.screenshot({ path: path.join(DESKTOP, 'glosource-screenshot-3-pricing.png'), fullPage: false });
 
   await browser.close();

@@ -1,5 +1,5 @@
 # GloSource AI — Growth Automation Plan
-> Target: glosource-ai.vercel.app | Korean supplier sourcing for international B2B buyers
+> Target: glosourceai.com | Korean supplier sourcing for international B2B buyers
 > Date: 2026-05-16
 
 ---
@@ -94,7 +94,7 @@ import { getAllPosts } from '@/lib/blog';
 export const metadata: Metadata = {
   title: 'Korean Supplier Sourcing Blog — GloSource AI',
   description: 'Practical guides for international buyers sourcing from Korea. Covers K-beauty OEM, supplier verification, MFDS/HACCP certifications, and RFQ templates.',
-  alternates: { canonical: 'https://glosource-ai.vercel.app/en/blog' },
+  alternates: { canonical: 'https://glosourceai.com/en/blog' },
 };
 
 export default function BlogIndex() {
@@ -122,7 +122,7 @@ export async function generateMetadata({ params }) {
   return {
     title: post.title,
     description: post.metaDescription,
-    alternates: { canonical: `https://glosource-ai.vercel.app/en/blog/${post.slug}` },
+    alternates: { canonical: `https://glosourceai.com/en/blog/${post.slug}` },
   };
 }
 ```
@@ -572,7 +572,7 @@ Use saved Reddit search URLs or track via RSS (Reddit supports RSS for searches)
 ```
 1. Direct answer to their question (3–5 sentences)
 2. Specific context they might have missed (1–2 sentences)
-3. [Optional, only if asked or very relevant]: "I built a tool for this — glosource-ai.vercel.app — 5 free searches. Not spam, just relevant here."
+3. [Optional, only if asked or very relevant]: "I built a tool for this — glosourceai.com — 5 free searches. Not spam, just relevant here."
 ```
 
 **Volume target:** 5 genuine answers/week. Quality over quantity.
@@ -679,7 +679,7 @@ Friday
 4. Add `data/blog/posts/` directory with Post 1 data file
 5. Update `app/sitemap.ts` to include blog posts
 6. Publish Post 1 — verify at `/en/blog/find-korean-cosmetics-manufacturers-private-label`
-7. Submit to Google Search Console — `https://glosource-ai.vercel.app/en/blog`
+7. Submit to Google Search Console — `https://glosourceai.com/en/blog`
 8. Create Post 2–5 data files (can be done in one session)
 9. Set up OBS, record first YouTube short using GloSource AI
 10. Start Reddit monitoring (save search URLs)

@@ -23,13 +23,13 @@
  *
  *   (everything below the closing --- is the post content, treated as HTML or Markdown)
  *
- * API endpoint: https://glosource-ai.vercel.app/api/admin/blog-posts
+ * API endpoint: https://glosourceai.com/api/admin/blog-posts
  */
 
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 
-const API_URL = process.env.API_URL ?? 'https://glosource-ai.vercel.app';
+const API_URL = process.env.API_URL ?? 'https://glosourceai.com';
 const SECRET = process.env.ADMIN_SECRET ?? '';
 
 if (!SECRET) {

@@ -163,7 +163,7 @@ function classify(text) {
 
 function templateDraft(label, firstName) {
   const hi = `Hi ${firstName},\n\n`;
-  const sig = `\n\nBest,\n${SENDER_NAME}\nhttps://glosource-ai.vercel.app/en`;
+  const sig = `\n\nBest,\n${SENDER_NAME}\nhttps://glosourceai.com/en`;
   switch (label) {
     case 'unsubscribe':
       return `${hi}Understood — I've removed you and you won't hear from me again. Thanks for letting me know, and all the best with your sourcing.${sig}`;

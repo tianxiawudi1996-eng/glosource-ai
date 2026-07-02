@@ -14,8 +14,8 @@
 - 이 명령은 **사무실 H: 드라이브 PC**에서 실행됨
 - GloSource AI 코드는 GitHub에 있음: https://github.com/tianxiawudi1996-eng/glosource-ai
 - 집 C: 드라이브는 이 PC에서 접근 불가 — 직접 파일 참조 금지
-- 웹사이트 배포: https://glosource-ai.vercel.app (Next.js 15, Vercel 자동 배포)
-- 블로그 발행 API: https://glosource-ai.vercel.app/api/admin/blog-posts
+- 웹사이트 배포: https://glosourceai.com (Next.js 15, Vercel 자동 배포)
+- 블로그 발행 API: https://glosourceai.com/api/admin/blog-posts
 
 ---
 
@@ -94,7 +94,7 @@ H: 드라이브에서 읽을 데이터:
 
 발행 API 엔드포인트:
 ```
-POST https://glosource-ai.vercel.app/api/admin/blog-posts
+POST https://glosourceai.com/api/admin/blog-posts
 Content-Type: application/json
 Authorization: Bearer {ADMIN_PUBLISH_SECRET 값}
 ```
@@ -117,7 +117,7 @@ Authorization: Bearer {ADMIN_PUBLISH_SECRET 값}
 
 각 포스트 발행 후:
 - 발행 완료 slug 확인
-- https://glosource-ai.vercel.app/en/blog/{slug} 에서 확인 가능
+- https://glosourceai.com/en/blog/{slug} 에서 확인 가능
 
 ---
 
@@ -127,7 +127,7 @@ Authorization: Bearer {ADMIN_PUBLISH_SECRET 값}
 
 1. API 응답 status 확인 (200 = 성공)
 2. curl 또는 WebFetch로 발행된 페이지 접근 가능 확인:
-   `GET https://glosource-ai.vercel.app/en/blog/{slug}`
+   `GET https://glosourceai.com/en/blog/{slug}`
 3. 리포트 출력:
    - 발행 성공: [slug] — [title]
    - 발행 실패: [slug] — [오류 메시지]
@@ -147,7 +147,7 @@ Authorization: Bearer {ADMIN_PUBLISH_SECRET 값}
 ## 빠른 테스트 (발행 전 API 연결 확인)
 
 ```bash
-curl -X GET https://glosource-ai.vercel.app/api/admin/blog-posts \
+curl -X GET https://glosourceai.com/api/admin/blog-posts \
   -H "Authorization: Bearer {ADMIN_PUBLISH_SECRET}"
 ```
 

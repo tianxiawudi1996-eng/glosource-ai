@@ -146,7 +146,7 @@
 
 ```
 현재: safedoc-ai.vercel.app
-권장: glosource-ai.vercel.app
+권장: glosourceai.com
 
 방법:
 1) Vercel 대시보드 (vercel.com)

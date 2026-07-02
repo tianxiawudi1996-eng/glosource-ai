@@ -49,7 +49,7 @@ const EMBED = {
 ✅ Ready-to-send English RFQ draft
 
 **5 free anonymous searches. Free account: 10 searches/month after email verification.**`,
-      url: 'https://glosource-ai.vercel.app/en',
+      url: 'https://glosourceai.com/en',
       color: 0xEA580C,
       fields: [
         { name: 'Best for', value: 'K-beauty OEM · K-food bulk · Electronics · Private label cosmetics', inline: false },
