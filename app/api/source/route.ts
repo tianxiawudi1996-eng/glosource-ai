@@ -503,7 +503,8 @@ function buildKSourcePrompt(req: SourcingRequest, categoryContext?: Category): s
   return `You are a global sourcing expert specializing in Korean suppliers. Search for Korean manufacturers and exporters for the product below. Use Google Search to find real Korean supplier candidates.
 
 [LANGUAGE RULE]
-ALL JSON string field values MUST be written in English only. Do not use Korean (한국어), Japanese, Chinese, or any non-English language in any JSON value — including name, summary, recommendation, moq, leadTimeDays, productMatch, trustEvidence, and redFlags fields.
+ALL JSON string field values MUST be written in English only — with ONE exception: the "koreanName" field. Do not use Korean (한국어), Japanese, Chinese, or any non-English language in any JSON value — including name, summary, recommendation, moq, leadTimeDays, productMatch, trustEvidence, and redFlags fields.
+EXCEPTION — "koreanName": this field MUST contain the supplier's official Korean company name / 한글 상호 (e.g. "코스맥스", "한국콜마", "(주)엘케이코스메틱"). It is used to cross-check the company against Korean government registries (MFDS 식약처, HACCP, National Tax Service 국세청), so provide the exact registered Korean name whenever findable, including the 주식회사/(주) form. Set it to "" only if the Korean name genuinely cannot be determined.
 ${catSection}
 
 [SECURITY RULES]
@@ -550,7 +551,8 @@ Return ONLY valid JSON. No markdown, no code blocks, no citation numbers.
   "suppliers": [
     {
       "rank": 1,
-      "name": "Supplier Name (Korean company name if available)",
+      "name": "Supplier Name in English",
+      "koreanName": "한글 상호 (official Korean company name, e.g. 코스맥스). Empty string only if truly unknown.",
       "platform": "EC21 | BuyKorea | tradeKorea | Direct | NAVER",
       "country": "South Korea",
       "url": "",
@@ -596,6 +598,7 @@ function normalizeSourcingOutput(parsed: Omit<SourcingOutput, 'groundingUsed'>, 
     return {
       rank: typeof supplier.rank === 'number' ? supplier.rank : index + 1,
       name: supplier.name || `Supplier ${index + 1}`,
+      koreanName: typeof supplier.koreanName === 'string' && supplier.koreanName.trim() ? supplier.koreanName.trim() : undefined,
       platform: supplier.platform || 'Unknown',
       country: supplier.country || '',
       url: supplier.url || '',
