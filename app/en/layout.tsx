@@ -1,11 +1,19 @@
 import type { Metadata } from 'next';
-import { Fraunces } from 'next/font/google';
+import { Fraunces, Nanum_Myeongjo } from 'next/font/google';
 
 const fraunces = Fraunces({
   subsets: ['latin'],
   weight: ['400', '600', '700', '900'],
   style: ['normal', 'italic'],
   variable: '--font-display',
+  display: 'swap',
+});
+
+// Classical brush-serif for the Korean accents (old-document voice).
+const nanumMyeongjo = Nanum_Myeongjo({
+  weight: ['700', '800'],
+  subsets: ['latin'],
+  variable: '--font-krold',
   display: 'swap',
 });
 
@@ -37,5 +45,5 @@ export const metadata: Metadata = {
 };
 
 export default function EnLayout({ children }: { children: React.ReactNode }) {
-  return <div className={fraunces.variable}>{children}</div>;
+  return <div className={`${fraunces.variable} ${nanumMyeongjo.variable}`}>{children}</div>;
 }

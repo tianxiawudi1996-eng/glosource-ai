@@ -60,13 +60,13 @@ function EnVerificationMockPanel() {
   return (
     <div className="relative flex items-stretch gap-4">
       {/* Vertical Hangul caption — traditional editorial accent */}
-      <p aria-hidden="true" className="gs-vertical-kr hidden xl:block self-center text-[11px] font-bold text-slate-500/80 shrink-0">
-        대한민국 정부 데이터 기반 검증
+      <p aria-hidden="true" className="gs-vertical-kr font-krold hidden xl:block self-center text-[11px] font-bold text-slate-500/80 shrink-0">
+        나라의 공적 기록으로 검증하니라
       </p>
 
       <div className="gs-fade-up gs-delay-3 relative flex-1 rounded-2xl border border-white/10 bg-[#060F1A] shadow-2xl shadow-black/50 overflow-hidden">
       {/* Dojang seal — stamps after the registry checks complete */}
-      <span aria-hidden="true" className="gs-seal gs-seal-stamp absolute top-[178px] right-4 z-10 h-14 w-14 text-[15px] bg-[#060F1A]/40 backdrop-blur-[1px]">
+      <span aria-hidden="true" className="gs-seal gs-seal-stamp font-krold absolute top-[178px] right-4 z-10 h-14 w-14 text-[14px] bg-[#060F1A]/40 backdrop-blur-[1px]">
         검증<br />완료
       </span>
       {/* title bar */}
