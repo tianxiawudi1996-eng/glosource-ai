@@ -53,3 +53,26 @@ button, a, input, select {
 @media print {
   body { background: white; }
 }
+
+/* ── Landing entrance motion (CSS-only, reduced-motion aware) ── */
+@keyframes gs-fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes gs-check-pop {
+  0%   { opacity: 0; transform: scale(0.6); }
+  70%  { opacity: 1; transform: scale(1.08); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.gs-fade-up { animation: gs-fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.gs-delay-1 { animation-delay: 80ms; }
+.gs-delay-2 { animation-delay: 160ms; }
+.gs-delay-3 { animation-delay: 240ms; }
+.gs-delay-4 { animation-delay: 340ms; }
+.gs-check-pop { animation: gs-check-pop 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.gs-check-1 { animation-delay: 600ms; }
+.gs-check-2 { animation-delay: 950ms; }
+.gs-check-3 { animation-delay: 1300ms; }
+@media (prefers-reduced-motion: reduce) {
+  .gs-fade-up, .gs-check-pop { animation: none; opacity: 1; transform: none; }
+}

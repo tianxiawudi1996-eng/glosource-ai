@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import { trackShortlistCta } from '@/app/lib/analytics';
 
 interface HeroSectionProps {
@@ -31,28 +30,119 @@ const copy = {
     supplier2: { name: '공급사 B (샘플 데이터)', platform: 'Alibaba', score: 74, moq: 'MOQ 200개 · ¥15.2/개', lead: '납기 14일 · 한국 수출 ✓' },
   },
   en: {
-    badge: 'AI-powered Korean supplier intelligence for global buyers',
+    badge: 'Cross-checked against Korean government registries',
     h1: 'Find the Right Korean Suppliers',
     h1sub: 'Without Weeks of Manual Research',
-    desc: 'Discover and compare Korean manufacturers and exporters across industries. Get a focused shortlist with company signals, certification evidence, MOQ context, source links, and a ready-to-send English RFQ.',
+    desc: 'Get a focused shortlist of Korean manufacturers with government-registry evidence, MOQ context, source links, and a ready-to-send English RFQ.',
     cta1: 'Get My Korean Supplier Shortlist →',
-    cta2: 'Download a Free Sample Report',
-    note: 'Built for brands, retailers, Amazon sellers, and importers sourcing directly from Korea. Research support only — always verify suppliers independently.',
+    cta2: 'See a Free Sample Report',
+    note: 'Research support only — registry matches are evidence for your own due diligence, never a guarantee.',
     features: ['Manufacturer vs. trader signals', 'Certification evidence to verify', 'MOQ and risk notes', 'Product-specific English RFQ'],
     stats: [
-      { num: 'Korea-only', label: 'Focused supplier research' },
+      { num: '5+1', label: 'Gov registries + live tax-office check' },
       { num: '3–5', label: 'Candidates per shortlist' },
+      { num: '~1 min', label: 'From brief to shortlist' },
       { num: '1 RFQ', label: 'Ready to review and send' },
-      { num: '0 claims', label: 'No “verified supplier” promises' },
     ],
-    mockQuery: 'Korean stainless bottle manufacturer 2,000 units',
+    mockQuery: 'Korean collagen serum OEM · 5,000 units',
     mockDone: 'Analysis complete · 54s',
-    mockRfq: 'RFQ draft ready',
+    mockRfq: 'English RFQ draft ready',
     aiSignalNote: 'AI signal · not a verified certification',
     supplier1: { name: 'Supplier A (sample data)', platform: 'BuyKorea', score: 91, moq: 'MOQ 2,000 pcs · quote required', lead: 'Lead time: 21 days · ISO 9001 signal' },
     supplier2: { name: 'Supplier B (sample data)', platform: 'EC21', score: 83, moq: 'MOQ 1,000 pcs · quote required', lead: 'Lead time: 28 days · Export history' },
   },
 };
+
+/* EN hero visual: a live-feeling product mock that shows the actual differentiator —
+   a supplier card earning government-registry verification in sequence. Sample data,
+   labeled as such; emerald is reserved for government evidence across the site. */
+function EnVerificationMockPanel() {
+  return (
+    <div className="gs-fade-up gs-delay-3 rounded-2xl border border-white/10 bg-[#060F1A] shadow-2xl shadow-black/50 overflow-hidden">
+      {/* title bar */}
+      <div className="flex items-center gap-2 border-b border-white/10 bg-white/5 px-4 py-2.5">
+        <span className="w-2.5 h-2.5 rounded-full bg-red-500/70" />
+        <span className="w-2.5 h-2.5 rounded-full bg-yellow-500/70" />
+        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/70" />
+        <span className="ml-2 text-[11px] font-bold text-slate-400">GloSource AI — Sample preview</span>
+        <span className="ml-auto flex items-center gap-1 text-[10px] text-emerald-400 font-semibold">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          live registry check
+        </span>
+      </div>
+
+      <div className="p-4 space-y-3">
+        {/* query bar */}
+        <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2">
+          <svg className="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <span className="text-xs font-mono text-slate-200 truncate">Korean collagen serum OEM · 5,000 units</span>
+        </div>
+
+        {/* supplier card with gov verification */}
+        <div className="rounded-xl border border-emerald-500/25 bg-white/5 p-3.5 space-y-2.5">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-[10px] font-black bg-[#EA580C] text-white rounded-md px-1.5 py-0.5 shrink-0">#1</span>
+              <span className="text-xs font-bold text-white truncate">Cosmetics ODM Co. (sample data)</span>
+            </div>
+            <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-emerald-500/15 border border-emerald-400/30 px-2 py-0.5 text-[10px] font-black text-emerald-300">
+              <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+              Gov-Verified
+            </span>
+          </div>
+
+          {/* sequential registry checks — the memorable moment */}
+          <ul className="space-y-1.5">
+            <li className="gs-check-pop gs-check-1 flex items-center gap-2 text-[11px] text-emerald-200">
+              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-300 shrink-0">
+                <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+              </span>
+              MFDS-registered cosmetics manufacturer
+            </li>
+            <li className="gs-check-pop gs-check-2 flex items-center gap-2 text-[11px] text-emerald-200">
+              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-300 shrink-0">
+                <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+              </span>
+              CGMP certification on record
+            </li>
+            <li className="gs-check-pop gs-check-3 flex items-center gap-2 text-[11px] text-emerald-200">
+              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-300 shrink-0">
+                <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+              </span>
+              Active business — live Korea NTS status
+            </li>
+          </ul>
+
+          <div className="flex items-center justify-between border-t border-white/10 pt-2">
+            <p className="text-[10px] text-slate-400">MOQ 3,000 pcs · quote required</p>
+            <p className="text-[10px] text-slate-500">Lead time: 21 days</p>
+          </div>
+        </div>
+
+        {/* second candidate, collapsed */}
+        <div className="rounded-xl border border-white/10 bg-white/5 px-3.5 py-2.5 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="text-[10px] font-black bg-slate-600 text-white rounded-md px-1.5 py-0.5 shrink-0">#2</span>
+            <span className="text-xs font-bold text-slate-200 truncate">OEM Candidate B (sample data)</span>
+          </div>
+          <span className="shrink-0 rounded-full bg-blue-500/15 px-2 py-0.5 text-[10px] font-bold text-blue-300">EC21</span>
+        </div>
+
+        {/* RFQ pill */}
+        <div className="flex items-center gap-2 rounded-lg border border-blue-500/20 bg-blue-500/10 px-3 py-2">
+          <svg className="w-3.5 h-3.5 text-blue-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+          <span className="text-[11px] font-semibold text-blue-300">English RFQ draft ready</span>
+        </div>
+
+        <p className="text-[9px] text-slate-500">Sample output. Registry matches are evidence to verify, not a guarantee.</p>
+      </div>
+    </div>
+  );
+}
 
 function TrustBar({ score, aiSignalNote }: { score: number; aiSignalNote?: string }) {
   const color = score >= 80 ? 'bg-emerald-400' : score >= 65 ? 'bg-amber-400' : 'bg-red-400';
@@ -169,23 +259,23 @@ export default function HeroSection({ lang = 'ko' }: HeroSectionProps) {
 
           {/* LEFT — copy */}
           <div>
-            <div className="mb-4 inline-flex items-center gap-2 border border-white/20 bg-white/10 rounded-full px-3 py-1 text-xs font-semibold text-slate-100 backdrop-blur">
+            <div className="gs-fade-up mb-4 inline-flex items-center gap-2 border border-emerald-400/25 bg-emerald-500/10 rounded-full px-3 py-1 text-xs font-semibold text-emerald-100 backdrop-blur">
               <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
               {c.badge}
             </div>
 
-            <h1 className="mb-5 text-[2.6rem] font-black leading-[0.96] tracking-tight text-white sm:text-5xl md:text-6xl">
+            <h1 className="gs-fade-up gs-delay-1 mb-5 text-[2.6rem] font-black leading-[0.96] tracking-tight text-white sm:text-5xl md:text-6xl">
               {c.h1}<br />
               <span className="mt-2 inline-block rounded-lg bg-[#EA580C] px-3 py-1 text-[0.68em] text-white shadow-2xl shadow-orange-950/40">
                 {c.h1sub}
               </span>
             </h1>
 
-            <p className="mb-8 max-w-xl text-lg font-semibold leading-relaxed text-slate-200 md:text-xl">
+            <p className="gs-fade-up gs-delay-2 mb-8 max-w-xl text-lg font-semibold leading-relaxed text-slate-200 md:text-xl">
               {c.desc}
             </p>
 
-            <div className="flex flex-wrap items-center gap-3 mb-8">
+            <div className="gs-fade-up gs-delay-3 flex flex-wrap items-center gap-3 mb-4">
               <a
                 href="#sourcing-tool"
                 onClick={(event) => {
@@ -205,22 +295,24 @@ export default function HeroSection({ lang = 'ko' }: HeroSectionProps) {
               </a>
             </div>
 
-            <div className="mb-6 max-w-xl rounded-xl border border-amber-300/30 bg-amber-500/10 px-4 py-3 text-sm font-semibold leading-relaxed text-amber-50 backdrop-blur">
+            <p className="gs-fade-up gs-delay-3 mb-10 max-w-xl text-xs leading-relaxed text-slate-400">
               {c.note}
-            </div>
+            </p>
 
-            <div className="flex flex-wrap gap-2 mb-10">
-              {c.features.map(f => (
-                <span key={f} className="inline-flex items-center gap-1.5 bg-white/10 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-slate-200 backdrop-blur">
-                  <svg className="w-3 h-3 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                  </svg>
-                  {f}
-                </span>
-              ))}
-            </div>
+            {lang === 'ko' && (
+              <div className="flex flex-wrap gap-2 mb-10">
+                {c.features.map(f => (
+                  <span key={f} className="inline-flex items-center gap-1.5 bg-white/10 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-slate-200 backdrop-blur">
+                    <svg className="w-3 h-3 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                    </svg>
+                    {f}
+                  </span>
+                ))}
+              </div>
+            )}
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 border-t border-white/10 pt-8">
+            <div className="gs-fade-up gs-delay-4 grid grid-cols-2 sm:grid-cols-4 gap-6 border-t border-white/10 pt-8">
               {c.stats.map(s => (
                 <div key={s.num}>
                   <p className="text-2xl font-black text-white">{s.num}</p>
@@ -233,20 +325,7 @@ export default function HeroSection({ lang = 'ko' }: HeroSectionProps) {
           {/* RIGHT — hero visual */}
           <div className="block">
             {lang === 'en' ? (
-              <div className="relative w-full rounded-2xl overflow-hidden shadow-2xl shadow-black/60" style={{ aspectRatio: '16/9' }}>
-                <Image
-                  src="/images/glosource-sourcing-workspace.png"
-                  alt="GloSource AI Korean supplier shortlist research workspace"
-                  fill
-                  className="object-cover"
-                  priority
-                  sizes="420px"
-                />
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent px-5 py-4">
-                  <p className="text-white text-xs font-bold tracking-wide">Korean supplier intelligence workspace</p>
-                  <p className="text-slate-300 text-[10px] mt-0.5">Evidence, risk signals, MOQ notes, and RFQ preparation</p>
-                </div>
-              </div>
+              <EnVerificationMockPanel />
             ) : (
               <MockPreviewPanel c={c} />
             )}

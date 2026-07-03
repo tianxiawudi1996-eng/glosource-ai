@@ -7,9 +7,11 @@ interface PolarCheckoutButtonProps {
   checkoutUrl: string;
   label: string;
   planId: string;
+  /** Set when rendered on a dark card so the consent text keeps AA contrast. */
+  onDark?: boolean;
 }
 
-export default function PolarCheckoutButton({ checkoutUrl, label, planId }: PolarCheckoutButtonProps) {
+export default function PolarCheckoutButton({ checkoutUrl, label, planId, onDark = false }: PolarCheckoutButtonProps) {
   const [agreed, setAgreed] = useState(false);
   const [showConsentHint, setShowConsentHint] = useState(false);
   const isMailto = checkoutUrl.startsWith('mailto:');
@@ -38,7 +40,7 @@ export default function PolarCheckoutButton({ checkoutUrl, label, planId }: Pola
             }}
             className="mt-0.5 h-4 w-4 rounded border-slate-300 text-orange-600 focus:ring-orange-500 shrink-0"
           />
-          <span className="text-xs text-slate-500 leading-relaxed group-hover:text-slate-600 transition-colors">
+          <span className={`text-xs leading-relaxed transition-colors ${onDark ? 'text-slate-300 group-hover:text-slate-200' : 'text-slate-500 group-hover:text-slate-600'}`}>
             I agree that access starts immediately and the 14-day refund window ends once I run my first search.
           </span>
         </label>
@@ -51,7 +53,7 @@ export default function PolarCheckoutButton({ checkoutUrl, label, planId }: Pola
         {label}
       </a>
       {showConsentHint && (
-        <p role="alert" className="text-xs text-red-600 leading-relaxed">
+        <p role="alert" className={`text-xs leading-relaxed ${onDark ? 'text-red-300' : 'text-red-600'}`}>
           Please confirm the checkbox above to continue to checkout.
         </p>
       )}

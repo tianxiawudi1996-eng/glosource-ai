@@ -293,6 +293,46 @@ export default async function EnPage({
       {/* ── HERO ───────────────────────────────────────────── */}
       <HeroSection lang="en" />
 
+      {/* ── GOVERNMENT REGISTRY CROSS-CHECK ────────────────── */}
+      <section className="border-b border-slate-200 bg-[#0A1520] text-white">
+        <div className="mx-auto max-w-5xl px-6 py-16">
+          <div className="max-w-3xl">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-400">Evidence, not promises</p>
+            <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
+              Every Korean candidate is cross-checked against official government registries.
+            </h2>
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-400">
+              When a candidate&apos;s registered Korean company name matches official records, the evidence is pinned to its card — so you start due diligence from government data, not marketing claims.
+            </p>
+          </div>
+          <div className="mt-10 grid gap-4 sm:grid-cols-3">
+            <article className="rounded-2xl border border-white/10 bg-white/5 p-6">
+              <p className="font-mono text-[11px] font-bold uppercase tracking-wider text-emerald-400">MFDS · 식약처</p>
+              <h3 className="mt-3 text-base font-black text-white">Manufacturer of record</h3>
+              <p className="mt-2 text-sm leading-6 text-slate-400">
+                Cosmetics, quasi-drug, health-food, and medical-device registries reveal whether a company actually manufactures — or only distributes.
+              </p>
+            </article>
+            <article className="rounded-2xl border border-white/10 bg-white/5 p-6">
+              <p className="font-mono text-[11px] font-bold uppercase tracking-wider text-emerald-400">HACCP · CGMP</p>
+              <h3 className="mt-3 text-base font-black text-white">Certification on record</h3>
+              <p className="mt-2 text-sm leading-6 text-slate-400">
+                Food-safety and cosmetics-GMP certification records are matched from official data — separated from self-reported claims.
+              </p>
+            </article>
+            <article className="rounded-2xl border border-white/10 bg-white/5 p-6">
+              <p className="font-mono text-[11px] font-bold uppercase tracking-wider text-emerald-400">NTS · 국세청</p>
+              <h3 className="mt-3 text-base font-black text-white">Alive right now</h3>
+              <p className="mt-2 text-sm leading-6 text-slate-400">
+                A live National Tax Service lookup confirms the business registration is active today — the fastest way to screen out ghost companies.
+              </p>
+            </article>
+          </div>
+          <p className="mt-6 text-xs leading-relaxed text-slate-500">
+            Registry matches are surfaced automatically when records align, and shown as evidence for your own verification — never as a guarantee or endorsement. Not every company appears in a registry; fashion and general goods have no equivalent public registry.
+          </p>
+        </div>
+      </section>
 
       {/* ── PROBLEM ─────────────────────────────────────────── */}
       <section className="border-b border-slate-200 bg-white">
@@ -336,8 +376,8 @@ export default async function EnPage({
       <section id="sourcing-tool" className="scroll-mt-16 bg-slate-50 border-b border-slate-100">
         <div className="max-w-4xl mx-auto px-6 py-16">
           <div className="mb-10 text-center">
-            <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-3">Build your first shortlist</p>
-            <h2 className="text-2xl font-black text-[#0D1B2A] mb-2">Get my Korean supplier shortlist</h2>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#EA580C] mb-3">Build your first shortlist</p>
+            <h2 className="text-3xl font-black text-[#0D1B2A] mb-2">Get my Korean supplier shortlist</h2>
             <p className="text-sm text-slate-500 max-w-lg mx-auto">
               Describe the product you want to source from Korea. Review supplier candidates with source links, company and certification signals, MOQ context, and an English RFQ draft.
             </p>
@@ -350,8 +390,8 @@ export default async function EnPage({
       <section className="bg-white border-b border-slate-100">
         <div className="max-w-5xl mx-auto px-6 py-16">
           <div className="mb-10 text-center">
-            <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-3">How it works</p>
-            <h2 className="text-2xl font-black text-[#0D1B2A] mb-3">From product idea to a usable Korean supplier shortlist</h2>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#EA580C] mb-3">How it works</p>
+            <h2 className="text-3xl font-black text-[#0D1B2A] mb-3">From product idea to a usable Korean supplier shortlist</h2>
             <p className="text-sm text-slate-500 max-w-xl mx-auto">
               The output is a first-pass research shortcut, not a supplier guarantee, audit, or sourcing-agent service.
             </p>
@@ -374,8 +414,8 @@ export default async function EnPage({
         <PricingViewTracker />
         <div className="max-w-5xl mx-auto px-6 py-16">
           <div className="mb-10 text-center">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Pricing</p>
-            <h2 className="text-2xl font-black text-[#0D1B2A] mb-3">Start with evidence. Upgrade for an active sourcing project.</h2>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#EA580C] mb-3">Pricing</p>
+            <h2 className="text-3xl font-black text-[#0D1B2A] mb-3">Start with evidence. Upgrade for an active sourcing project.</h2>
             <p className="text-sm text-slate-500 max-w-xl mx-auto">
               Start with a free sample report. Paid plans support repeated Korean supplier research for active sourcing projects.
             </p>
@@ -388,7 +428,7 @@ export default async function EnPage({
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-6xl mx-auto">
             {PLANS.map(plan => (
               <div key={plan.id}
-                className={`rounded-2xl border p-6 flex flex-col relative ${plan.highlight ? 'bg-[#0D1B2A] border-[#0D1B2A]' : 'bg-white border-slate-200'}`}>
+                className={`rounded-2xl border p-6 flex flex-col relative transition-all duration-200 ${plan.highlight ? 'bg-[#0D1B2A] border-[#0D1B2A] shadow-xl shadow-slate-900/15 lg:-translate-y-2' : 'bg-white border-slate-200 hover:border-slate-300 hover:shadow-md'}`}>
                 {plan.highlight && (
                   <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#EA580C] text-white text-xs font-bold px-3 py-1 rounded-full">
                     Most popular
@@ -421,6 +461,7 @@ export default async function EnPage({
                   checkoutUrl={process.env[plan.envKey] ?? `mailto:hello@glosourceai.com?subject=${encodeURIComponent(`GloSource AI ${plan.name} plan inquiry`)}`}
                   label={'cta' in plan && plan.cta ? plan.cta : `Get ${plan.name} →`}
                   planId={plan.id}
+                  onDark={plan.highlight}
                 />
               </div>
             ))}
@@ -439,8 +480,8 @@ export default async function EnPage({
       <section className="bg-slate-50 border-b border-slate-100">
         <div className="max-w-3xl mx-auto px-6 py-16">
           <div className="mb-10 text-center">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">FAQ</p>
-            <h2 className="text-2xl font-black text-[#0D1B2A]">Frequently asked questions</h2>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#EA580C] mb-3">FAQ</p>
+            <h2 className="text-3xl font-black text-[#0D1B2A]">Frequently asked questions</h2>
           </div>
           <div className="space-y-3">
             {FAQ.map(item => (
