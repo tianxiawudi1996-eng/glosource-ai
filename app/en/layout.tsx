@@ -1,4 +1,13 @@
 import type { Metadata } from 'next';
+import { Fraunces } from 'next/font/google';
+
+const fraunces = Fraunces({
+  subsets: ['latin'],
+  weight: ['400', '600', '700', '900'],
+  style: ['normal', 'italic'],
+  variable: '--font-display',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: 'GloSource AI — Find Korean Manufacturers and Exporters',
@@ -28,5 +37,5 @@ export const metadata: Metadata = {
 };
 
 export default function EnLayout({ children }: { children: React.ReactNode }) {
-  return children;
+  return <div className={fraunces.variable}>{children}</div>;
 }

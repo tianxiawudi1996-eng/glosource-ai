@@ -294,11 +294,12 @@ export default async function EnPage({
       <HeroSection lang="en" />
 
       {/* ── GOVERNMENT REGISTRY CROSS-CHECK ────────────────── */}
-      <section className="border-b border-slate-200 bg-[#0A1520] text-white">
-        <div className="mx-auto max-w-5xl px-6 py-16">
+      <section className="relative overflow-hidden border-b border-slate-200 bg-[#0A1520] text-white">
+        <p aria-hidden="true" className="gs-hangul-watermark right-[-0.06em] top-1/2 -translate-y-1/2 text-[16rem] text-white/[0.03] hidden lg:block">검증</p>
+        <div className="relative mx-auto max-w-5xl px-6 py-16">
           <div className="max-w-3xl">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-400">Evidence, not promises</p>
-            <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-400">Evidence, not promises · <span className="tracking-normal">증거</span></p>
+            <h2 className="font-display mt-3 text-3xl font-black leading-tight sm:text-4xl">
               Every Korean candidate is cross-checked against official government registries.
             </h2>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-400">
@@ -334,12 +335,48 @@ export default async function EnPage({
         </div>
       </section>
 
+      {/* ── CATEGORIES — jogakbo patchwork grid ────────────── */}
+      <section className="bg-hanji border-b border-slate-200">
+        <div className="mx-auto max-w-5xl px-6 py-16">
+          <div className="max-w-3xl">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#EA580C]">What Korea makes best · <span className="tracking-normal">한국의 제조</span></p>
+            <h2 className="font-display mt-3 text-3xl font-black leading-tight text-[#0D1B2A] sm:text-4xl">
+              Source the categories the world already trusts Korea for.
+            </h2>
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-500">
+              Each category is matched against the registries that govern it — so a K-Beauty candidate is checked as a cosmetics manufacturer, and a K-Food candidate as a certified food maker.
+            </p>
+          </div>
+          <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            {[
+              { kr: '화', en: 'K-Beauty', note: 'MFDS cosmetics registry · CGMP', accent: 'border-[#C93A2B]/30 hover:border-[#C93A2B]', chip: 'text-[#C93A2B] bg-[#C93A2B]/5', span: 'row-span-2', big: true },
+              { kr: '식', en: 'K-Food', note: 'HACCP-certified manufacturers', accent: 'border-amber-500/30 hover:border-amber-600', chip: 'text-amber-700 bg-amber-500/10' },
+              { kr: '패', en: 'K-Fashion', note: 'Curated verified makers', accent: 'border-blue-700/25 hover:border-blue-700', chip: 'text-blue-800 bg-blue-700/5' },
+              { kr: '의', en: 'Medical devices', note: 'MFDS device licences', accent: 'border-slate-400/40 hover:border-slate-500', chip: 'text-slate-600 bg-slate-500/10' },
+              { kr: '건', en: 'Health foods', note: 'MFDS functional-food registry', accent: 'border-emerald-600/30 hover:border-emerald-600', chip: 'text-emerald-700 bg-emerald-600/10' },
+              { kr: '외', en: 'Quasi-drugs', note: 'MFDS quasi-drug permits', accent: 'border-[#0D1B2A]/30 hover:border-[#0D1B2A]', chip: 'text-[#0D1B2A] bg-[#0D1B2A]/5' },
+              { kr: '+', en: 'Every other category', note: 'Live NTS business-status check', accent: 'border-dashed border-slate-300 hover:border-[#EA580C]', chip: 'text-[#EA580C] bg-[#EA580C]/5' },
+            ].map(cat => (
+              <ScrollCTA key={cat.en} targetId="sourcing-tool"
+                className={`group flex flex-col justify-between rounded-2xl border-2 bg-white/70 p-5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-900/5 ${cat.accent} ${cat.span ?? ''}`}>
+                <span aria-hidden="true" className={`font-black ${cat.big ? 'text-6xl sm:text-7xl' : 'text-4xl'} leading-none ${cat.chip.split(' ')[0]}`}>{cat.kr}</span>
+                <span className="mt-6 block">
+                  <span className="block text-sm font-black text-[#0D1B2A]">{cat.en}</span>
+                  <span className={`mt-1.5 inline-block rounded-full px-2 py-0.5 text-[10px] font-bold ${cat.chip}`}>{cat.note}</span>
+                  <span className="mt-2 block text-[11px] font-semibold text-slate-400 opacity-0 transition-opacity group-hover:opacity-100">Search this category →</span>
+                </span>
+              </ScrollCTA>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── PROBLEM ─────────────────────────────────────────── */}
       <section className="border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-5xl px-6 py-16">
           <div className="max-w-3xl">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#EA580C]">The sourcing gap</p>
-            <h2 className="mt-3 text-3xl font-black leading-tight text-[#0D1B2A] sm:text-4xl">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#EA580C]">The sourcing gap · <span className="tracking-normal">간극</span></p>
+            <h2 className="font-display mt-3 text-3xl font-black leading-tight text-[#0D1B2A] sm:text-4xl">
               Finding a Korean factory is easy. Knowing who is worth contacting is not.
             </h2>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-500">
@@ -359,11 +396,11 @@ export default async function EnPage({
       </section>
 
       {/* ── SAMPLE REPORTS ─────────────────────────────────── */}
-      <section id="sample-reports" className="scroll-mt-16 border-b border-slate-200 bg-slate-50">
+      <section id="sample-reports" className="scroll-mt-16 border-b border-slate-200 bg-hanji">
         <div className="mx-auto max-w-5xl px-6 py-16">
           <div className="mb-10 max-w-2xl">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#EA580C]">Free sample reports</p>
-            <h2 className="mt-3 text-3xl font-black text-[#0D1B2A]">See the shortlist format before you pay</h2>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#EA580C]">Free sample reports · <span className="tracking-normal">견본</span></p>
+            <h2 className="font-display mt-3 text-3xl font-black text-[#0D1B2A]">See the shortlist format before you pay</h2>
             <p className="mt-3 text-sm leading-7 text-slate-500">
               Choose a K-Beauty category and request the report structure used to compare supplier candidates, evidence, unresolved risks, and RFQ questions.
             </p>
@@ -376,8 +413,8 @@ export default async function EnPage({
       <section id="sourcing-tool" className="scroll-mt-16 bg-slate-50 border-b border-slate-100">
         <div className="max-w-4xl mx-auto px-6 py-16">
           <div className="mb-10 text-center">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#EA580C] mb-3">Build your first shortlist</p>
-            <h2 className="text-3xl font-black text-[#0D1B2A] mb-2">Get my Korean supplier shortlist</h2>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#EA580C] mb-3">Build your first shortlist · <span className="tracking-normal">검색</span></p>
+            <h2 className="font-display text-3xl font-black text-[#0D1B2A] mb-2">Get my Korean supplier shortlist</h2>
             <p className="text-sm text-slate-500 max-w-lg mx-auto">
               Describe the product you want to source from Korea. Review supplier candidates with source links, company and certification signals, MOQ context, and an English RFQ draft.
             </p>
@@ -390,8 +427,8 @@ export default async function EnPage({
       <section className="bg-white border-b border-slate-100">
         <div className="max-w-5xl mx-auto px-6 py-16">
           <div className="mb-10 text-center">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#EA580C] mb-3">How it works</p>
-            <h2 className="text-3xl font-black text-[#0D1B2A] mb-3">From product idea to a usable Korean supplier shortlist</h2>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#EA580C] mb-3">How it works · <span className="tracking-normal">절차</span></p>
+            <h2 className="font-display text-3xl font-black text-[#0D1B2A] mb-3">From product idea to a usable Korean supplier shortlist</h2>
             <p className="text-sm text-slate-500 max-w-xl mx-auto">
               The output is a first-pass research shortcut, not a supplier guarantee, audit, or sourcing-agent service.
             </p>
@@ -414,8 +451,8 @@ export default async function EnPage({
         <PricingViewTracker />
         <div className="max-w-5xl mx-auto px-6 py-16">
           <div className="mb-10 text-center">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#EA580C] mb-3">Pricing</p>
-            <h2 className="text-3xl font-black text-[#0D1B2A] mb-3">Start with evidence. Upgrade for an active sourcing project.</h2>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#EA580C] mb-3">Pricing · <span className="tracking-normal">요금</span></p>
+            <h2 className="font-display text-3xl font-black text-[#0D1B2A] mb-3">Start with evidence. Upgrade for an active sourcing project.</h2>
             <p className="text-sm text-slate-500 max-w-xl mx-auto">
               Start with a free sample report. Paid plans support repeated Korean supplier research for active sourcing projects.
             </p>
@@ -477,11 +514,11 @@ export default async function EnPage({
       </section>
 
       {/* ── FAQ ────────────────────────────────────────────── */}
-      <section className="bg-slate-50 border-b border-slate-100">
+      <section className="bg-hanji border-b border-slate-100">
         <div className="max-w-3xl mx-auto px-6 py-16">
           <div className="mb-10 text-center">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#EA580C] mb-3">FAQ</p>
-            <h2 className="text-3xl font-black text-[#0D1B2A]">Frequently asked questions</h2>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#EA580C] mb-3">FAQ · <span className="tracking-normal">문답</span></p>
+            <h2 className="font-display text-3xl font-black text-[#0D1B2A]">Frequently asked questions</h2>
           </div>
           <div className="space-y-3">
             {FAQ.map(item => (
@@ -499,10 +536,15 @@ export default async function EnPage({
       <footer className="bg-[#0A1520] border-t border-white/5">
         <div className="max-w-5xl mx-auto px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <BrandLogo compact />
-          <p className="text-xs text-slate-600 text-center">
-            GloSource AI is a sourcing research tool, not a trade agent. Contact:{' '}
-            <a href="mailto:hello@glosourceai.com" className="underline hover:text-slate-400">hello@glosourceai.com</a>
-          </p>
+          <div className="text-center">
+            <p className="text-xs text-slate-600">
+              GloSource AI is a sourcing research tool, not a trade agent. Contact:{' '}
+              <a href="mailto:hello@glosourceai.com" className="underline hover:text-slate-400">hello@glosourceai.com</a>
+            </p>
+            <p className="mt-1.5 text-[11px] text-slate-700">
+              Built in Korea on Korean government open data · <span className="text-slate-500">대한민국 정부 공공데이터 기반</span>
+            </p>
+          </div>
           <div className="flex items-center gap-4 text-xs text-slate-600">
             <Link href="/en/about" className="hover:text-slate-400 transition-colors">About</Link>
             <Link href="/en/case-studies" className="hover:text-slate-400 transition-colors">Examples</Link>

@@ -58,7 +58,17 @@ const copy = {
    labeled as such; emerald is reserved for government evidence across the site. */
 function EnVerificationMockPanel() {
   return (
-    <div className="gs-fade-up gs-delay-3 rounded-2xl border border-white/10 bg-[#060F1A] shadow-2xl shadow-black/50 overflow-hidden">
+    <div className="relative flex items-stretch gap-4">
+      {/* Vertical Hangul caption — traditional editorial accent */}
+      <p aria-hidden="true" className="gs-vertical-kr hidden xl:block self-center text-[11px] font-bold text-slate-500/80 shrink-0">
+        대한민국 정부 데이터 기반 검증
+      </p>
+
+      <div className="gs-fade-up gs-delay-3 relative flex-1 rounded-2xl border border-white/10 bg-[#060F1A] shadow-2xl shadow-black/50 overflow-hidden">
+      {/* Dojang seal — stamps after the registry checks complete */}
+      <span aria-hidden="true" className="gs-seal gs-seal-stamp absolute top-[178px] right-4 z-10 h-14 w-14 text-[15px] bg-[#060F1A]/40 backdrop-blur-[1px]">
+        검증<br />완료
+      </span>
       {/* title bar */}
       <div className="flex items-center gap-2 border-b border-white/10 bg-white/5 px-4 py-2.5">
         <span className="w-2.5 h-2.5 rounded-full bg-red-500/70" />
@@ -139,6 +149,7 @@ function EnVerificationMockPanel() {
         </div>
 
         <p className="text-[9px] text-slate-500">Sample output. Registry matches are evidence to verify, not a guarantee.</p>
+      </div>
       </div>
     </div>
   );
@@ -264,9 +275,9 @@ export default function HeroSection({ lang = 'ko' }: HeroSectionProps) {
               {c.badge}
             </div>
 
-            <h1 className="gs-fade-up gs-delay-1 mb-5 text-[2.6rem] font-black leading-[0.96] tracking-tight text-white sm:text-5xl md:text-6xl">
+            <h1 className={`gs-fade-up gs-delay-1 mb-5 text-[2.6rem] leading-[1.02] tracking-tight text-white sm:text-5xl md:text-6xl ${lang === 'en' ? 'font-display font-black' : 'font-black leading-[0.96]'}`}>
               {c.h1}<br />
-              <span className="mt-2 inline-block rounded-lg bg-[#EA580C] px-3 py-1 text-[0.68em] text-white shadow-2xl shadow-orange-950/40">
+              <span className={`mt-3 inline-block rounded-lg bg-[#EA580C] px-3 py-1 text-[0.62em] text-white shadow-2xl shadow-orange-950/40 ${lang === 'en' ? 'font-sans font-black tracking-normal' : ''}`}>
                 {c.h1sub}
               </span>
             </h1>
