@@ -5,6 +5,7 @@ import JsonLdGloSource from '@/app/components/JsonLdGloSource';
 import KSourceWrapper from './KSourceWrapper';
 import ScrollCTA from './ScrollCTA';
 import YetGlyph from './YetHangul';
+import { GiwaEaves, SaekdongBand, DancheongBand, SumaksaeRosette } from './KoreanOrnaments';
 import PolarCheckoutButton from './PolarCheckoutButton';
 import Link from 'next/link';
 import { auth } from '@/auth';
@@ -250,6 +251,7 @@ export default async function EnPage({
 
   return (
     <div className="min-h-screen bg-white overflow-x-hidden">
+      <SaekdongBand />
       <JsonLdGloSource />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD_ORGANIZATION) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD_FAQ) }} />
@@ -300,11 +302,11 @@ export default async function EnPage({
           <YetGlyph char="geom" className="h-52 w-52" />
           <YetGlyph char="jeung" className="h-52 w-52" />
         </div>
-        <div className="relative mx-auto max-w-5xl px-6 py-16">
+        <div className="relative mx-auto max-w-5xl px-6 py-20">
           <div className="max-w-3xl">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-400">Evidence, not promises · <span className="font-krold tracking-normal">증거</span></p>
             <h2 className="font-display mt-3 text-3xl font-black leading-tight sm:text-4xl">
-              Every Korean candidate is cross-checked against official government registries.
+              Every Korean candidate is <em className="text-emerald-300">cross-checked</em> against official government registries.
             </h2>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-400">
               When a candidate&apos;s registered Korean company name matches official records, the evidence is pinned to its card — so you start due diligence from government data, not marketing claims.
@@ -341,7 +343,9 @@ export default async function EnPage({
 
       {/* ── CATEGORIES — jogakbo patchwork grid ────────────── */}
       <section className="bg-hanji border-b border-slate-200">
-        <div className="mx-auto max-w-5xl px-6 py-16">
+        {/* 기와 처마 — the registry section's dark roof overhangs the hanji courtyard */}
+        <div className="text-[#0A1520]"><GiwaEaves className="h-7" /></div>
+        <div className="mx-auto max-w-5xl px-6 py-20">
           <div className="max-w-3xl">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-[#EA580C]">What Korea makes best · <span className="font-krold tracking-normal">한국의 제조</span></p>
             <h2 className="font-display mt-3 text-3xl font-black leading-tight text-[#0D1B2A] sm:text-4xl">
@@ -391,7 +395,7 @@ export default async function EnPage({
 
       {/* ── PROBLEM ─────────────────────────────────────────── */}
       <section className="border-b border-slate-200 bg-white">
-        <div className="mx-auto max-w-5xl px-6 py-16">
+        <div className="mx-auto max-w-5xl px-6 py-20">
           <div className="max-w-3xl">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-[#EA580C]">The sourcing gap · <span className="font-krold tracking-normal">간극</span></p>
             <h2 className="font-display mt-3 text-3xl font-black leading-tight text-[#0D1B2A] sm:text-4xl">
@@ -415,7 +419,7 @@ export default async function EnPage({
 
       {/* ── SAMPLE REPORTS ─────────────────────────────────── */}
       <section id="sample-reports" className="scroll-mt-16 border-b border-slate-200 bg-hanji">
-        <div className="mx-auto max-w-5xl px-6 py-16">
+        <div className="mx-auto max-w-5xl px-6 py-20">
           <div className="mb-10 max-w-2xl">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-[#EA580C]">Free sample reports · <span className="font-krold tracking-normal">견본</span></p>
             <h2 className="font-display mt-3 text-3xl font-black text-[#0D1B2A]">See the shortlist format before you pay</h2>
@@ -429,7 +433,7 @@ export default async function EnPage({
 
       {/* ── SOURCING TOOL ──────────────────────────────────── */}
       <section id="sourcing-tool" className="scroll-mt-16 bg-slate-50 border-b border-slate-100">
-        <div className="max-w-4xl mx-auto px-6 py-16">
+        <div className="max-w-4xl mx-auto px-6 py-20">
           <div className="mb-10 text-center">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-[#EA580C] mb-3">Build your first shortlist · <span className="font-krold tracking-normal">검색</span></p>
             <h2 className="font-display text-3xl font-black text-[#0D1B2A] mb-2">Get my Korean supplier shortlist</h2>
@@ -443,7 +447,7 @@ export default async function EnPage({
 
       {/* ── HOW IT WORKS ───────────────────────────────────── */}
       <section className="bg-white border-b border-slate-100">
-        <div className="max-w-5xl mx-auto px-6 py-16">
+        <div className="max-w-5xl mx-auto px-6 py-20">
           <div className="mb-10 text-center">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-[#EA580C] mb-3">How it works · <span className="font-krold tracking-normal">절차</span></p>
             <h2 className="font-display text-3xl font-black text-[#0D1B2A] mb-3">From product idea to a usable Korean supplier shortlist</h2>
@@ -453,9 +457,10 @@ export default async function EnPage({
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {STEPS.map(item => (
-              <article key={item.number} className="border-t-2 border-[#0D1B2A] pt-5">
-                <p className="text-4xl font-black text-orange-100">{item.number}</p>
-                <h3 className="mt-3 font-black text-[#0D1B2A]">{item.title}</h3>
+              <article key={item.number} className="border-t-2 border-[#0D1B2A] pt-6">
+                {/* 연꽃 수막새 medallion carries the step number */}
+                <SumaksaeRosette label={item.number} className="h-14 w-14 text-[#EA580C]" />
+                <h3 className="mt-4 font-black text-[#0D1B2A]">{item.title}</h3>
                 <p className="mt-2 text-sm leading-6 text-slate-500">{item.desc}</p>
               </article>
             ))}
@@ -465,9 +470,10 @@ export default async function EnPage({
 
 
       {/* ── PRICING ────────────────────────────────────────── */}
+      <DancheongBand />
       <section id="pricing" className="scroll-mt-16 bg-white border-b border-slate-200">
         <PricingViewTracker />
-        <div className="max-w-5xl mx-auto px-6 py-16">
+        <div className="max-w-5xl mx-auto px-6 py-20">
           <div className="mb-10 text-center">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-[#EA580C] mb-3">Pricing · <span className="font-krold tracking-normal">요금</span></p>
             <h2 className="font-display text-3xl font-black text-[#0D1B2A] mb-3">Start with evidence. Upgrade for an active sourcing project.</h2>
@@ -533,7 +539,7 @@ export default async function EnPage({
 
       {/* ── FAQ ────────────────────────────────────────────── */}
       <section className="bg-hanji border-b border-slate-100">
-        <div className="max-w-3xl mx-auto px-6 py-16">
+        <div className="max-w-3xl mx-auto px-6 py-20">
           <div className="mb-10 text-center">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-[#EA580C] mb-3">FAQ · <span className="font-krold tracking-normal">문답</span></p>
             <h2 className="font-display text-3xl font-black text-[#0D1B2A]">Frequently asked questions</h2>
