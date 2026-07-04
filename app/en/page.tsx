@@ -358,12 +358,19 @@ export default async function EnPage({
               { glyph: 'pae', en: 'K-Fashion', note: 'Curated verified makers', accent: 'border-blue-700/25 hover:border-blue-700', chip: 'text-blue-800 bg-blue-700/5' },
               { glyph: 'ui', en: 'Medical devices', note: 'MFDS device licences', accent: 'border-slate-400/40 hover:border-slate-500', chip: 'text-slate-600 bg-slate-500/10' },
               { glyph: 'geon', en: 'Health foods', note: 'MFDS functional-food registry', accent: 'border-emerald-600/30 hover:border-emerald-600', chip: 'text-emerald-700 bg-emerald-600/10' },
-              { glyph: 'yak', en: 'Quasi-drugs', note: 'MFDS quasi-drug permits', accent: 'border-[#0D1B2A]/30 hover:border-[#0D1B2A]', chip: 'text-[#0D1B2A] bg-[#0D1B2A]/5' },
+              { glyph: 'uiyakoepum', en: 'Quasi-drugs (의약외품)', note: 'MFDS quasi-drug permits', accent: 'border-[#0D1B2A]/30 hover:border-[#0D1B2A]', chip: 'text-[#0D1B2A] bg-[#0D1B2A]/5' },
               { glyph: null, en: 'Every other category', note: 'Live NTS business-status check', accent: 'border-dashed border-slate-300 hover:border-[#EA580C]', chip: 'text-[#EA580C] bg-[#EA580C]/5' },
             ].map(cat => (
               <ScrollCTA key={cat.en} targetId="sourcing-tool"
                 className={`group flex flex-col justify-between rounded-2xl border-2 bg-white/70 p-5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-900/5 ${cat.accent} ${cat.span ?? ''}`}>
-                {cat.glyph ? (
+                {cat.glyph === 'uiyakoepum' ? (
+                  <span aria-hidden="true" className={`grid w-fit grid-cols-2 gap-1 ${cat.chip.split(' ')[0]}`}>
+                    <YetGlyph char="ui" className="h-7 w-7" />
+                    <YetGlyph char="yak" className="h-7 w-7" />
+                    <YetGlyph char="oe" className="h-7 w-7" />
+                    <YetGlyph char="pum" className="h-7 w-7" />
+                  </span>
+                ) : cat.glyph ? (
                   <YetGlyph char={cat.glyph as 'hwa'} className={`${cat.big ? 'h-24 w-24 sm:h-28 sm:w-28' : 'h-14 w-14'} ${cat.chip.split(' ')[0]}`} />
                 ) : (
                   <span aria-hidden="true" className={`text-4xl font-black leading-none ${cat.chip.split(' ')[0]}`}>+</span>
@@ -377,7 +384,7 @@ export default async function EnPage({
             ))}
           </div>
           <p className="mt-4 text-[11px] text-slate-400">
-            Tile marks are drawn in the letterforms of the 1446 Hunminjeongeum Haerye edition — 화 cosmetics · 식 food · 패 fashion · 의 medical · 건 health · 약 quasi-drugs.
+            Tile marks are drawn in the letterforms of the 1446 Hunminjeongeum Haerye edition — 화 cosmetics · 식 food · 패 fashion · 의 medical · 건 health · 의약외품 quasi-drugs.
           </p>
         </div>
       </section>

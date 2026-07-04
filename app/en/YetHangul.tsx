@@ -7,7 +7,7 @@
  */
 
 interface GlyphProps {
-  char: 'hwa' | 'sik' | 'pae' | 'ui' | 'geon' | 'yak' | 'geom' | 'jeung';
+  char: 'hwa' | 'sik' | 'pae' | 'ui' | 'geon' | 'yak' | 'oe' | 'pum' | 'geom' | 'jeung';
   className?: string;
 }
 
@@ -83,6 +83,29 @@ const Yak = (
   </>
 );
 
+/* 외(外) — ㅇ + ㅗ(dot above bar) + ㅣ */
+const Oe = (
+  <>
+    <circle cx={30} cy={26} r={14} />
+    <Dot cx={30} cy={54} />
+    <path d="M8 68 H52" />
+    <path d="M78 8 V88" />
+  </>
+);
+
+/* 품(品) — ㅍ + ㅜ(dot below bar) + ㅁ */
+const Pum = (
+  <>
+    <path d="M26 10 H70" />
+    <path d="M26 32 H70" />
+    <path d="M38 10 V32" />
+    <path d="M58 10 V32" />
+    <path d="M14 48 H82" />
+    <Dot cx={48} cy={60} />
+    <rect x={28} y={70} width={40} height={22} />
+  </>
+);
+
 /* 검(檢) — ㄱ + ㅓ + ㅁ */
 const Geom = (
   <>
@@ -105,7 +128,7 @@ const Jeung = (
 );
 
 const GLYPHS: Record<GlyphProps['char'], React.ReactNode> = {
-  hwa: Hwa, sik: Sik, pae: Pae, ui: Ui, geon: Geon, yak: Yak, geom: Geom, jeung: Jeung,
+  hwa: Hwa, sik: Sik, pae: Pae, ui: Ui, geon: Geon, yak: Yak, oe: Oe, pum: Pum, geom: Geom, jeung: Jeung,
 };
 
 export default function YetGlyph({ char, className }: GlyphProps) {
