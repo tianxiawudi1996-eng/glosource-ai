@@ -261,7 +261,7 @@ export default async function EnPage({
         <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between gap-4">
           <BrandLogo compact />
           <div className="flex items-center gap-3">
-            <Link href="/en/assistant" className="text-xs font-bold text-orange-300 hover:text-orange-200 transition-colors">AI Assistant</Link>
+            <Link href="/en/assistant" className="hidden sm:block text-xs font-bold text-orange-300 hover:text-orange-200 transition-colors">AI Assistant</Link>
             <a href="#sample-reports" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden sm:block">Sample report</a>
             <a href="#pricing" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors">Pricing</a>
             <Link href="/en/blog" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden sm:block">Blog</Link>
@@ -278,15 +278,15 @@ export default async function EnPage({
               </>
             ) : (
               <>
-                <Link href="/en/login" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors">
+                <Link href="/en/login" className="whitespace-nowrap text-xs font-semibold text-slate-300 hover:text-white transition-colors">
                   Sign in
                 </Link>
-                <Link href="/en/register" className="text-xs font-bold border border-white/30 text-white px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors">
+                <Link href="/en/register" className="whitespace-nowrap text-xs font-bold border border-white/30 text-white px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors">
                   Sign up free
                 </Link>
               </>
             )}
-            <ScrollCTA targetId="sourcing-tool" className="text-xs font-bold bg-[#EA580C] text-white px-4 py-2 rounded-lg hover:bg-[#DC4C00] transition-colors">
+            <ScrollCTA targetId="sourcing-tool" className="whitespace-nowrap text-xs font-bold bg-[#EA580C] text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-[#DC4C00] transition-colors">
               Get my shortlist →
             </ScrollCTA>
           </div>
