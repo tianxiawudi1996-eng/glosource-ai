@@ -12,6 +12,7 @@ fs.readFileSync(envPath, 'utf8').split('\n').forEach(line => {
 const API_KEY = process.env.BUFFER_API_KEY;
 const LINKEDIN_ID = process.env.BUFFER_CHANNEL_LINKEDIN;
 const DRY_RUN = process.argv.includes('--dry-run');
+const postIndexArg = process.argv.find(arg => arg.startsWith('--post-index='));
 const TODAY = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul' }).format(new Date());
 const RUN_TAG = `\n\nGloSource AI sourcing note ${TODAY}.`;
 
@@ -20,14 +21,14 @@ function withRunTag(text) {
 }
 
 const POSTS = [
-  `Most buyers search "Korean cosmetics supplier" and stop at the first marketplace listing.
+  `Many buyers search "Korean supplier" and stop at the first marketplace listing.
 
 That is risky.
 
-For K-beauty OEM, I would check at least three signals before sending an RFQ:
+Before sending an RFQ, I would check at least three signals:
 
-1. Does the supplier clearly mention OEM or ODM?
-2. Do they show MFDS, GMP, ISO, or export documentation signals?
+1. Does the company appear to manufacture, export, or simply resell the product?
+2. Do they show relevant certification or export-document evidence?
 3. Are they visible across EC21, BuyKorea/KOTRA, tradeKorea, or a real company website?
 
 GloSource AI helps buyers do this first-pass research faster.
@@ -35,9 +36,9 @@ GloSource AI helps buyers do this first-pass research faster.
 It is not a supplier audit. It is a shortlist and RFQ preparation tool for buyers sourcing from Korea.
 
 Try 5 free searches:
-https://glosource-ai.vercel.app/en
+https://glosourceai.com/en?utm_source=linkedin&utm_medium=organic&utm_campaign=2026-07-korean-supplier-intelligence&utm_content=linkedin-01
 
-#KBeauty #Sourcing #KoreanSuppliers`,
+#Procurement #Sourcing #KoreanSuppliers`,
 
   `Korean supplier research usually starts with too many tabs:
 
@@ -54,14 +55,14 @@ The hard part is comparing the signals quickly enough to decide who deserves you
 GloSource AI searches Korean supplier sources and prepares:
 
 - supplier candidates
-- AI-detected trust signals
-- certification mentions such as MFDS, HACCP, KC
+- public company and manufacturer-vs-trader signals
+- certification evidence to verify for the relevant product category
 - an English RFQ draft
 
 Buyers still need to verify suppliers directly before ordering.
 
 Free search:
-https://glosource-ai.vercel.app/en
+https://glosourceai.com/en?utm_source=linkedin&utm_medium=organic&utm_campaign=2026-07-korean-supplier-intelligence&utm_content=linkedin-02
 
 #B2B #ImportExport #AmazonFBA`,
 
@@ -83,10 +84,19 @@ The goal is simple:
 less tab-switching, better first outreach.
 
 Try it here:
-https://glosource-ai.vercel.app/en
+https://glosourceai.com/en?utm_source=linkedin&utm_medium=organic&utm_campaign=2026-07-korean-supplier-intelligence&utm_content=linkedin-03
 
 #Procurement #Sourcing #KoreanManufacturing`,
 ];
+const requestedPostIndex = postIndexArg ? Number(postIndexArg.split('=')[1]) : null;
+const SELECTED_POSTS = requestedPostIndex
+  ? POSTS.slice(requestedPostIndex - 1, requestedPostIndex)
+  : POSTS;
+
+if (requestedPostIndex && SELECTED_POSTS.length === 0) {
+  console.error(`Invalid --post-index=${requestedPostIndex}. Choose 1-${POSTS.length}.`);
+  process.exit(1);
+}
 
 const GQL = 'https://api.buffer.com';
 
@@ -141,23 +151,23 @@ async function main() {
   }
 
   console.log(DRY_RUN
-    ? `\n--- DRY RUN - ${POSTS.length} LinkedIn posts ---\n`
-    : `\n--- LIVE - posting ${POSTS.length} LinkedIn posts via Buffer ---\n`);
+    ? `\n--- DRY RUN - ${SELECTED_POSTS.length} LinkedIn posts ---\n`
+    : `\n--- LIVE - posting ${SELECTED_POSTS.length} LinkedIn posts via Buffer ---\n`);
 
   let failures = 0;
   const results = [];
-  for (let i = 0; i < POSTS.length; i += 1) {
+  for (let i = 0; i < SELECTED_POSTS.length; i += 1) {
     try {
-      const text = withRunTag(POSTS[i]);
+      const text = withRunTag(SELECTED_POSTS[i]);
       if (DRY_RUN) {
-        console.log(`\n[DRY RUN] LinkedIn post ${i + 1}/${POSTS.length}\n${text}\n`);
+        console.log(`\n[DRY RUN] LinkedIn post ${i + 1}/${SELECTED_POSTS.length}\n${text}\n`);
         results.push({ index: i + 1, dryRun: true, status: 'previewed', text });
         continue;
       }
       const result = await postLinkedIn(text);
       results.push({ index: i + 1, ok: true, text, post: result.post });
-      console.log(`Post ${i + 1}/${POSTS.length}:`, JSON.stringify(result));
-      if (i < POSTS.length - 1) await sleep(3000);
+      console.log(`Post ${i + 1}/${SELECTED_POSTS.length}:`, JSON.stringify(result));
+      if (i < SELECTED_POSTS.length - 1) await sleep(3000);
     } catch (err) {
       failures += 1;
       results.push({ index: i + 1, ok: false, error: err.message });
@@ -170,7 +180,7 @@ async function main() {
       channel: 'linkedin',
       status: failures > 0 ? 'partial_or_failed' : 'pass',
       mode: 'shareNow',
-      total: POSTS.length,
+      total: SELECTED_POSTS.length,
       failures,
       results,
     });

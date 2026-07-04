@@ -1,5 +1,7 @@
 [
   {
+    "isExample": true,
+    "isExample": true,
     "company": "Example Indie Skincare Brand (US)",
     "category": "indie beauty brand exploring Korean OEM/ODM",
     "country": "US",
@@ -16,6 +18,8 @@
     "isSourcingOperatorOrExporter": false
   },
   {
+    "isExample": true,
+    "isExample": true,
     "company": "Example Amazon FBA Beauty Seller (UK)",
     "category": "FBA seller testing Korean skincare line",
     "country": "UK",
@@ -32,6 +36,8 @@
     "isSourcingOperatorOrExporter": false
   },
   {
+    "isExample": true,
+    "isExample": true,
     "company": "Example Established K-Beauty Distributor (BLIFE-type)",
     "category": "established distributor with direct Korea supply",
     "country": "US",

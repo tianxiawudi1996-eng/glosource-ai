@@ -27,43 +27,44 @@ const GEMINI_API_KEY   = process.env.GEMINI_API_KEY;
 const GITHUB_TOKEN     = process.env.GITHUB_TOKEN;
 const GITHUB_OWNER     = process.env.GITHUB_OWNER;
 const GITHUB_REPO      = process.env.GITHUB_REPO || 'glosource-assets';
-const FALLBACK_IMAGE_URL = process.env.INSTAGRAM_IMAGE_URL || 'https://glosource-ai.vercel.app/images/glosource-logo-transparent.png';
+const FALLBACK_IMAGE_URL = process.env.INSTAGRAM_IMAGE_URL || 'https://glosourceai.com/images/glosource-logo-transparent.png';
 const DRY_RUN          = process.argv.includes('--dry-run');
 
 // ── Post content (text + image prompt pairs) ──────────────────────────────
 const POSTS = [
   {
-    caption: `🇰🇷 Source Korean suppliers in 90 seconds
+    caption: `🇰🇷 Build a focused Korean supplier shortlist
 
-GloSource AI searches EC21 · BuyKorea (KOTRA) · tradeKorea simultaneously — AI trust scores, cert signals (MFDS, HACCP, KC), and a ready-to-send English RFQ.
+GloSource AI helps international buyers research Korean manufacturers and exporters using public source links, company signals, MOQ context, and an English RFQ draft.
 
-5 free searches → glosource-ai.vercel.app/en
+Try 5 searches free → glosourceai.com/en?utm_source=instagram&utm_medium=organic&utm_campaign=2026-07-korean-supplier-intelligence&utm_content=instagram-01
 
-#KBeauty #Sourcing #B2B #AmazonFBA #KoreanSuppliers #ImportExport`,
-    imagePrompt: `Professional Instagram square image for a Korean B2B sourcing AI platform called GloSource AI. Dark navy background (#0D1B2A), orange accent color (#EA580C). Show floating product cards with Korean supplier names, trust score badges (0-100), certification badges (MFDS, HACCP, KC), and a glowing search bar. Minimalist tech startup aesthetic. No text overlay needed. High-end commercial photography style. 1:1 square ratio.`,
+#Sourcing #B2B #KoreanSuppliers #ImportExport`,
+    imagePrompt: `Professional Instagram square image for a Korean B2B sourcing research platform called GloSource AI. Dark navy background (#0D1B2A), orange accent color (#EA580C). Show floating supplier research cards, public source links, evidence badges, MOQ notes, and a glowing search bar. Minimalist tech startup aesthetic. No text overlay. High-end commercial design. 1:1 square ratio.`,
   },
   {
-    caption: `Stop spending hours on Korean supplier research 🔍
+    caption: `Stop spending hours on first-pass Korean supplier research 🔍
 
-✅ EC21 · BuyKorea · tradeKorea searched at once
-✅ AI trust score 0–100 per supplier
-✅ MFDS / HACCP / KC cert detection
-✅ English RFQ auto-generated in 90 seconds
+Review candidates surfaced from Korean export channels and public sources:
+✅ Manufacturer vs. trader signals
+✅ Public certification evidence to verify
+✅ MOQ context and source links
+✅ Reviewable English RFQ draft
 
-Free: glosource-ai.vercel.app/en
+Free: glosourceai.com/en?utm_source=instagram&utm_medium=organic&utm_campaign=2026-07-korean-supplier-intelligence&utm_content=instagram-02
 
-#Sourcing #KBeauty #FBA #B2BSourcing #Korea #Wholesale`,
-    imagePrompt: `Clean infographic-style Instagram image for a Korean supplier sourcing tool. Dark background with orange and white UI elements. Show a workflow: Korean flag → AI processing animation → English RFQ document with checkmarks. Modern flat design with subtle grid lines. Include certification badge icons (MFDS, HACCP, KC) floating around. Tech startup feel. 1:1 square composition. No text overlay.`,
+#Sourcing #B2BSourcing #Korea #Wholesale #Procurement`,
+    imagePrompt: `Clean infographic-style Instagram image for a Korean supplier research tool. Dark background with orange and white UI elements. Show a workflow: product brief, Korean supplier research cards with source links, evidence review, then an English RFQ document. Modern flat design with subtle grid lines. Professional B2B technology aesthetic. 1:1 square composition. No text overlay.`,
   },
   {
-    caption: `Korean manufacturer research in 90 seconds 🏭🇰🇷
+    caption: `Research Korean manufacturers with better questions 🏭🇰🇷
 
-GloSource AI ranks Korean suppliers by real trust signals — not just listing position — and writes your outreach email automatically.
+GloSource AI helps you compare public company signals and prepare supplier outreach. It is a research shortcut—not a supplier audit.
 
 Link in bio for 5 free searches.
 
-#KoreanManufacturers #OEM #KBeauty #ImportBusiness #Sourcing #B2B #SmallBusiness`,
-    imagePrompt: `Stylized photo-realistic Instagram square image: Korean factory building exterior with modern design, Korean flag subtly visible, overlaid with holographic data visualizations showing supplier trust scores and certification badges. Dark tech aesthetic with orange glow effects. High-end commercial photography blended with UI elements. Professional sourcing platform branding feel. 1:1 ratio.`,
+#KoreanManufacturers #ImportBusiness #Sourcing #B2B #SmallBusiness`,
+    imagePrompt: `Stylized photo-realistic Instagram square image: Korean factory building exterior with modern design, Korean flag subtly visible, overlaid with supplier research cards showing source evidence and certification documents to verify. Dark tech aesthetic with orange glow effects. High-end commercial photography blended with UI elements. Professional sourcing platform branding. 1:1 ratio.`,
   },
 ];
 

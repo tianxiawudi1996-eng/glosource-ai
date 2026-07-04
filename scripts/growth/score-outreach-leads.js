@@ -36,7 +36,9 @@ function scoreLead(lead) {
   return { score, fitTier, poorFit, notes: notes.join('; ') };
 }
 
+const exampleLeads = leads.filter(lead => lead.isExample || /(^|\.)example[-.]/i.test(lead.url || '') || /^Example\b/i.test(lead.company || ''));
 const rows = leads
+  .filter(lead => !exampleLeads.includes(lead))
   .map(lead => ({ ...lead, ...scoreLead(lead) }))
   // Poor-fit always sinks to the bottom regardless of raw points; then by score desc.
   .sort((a, b) => (a.poorFit - b.poorFit) || (b.score - a.score));
@@ -57,7 +59,9 @@ const reportPath = writeJsonReport('outreach-leads', {
   topScore: rows[0]?.score ?? 0,
   tierCounts,
   poorFitExcluded: rows.filter(r => r.poorFit).map(r => r.company),
+  exampleLeadsExcluded: exampleLeads.map(lead => lead.company),
 });
 
 console.log(`Scored ${rows.length} lead(s). Tiers: ${JSON.stringify(tierCounts)}. Report: ${reportPath}`);
+if (exampleLeads.length) console.log(`Excluded ${exampleLeads.length} example lead(s) from production scoring.`);
 for (const row of rows) console.log(`  [${row.fitTier}] ${row.score} ${row.company}`);
