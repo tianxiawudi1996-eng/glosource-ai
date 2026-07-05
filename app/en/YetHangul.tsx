@@ -17,16 +17,19 @@ function Dot({ cx, cy }: { cx: number; cy: number }) {
   return <circle cx={cx} cy={cy} r={7.5} fill="currentColor" stroke="none" />;
 }
 
-/* 화(化) — ㅎ + ㅗ(dot above bar) + ㅏ(bar with right dot) */
+/* 화(化) — ㅎ over ㅗ (호), with ㅏ pulled close on the right = 화 */
 const Hwa = (
   <>
-    <path d="M23 9 H41" />
-    <path d="M14 21 H50" />
-    <circle cx={32} cy={37} r={12} />
-    <Dot cx={32} cy={57} />
-    <path d="M10 71 H54" />
-    <path d="M74 8 V88" />
-    <Dot cx={88} cy={48} />
+    {/* ㅎ — top tick, bar, ring (compact) */}
+    <path d="M25 8 H43" />
+    <path d="M16 20 H52" />
+    <circle cx={34} cy={35} r={11} />
+    {/* ㅗ — dot + bar directly under ㅎ */}
+    <Dot cx={34} cy={54} />
+    <path d="M14 68 H54" />
+    {/* ㅏ — tall stem close to the block, round dot */}
+    <path d="M70 8 V88" />
+    <Dot cx={84} cy={46} />
   </>
 );
 

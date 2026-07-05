@@ -366,20 +366,24 @@ export default async function EnPage({
               { glyph: null, en: 'Every other category', note: 'Live NTS business-status check', accent: 'border-dashed border-slate-300 hover:border-[#EA580C]', chip: 'text-[#EA580C] bg-[#EA580C]/5' },
             ].map(cat => (
               <ScrollCTA key={cat.en} targetId="sourcing-tool"
-                className={`group flex flex-col justify-between rounded-2xl border-2 bg-white/70 p-5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-900/5 ${cat.accent} ${cat.span ?? ''}`}>
+                className={`group relative overflow-hidden flex flex-col justify-between rounded-2xl border-2 bg-white/70 p-5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-900/5 ${cat.accent} ${cat.span ?? ''}`}>
+                {/* faint oversized glyph fills the tile like a paper watermark */}
+                {cat.glyph && cat.glyph !== 'uiyakoepum' && (
+                  <YetGlyph char={cat.glyph as 'hwa'} className={`pointer-events-none absolute -bottom-8 -right-6 ${cat.big ? 'h-64 w-64' : 'h-32 w-32'} opacity-[0.05] ${cat.chip.split(' ')[0]}`} />
+                )}
                 {cat.glyph === 'uiyakoepum' ? (
-                  <span aria-hidden="true" className={`grid w-fit grid-cols-2 gap-1 ${cat.chip.split(' ')[0]}`}>
+                  <span aria-hidden="true" className={`relative z-10 grid w-fit grid-cols-2 gap-1 ${cat.chip.split(' ')[0]}`}>
                     <YetGlyph char="ui" className="h-7 w-7" />
                     <YetGlyph char="yak" className="h-7 w-7" />
                     <YetGlyph char="oe" className="h-7 w-7" />
                     <YetGlyph char="pum" className="h-7 w-7" />
                   </span>
                 ) : cat.glyph ? (
-                  <YetGlyph char={cat.glyph as 'hwa'} className={`${cat.big ? 'h-24 w-24 sm:h-28 sm:w-28' : 'h-14 w-14'} ${cat.chip.split(' ')[0]}`} />
+                  <YetGlyph char={cat.glyph as 'hwa'} className={`relative z-10 ${cat.big ? 'h-24 w-24 sm:h-28 sm:w-28' : 'h-14 w-14'} ${cat.chip.split(' ')[0]}`} />
                 ) : (
-                  <span aria-hidden="true" className={`text-4xl font-black leading-none ${cat.chip.split(' ')[0]}`}>+</span>
+                  <span aria-hidden="true" className={`relative z-10 text-4xl font-black leading-none ${cat.chip.split(' ')[0]}`}>+</span>
                 )}
-                <span className="mt-6 block">
+                <span className="relative z-10 mt-6 block">
                   <span className="block text-sm font-black text-[#0D1B2A]">{cat.en}</span>
                   <span className={`mt-1.5 inline-block rounded-full px-2 py-0.5 text-[10px] font-bold ${cat.chip}`}>{cat.note}</span>
                   <span className="mt-2 block text-[11px] font-semibold text-slate-400 opacity-0 transition-opacity group-hover:opacity-100">Search this category →</span>
