@@ -11,10 +11,10 @@ interface GlyphProps {
   className?: string;
 }
 
-const SW = 7; // uniform Haerye stroke
+const SW = 8.5; // uniform Haerye stroke (bolder, brush-like)
 
 function Dot({ cx, cy }: { cx: number; cy: number }) {
-  return <circle cx={cx} cy={cy} r={6.5} fill="currentColor" stroke="none" />;
+  return <circle cx={cx} cy={cy} r={7.5} fill="currentColor" stroke="none" />;
 }
 
 /* 화(化) — ㅎ + ㅗ(dot above bar) + ㅏ(bar with right dot) */
@@ -40,15 +40,18 @@ const Sik = (
   </>
 );
 
-/* ᄑᆡ — ㅍ + ㆎ(아래아 ㆍ + ㅣ): the archaic diphthong of 패 */
+/* 패 — ㅍ + ㅐ(ㅏ with round Haerye dot + ㅣ) */
 const Pae = (
   <>
-    <path d="M12 22 H50" />
-    <path d="M12 58 H50" />
-    <path d="M23 22 V58" />
-    <path d="M39 22 V58" />
-    <Dot cx={64} cy={40} />
-    <path d="M82 10 V72" />
+    {/* ㅍ */}
+    <path d="M8 24 H44" />
+    <path d="M8 56 H44" />
+    <path d="M19 24 V56" />
+    <path d="M33 24 V56" />
+    {/* ㅐ = ㅏ(stem + right dot) + ㅣ */}
+    <path d="M60 8 V80" />
+    <Dot cx={73} cy={44} />
+    <path d="M87 8 V80" />
   </>
 );
 
@@ -62,13 +65,16 @@ const Ui = (
   </>
 );
 
-/* 건(健) — ㄱ + ㅓ(left dot) + ㄴ */
+/* 건(健) — ㄱ + ㅓ(stem + left round dot) + ㄴ */
 const Geon = (
   <>
-    <path d="M14 12 H44 V32" />
-    <Dot cx={56} cy={26} />
-    <path d="M72 8 V48" />
-    <path d="M14 58 V86 H74" />
+    {/* ㄱ */}
+    <path d="M12 12 H40 V30" />
+    {/* ㅓ — tall stem with the round dot clearly to its left */}
+    <path d="M68 6 V50" />
+    <Dot cx={50} cy={28} />
+    {/* ㄴ */}
+    <path d="M12 56 V86 H74" />
   </>
 );
 
