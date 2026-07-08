@@ -4,7 +4,12 @@
 
 ## READY (다음 비게이트 증분)
 
-- GLO-EN-TRUSTANCHOR — 창업자 실명/사진/LinkedIn/사업자등록번호 신뢰앵커(실데이터, 날조 X). 일부 사람 입력 필요 → 확보분만 반영, 나머지 `TODO_USER_INPUT:` 표기.
+- GLO-EN-JSONLD-PRICE — `JsonLdGloSource.tsx` APP_SCHEMA offers가 stale($19/$49). 실제 가격 $39/$99/$249(starter/pro/business)로 정정해 라이브 billing과 일치(리뷰 규칙: 가격은 배포 설정과 일치). GLO-EN-TRUSTANCHOR 작업 중 발견.
+
+## 사람 입력 대기 (확보 시 즉시 반영)
+
+- `TODO_USER_INPUT:` 창업자 LinkedIn URL → `app/lib/founder.ts`의 `FOUNDER.linkedin`에 넣으면 신뢰앵커 카드 + JSON-LD sameAs/founder에 동시 반영.
+- `TODO_USER_INPUT:` 창업자 실사진 → `public/images/`에 추가 후 `FOUNDER.photo` 경로 설정(현재 이니셜 아바타 'JK').
 
 ## BLOCKED (게이트/외부 필요)
 
@@ -26,6 +31,7 @@
 
 ## DONE
 
+- GLO-EN-TRUSTANCHOR @ 7abe07a(chore/harness-cal-0623, 2026-07-09) — **EN 전용** 창업자 신뢰앵커. `app/lib/founder.ts` 단일 소스(John Kim·한국 소재, About 실값) + 순수 헬퍼 단위테스트 3건. `FounderCard.tsx`: 이니셜 아바타(실사진 확보 전)·이름/역할/소재 + 구매자 확인가능 신뢰요소(정부 레지스트리 MFDS/HACCP/의료기기/NTS·Polar 판매자대행·창업자 지원). `/en/about` 'Who built this' 상단 배치. `JsonLdGloSource` Organization에 `founder`(schema.org Person) + sameAs 동일 소스 주입. **사진/LinkedIn=null 유지(날조 X)**, **국내 사업자등록번호 없음(미등록·차장님 지시, 서원토건 번호 사용 금지)**. tsc·lint·test 12/12·build green(/en/about). 병합·배포 게이트, 라이브 360/1440 스모크는 배포 시 권장.
 - GLO-EN-PAYHIST @ 406b411(chore/harness-cal-0623, 2026-07-09, pushed) — `/en/billing` 결제내역 실작동. Polar는 결제 금액을 subscription이 아니라 **`order.*`**(created/paid/updated/refunded)로 보내는데 웹훅이 이를 early-return으로 무시 → 결제해도 내역 0. **수정**: `app/lib/polarOrder.ts`(의존성 없는 순수 매핑+단위테스트 4건: status·`total_amount` 우선 금액·currency, $0/무금액 skip) + 웹훅 `order.*` **멱등 upsert**(주문 id=`payments.polarPaymentId` unique, subscription 있으면 링크, `payment_done` 로깅). subscription 생명주기 그대로(주문 id≠invoice id + 실 subscription 이벤트에 금액 없어 이중기록 없음). tsc·lint·test 9/9·build green, `/api/polar/webhook` 등록. **라이브 확인=게이트**(growth:payments:dummy는 DATABASE_URL, Polar 테스트결제 1회).
 - GLO-HARDEN @ a1e8f62(chore/harness-cal-0623, 2026-07-08, pushed) — 보안·품질 하드닝: chat·image-analyze 라우트를 테스트 가능한 `handler.ts`+auth/rate-limit `wrapper`+얇은 `route.js`로 분리(chat 분당/일 rate-limit 신설), **`xlsx` 제거**(prototype-pollution/ReDoS)→자체 `app/lib/csv.ts`(수식인젝션 방어·BOM·CRLF), `next` 15.3.9→15.5.20, growth 런처 `_post-index`+`*-handler` 분리, `tsx --test` 러너 + `scripts/harness-precommit.sh`. tsc·lint·test·build green.
 - GLO-EN-DBINJECT @ 2026-06-27 — 성공 검색 결과에도 시드 검증 공급사를 **상위 2개 주입**(중복 host 제외, `dbFallbackOutput` 재사용) → 'GloSource Verified' 배지가 매 K-Beauty 검색에 표출. 고MOQ ODM은 notes로 정직 표기(저MOQ 오인 방지). build green.

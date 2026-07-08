@@ -4,6 +4,14 @@
 
 ## Log
 
+Date: 2026-07-09 (2)
+
+- Decision: 신뢰앵커·결제 등 신규 작업은 해외 EN 버전에만 적용하고, 국내 사업자등록은 당분간 하지 않는다. 신뢰앵커에 국내 사업자등록번호를 넣지 않는다.
+- Why: 차장님 지시(2026-07-09). EN-first 전략과 일치([[project_glosource_en_first_strategy]]). GloSource는 아직 국내 미등록이고, 운영자의 회사(서원토건) 등록번호는 듀얼트랙상 절대 사용 불가.
+- Alternatives: 국내 사업자등록번호를 신뢰요소로 표시, KO 랜딩에도 신뢰앵커 적용.
+- Impact: GLO-EN-TRUSTANCHOR는 이름/역할/소재 + 정부 레지스트리 검증 + Polar 판매자대행 등 실 신뢰요소만 사용. 사업자번호 필드 없음. KO 페이지 미변경.
+- Review: 국내 사업자등록을 진행하기로 결정할 때.
+
 Date: 2026-07-09
 
 - Decision: Polar 결제 기록의 진실 소스는 `subscription.*`가 아니라 `order.*` 이벤트로 둔다. 기존 subscription 기반 기록 코드는 이중기록 위험이 없어 그대로 두되(주문 id≠invoice id, 실 subscription 이벤트에 금액 없음), 실 결제 포착은 `order.*` 멱등 upsert가 담당한다.
