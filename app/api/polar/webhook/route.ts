@@ -4,6 +4,7 @@ import { db, users, subscriptions, payments, verificationTokens } from '@/app/li
 import { hashPassword } from '@/auth';
 import { sendPolarWelcomeEmail } from '@/app/lib/email';
 import { logAbuseSignal } from '@/app/lib/abuse';
+import { resolveOrderPayment, type PolarOrderData } from '@/app/lib/polarOrder';
 
 // Polar plan_id env var → internal plan tier
 function resolvePlan(productId: string): 'starter' | 'pro' | 'enterprise' | null {
@@ -179,6 +180,71 @@ async function upsertSubscription(
   return newId;
 }
 
+// Record (or update) the payment behind a Polar `order.*` event. This is the
+// canonical source of paid amounts — subscription events do not carry them.
+// Idempotent on the order id (payments.polarPaymentId is unique).
+async function recordOrderPayment(orderData: PolarOrderData): Promise<void> {
+  const resolved = resolveOrderPayment(orderData);
+  if (!resolved) return;
+
+  const email = orderData.customer?.email;
+  if (!email) return;
+  const { id: userId } = await findOrCreateUser(email, orderData.customer?.name);
+
+  // Link to the internal subscription when the order belongs to one.
+  let subscriptionId: string | null = null;
+  if (orderData.subscription_id) {
+    const [sub] = await db
+      .select({ id: subscriptions.id })
+      .from(subscriptions)
+      .where(eq(subscriptions.polarSubscriptionId, orderData.subscription_id))
+      .limit(1);
+    subscriptionId = sub?.id ?? null;
+  }
+
+  const paidAt = resolved.status === 'done' ? { approvedAt: new Date() } : {};
+
+  const [existing] = await db
+    .select({ id: payments.id })
+    .from(payments)
+    .where(eq(payments.polarPaymentId, resolved.polarPaymentId))
+    .limit(1);
+
+  if (existing) {
+    // e.g. order.paid follows order.created, or a later order.refunded flips status.
+    await db.update(payments).set({
+      amount: resolved.amount,
+      currency: resolved.currency,
+      status: resolved.status,
+      subscriptionId,
+      ...paidAt,
+    }).where(eq(payments.id, existing.id));
+    return;
+  }
+
+  await db.insert(payments).values({
+    userId,
+    subscriptionId,
+    polarPaymentId: resolved.polarPaymentId,
+    amount: resolved.amount,
+    currency: resolved.currency,
+    status: resolved.status,
+    ...paidAt,
+  });
+
+  if (resolved.status === 'done') {
+    logAbuseSignal({
+      userId,
+      event: 'payment_done',
+      severity: 1,
+      email,
+      identityType: 'polar_customer',
+      identityValue: orderData.customer_id ?? '',
+      metadata: { amount: resolved.amount, currency: resolved.currency, orderId: resolved.polarPaymentId },
+    }).catch(() => {});
+  }
+}
+
 export async function POST(request: NextRequest) {
   const body = await request.text();
 
@@ -187,19 +253,32 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'invalid_signature' }, { status: 401 });
   }
 
-  let event: PolarSubscriptionEvent;
+  let parsed: { type?: string; data?: unknown };
   try {
-    event = JSON.parse(body) as PolarSubscriptionEvent;
+    parsed = JSON.parse(body);
   } catch {
     return NextResponse.json({ error: 'invalid_json' }, { status: 400 });
   }
 
-  const { type, data } = event;
+  const type = parsed.type ?? '';
 
-  // Only process subscription lifecycle events
+  // Payment amounts arrive on order.* events (order.created/paid/updated/refunded),
+  // not on subscription.* — record them so /en/billing shows real payment history.
+  if (type.startsWith('order.')) {
+    try {
+      await recordOrderPayment(parsed.data as PolarOrderData);
+    } catch (err) {
+      console.error('[polar-webhook] order error:', err);
+      return NextResponse.json({ error: 'internal_error' }, { status: 500 });
+    }
+    return NextResponse.json({ received: true });
+  }
+
+  // Otherwise only process subscription lifecycle events.
   if (!type.startsWith('subscription.')) {
     return NextResponse.json({ received: true });
   }
+  const data = parsed.data as PolarSubscriptionEvent['data'];
 
   const plan = resolvePlan(data.product_id);
   if (!plan) {
