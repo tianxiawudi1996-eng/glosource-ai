@@ -5,8 +5,11 @@
  * render rich snippets (sitelinks search box, knowledge panel, pricing).
  *
  * 5/26 자비스 자율 추가 — brand-consistency report 후속 (SEO 강화).
- * 차장님 LinkedIn 페이지 확정 후 sameAs[]에 추가.
+ * founder/sameAs는 app/lib/founder.ts 단일 소스에서 채운다. LinkedIn URL이
+ * 확정되면 그 파일의 FOUNDER.linkedin만 채우면 sameAs와 founder에 함께 반영된다.
  */
+
+import { FOUNDER, founderPersonSchema, founderSameAs } from '@/app/lib/founder';
 
 const ORG_SCHEMA = {
   '@context': 'https://schema.org',
@@ -18,9 +21,10 @@ const ORG_SCHEMA = {
   email: 'hello@glosourceai.com',
   description:
     'AI-powered Korean supplier research tool that helps international buyers find K-beauty, K-food, K-fashion and other Korean manufacturer candidates from EC21, BuyKorea (KOTRA), and tradeKorea in under 90 seconds.',
+  founder: founderPersonSchema(FOUNDER),
   sameAs: [
     'https://twitter.com/glosourceai',
-    // TODO: confirm GloSource AI LinkedIn page URL — add when ready
+    ...founderSameAs(FOUNDER),
   ],
   contactPoint: {
     '@type': 'ContactPoint',
