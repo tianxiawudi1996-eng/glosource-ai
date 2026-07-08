@@ -52,5 +52,13 @@ next-env.d.ts
 reports/harness/private/
 reports/harness/tmp/
 
+# local credentials and generated operational output
+/admin.txt
+/supabase.txt
+/logs/
+/reports/growth/
+/data/growth/outreach-leads-*.csv
+/data/growth/community-opportunities-*.json
+
 # Goal Harness local-only sensitive blocklist
 .harness-blocklist.local
