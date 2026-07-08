@@ -4,6 +4,14 @@
 
 ## Log
 
+Date: 2026-07-09
+
+- Decision: Polar 결제 기록의 진실 소스는 `subscription.*`가 아니라 `order.*` 이벤트로 둔다. 기존 subscription 기반 기록 코드는 이중기록 위험이 없어 그대로 두되(주문 id≠invoice id, 실 subscription 이벤트에 금액 없음), 실 결제 포착은 `order.*` 멱등 upsert가 담당한다.
+- Why: 라이브 스모크에서 결제해도 `/en/billing`이 "내역 없음"이었다. Polar는 청구 금액을 subscription 이벤트에 싣지 않고 order 이벤트로 보낸다. 웹훅이 order.*를 무시하고 subscription 페이로드의 `amount/invoice`(실제로는 부재)를 읽으려 해서 payments가 비어 있었다.
+- Alternatives: subscription 이벤트에 amount를 억지로 기대(현 dummy 테스트가 그랬음), 또는 subscription 기록 블록을 삭제하고 order로 완전 이관.
+- Impact: 금액 매핑을 순수 함수 `app/lib/polarOrder.ts`로 분리해 DB/네트워크 없이 단위테스트했다(하드닝 패턴 계승). 실 서비스 반영은 master 병합·배포 게이트, end-to-end 확인은 Polar 테스트결제 게이트.
+- Review: Polar Order 스키마의 금액 필드(`amount`/`total_amount`/`net_amount`)가 바뀌거나 라이브 결제 1건으로 매핑을 실증할 때.
+
 Date: 2026-06-22  
 Decision: 14일 운영을 GloSource AI 80%, K-DEFENSE 20%의 증거 생산 하네스로 관리한다.  
 Why: GloSource는 B2B 구매·결제, K-DEFENSE는 교육형 콘텐츠/IP 반응이라는 서로 다른 불확실성을 검증해야 한다.  

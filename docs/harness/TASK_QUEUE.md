@@ -2,10 +2,9 @@
 
 > 한 세션 = READY 1개. BLOCKED·게이트는 손대지 않는다. 기본 순서는 GloSource 4개 후 K-DEFENSE 1개다.
 
-## READY (다음 비게이트 증분 — /en 결제-준비, 5에이전트 감사 기반)
+## READY (다음 비게이트 증분)
 
-- GLO-EN-PAYHIST — Polar `order.*` 이벤트 처리해 결제내역/영수증 기록(billing "내역 없음" 해소). 결제 인접 — 주의.
-- GLO-EN-TRUSTANCHOR — 창업자 실명/사진/LinkedIn/사업자등록번호 신뢰앵커(실데이터, 날조 X). 일부 사람 입력 필요.
+- GLO-EN-TRUSTANCHOR — 창업자 실명/사진/LinkedIn/사업자등록번호 신뢰앵커(실데이터, 날조 X). 일부 사람 입력 필요 → 확보분만 반영, 나머지 `TODO_USER_INPUT:` 표기.
 
 ## BLOCKED (게이트/외부 필요)
 
@@ -27,6 +26,8 @@
 
 ## DONE
 
+- GLO-EN-PAYHIST @ 406b411(chore/harness-cal-0623, 2026-07-09, pushed) — `/en/billing` 결제내역 실작동. Polar는 결제 금액을 subscription이 아니라 **`order.*`**(created/paid/updated/refunded)로 보내는데 웹훅이 이를 early-return으로 무시 → 결제해도 내역 0. **수정**: `app/lib/polarOrder.ts`(의존성 없는 순수 매핑+단위테스트 4건: status·`total_amount` 우선 금액·currency, $0/무금액 skip) + 웹훅 `order.*` **멱등 upsert**(주문 id=`payments.polarPaymentId` unique, subscription 있으면 링크, `payment_done` 로깅). subscription 생명주기 그대로(주문 id≠invoice id + 실 subscription 이벤트에 금액 없어 이중기록 없음). tsc·lint·test 9/9·build green, `/api/polar/webhook` 등록. **라이브 확인=게이트**(growth:payments:dummy는 DATABASE_URL, Polar 테스트결제 1회).
+- GLO-HARDEN @ a1e8f62(chore/harness-cal-0623, 2026-07-08, pushed) — 보안·품질 하드닝: chat·image-analyze 라우트를 테스트 가능한 `handler.ts`+auth/rate-limit `wrapper`+얇은 `route.js`로 분리(chat 분당/일 rate-limit 신설), **`xlsx` 제거**(prototype-pollution/ReDoS)→자체 `app/lib/csv.ts`(수식인젝션 방어·BOM·CRLF), `next` 15.3.9→15.5.20, growth 런처 `_post-index`+`*-handler` 분리, `tsx --test` 러너 + `scripts/harness-precommit.sh`. tsc·lint·test·build green.
 - GLO-EN-DBINJECT @ 2026-06-27 — 성공 검색 결과에도 시드 검증 공급사를 **상위 2개 주입**(중복 host 제외, `dbFallbackOutput` 재사용) → 'GloSource Verified' 배지가 매 K-Beauty 검색에 표출. 고MOQ ODM은 notes로 정직 표기(저MOQ 오인 방지). build green.
 - GLO-EN-DBFALLBACK @ 2026-06-26 — 라이브 스모크 점검에서 검색이 **424**(quality gate가 LLM 후보 전부 기각)·**500**("All AI models unavailable", 무거운 grounding 3연타로 자가 rate-limit 추정)으로 **0건 반환** 확인. 제 변경 회귀 아님(URL검증·DB교차는 gate 이후). **DB 폴백 추가**: 500/424 시 `verified_suppliers`의 카테고리 매치를 `dbVerified`로 반환 → LLM 변덕에도 실제 공급사 제공. 빈 DB면 no-op(안전). build green. **활성화=시드 실행 필수.**
 - GLO-EN-VERIFYRESEND-FULL @ 996a7fb(2026-06-26, 배포+검증) — 인증메일 재발송: 세션-게이트 엔드포인트 `POST /api/resend-verification`(register 토큰 흐름 미러, 이메일 열거 방지) + EnSourcingTool amber 안내박스 + "Resend verification email" 버튼. **NextAuth가 /api/auth/* POST를 CSRF로 400 가로채던 것 발견 → /api/auth 밖으로 이동(fix-forward)**. 라이브 검증: POST→401(세션게이트 정상).

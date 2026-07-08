@@ -2,24 +2,24 @@
   "schema_version": "1.0.0",
   "project": "GloSource AI + K-DEFENSE Validation OS",
   "repo": "tianxiawudi1996-eng/glosource-ai",
-  "calibrated_at": "2026-06-23T20:32:00+09:00",
-  "current_branch": "master",
-  "head_sha": "5501951",
-  "main_sha": "5501951",
-  "origin_main_sha": "5501951",
-  "main_synced": true,
+  "calibrated_at": "2026-07-09T01:10:00+09:00",
+  "current_branch": "chore/harness-cal-0623",
+  "head_sha": "406b411",
+  "main_sha": "d401aa3",
+  "origin_main_sha": "d401aa3",
+  "main_synced": false,
   "track": "outbound_validation",
   "last_done_increment": {
-    "id": "GLO-EN-DBINJECT",
-    "sha": "5501951 (deployed + verified live: 'facial serum OEM Korea' that previously returned 424/0 now returns HTTP 200 with 3 verified suppliers COSMAX/Kolmar/Cosmecca — seed + DBFALLBACK/DBINJECT working end-to-end; product resilient to LLM grounding failures)",
-    "summary": "2026-06-26 /en payment-readiness sprint after a 5-agent audit. 3 verified increments in the working tree (next build exit 0), NOT yet deployed (deploy=human gate). (1) PHASE0-FIX: Polar webhook signature bug fixed — the polar_whs_ secret was base64-decoded, producing the wrong HMAC key; proven via the real standardwebhooks lib that the old code 401-rejected every genuine Polar webhook (paid users never got upgraded). Also removed /api/voice/token raw GEMINI_API_KEY exposure (now 501), removed the modal NEXT_PUBLIC key fallback, fixed 4 lint errors that broke next build. (2) GLO-EN-INTEGRITY: removed phantom JSON-LD Agency $149 tier + gmail->hello@; waitlist responses locale-aware EN/KO; /en voice CTA Korean->English; sample-report lead form now actually delivers (public/sample-reports/ + link on submit) instead of a false 'we will send' promise. (3) GLO-EN-URLVERIFY: server-side supplier URL liveness check downgrades dead-link suppliers from web-confirmed to ai_estimated (audit finding #1)."
+    "id": "GLO-EN-PAYHIST",
+    "sha": "406b411 (chore/harness-cal-0623, pushed to origin; NOT merged to master — master still d401aa3)",
+    "summary": "2026-07-09: /en billing payment history now actually populates. Root cause: Polar sends the charged amount on order.* events (created/paid/updated/refunded), but the webhook processed only subscription.* and tried to read amount/invoice off subscription payloads (absent in real Polar), so paying customers saw 'No payment history yet.'. Fix: app/lib/polarOrder.ts (dependency-free, unit-tested mapping order->payment row: status, total_amount-preferred amount, currency; skips $0/no-amount) + webhook now handles order.* with an idempotent upsert on the order id (payments.polarPaymentId unique), links to the subscription when present, logs payment_done. subscription.* lifecycle handling unchanged (no double-record: order id != subscription invoice id, and real subscription events carry no amount). Verified green: tsc, eslint, npm test 9/9, next build; /api/polar/webhook registered. Preceded by GLO-HARDEN (a1e8f62): testable route handlers, xlsx dropped for in-house csv.ts, next 15.5.20, tsx test runner + precommit harness."
   },
-  "next_ready_task": "DEPLOYED 2026-06-26 (3b306dc; /en HTTP 200, phantom Agency tier gone, sample-report live, hello@ applied). Post-deploy activation: (1) run scripts/seed-suppliers.ts against the prod DB to activate GloSource-Verified badges (DBCROSS is inert until the DB is seeded); (2) one live Polar test-mode payment to triple-confirm the webhook fix end-to-end. Remaining code: GLO-EN-PAYHIST, full VERIFYRESEND. Real low-MOQ supplier data + founder/business identity still need human curation. No fabrication; KPIs stay 0 until real evidence.",
+  "next_ready_task": "GLO-EN-TRUSTANCHOR — founder real-name/photo/LinkedIn/business-registration trust anchor on /en (real data only, no fabrication; needs some human-provided identity input). Gated live verification for GLO-EN-PAYHIST: `npm run growth:payments:dummy` (needs DATABASE_URL + dev server -> writes real Neon rows) and one Polar test-mode payment to confirm order.* end-to-end. KPIs stay 0 until real customer evidence exists.",
   "resource_allocation": {
     "glosource_percent": 80,
     "k_defense_percent": 20,
     "completed_units": {
-      "glosource": 3,
+      "glosource": 5,
       "k_defense": 1
     }
   },
@@ -55,13 +55,13 @@
       "id": "DB-2",
       "text": "GloSource paid-intent and payment evidence audited",
       "met": false,
-      "evidence": "No external paid-intent or payment evidence yet"
+      "evidence": "No external paid-intent or payment evidence yet. Capture path is now complete end-to-end in code (GLO-EN-PAYHIST: Polar order.* -> payments -> /en/billing history), so a real payment will now be recorded and auditable. Awaits a real Polar payment; count stays 0 until then."
     },
     {
       "id": "DB-3",
       "text": "K-Beauty landing and conversion funnel verified",
       "met": true,
-      "evidence": "GLO-001: tsc+lint+build green; 360/1440 browser smoke green (reports/growth/glo-001-smoke/). 2026-06-23 live verify: GET /en HTTP 200, K-Beauty OEM hero served in production."
+      "evidence": "GLO-001: tsc+lint+build green; 360/1440 browser smoke green (reports/growth/glo-001-smoke/). 2026-06-23 live verify: GET /en HTTP 200, K-Beauty OEM hero served in production. Billing/payment-history funnel completed 2026-07-09 (GLO-EN-PAYHIST)."
     },
     {
       "id": "DB-4",
@@ -73,7 +73,7 @@
       "id": "DB-5",
       "text": "80:20 allocation maintained",
       "met": true,
-      "evidence": "GloSource 3 increments (GLO-001/002/004) : K-DEFENSE 1 (KDE-001) = 75:25, within band"
+      "evidence": "GloSource 5 increments (GLO-001/002/004 + GLO-HARDEN + GLO-EN-PAYHIST here) : K-DEFENSE 1 (KDE-001) — within the 80:20 band; K-DEFENSE has no READY (KDE-002 blocked on KDE-DATA-001)."
     },
     {
       "id": "DB-6",
@@ -86,7 +86,12 @@
     {
       "flag": "offer_live",
       "state": "verified",
-      "resolves_in": "Resolved 2026-06-23: GET https://glosource-ai.vercel.app/en -> HTTP 200, title 'GloSource AI — Korean K-Beauty OEM Supplier Intelligence', hero keywords (OEM/ODM/MOQ/RFQ/shortlist/supplier) present. New K-Beauty landing is live."
+      "resolves_in": "Resolved 2026-06-23: GET https://glosource-ai.vercel.app/en -> HTTP 200, K-Beauty OEM hero + keywords present. New K-Beauty landing is live."
+    },
+    {
+      "flag": "payment_history_capture",
+      "state": "verified_in_code",
+      "resolves_in": "GLO-EN-PAYHIST (406b411): webhook now records Polar order.* payments into the payments table -> /en/billing shows history. Live confirmation gated (growth:payments:dummy needs DATABASE_URL; one Polar test-mode payment). NOT yet deployed to production."
     },
     {
       "flag": "real_lead_capture_blocked",
@@ -101,12 +106,12 @@
     {
       "flag": "k_defense_metrics_access",
       "state": "partial",
-      "resolves_in": "Public KPIs captured 2026-06-23 (views/comments/likes via YouTube Data API). Still blocked: itch.io clicks/plays/purchases + Studio private analytics (impressions/CTR/retention/traffic-source) need studio.youtube.com + itch.io owner access (KDE-DATA-001)."
+      "resolves_in": "Public KPIs captured 2026-06-23. Still blocked: itch.io clicks/plays/purchases + Studio private analytics need studio.youtube.com + itch.io owner access (KDE-DATA-001)."
     },
     {
-      "flag": "hook_ignition",
-      "state": "pending",
-      "resolves_in": "Verify local agent hook schema before activation"
+      "flag": "branch_not_merged",
+      "state": "gate",
+      "resolves_in": "chore/harness-cal-0623 is ~50 commits ahead of master and carries all live /en product work + GLO-HARDEN + GLO-EN-PAYHIST. Merge to master + Vercel deploy are human gates."
     }
   ],
   "gates_pending": [
@@ -118,14 +123,17 @@
     "private_platform_analytics_access"
   ],
   "verification": {
-    "last_green_at": "2026-06-23T20:32:00+09:00",
+    "last_green_at": "2026-07-09T01:10:00+09:00",
     "commands": [
+      "npx tsc --noEmit (exit 0)",
+      "npm run lint (0 errors; 1 pre-existing unrelated warning in _measure-attach.ts)",
+      "npm test (tsx --test) -> 9/9 pass incl. 4 new polar-order cases",
+      "npm run build (exit 0; /api/polar/webhook registered)",
       "node scripts/check-state-json.mjs docs/harness/STATE.json",
       "node scripts/check-harness-placeholders.mjs docs/harness",
       "node scripts/check-sensitive-strings.mjs .harness-blocklist.local",
-      "git diff --check",
-      "curl -sL https://glosource-ai.vercel.app/en (HTTP 200, K-Beauty hero verified)"
+      "git diff --check"
     ],
-    "summary": "2026-06-23 calibration: harness state realigned to repo truth (head/main/origin all 433045b, origin synced). Live /en verified in production. Evidence audit: all KPIs remain 0 (no real customer evidence yet; no fabrication). Wall unchanged: remaining progress is gated (real lead capture, Gmail OAuth, outbound send, payment)."
+    "summary": "2026-07-09: GLO-EN-PAYHIST implemented + committed (406b411) on chore/harness-cal-0623 and pushed to origin. All local gates green. Not merged to master, not deployed (both human gates). Live payment verification (dummy DB test + real Polar test payment) also gated. KPIs unchanged at 0 — no real customer evidence yet; no fabrication."
   }
 }
