@@ -360,7 +360,7 @@ export default async function EnPage({
           </div>
           <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {[
-              { glyph: 'hwa', en: 'K-Beauty', note: 'MFDS cosmetics registry · CGMP', accent: 'border-[#C93A2B]/30 hover:border-[#C93A2B]', chip: 'text-[#C93A2B] bg-[#C93A2B]/5', span: 'row-span-2', big: true },
+              { glyph: 'hwa', en: 'K-Beauty', note: 'MFDS cosmetics registry · CGMP', accent: 'border-[#8F3A26]/30 hover:border-[#8F3A26]', chip: 'text-[#8F3A26] bg-[#8F3A26]/5', span: 'row-span-2', big: true },
               { glyph: 'sik', en: 'K-Food', note: 'HACCP-certified manufacturers', accent: 'border-amber-500/30 hover:border-amber-600', chip: 'text-amber-700 bg-amber-500/10' },
               { glyph: 'pae', en: 'K-Fashion', note: 'Curated verified makers', accent: 'border-blue-700/25 hover:border-blue-700', chip: 'text-blue-800 bg-blue-700/5' },
               { glyph: 'ui', en: 'Medical devices', note: 'MFDS device licences', accent: 'border-slate-400/40 hover:border-slate-500', chip: 'text-slate-600 bg-slate-500/10' },

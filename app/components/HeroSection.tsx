@@ -80,7 +80,7 @@ function HunminjeongeumWatermark() {
       <div className="absolute -right-24 top-24 hidden h-[340px] w-[340px] text-amber-100/[0.045] lg:block">
         <YetGlyph char="geom" className="absolute left-0 top-0 h-40 w-40" />
         <YetGlyph char="jeung" className="absolute bottom-0 right-0 h-44 w-44" />
-        <YetGlyph char="hwa" className="absolute left-24 top-24 h-32 w-32 text-[#C93A2B]/20" />
+        <YetGlyph char="hwa" className="absolute left-24 top-24 h-32 w-32 text-[#8F3A26]/20" />
       </div>
     </div>
   );
