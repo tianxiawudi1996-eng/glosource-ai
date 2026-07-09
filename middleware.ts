@@ -7,13 +7,7 @@ const { auth } = NextAuth(authConfig);
 export default auth((request) => {
   const { pathname } = request.nextUrl;
 
-  // Korean version is not yet public — redirect root to /en
-  if (pathname === '/' || pathname === '') {
-    const url = request.nextUrl.clone();
-    url.pathname = '/en';
-    return NextResponse.redirect(url, 302);
-  }
-
+  // Korean homepage ('/') is public. (Previously redirected to /en.)
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set('x-pathname', pathname);
 
