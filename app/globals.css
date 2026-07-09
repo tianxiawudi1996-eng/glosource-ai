@@ -94,18 +94,18 @@ button, a, input, select {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 3px solid #C93A2B;
-  color: #C93A2B;
+  border: 3px solid #8F3A26;
+  color: #8F3A26;
   border-radius: 6px;
   transform: rotate(-6deg);
   font-weight: 900;
   letter-spacing: 0.06em;
   line-height: 1.05;
   text-align: center;
-  box-shadow: inset 0 0 6px rgba(201,58,43,0.25);
+  box-shadow: inset 0 0 6px rgba(143,58,38,0.28);
   background:
-    radial-gradient(circle at 30% 35%, rgba(201,58,43,0.10), transparent 55%),
-    radial-gradient(circle at 70% 70%, rgba(201,58,43,0.07), transparent 50%);
+    radial-gradient(circle at 30% 35%, rgba(143,58,38,0.12), transparent 55%),
+    radial-gradient(circle at 70% 70%, rgba(143,58,38,0.08), transparent 50%);
   -webkit-mask-image: radial-gradient(circle at 50% 50%, black 92%, transparent 100%);
 }
 @keyframes gs-seal-stamp {
@@ -133,6 +133,77 @@ button, a, input, select {
 
 @media (prefers-reduced-motion: reduce) {
   .gs-seal-stamp { animation: none; opacity: 1; }
+}
+
+@keyframes gs-hunmin-drift {
+  from { transform: translate3d(0, 0, 0) rotate(-8deg); }
+  to { transform: translate3d(0, -18px, 0) rotate(-8deg); }
+}
+
+.gs-hunmin-grid {
+  animation: gs-hunmin-drift 18s ease-in-out infinite alternate;
+}
+
+.gs-hunmin-scroll {
+  text-shadow: 0 0 18px rgba(199, 164, 74, 0.18);
+}
+
+.gs-haerye-text {
+  display: inline-flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.03em;
+  font-family: var(--font-krold), 'Nanum Myeongjo', 'Batang', serif;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  line-height: 1.25;
+  text-rendering: geometricPrecision;
+  filter: contrast(1.08);
+}
+
+.gs-haerye-letter {
+  display: inline-block;
+  min-width: 0.72em;
+  transform: scaleX(0.94);
+  text-shadow:
+    0.018em 0 currentColor,
+    0 0 0.08em rgba(216, 191, 115, 0.12);
+}
+
+.gs-haerye-space {
+  display: inline-block;
+  width: 0.42em;
+}
+
+.gs-haerye-vertical {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  align-items: center;
+  gap: 0.16em;
+  letter-spacing: 0.16em;
+}
+
+.gs-haerye-vertical .gs-haerye-space {
+  width: auto;
+  height: 0.35em;
+}
+
+.gs-dancheong-side {
+  background:
+    linear-gradient(#B89A4A, #B89A4A) center/1px 100% no-repeat,
+    repeating-linear-gradient(
+      180deg,
+      #07130F 0 12px,
+      #8F3A26 12px 19px,
+      #B9782E 19px 25px,
+      #2F604B 25px 33px,
+      #244B63 33px 40px,
+      #07130F 40px 54px
+    );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gs-hunmin-grid { animation: none; }
 }
 
 /* Old-document Korean voice (classical myeongjo serif) */

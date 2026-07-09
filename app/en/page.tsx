@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import HeroSection from '@/app/components/HeroSection';
 import BrandLogo from '@/app/components/BrandLogo';
 import JsonLdGloSource from '@/app/components/JsonLdGloSource';
+import HaeryeText from './HaeryeText';
 import KSourceWrapper from './KSourceWrapper';
 import ScrollCTA from './ScrollCTA';
 import YetGlyph from './YetHangul';
@@ -306,7 +307,7 @@ export default async function EnPage({
         </div>
         <div className="relative mx-auto max-w-5xl px-6 py-20">
           <div className="max-w-3xl">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-400">Evidence, not promises · <span className="font-krold tracking-normal">증거</span></p>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-400">Evidence, not promises · <HaeryeText className="tracking-normal">증거</HaeryeText></p>
             <h2 className="font-display mt-3 text-3xl font-black leading-tight sm:text-4xl">
               Every Korean candidate is <em className="text-emerald-300">cross-checked</em> against official government registries.
             </h2>
@@ -316,7 +317,7 @@ export default async function EnPage({
           </div>
           <div className="mt-10 grid gap-4 sm:grid-cols-3">
             <article className="rounded-2xl border border-white/10 bg-white/5 p-6">
-              <p className="font-mono text-[11px] font-bold uppercase tracking-wider text-emerald-400">MFDS · 식약처</p>
+              <p className="font-mono text-[11px] font-bold uppercase tracking-wider text-emerald-400">MFDS · <HaeryeText>식약처</HaeryeText></p>
               <h3 className="mt-3 text-base font-black text-white">Manufacturer of record</h3>
               <p className="mt-2 text-sm leading-6 text-slate-400">
                 Cosmetics, quasi-drug, health-food, and medical-device registries reveal whether a company actually manufactures — or only distributes.
@@ -330,7 +331,7 @@ export default async function EnPage({
               </p>
             </article>
             <article className="rounded-2xl border border-white/10 bg-white/5 p-6">
-              <p className="font-mono text-[11px] font-bold uppercase tracking-wider text-emerald-400">NTS · 국세청</p>
+              <p className="font-mono text-[11px] font-bold uppercase tracking-wider text-emerald-400">NTS · <HaeryeText>국세청</HaeryeText></p>
               <h3 className="mt-3 text-base font-black text-white">Alive right now</h3>
               <p className="mt-2 text-sm leading-6 text-slate-400">
                 A live National Tax Service lookup confirms the business registration is active today — the fastest way to screen out ghost companies.
@@ -349,7 +350,7 @@ export default async function EnPage({
         <div className="text-[#0A1520]"><GiwaEaves className="h-7" /></div>
         <div className="mx-auto max-w-5xl px-6 py-20">
           <div className="max-w-3xl">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#EA580C]">What Korea makes best · <span className="font-krold tracking-normal">한국의 제조</span></p>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#8F3A26]">What Korea makes best · <HaeryeText className="tracking-normal">한국의 제조</HaeryeText></p>
             <h2 className="font-display mt-3 text-3xl font-black leading-tight text-[#0D1B2A] sm:text-4xl">
               Source the categories the world already trusts Korea for.
             </h2>
@@ -364,7 +365,7 @@ export default async function EnPage({
               { glyph: 'pae', en: 'K-Fashion', note: 'Curated verified makers', accent: 'border-blue-700/25 hover:border-blue-700', chip: 'text-blue-800 bg-blue-700/5' },
               { glyph: 'ui', en: 'Medical devices', note: 'MFDS device licences', accent: 'border-slate-400/40 hover:border-slate-500', chip: 'text-slate-600 bg-slate-500/10' },
               { glyph: 'geon', en: 'Health foods', note: 'MFDS functional-food registry', accent: 'border-emerald-600/30 hover:border-emerald-600', chip: 'text-emerald-700 bg-emerald-600/10' },
-              { glyph: 'uiyakoepum', en: 'Quasi-drugs (의약외품)', note: 'MFDS quasi-drug permits', accent: 'border-[#0D1B2A]/30 hover:border-[#0D1B2A]', chip: 'text-[#0D1B2A] bg-[#0D1B2A]/5' },
+              { glyph: 'uiyakoepum', en: 'Quasi-drugs', ko: '의약외품', note: 'MFDS quasi-drug permits', accent: 'border-[#0D1B2A]/30 hover:border-[#0D1B2A]', chip: 'text-[#0D1B2A] bg-[#0D1B2A]/5' },
               { glyph: null, en: 'Every other category', note: 'Live NTS business-status check', accent: 'border-dashed border-slate-300 hover:border-[#EA580C]', chip: 'text-[#EA580C] bg-[#EA580C]/5' },
             ].map(cat => (
               <ScrollCTA key={cat.en} targetId="sourcing-tool"
@@ -386,7 +387,9 @@ export default async function EnPage({
                   <span aria-hidden="true" className={`relative z-10 text-4xl font-black leading-none ${cat.chip.split(' ')[0]}`}>+</span>
                 )}
                 <span className="relative z-10 mt-6 block">
-                  <span className="block text-sm font-black text-[#0D1B2A]">{cat.en}</span>
+                  <span className="block text-sm font-black text-[#0D1B2A]">
+                    {cat.en}{'ko' in cat && cat.ko ? <> (<HaeryeText>{cat.ko}</HaeryeText>)</> : null}
+                  </span>
                   <span className={`mt-1.5 inline-block rounded-full px-2 py-0.5 text-[10px] font-bold ${cat.chip}`}>{cat.note}</span>
                   <span className="mt-2 block text-[11px] font-semibold text-slate-400 opacity-0 transition-opacity group-hover:opacity-100">Search this category →</span>
                 </span>
@@ -394,7 +397,7 @@ export default async function EnPage({
             ))}
           </div>
           <p className="mt-4 text-[11px] text-slate-400">
-            Tile marks are drawn in the letterforms of the 1446 Hunminjeongeum Haerye edition — 화 cosmetics · 식 food · 패 fashion · 의 medical · 건 health · 의약외품 quasi-drugs.
+            Tile marks are drawn in the letterforms of the 1446 Hunminjeongeum Haerye edition — <HaeryeText>화</HaeryeText> cosmetics · <HaeryeText>식</HaeryeText> food · <HaeryeText>패</HaeryeText> fashion · <HaeryeText>의</HaeryeText> medical · <HaeryeText>건</HaeryeText> health · <HaeryeText>의약외품</HaeryeText> quasi-drugs.
           </p>
         </div>
       </section>
@@ -403,7 +406,7 @@ export default async function EnPage({
       <section className="border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-5xl px-6 py-20">
           <div className="max-w-3xl">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#EA580C]">The sourcing gap · <span className="font-krold tracking-normal">간극</span></p>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#8F3A26]">The sourcing gap · <HaeryeText className="tracking-normal">간극</HaeryeText></p>
             <h2 className="font-display mt-3 text-3xl font-black leading-tight text-[#0D1B2A] sm:text-4xl">
               Finding a Korean factory is easy. Knowing who is worth contacting is not.
             </h2>
@@ -427,7 +430,7 @@ export default async function EnPage({
       <section id="sample-reports" className="scroll-mt-16 border-b border-slate-200 bg-hanji">
         <div className="mx-auto max-w-5xl px-6 py-20">
           <div className="mb-10 max-w-2xl">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#EA580C]">Free sample reports · <span className="font-krold tracking-normal">견본</span></p>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#8F3A26]">Free sample reports · <HaeryeText className="tracking-normal">견본</HaeryeText></p>
             <h2 className="font-display mt-3 text-3xl font-black text-[#0D1B2A]">See the shortlist format before you pay</h2>
             <p className="mt-3 text-sm leading-7 text-slate-500">
               Choose a K-Beauty category and request the report structure used to compare supplier candidates, evidence, unresolved risks, and RFQ questions.
@@ -441,7 +444,7 @@ export default async function EnPage({
       <section id="sourcing-tool" className="scroll-mt-16 bg-slate-50 border-b border-slate-100">
         <div className="max-w-4xl mx-auto px-6 py-20">
           <div className="mb-10 text-center">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#EA580C] mb-3">Build your first shortlist · <span className="font-krold tracking-normal">검색</span></p>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#8F3A26] mb-3">Build your first shortlist · <HaeryeText className="tracking-normal">검색</HaeryeText></p>
             <h2 className="font-display text-3xl font-black text-[#0D1B2A] mb-2">Get my Korean supplier shortlist</h2>
             <p className="text-sm text-slate-500 max-w-lg mx-auto">
               Describe the product you want to source from Korea. Review supplier candidates with source links, company and certification signals, MOQ context, and an English RFQ draft.
@@ -455,7 +458,7 @@ export default async function EnPage({
       <section className="bg-white border-b border-slate-100">
         <div className="max-w-5xl mx-auto px-6 py-20">
           <div className="mb-10 text-center">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#EA580C] mb-3">How it works · <span className="font-krold tracking-normal">절차</span></p>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#8F3A26] mb-3">How it works · <HaeryeText className="tracking-normal">절차</HaeryeText></p>
             <h2 className="font-display text-3xl font-black text-[#0D1B2A] mb-3">From product idea to a usable Korean supplier shortlist</h2>
             <p className="text-sm text-slate-500 max-w-xl mx-auto">
               The output is a first-pass research shortcut, not a supplier guarantee, audit, or sourcing-agent service.
@@ -481,7 +484,7 @@ export default async function EnPage({
         <PricingViewTracker />
         <div className="max-w-5xl mx-auto px-6 py-20">
           <div className="mb-10 text-center">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#EA580C] mb-3">Pricing · <span className="font-krold tracking-normal">요금</span></p>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#8F3A26] mb-3">Pricing · <HaeryeText className="tracking-normal">요금</HaeryeText></p>
             <h2 className="font-display text-3xl font-black text-[#0D1B2A] mb-3">Start with evidence. Upgrade for an active sourcing project.</h2>
             <p className="text-sm text-slate-500 max-w-xl mx-auto">
               Start with a free sample report. Paid plans support repeated Korean supplier research for active sourcing projects.
@@ -547,7 +550,7 @@ export default async function EnPage({
       <section className="bg-hanji border-b border-slate-100">
         <div className="max-w-3xl mx-auto px-6 py-20">
           <div className="mb-10 text-center">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#EA580C] mb-3">FAQ · <span className="font-krold tracking-normal">문답</span></p>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#8F3A26] mb-3">FAQ · <HaeryeText className="tracking-normal">문답</HaeryeText></p>
             <h2 className="font-display text-3xl font-black text-[#0D1B2A]">Frequently asked questions</h2>
           </div>
           <div className="space-y-3">
@@ -572,7 +575,7 @@ export default async function EnPage({
               <a href="mailto:hello@glosourceai.com" className="underline hover:text-slate-400">hello@glosourceai.com</a>
             </p>
             <p className="mt-1.5 text-[11px] text-slate-700">
-              Built in Korea on Korean government open data · <span className="font-krold text-slate-500">나라의 공공데이터로 낱낱이 검증하니라</span>
+              Built in Korea on Korean government open data · <HaeryeText className="text-slate-500">나라의 공공데이터로 낱낱이 검증하니라</HaeryeText>
             </p>
           </div>
           <div className="flex items-center gap-4 text-xs text-slate-600">

@@ -37,8 +37,8 @@ export function GiwaEaves({ className, flip = false }: { className?: string; fli
   );
 }
 
-/* 색동 — hanbok sleeve stripes, muted obangsaek family */
-const SAEKDONG = ['#C93A2B', '#D98E32', '#C7A44A', '#3E7C59', '#2E5E8C', '#5C4A72'];
+/* 색동 — muted obangsaek family, aged like mineral pigment on wood */
+const SAEKDONG = ['#8F3A26', '#B9782E', '#B89A4A', '#2F604B', '#244B63', '#4B3E54'];
 export function SaekdongBand({ className }: { className?: string }) {
   return (
     <div aria-hidden="true" className={`flex h-1.5 w-full ${className ?? ''}`}>
@@ -49,25 +49,30 @@ export function SaekdongBand({ className }: { className?: string }) {
   );
 }
 
-/* 단청 머리초 — alternating lotus petals + dots on a navy ground */
+/* 단청 머리초 — restrained lotus/meander border on dark green-black ground */
 export function DancheongBand({ className }: { className?: string }) {
   const units: React.ReactNode[] = [];
-  for (let i = 0; i < 60; i++) {
-    const x = i * 24;
+  for (let i = 0; i < 48; i++) {
+    const x = i * 30;
     if (i % 2 === 0) {
-      units.push(<path key={`p${i}`} d={`M${x + 12} 3 Q${x + 21} 10 ${x + 12} 17 Q${x + 3} 10 ${x + 12} 3 Z`} fill="#C93A2B" opacity={0.85} />);
-      units.push(<path key={`pi${i}`} d={`M${x + 12} 6.5 Q${x + 17} 10 ${x + 12} 13.5 Q${x + 7} 10 ${x + 12} 6.5 Z`} fill="#D98E32" />);
+      units.push(<path key={`p${i}`} d={`M${x + 15} 3 Q${x + 27} 10 ${x + 15} 17 Q${x + 3} 10 ${x + 15} 3 Z`} fill="#8F3A26" opacity={0.92} />);
+      units.push(<path key={`pi${i}`} d={`M${x + 15} 6.5 Q${x + 21} 10 ${x + 15} 13.5 Q${x + 9} 10 ${x + 15} 6.5 Z`} fill="#B9782E" opacity={0.9} />);
+      units.push(<circle key={`pd${i}`} cx={x + 15} cy={10} r={1.8} fill="#D7BF73" opacity={0.85} />);
     } else {
-      units.push(<circle key={`c${i}`} cx={x + 12} cy={10} r={2.6} fill="#2E5E8C" />);
-      units.push(<circle key={`co${i}`} cx={x + 12} cy={10} r={5.2} fill="none" stroke="#3E7C59" strokeWidth={1.1} opacity={0.8} />);
+      units.push(<path key={`m${i}`} d={`M${x + 4} 10 H${x + 10} V5 H${x + 20} V15 H${x + 26}`} fill="none" stroke="#2F604B" strokeWidth={1.4} opacity={0.9} />);
+      units.push(<circle key={`c${i}`} cx={x + 15} cy={10} r={2.2} fill="#244B63" />);
+      units.push(<circle key={`co${i}`} cx={x + 15} cy={10} r={5.5} fill="none" stroke="#B89A4A" strokeWidth={0.9} opacity={0.7} />);
     }
   }
   return (
-    <div aria-hidden="true" className={`bg-[#0A1520] ${className ?? ''}`}>
+    <div aria-hidden="true" className={`bg-[#07130F] ${className ?? ''}`}>
       <svg viewBox="0 0 1440 20" preserveAspectRatio="xMidYMid slice" className="block h-5 w-full">
-        <line x1={0} y1={1} x2={1440} y2={1} stroke="#C7A44A" strokeWidth={0.8} opacity={0.5} />
+        <rect x={0} y={0} width={1440} height={20} fill="#07130F" />
+        <line x1={0} y1={1} x2={1440} y2={1} stroke="#B89A4A" strokeWidth={0.8} opacity={0.55} />
+        <line x1={0} y1={4} x2={1440} y2={4} stroke="#203F35" strokeWidth={0.7} opacity={0.75} />
         {units}
-        <line x1={0} y1={19} x2={1440} y2={19} stroke="#C7A44A" strokeWidth={0.8} opacity={0.5} />
+        <line x1={0} y1={16} x2={1440} y2={16} stroke="#203F35" strokeWidth={0.7} opacity={0.75} />
+        <line x1={0} y1={19} x2={1440} y2={19} stroke="#B89A4A" strokeWidth={0.8} opacity={0.55} />
       </svg>
     </div>
   );
