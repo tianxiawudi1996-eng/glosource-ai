@@ -60,5 +60,8 @@ reports/harness/tmp/
 /data/growth/outreach-leads-*.csv
 /data/growth/community-opportunities-*.json
 
+# personal PC utilities (proxy-guard, launchers) — not part of the web app
+/tools/
+
 # Goal Harness local-only sensitive blocklist
 .harness-blocklist.local
