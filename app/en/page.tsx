@@ -65,8 +65,8 @@ export const metadata: Metadata = {
     canonical: 'https://glosourceai.com/en',
     languages: {
       'en-US': 'https://glosourceai.com/en',
+      'ko-KR': 'https://glosourceai.com/',
       'x-default': 'https://glosourceai.com/en',
-      // 'ko-KR': 'https://glosourceai.com/' — TODO: 한국어 버전 공개 시 추가
     },
   },
 };

@@ -250,10 +250,10 @@ function SupplierCard({ s, rank, keyword, locked, onStartVoiceCall }: { s: Suppl
             <span className="sm:hidden">Gov ✓</span>
           </span>
         ) : dbVerified ? (
-          <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold border flex-shrink-0 bg-blue-50 border-blue-300 text-blue-700" title="Matched a manually-curated supplier in the GloSource verified database">
+          <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold border flex-shrink-0 bg-blue-50 border-blue-300 text-blue-700" title="Hand-picked by the GloSource team — a curated supplier, not a government-registry match">
             <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 bg-blue-500" />
-            <span className="hidden sm:inline">GloSource Verified (curated)</span>
-            <span className="sm:hidden">Verified</span>
+            <span className="hidden sm:inline">GloSource curated</span>
+            <span className="sm:hidden">Curated</span>
           </span>
         ) : (
           <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold border flex-shrink-0 ${isVerified ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-slate-100 border-slate-200 text-slate-500'}`}>

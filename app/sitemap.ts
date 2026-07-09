@@ -13,6 +13,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return [
     { url: `${BASE}/en`, lastModified: new Date(), changeFrequency: 'weekly', priority: 1 },
+    { url: `${BASE}/`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.9 },
     { url: `${BASE}/en/blog`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.85 },
     ...blogEntries,
     { url: `${BASE}/en/about`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },

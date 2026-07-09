@@ -13,7 +13,7 @@ export default function robots(): MetadataRoute.Robots {
           '/dashboard',
           '/billing',
           '/account',
-          // 다국어 (Korean version 미공개 + 영문 자식)
+          // 계정·결제·인증 하위 (로그인 후만 의미, 인덱싱 X)
           '/en/dashboard',
           '/en/billing',
           '/en/reset-password',
