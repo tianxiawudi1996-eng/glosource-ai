@@ -11,6 +11,7 @@ import Link from 'next/link';
 import { auth } from '@/auth';
 import SampleReportLeadForm from './SampleReportLeadForm';
 import PricingViewTracker from './PricingViewTracker';
+import TrustCredibility from '@/app/components/TrustCredibility';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://glosourceai.com'),
@@ -267,6 +268,7 @@ export default async function EnPage({
             <Link href="/en/blog" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden sm:block">Blog</Link>
             <Link href="/en/case-studies" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden md:block">Examples</Link>
             <Link href="/en/about" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden md:block">About</Link>
+            <TrustCredibility lang="en" tone="dark" />
             {isLoggedIn ? (
               <>
                 <Link href="/en/dashboard" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden sm:block">

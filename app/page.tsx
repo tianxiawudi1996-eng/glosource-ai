@@ -5,10 +5,11 @@ import { useState, useRef, useEffect } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import CategorySelector from './components/CategorySelector';
 import EmptyState from './components/EmptyState';
-import ExportButton from './components/ExportButton';
+import ExportButton from './lib/CsvExportButton';
 import WaitlistBanner from './components/WaitlistBanner';
 import ShareButton from './components/ShareButton';
 import UpgradeModal from './components/UpgradeModal';
+import TrustCredibility from './components/TrustCredibility';
 import WeChatCard from './components/WeChatCard';
 import HeroSection from './components/HeroSection';
 import { SupplierComparisonTable, SupplierDetail } from './components/SupplierCard';
@@ -405,10 +406,7 @@ export default function HomePage() {
 
           {/* 우측 메뉴 */}
           <div className="flex items-center gap-1.5 sm:gap-3">
-            <div className="hidden lg:flex items-center gap-1.5 text-xs text-slate-500 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-full">
-              <Icon.Shield className="w-3 h-3" />
-              <span>AI 공급자 신뢰도 검증</span>
-            </div>
+            <TrustCredibility lang="ko" tone="light" />
 
             {session?.user ? (
               <>

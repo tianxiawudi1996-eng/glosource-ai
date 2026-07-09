@@ -148,8 +148,8 @@ function AeoPanel({ matches, region }: { matches: { korea: AeoMatchedCompany[]; 
       </div>
 
       <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[10px] text-amber-800 leading-relaxed">
-        <strong>Disclaimer:</strong> AEO certification status is based on publicly available customs authority data (Korea Customs Service / China GACC).
-        Certification status may change. Always verify current status directly with the official customs authority before signing any contract.
+        <strong>Disclaimer:</strong> This is a curated reference list of major companies publicly known to hold AEO certification (Korea Customs Service / China GACC) — not a live feed from customs systems, so it may be out of date.
+        Certification status can change. Always verify a company&apos;s current AEO status directly with the official customs authority before signing any contract.
         AEO certification does not guarantee product quality or suitability for your specific requirements.
       </div>
     </div>
