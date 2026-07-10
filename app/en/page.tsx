@@ -6,6 +6,7 @@ import HaeryeText from './HaeryeText';
 import KSourceWrapper from './KSourceWrapper';
 import ScrollCTA from './ScrollCTA';
 import YetGlyph from './YetHangul';
+import CategoryTileMedia from './CategoryTileMedia';
 import { GiwaEaves, SaekdongBand, DancheongBand, SumaksaeRosette } from './KoreanOrnaments';
 import PolarCheckoutButton from './PolarCheckoutButton';
 import Link from 'next/link';
@@ -364,18 +365,21 @@ export default async function EnPage({
           </div>
           <div className="gs-reveal mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {[
-              { glyph: 'hwa', en: 'K-Beauty', note: 'MFDS cosmetics registry · CGMP', accent: 'border-[#8F3A26]/30 hover:border-[#8F3A26]', chip: 'text-[#8F3A26] bg-[#8F3A26]/5', span: 'row-span-2', big: true },
-              { glyph: 'sik', en: 'K-Food', note: 'HACCP-certified manufacturers', accent: 'border-amber-500/30 hover:border-amber-600', chip: 'text-amber-700 bg-amber-500/10' },
-              { glyph: 'pae', en: 'K-Fashion', note: 'Curated verified makers', accent: 'border-blue-700/25 hover:border-blue-700', chip: 'text-blue-800 bg-blue-700/5' },
-              { glyph: 'ui', en: 'Medical devices', note: 'MFDS device licences', accent: 'border-slate-400/40 hover:border-slate-500', chip: 'text-slate-600 bg-slate-500/10' },
-              { glyph: 'geon', en: 'Health foods', note: 'MFDS functional-food registry', accent: 'border-emerald-600/30 hover:border-emerald-600', chip: 'text-emerald-700 bg-emerald-600/10' },
-              { glyph: 'uiyakoepum', en: 'Quasi-drugs', ko: '의약외품', note: 'MFDS quasi-drug permits', accent: 'border-[#0D1B2A]/30 hover:border-[#0D1B2A]', chip: 'text-[#0D1B2A] bg-[#0D1B2A]/5' },
+              { glyph: 'hwa', img: 'hwa', tint: '#8F3A26', en: 'K-Beauty', note: 'MFDS cosmetics registry · CGMP', accent: 'border-[#8F3A26]/30 hover:border-[#8F3A26]', chip: 'text-[#8F3A26] bg-[#8F3A26]/5', span: 'row-span-2', big: true },
+              { glyph: 'sik', img: 'sik', tint: '#B45309', en: 'K-Food', note: 'HACCP-certified manufacturers', accent: 'border-amber-500/30 hover:border-amber-600', chip: 'text-amber-700 bg-amber-500/10' },
+              { glyph: 'pae', img: 'pae', tint: '#1D4ED8', en: 'K-Fashion', note: 'Curated verified makers', accent: 'border-blue-700/25 hover:border-blue-700', chip: 'text-blue-800 bg-blue-700/5' },
+              { glyph: 'ui', img: 'ui', tint: '#475569', en: 'Medical devices', note: 'MFDS device licences', accent: 'border-slate-400/40 hover:border-slate-500', chip: 'text-slate-600 bg-slate-500/10' },
+              { glyph: 'geon', img: 'geon', tint: '#047857', en: 'Health foods', note: 'MFDS functional-food registry', accent: 'border-emerald-600/30 hover:border-emerald-600', chip: 'text-emerald-700 bg-emerald-600/10' },
+              { glyph: 'uiyakoepum', img: 'uiyakoepum', tint: '#0D1B2A', en: 'Quasi-drugs', ko: '의약외품', note: 'MFDS quasi-drug permits', accent: 'border-[#0D1B2A]/30 hover:border-[#0D1B2A]', chip: 'text-[#0D1B2A] bg-[#0D1B2A]/5' },
               { glyph: null, en: 'Every other category', note: 'Live NTS business-status check', accent: 'border-dashed border-slate-300 hover:border-[#EA580C]', chip: 'text-[#EA580C] bg-[#EA580C]/5' },
             ].map(cat => (
               // overflow-clip, not -hidden: -hidden would make the tile a scroll container
               // and freeze the stroke-order timeline of the glyph inside it.
+              // gs-tile owns the hover lift/shadow + border-color transition.
               <ScrollCTA key={cat.en} targetId="sourcing-tool"
-                className={`group relative overflow-clip flex flex-col justify-between rounded-2xl border-2 bg-white/70 p-5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-900/5 ${cat.accent} ${cat.span ?? ''}`}>
+                className={`gs-tile group relative overflow-clip flex flex-col justify-between rounded-2xl border-2 bg-white/70 p-5 text-left ${cat.accent} ${cat.span ?? ''}`}>
+                {/* product-category imagery — low-opacity duotone atmosphere, sits under everything */}
+                {'img' in cat && cat.img && <CategoryTileMedia name={cat.img} tint={cat.tint as string} />}
                 {/* faint oversized glyph fills the tile like a paper watermark */}
                 {cat.glyph && cat.glyph !== 'uiyakoepum' && (
                   <YetGlyph char={cat.glyph as 'hwa'} className={`pointer-events-none absolute -bottom-8 -right-6 ${cat.big ? 'h-64 w-64' : 'h-32 w-32'} opacity-[0.05] ${cat.chip.split(' ')[0]}`} />
