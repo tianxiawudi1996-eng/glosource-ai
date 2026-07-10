@@ -170,8 +170,10 @@ function EnVerificationMockPanel() {
         </div>
 
         {/* supplier card with gov verification */}
-        <div className="rounded-xl border border-emerald-500/25 bg-white/5 p-3.5 space-y-2.5">
-          <div className="flex items-center justify-between gap-2">
+        <div className="relative overflow-hidden rounded-xl border border-emerald-500/25 bg-white/5 p-3.5 space-y-2.5">
+          {/* live scan sweep — reads as continuous registry verification */}
+          <span aria-hidden="true" className="gs-scan pointer-events-none absolute inset-x-0 top-0 z-0 h-10 bg-[linear-gradient(to_bottom,transparent,rgba(52,211,153,0.22),transparent)]" />
+          <div className="relative z-10 flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0">
               <span className="text-[10px] font-black bg-[#EA580C] text-white rounded-md px-1.5 py-0.5 shrink-0">#1</span>
               <span className="text-xs font-bold text-white truncate">Cosmetics ODM Co. (sample data)</span>
@@ -183,7 +185,7 @@ function EnVerificationMockPanel() {
           </div>
 
           {/* sequential registry checks — the memorable moment */}
-          <ul className="space-y-1.5">
+          <ul className="relative z-10 space-y-1.5">
             <li className="gs-check-pop gs-check-1 flex items-center gap-2 text-[11px] text-emerald-200">
               <span className="flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-300 shrink-0">
                 <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
@@ -204,7 +206,7 @@ function EnVerificationMockPanel() {
             </li>
           </ul>
 
-          <div className="flex items-center justify-between border-t border-white/10 pt-2">
+          <div className="relative z-10 flex items-center justify-between border-t border-white/10 pt-2">
             <p className="text-[10px] text-slate-400">MOQ 3,000 pcs · quote required</p>
             <p className="text-[10px] text-slate-500">Lead time: 21 days</p>
           </div>
@@ -323,6 +325,29 @@ function MockPreviewPanel({ c }: { c: typeof copy.ko }) {
   );
 }
 
+/* Splits the headline into per-letter spans (words kept nowrap so wrapping is
+   unaffected) and hands each an ascending --i for the hover wave stagger. */
+function HeadlineWave({ text }: { text: string }) {
+  let i = 0;
+  return (
+    <span className="gs-wave">
+      {text.split(/(\s+)/).map((token, ti) => {
+        if (token === '') return null;
+        if (/^\s+$/.test(token)) return <span key={`s${ti}`}> </span>;
+        return (
+          <span key={`w${ti}`} className="gs-wave-word">
+            {Array.from(token).map((ch, ci) => (
+              <span key={ci} className="gs-wave-char" style={{ '--i': i++ } as React.CSSProperties}>
+                {ch}
+              </span>
+            ))}
+          </span>
+        );
+      })}
+    </span>
+  );
+}
+
 export default function HeroSection({ lang = 'ko' }: HeroSectionProps) {
   const c = copy[lang];
 
@@ -340,9 +365,10 @@ export default function HeroSection({ lang = 'ko' }: HeroSectionProps) {
           <HunminjeongeumWatermark />
         </>
       )}
-      {/* dot-grid background */}
+      {/* dot-grid background — trails the page scroll for depth (extended so the
+          parallax drift never exposes a gap at the edges) */}
       <div
-        className="absolute inset-0 opacity-20 pointer-events-none"
+        className="gs-hero-parallax absolute -inset-y-24 inset-x-0 opacity-20 pointer-events-none"
         style={{
           backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.12) 1px, transparent 0)',
           backgroundSize: '28px 28px',
@@ -358,8 +384,8 @@ export default function HeroSection({ lang = 'ko' }: HeroSectionProps) {
           }}
         />
       )}
-      {/* right glow */}
-      <div className="absolute -right-32 top-0 h-full w-[600px] rounded-full bg-[#EA580C]/5 blur-3xl pointer-events-none" />
+      {/* right glow — drifts and breathes so the hero has visible life at rest */}
+      <div className="gs-hero-glow absolute -right-32 top-0 h-full w-[600px] rounded-full bg-[#EA580C]/10 blur-3xl pointer-events-none" />
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 py-20 sm:py-24 lg:py-28">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-12 items-center">
@@ -378,7 +404,7 @@ export default function HeroSection({ lang = 'ko' }: HeroSectionProps) {
             </div>
 
             <h1 className={`gs-fade-up gs-delay-1 mb-5 text-[2.6rem] leading-[1.02] tracking-tight text-white sm:text-5xl md:text-6xl ${lang === 'en' ? 'font-display font-black' : 'font-black leading-[0.96]'}`}>
-              {c.h1}<br />
+              <HeadlineWave text={c.h1} /><br />
               <span className={`mt-3 inline-block rounded-lg bg-[#EA580C] px-3 py-1 text-[0.62em] text-white shadow-2xl shadow-orange-950/40 ${lang === 'en' ? 'font-sans font-black tracking-normal' : ''}`}>
                 {c.h1sub}
               </span>
@@ -435,8 +461,8 @@ export default function HeroSection({ lang = 'ko' }: HeroSectionProps) {
             </div>
           </div>
 
-          {/* RIGHT — hero visual */}
-          <div className="block">
+          {/* RIGHT — hero visual (floats gently; entrance stays on the inner card) */}
+          <div className="gs-hero-float block">
             {lang === 'en' ? (
               <EnVerificationMockPanel />
             ) : (

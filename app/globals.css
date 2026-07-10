@@ -290,6 +290,77 @@ button, a, input, select {
   .gs-tile:active { transform: translateY(-1px) scale(1.004); transition-duration: 0.12s; }
 }
 
+/* ── Hero motion: keep the hero visibly alive ──
+   A floating preview panel, a breathing glow that drifts, and a scanning
+   highlight sweeping the verified card — plus dot-grid parallax on scroll.
+   Amplitudes are tuned to actually read as motion, not merely to exist.
+   All reduced-motion gated. */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes gs-hero-glow {
+    0%   { opacity: 0.55; transform: translate3d(0, 0, 0) scale(1); }
+    50%  { opacity: 1;    transform: translate3d(-36px, 26px, 0) scale(1.18); }
+    100% { opacity: 0.55; transform: translate3d(0, 0, 0) scale(1); }
+  }
+  .gs-hero-glow { animation: gs-hero-glow 7s ease-in-out infinite; will-change: transform, opacity; }
+
+  @keyframes gs-hero-float {
+    0%, 100% { transform: translate3d(0, 0, 0); }
+    50%      { transform: translate3d(0, -16px, 0); }
+  }
+  .gs-hero-float { animation: gs-hero-float 5.5s ease-in-out infinite; will-change: transform; }
+
+  /* A scan line sweeps the government-verified card, so "live registry check"
+     looks live. Sits behind the card text (z-0). */
+  @keyframes gs-scan {
+    0%   { transform: translateY(-140%); opacity: 0; }
+    12%  { opacity: 1; }
+    88%  { opacity: 1; }
+    100% { transform: translateY(360%); opacity: 0; }
+  }
+  .gs-scan { animation: gs-scan 3.4s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+}
+
+/* Hero headline waves on hover: each letter lifts and thickens in sequence, so a
+   ripple travels across the words left to right and settles them bolder. Weight is
+   faked with a same-colour text stroke (the display font is static-loaded at 900,
+   with no lighter-to-heavier axis to animate). Per-letter spans cost the run's
+   kerning — acceptable at headline size. Words stay nowrap so only spaces break. */
+.gs-wave-word { display: inline-block; white-space: nowrap; }
+.gs-wave-char {
+  display: inline-block;
+  -webkit-text-stroke: 0 currentColor;
+  paint-order: stroke fill;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes gs-charwave {
+    0%   { -webkit-text-stroke-width: 0;     transform: translateY(0); }
+    45%  { -webkit-text-stroke-width: 0.9px; transform: translateY(-0.1em); }
+    100% { -webkit-text-stroke-width: 0.9px; transform: translateY(0); }
+  }
+  .gs-wave:hover .gs-wave-char {
+    animation: gs-charwave 0.5s ease both;
+    animation-delay: calc(var(--i) * 26ms);
+  }
+}
+/* Reduced motion: letters still thicken on hover, but no ripple or lift. */
+@media (prefers-reduced-motion: reduce) {
+  .gs-wave:hover .gs-wave-char { -webkit-text-stroke-width: 0.9px; }
+}
+
+/* Dot-grid parallax against the document scroll (not the hero's own overflow,
+   which is why this uses scroll(root) rather than an anonymous view()). */
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    @keyframes gs-hero-parallax { to { transform: translateY(130px); } }
+    .gs-hero-parallax {
+      animation: gs-hero-parallax linear both;
+      animation-timeline: scroll(root block);
+      will-change: transform;
+    }
+  }
+}
+
 /* ── Korean identity system (官印 seal · hanji · obangsaek) ── */
 .font-display { font-family: var(--font-display), 'Fraunces', Georgia, serif; }
 
