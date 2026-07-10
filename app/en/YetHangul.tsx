@@ -4,6 +4,11 @@
  * ㅗ = ㅡ + ●, and the lost letters ㆍ 아래아 / ㆁ 옛이응) — web fonts cannot
  * compose those archaic syllables reliably, so each block is drawn by hand.
  * Decorative only: every use is aria-hidden with the modern label alongside.
+ *
+ * Every stroked shape carries pathLength={1} so a single dashoffset sweep can
+ * write it at a uniform rate; children are ordered by stroke order (획순) so a
+ * per-child delay reproduces how the glyph is actually written by hand.
+ * See .gs-glyph-draw in globals.css.
  */
 
 interface GlyphProps {
@@ -13,22 +18,34 @@ interface GlyphProps {
 
 const SW = 8.5; // uniform Haerye stroke (bolder, brush-like)
 
+type StrokeProps = { d: string };
+const Stroke = ({ d }: StrokeProps) => <path d={d} pathLength={1} />;
+
+type RingProps = { cx: number; cy: number; r: number };
+const Ring = ({ cx, cy, r }: RingProps) => <circle cx={cx} cy={cy} r={r} pathLength={1} />;
+
+type BoxProps = { x: number; y: number; width: number; height: number };
+const Box = ({ x, y, width, height }: BoxProps) => (
+  <rect x={x} y={y} width={width} height={height} pathLength={1} />
+);
+
+/* Filled Haerye vowel dot — brushed on, not drawn. */
 function Dot({ cx, cy }: { cx: number; cy: number }) {
-  return <circle cx={cx} cy={cy} r={7.5} fill="currentColor" stroke="none" />;
+  return <circle className="gs-yet-dot" cx={cx} cy={cy} r={7.5} fill="currentColor" stroke="none" />;
 }
 
 /* 화(化) — ㅎ over ㅗ (호), with ㅏ pulled close on the right = 화 */
 const Hwa = (
   <>
     {/* ㅎ — top tick, bar, ring (compact) */}
-    <path d="M25 8 H43" />
-    <path d="M16 20 H52" />
-    <circle cx={34} cy={35} r={11} />
+    <Stroke d="M25 8 H43" />
+    <Stroke d="M16 20 H52" />
+    <Ring cx={34} cy={35} r={11} />
     {/* ㅗ — dot + bar directly under ㅎ */}
     <Dot cx={34} cy={54} />
-    <path d="M14 68 H54" />
+    <Stroke d="M14 68 H54" />
     {/* ㅏ — tall stem close to the block, round dot */}
-    <path d="M70 8 V88" />
+    <Stroke d="M70 8 V88" />
     <Dot cx={84} cy={46} />
   </>
 );
@@ -36,10 +53,10 @@ const Hwa = (
 /* 식(食) — ㅅ + ㅣ + ㄱ */
 const Sik = (
   <>
-    <path d="M32 10 L14 42" />
-    <path d="M32 10 L50 42" />
-    <path d="M70 8 V50" />
-    <path d="M14 64 H80 V90" />
+    <Stroke d="M32 10 L14 42" />
+    <Stroke d="M32 10 L50 42" />
+    <Stroke d="M70 8 V50" />
+    <Stroke d="M14 64 H80 V90" />
   </>
 );
 
@@ -47,24 +64,24 @@ const Sik = (
 const Pae = (
   <>
     {/* ㅍ */}
-    <path d="M8 24 H44" />
-    <path d="M8 56 H44" />
-    <path d="M19 24 V56" />
-    <path d="M33 24 V56" />
+    <Stroke d="M8 24 H44" />
+    <Stroke d="M8 56 H44" />
+    <Stroke d="M19 24 V56" />
+    <Stroke d="M33 24 V56" />
     {/* ㅐ = ㅏ(stem + right dot) + ㅣ */}
-    <path d="M60 8 V80" />
+    <Stroke d="M60 8 V80" />
     <Dot cx={73} cy={44} />
-    <path d="M87 8 V80" />
+    <Stroke d="M87 8 V80" />
   </>
 );
 
 /* 의(醫) — ㆁ 옛이응(stemmed ring) + ㅡ + ㅣ */
 const Ui = (
   <>
-    <path d="M32 8 V16" />
-    <circle cx={32} cy={32} r={15} />
-    <path d="M10 62 H54" />
-    <path d="M78 8 V88" />
+    <Stroke d="M32 8 V16" />
+    <Ring cx={32} cy={32} r={15} />
+    <Stroke d="M10 62 H54" />
+    <Stroke d="M78 8 V88" />
   </>
 );
 
@@ -72,67 +89,67 @@ const Ui = (
 const Geon = (
   <>
     {/* ㄱ */}
-    <path d="M12 12 H40 V30" />
+    <Stroke d="M12 12 H40 V30" />
     {/* ㅓ — tall stem with the round dot clearly to its left */}
-    <path d="M68 6 V50" />
+    <Stroke d="M68 6 V50" />
     <Dot cx={50} cy={28} />
     {/* ㄴ */}
-    <path d="M12 56 V86 H74" />
+    <Stroke d="M12 56 V86 H74" />
   </>
 );
 
 /* 약(藥) — ㅇ + ㅑ(two right dots) + ㄱ */
 const Yak = (
   <>
-    <circle cx={28} cy={26} r={13} />
-    <path d="M62 6 V52" />
+    <Ring cx={28} cy={26} r={13} />
+    <Stroke d="M62 6 V52" />
     <Dot cx={78} cy={19} />
     <Dot cx={78} cy={39} />
-    <path d="M14 66 H78 V90" />
+    <Stroke d="M14 66 H78 V90" />
   </>
 );
 
 /* 외(外) — ㅇ + ㅗ(dot above bar) + ㅣ */
 const Oe = (
   <>
-    <circle cx={30} cy={26} r={14} />
+    <Ring cx={30} cy={26} r={14} />
     <Dot cx={30} cy={54} />
-    <path d="M8 68 H52" />
-    <path d="M78 8 V88" />
+    <Stroke d="M8 68 H52" />
+    <Stroke d="M78 8 V88" />
   </>
 );
 
 /* 품(品) — ㅍ + ㅜ(dot below bar) + ㅁ */
 const Pum = (
   <>
-    <path d="M26 10 H70" />
-    <path d="M26 32 H70" />
-    <path d="M38 10 V32" />
-    <path d="M58 10 V32" />
-    <path d="M14 48 H82" />
+    <Stroke d="M26 10 H70" />
+    <Stroke d="M26 32 H70" />
+    <Stroke d="M38 10 V32" />
+    <Stroke d="M58 10 V32" />
+    <Stroke d="M14 48 H82" />
     <Dot cx={48} cy={60} />
-    <rect x={28} y={70} width={40} height={22} />
+    <Box x={28} y={70} width={40} height={22} />
   </>
 );
 
 /* 검(檢) — ㄱ + ㅓ + ㅁ */
 const Geom = (
   <>
-    <path d="M16 12 H44 V32" />
+    <Stroke d="M16 12 H44 V32" />
     <Dot cx={55} cy={24} />
-    <path d="M72 6 V48" />
-    <rect x={26} y={60} width={42} height={28} />
+    <Stroke d="M72 6 V48" />
+    <Box x={26} y={60} width={42} height={28} />
   </>
 );
 
 /* 증(證) — ㅈ + ㅡ + ㅇ */
 const Jeung = (
   <>
-    <path d="M16 10 H48" />
-    <path d="M32 10 L18 32" />
-    <path d="M32 10 L46 32" />
-    <path d="M12 46 H84" />
-    <circle cx={48} cy={71} r={15} />
+    <Stroke d="M16 10 H48" />
+    <Stroke d="M32 10 L18 32" />
+    <Stroke d="M32 10 L46 32" />
+    <Stroke d="M12 46 H84" />
+    <Ring cx={48} cy={71} r={15} />
   </>
 );
 

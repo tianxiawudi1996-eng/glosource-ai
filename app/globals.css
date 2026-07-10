@@ -77,6 +77,162 @@ button, a, input, select {
   .gs-fade-up, .gs-check-pop { animation: none; opacity: 1; transform: none; }
 }
 
+/* ── Scroll-driven section reveal ──
+   Zero-JS, reusing the hero's gs-fade-up keyframe. Gated behind @supports so
+   browsers without scroll-driven animations simply render the content visible.
+   Requires no scroll-container ancestor (use overflow-x-clip, not -hidden). */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .gs-reveal,
+    .gs-stagger > * {
+      animation-name: gs-fade-up;
+      animation-fill-mode: both;
+      animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+      animation-timeline: view();
+      animation-range: entry 10% entry 70%;
+    }
+    /* Grid children share an entry progress, so offsetting the range staggers them. */
+    .gs-stagger > *:nth-child(2) { animation-range: entry 18% entry 78%; }
+    .gs-stagger > *:nth-child(3) { animation-range: entry 26% entry 86%; }
+    .gs-stagger > *:nth-child(4) { animation-range: entry 34% entry 90%; }
+    .gs-stagger > *:nth-child(n + 5) { animation-range: entry 40% entry 90%; }
+  }
+}
+
+/* ── Hunminjeongeum stroke-order writing (획순) ──
+   YetGlyph is pure-stroke SVG with pathLength="1" on every stroked shape, so a
+   uniform dashoffset sweep writes each stroke in order regardless of its real
+   length. The Haerye round vowel dots are filled, not stroked — they cannot be
+   "drawn", so they are brushed on with a scale pop after their stroke lands. */
+@keyframes gs-stroke-draw {
+  from { stroke-dashoffset: 1; }
+  to   { stroke-dashoffset: 0; }
+}
+@keyframes gs-dot-pop {
+  from { opacity: 0; transform: scale(0.2); }
+  70%  { opacity: 1; transform: scale(1.15); }
+  to   { opacity: 1; transform: scale(1); }
+}
+/* Identical to the pair above, under different names. Hover must swap the
+   animation-name, not just the timeline: keeping the name lets the browser carry
+   the finished scroll animation's playback time over, so nothing re-draws. */
+@keyframes gs-stroke-rewrite {
+  from { stroke-dashoffset: 1; }
+  to   { stroke-dashoffset: 0; }
+}
+@keyframes gs-dot-repop {
+  from { opacity: 0; transform: scale(0.2); }
+  70%  { opacity: 1; transform: scale(1.15); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* Stroke order = document order. On the document timeline (hover) that is a delay. */
+.gs-glyph-draw > *:nth-child(2) { animation-delay: 90ms; }
+.gs-glyph-draw > *:nth-child(3) { animation-delay: 180ms; }
+.gs-glyph-draw > *:nth-child(4) { animation-delay: 270ms; }
+.gs-glyph-draw > *:nth-child(5) { animation-delay: 360ms; }
+.gs-glyph-draw > *:nth-child(6) { animation-delay: 450ms; }
+.gs-glyph-draw > *:nth-child(7) { animation-delay: 540ms; }
+.gs-glyph-draw > *:nth-child(8) { animation-delay: 630ms; }
+
+/* Written once as the tile scrolls in — the only trigger touch devices get. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    /* An <svg> root is a scroll container per the UA stylesheet (overflow: hidden),
+       so an anonymous view() on a stroke would resolve against the <svg> and freeze
+       at a constant. The svg names a timeline; its strokes reference it by name. */
+    .gs-glyph-draw {
+      view-timeline-name: --gs-glyph;
+      view-timeline-axis: block;
+    }
+    .gs-glyph-draw [pathLength] {
+      stroke-dasharray: 1;
+      animation-name: gs-stroke-draw;
+      animation-fill-mode: both;
+      animation-timing-function: linear;
+      animation-timeline: --gs-glyph;
+    }
+    .gs-glyph-draw .gs-yet-dot {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation-name: gs-dot-pop;
+      animation-fill-mode: both;
+      animation-timing-function: linear;
+      animation-timeline: --gs-glyph;
+    }
+    /* A progress-based timeline ignores animation-delay, so stroke order has to be
+       expressed as overlapping scroll ranges. Must follow the two rules above:
+       equal specificity, later wins. */
+    .gs-glyph-draw > *:nth-child(1) { animation-range: entry 12% entry 50%; }
+    .gs-glyph-draw > *:nth-child(2) { animation-range: entry 20% entry 58%; }
+    .gs-glyph-draw > *:nth-child(3) { animation-range: entry 28% entry 66%; }
+    .gs-glyph-draw > *:nth-child(4) { animation-range: entry 36% entry 74%; }
+    .gs-glyph-draw > *:nth-child(5) { animation-range: entry 44% entry 80%; }
+    .gs-glyph-draw > *:nth-child(6) { animation-range: entry 52% entry 86%; }
+    .gs-glyph-draw > *:nth-child(7) { animation-range: entry 60% entry 90%; }
+    .gs-glyph-draw > *:nth-child(8) { animation-range: entry 68% entry 94%; }
+  }
+}
+
+/* Re-writes itself on hover. Higher specificity than the scroll rule above, and
+   animation-timeline:auto hands it back to the document (time-based) timeline. */
+@media (prefers-reduced-motion: no-preference) {
+  .group:hover .gs-glyph-draw [pathLength] {
+    stroke-dasharray: 1;
+    animation-name: gs-stroke-rewrite;
+    animation-fill-mode: both;
+    animation-duration: 0.5s;
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    animation-timeline: auto;
+  }
+  .group:hover .gs-glyph-draw .gs-yet-dot {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation-name: gs-dot-repop;
+    animation-fill-mode: both;
+    animation-duration: 0.28s;
+    animation-timing-function: cubic-bezier(0.34, 1.4, 0.64, 1);
+    animation-timeline: auto;
+  }
+}
+
+/* ── Trust gauge fill ──
+   scaleX from a left origin rather than an animated width: the bar keeps its true
+   width for layout, and the sweep stays off the layout path. At these bar heights
+   the rounded caps distort imperceptibly while scaling. */
+@keyframes gs-gauge-fill {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+.gs-gauge-fill {
+  transform-origin: left center;
+  animation: gs-gauge-fill 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* The score counts up in CSS rather than JS, so it starts at first paint in step
+   with the bar. A JS count-up can only start at hydration, which lands after the
+   server-rendered score has already painted — the number visibly snaps back to 0.
+   The animated digits are decorative; the real score is in an sr-only sibling. */
+@property --gs-n {
+  syntax: '<integer>';
+  inherits: false;
+  initial-value: 0;
+}
+@keyframes gs-count-up {
+  from { --gs-n: 0; }
+}
+.gs-countup::after {
+  --gs-n: var(--gs-target, 0);
+  counter-reset: gs-n var(--gs-n);
+  content: counter(gs-n);
+  animation: gs-count-up 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gs-gauge-fill { animation: none; transform: none; }
+  .gs-countup::after { animation: none; }
+}
+
 /* ── Korean identity system (官印 seal · hanji · obangsaek) ── */
 .font-display { font-family: var(--font-display), 'Fraunces', Georgia, serif; }
 

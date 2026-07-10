@@ -251,8 +251,10 @@ export default async function EnPage({
   const plan = session?.user?.plan ?? 'free';
   const freeSearchLimit = 10;
 
+  // overflow-x-clip, not -hidden: -hidden computes overflow-y to auto, which would make
+  // this a scroll container and silently break every view() timeline inside.
   return (
-    <div className="min-h-screen bg-white overflow-x-hidden">
+    <div className="min-h-screen bg-white overflow-x-clip">
       <SaekdongBand />
       <JsonLdGloSource />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD_ORGANIZATION) }} />
@@ -300,13 +302,15 @@ export default async function EnPage({
       <HeroSection lang="en" />
 
       {/* ── GOVERNMENT REGISTRY CROSS-CHECK ────────────────── */}
-      <section className="relative overflow-hidden border-b border-slate-200 bg-[#0A1520] bg-lattice-dark text-white">
+      {/* overflow-clip, not -hidden: -hidden would make this section a scroll container
+          and freeze the view() timelines of the cards inside it. */}
+      <section className="relative overflow-clip border-b border-slate-200 bg-[#0A1520] bg-lattice-dark text-white">
         <div aria-hidden="true" className="gs-hangul-watermark right-4 top-1/2 -translate-y-1/2 hidden lg:flex flex-col gap-6 text-white/[0.05]">
           <YetGlyph char="geom" className="h-52 w-52" />
           <YetGlyph char="jeung" className="h-52 w-52" />
         </div>
         <div className="relative mx-auto max-w-5xl px-6 py-20">
-          <div className="max-w-3xl">
+          <div className="gs-reveal max-w-3xl">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-400">Evidence, not promises · <HaeryeText className="tracking-normal">증거</HaeryeText></p>
             <h2 className="font-display mt-3 text-3xl font-black leading-tight sm:text-4xl">
               Every Korean candidate is <em className="text-emerald-300">cross-checked</em> against official government registries.
@@ -315,7 +319,7 @@ export default async function EnPage({
               When a candidate&apos;s registered Korean company name matches official records, the evidence is pinned to its card — so you start due diligence from government data, not marketing claims.
             </p>
           </div>
-          <div className="mt-10 grid gap-4 sm:grid-cols-3">
+          <div className="gs-stagger mt-10 grid gap-4 sm:grid-cols-3">
             <article className="rounded-2xl border border-white/10 bg-white/5 p-6">
               <p className="font-mono text-[11px] font-bold uppercase tracking-wider text-emerald-400">MFDS · <HaeryeText>식약처</HaeryeText></p>
               <h3 className="mt-3 text-base font-black text-white">Manufacturer of record</h3>
@@ -349,7 +353,7 @@ export default async function EnPage({
         {/* 기와 처마 — the registry section's dark roof overhangs the hanji courtyard */}
         <div className="text-[#0A1520]"><GiwaEaves className="h-7" /></div>
         <div className="mx-auto max-w-5xl px-6 py-20">
-          <div className="max-w-3xl">
+          <div className="gs-reveal max-w-3xl">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-[#8F3A26]">What Korea makes best · <HaeryeText className="tracking-normal">한국의 제조</HaeryeText></p>
             <h2 className="font-display mt-3 text-3xl font-black leading-tight text-[#0D1B2A] sm:text-4xl">
               Source the categories the world already trusts Korea for.
@@ -358,7 +362,7 @@ export default async function EnPage({
               Each category is matched against the registries that govern it — so a K-Beauty candidate is checked as a cosmetics manufacturer, and a K-Food candidate as a certified food maker.
             </p>
           </div>
-          <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          <div className="gs-reveal mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {[
               { glyph: 'hwa', en: 'K-Beauty', note: 'MFDS cosmetics registry · CGMP', accent: 'border-[#8F3A26]/30 hover:border-[#8F3A26]', chip: 'text-[#8F3A26] bg-[#8F3A26]/5', span: 'row-span-2', big: true },
               { glyph: 'sik', en: 'K-Food', note: 'HACCP-certified manufacturers', accent: 'border-amber-500/30 hover:border-amber-600', chip: 'text-amber-700 bg-amber-500/10' },
@@ -368,21 +372,23 @@ export default async function EnPage({
               { glyph: 'uiyakoepum', en: 'Quasi-drugs', ko: '의약외품', note: 'MFDS quasi-drug permits', accent: 'border-[#0D1B2A]/30 hover:border-[#0D1B2A]', chip: 'text-[#0D1B2A] bg-[#0D1B2A]/5' },
               { glyph: null, en: 'Every other category', note: 'Live NTS business-status check', accent: 'border-dashed border-slate-300 hover:border-[#EA580C]', chip: 'text-[#EA580C] bg-[#EA580C]/5' },
             ].map(cat => (
+              // overflow-clip, not -hidden: -hidden would make the tile a scroll container
+              // and freeze the stroke-order timeline of the glyph inside it.
               <ScrollCTA key={cat.en} targetId="sourcing-tool"
-                className={`group relative overflow-hidden flex flex-col justify-between rounded-2xl border-2 bg-white/70 p-5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-900/5 ${cat.accent} ${cat.span ?? ''}`}>
+                className={`group relative overflow-clip flex flex-col justify-between rounded-2xl border-2 bg-white/70 p-5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-900/5 ${cat.accent} ${cat.span ?? ''}`}>
                 {/* faint oversized glyph fills the tile like a paper watermark */}
                 {cat.glyph && cat.glyph !== 'uiyakoepum' && (
                   <YetGlyph char={cat.glyph as 'hwa'} className={`pointer-events-none absolute -bottom-8 -right-6 ${cat.big ? 'h-64 w-64' : 'h-32 w-32'} opacity-[0.05] ${cat.chip.split(' ')[0]}`} />
                 )}
                 {cat.glyph === 'uiyakoepum' ? (
                   <span aria-hidden="true" className={`relative z-10 grid w-fit grid-cols-2 gap-1 ${cat.chip.split(' ')[0]}`}>
-                    <YetGlyph char="ui" className="h-7 w-7" />
-                    <YetGlyph char="yak" className="h-7 w-7" />
-                    <YetGlyph char="oe" className="h-7 w-7" />
-                    <YetGlyph char="pum" className="h-7 w-7" />
+                    <YetGlyph char="ui" className="gs-glyph-draw h-7 w-7" />
+                    <YetGlyph char="yak" className="gs-glyph-draw h-7 w-7" />
+                    <YetGlyph char="oe" className="gs-glyph-draw h-7 w-7" />
+                    <YetGlyph char="pum" className="gs-glyph-draw h-7 w-7" />
                   </span>
                 ) : cat.glyph ? (
-                  <YetGlyph char={cat.glyph as 'hwa'} className={`relative z-10 ${cat.big ? 'h-24 w-24 sm:h-28 sm:w-28' : 'h-14 w-14'} ${cat.chip.split(' ')[0]}`} />
+                  <YetGlyph char={cat.glyph as 'hwa'} className={`gs-glyph-draw relative z-10 ${cat.big ? 'h-24 w-24 sm:h-28 sm:w-28' : 'h-14 w-14'} ${cat.chip.split(' ')[0]}`} />
                 ) : (
                   <span aria-hidden="true" className={`relative z-10 text-4xl font-black leading-none ${cat.chip.split(' ')[0]}`}>+</span>
                 )}
@@ -405,7 +411,7 @@ export default async function EnPage({
       {/* ── PROBLEM ─────────────────────────────────────────── */}
       <section className="border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-5xl px-6 py-20">
-          <div className="max-w-3xl">
+          <div className="gs-reveal max-w-3xl">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-[#8F3A26]">The sourcing gap · <HaeryeText className="tracking-normal">간극</HaeryeText></p>
             <h2 className="font-display mt-3 text-3xl font-black leading-tight text-[#0D1B2A] sm:text-4xl">
               Finding a Korean factory is easy. Knowing who is worth contacting is not.
@@ -414,7 +420,9 @@ export default async function EnPage({
               Supplier directories give you names. They do not clearly tell you who manufactures, which claims need evidence, whether the MOQ fits, or what to ask in the first email.
             </p>
           </div>
-          <div className="mt-10 grid gap-px overflow-hidden rounded-2xl border border-slate-200 bg-slate-200 sm:grid-cols-2">
+          {/* Revealed as one block: overflow-hidden makes this grid a scroll container,
+              so a per-card view() timeline would resolve against it and never advance. */}
+          <div className="gs-reveal mt-10 grid gap-px overflow-hidden rounded-2xl border border-slate-200 bg-slate-200 sm:grid-cols-2">
             {PROBLEMS.map((item) => (
               <article key={item.number} className="bg-white p-6 sm:p-8">
                 <p className="font-mono text-xs font-bold text-[#EA580C]">{item.number}</p>
@@ -429,7 +437,7 @@ export default async function EnPage({
       {/* ── SAMPLE REPORTS ─────────────────────────────────── */}
       <section id="sample-reports" className="scroll-mt-16 border-b border-slate-200 bg-hanji">
         <div className="mx-auto max-w-5xl px-6 py-20">
-          <div className="mb-10 max-w-2xl">
+          <div className="gs-reveal mb-10 max-w-2xl">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-[#8F3A26]">Free sample reports · <HaeryeText className="tracking-normal">견본</HaeryeText></p>
             <h2 className="font-display mt-3 text-3xl font-black text-[#0D1B2A]">See the shortlist format before you pay</h2>
             <p className="mt-3 text-sm leading-7 text-slate-500">
@@ -443,7 +451,7 @@ export default async function EnPage({
       {/* ── SOURCING TOOL ──────────────────────────────────── */}
       <section id="sourcing-tool" className="scroll-mt-16 bg-slate-50 border-b border-slate-100">
         <div className="max-w-4xl mx-auto px-6 py-20">
-          <div className="mb-10 text-center">
+          <div className="gs-reveal mb-10 text-center">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-[#8F3A26] mb-3">Build your first shortlist · <HaeryeText className="tracking-normal">검색</HaeryeText></p>
             <h2 className="font-display text-3xl font-black text-[#0D1B2A] mb-2">Get my Korean supplier shortlist</h2>
             <p className="text-sm text-slate-500 max-w-lg mx-auto">
@@ -457,14 +465,14 @@ export default async function EnPage({
       {/* ── HOW IT WORKS ───────────────────────────────────── */}
       <section className="bg-white border-b border-slate-100">
         <div className="max-w-5xl mx-auto px-6 py-20">
-          <div className="mb-10 text-center">
+          <div className="gs-reveal mb-10 text-center">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-[#8F3A26] mb-3">How it works · <HaeryeText className="tracking-normal">절차</HaeryeText></p>
             <h2 className="font-display text-3xl font-black text-[#0D1B2A] mb-3">From product idea to a usable Korean supplier shortlist</h2>
             <p className="text-sm text-slate-500 max-w-xl mx-auto">
               The output is a first-pass research shortcut, not a supplier guarantee, audit, or sourcing-agent service.
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="gs-stagger grid grid-cols-1 md:grid-cols-3 gap-6">
             {STEPS.map(item => (
               <article key={item.number} className="border-t-2 border-[#0D1B2A] pt-6">
                 {/* 연꽃 수막새 medallion carries the step number */}
@@ -483,7 +491,7 @@ export default async function EnPage({
       <section id="pricing" className="scroll-mt-16 bg-white border-b border-slate-200">
         <PricingViewTracker />
         <div className="max-w-5xl mx-auto px-6 py-20">
-          <div className="mb-10 text-center">
+          <div className="gs-reveal mb-10 text-center">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-[#8F3A26] mb-3">Pricing · <HaeryeText className="tracking-normal">요금</HaeryeText></p>
             <h2 className="font-display text-3xl font-black text-[#0D1B2A] mb-3">Start with evidence. Upgrade for an active sourcing project.</h2>
             <p className="text-sm text-slate-500 max-w-xl mx-auto">
@@ -495,7 +503,9 @@ export default async function EnPage({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-6xl mx-auto">
+          {/* Block-level reveal: the highlighted plan carries lg:-translate-y-2, which a
+              per-card fill-mode:both animation would flatten. */}
+          <div className="gs-reveal grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-6xl mx-auto">
             {PLANS.map(plan => (
               <div key={plan.id}
                 className={`rounded-2xl border p-6 flex flex-col relative transition-all duration-200 ${plan.highlight ? 'bg-[#0D1B2A] border-[#0D1B2A] shadow-xl shadow-slate-900/15 lg:-translate-y-2' : 'bg-white border-slate-200 hover:border-slate-300 hover:shadow-md'}`}>
@@ -549,11 +559,11 @@ export default async function EnPage({
       {/* ── FAQ ────────────────────────────────────────────── */}
       <section className="bg-hanji border-b border-slate-100">
         <div className="max-w-3xl mx-auto px-6 py-20">
-          <div className="mb-10 text-center">
+          <div className="gs-reveal mb-10 text-center">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-[#8F3A26] mb-3">FAQ · <HaeryeText className="tracking-normal">문답</HaeryeText></p>
             <h2 className="font-display text-3xl font-black text-[#0D1B2A]">Frequently asked questions</h2>
           </div>
-          <div className="space-y-3">
+          <div className="gs-stagger space-y-3">
             {FAQ.map(item => (
               <div key={item.q} className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
                 <p className="font-bold text-sm text-[#0D1B2A] mb-2">{item.q}</p>

@@ -240,7 +240,7 @@ function TrustBar({ score, aiSignalNote }: { score: number; aiSignalNote?: strin
     <div>
       <div className="flex items-center gap-1.5">
         <div className="h-1.5 w-20 rounded-full bg-white/10 overflow-hidden">
-          <div className={`h-full rounded-full ${color}`} style={{ width: `${score}%` }} />
+          <div className={`gs-gauge-fill gs-delay-3 h-full rounded-full ${color}`} style={{ width: `${score}%` }} />
         </div>
         <span className="text-[10px] font-bold text-slate-200">{score}/100</span>
       </div>
