@@ -2,19 +2,19 @@
   "schema_version": "1.0.0",
   "project": "GloSource AI + K-DEFENSE Validation OS",
   "repo": "tianxiawudi1996-eng/glosource-ai",
-  "calibrated_at": "2026-07-11T22:40:00+09:00",
+  "calibrated_at": "2026-07-12T00:40:00+09:00",
   "current_branch": "chore/harness-cal-0623",
-  "head_sha": "8306d94",
+  "head_sha": "a4c4b76",
   "main_sha": "auto-promoted by .github/workflows/promote.yml on every green push",
   "origin_main_sha": "auto-promoted by .github/workflows/promote.yml on every green push",
   "main_synced": true,
   "track": "outbound_validation",
   "last_done_increment": {
-    "id": "GLO-EN-JSONLD-PRICE",
-    "sha": "8306d94 (chore/harness-cal-0623; pushed — promote.yml fast-forwards master on green build+test)",
-    "summary": "2026-07-11: the JSON-LD advertised a retired $19/$49 tier while the checkout charged $39/$99/$249. That is the price Google quotes to a buyer before they ever reach the site, so the first thing we told them about ourselves was wrong by half. Root cause: the numbers were copied into four places (landing, billing, paywall, JSON-LD) and only the invisible copy drifted, because it is the one nobody looks at. Fix: the commercial facts (price, monthly quota, Polar checkout envKey) now live only in app/lib/plans.ts and all four surfaces derive from it — the same pattern app/lib/founder.ts already uses to feed both the founder card and its schema. Copy stays per-surface; only the facts are shared. The contact tier emits no Offer rather than a placeholder price (an Offer without a price earns no rich result, and inventing one would misquote the checkout in the other direction). 7 new unit tests fail if a retired price ever resurfaces. Verified against the rendered page, not just the tests: GET /en emits offers at 39/99/249 with zero occurrences of $19/$49, and all four visible cards still render price, quota and CTA. Green: tsc, eslint (0 errors), npm test 19/19, next build. Prior increments this branch: GLO-EN-TRUSTANCHOR (7abe07a), GLO-EN-PAYHIST (406b411), GLO-HARDEN (a1e8f62)."
+    "id": "GLO-EN-DBSEED-EXPAND",
+    "sha": "ef082d8 + a4c4b76 (chore/harness-cal-0623; pushed; prod DB seeded with operator approval)",
+    "summary": "2026-07-12: the 'GloSource Verified' badge sat only on three mega-ODMs, so an indie brand with a 1,000-unit budget was being pointed at factories that would not take their order — a trust claim we cannot cash. Curated four more K-Beauty manufacturers using the product's own method: web discovery, then cross-check against the government registries we already ingest (MFDS kr_cosmetics_firms induty=화장품제조 for the manufacturing licence + business-reg number + plant address; MFDS CGMP list matched on business-reg number). The registry did real work and rejected most of what the web calls a low-MOQ Korean factory: Laonhase advertises the lowest MOQ anyone does (300 units) yet has NO MFDS manufacturing record under that name (exactly the trap our buyers fall into); Factosquare is 화장품책임판매 only (a brand owner); Selfcos and Smallcosmetic have no record at all; OEMKorea/CosKorea/Crescent Seoul/Mayk/Sourcing Lab/KPrivateLabel are sourcing agencies that outrank real factories and resell someone else's plant. Survivors: NOWCOS and Hankook Cosmo (CGMP-certified, mid-size, publish no MOQ) and COSMEDIQUE and CTK (publish a 1,000-unit MOQ but are NOT CGMP-listed) — the notes state that trade-off plainly rather than implying every badged supplier is both cheap to start with and top-certified. COSMAX was corrected, not just kept: its 2023 indie programme dropped the minimum from 10,000 to 1,000 units, so the old 'typically high MOQ' note had been steering away the exact buyer it was meant to help; the seed now upserts instead of skipping, or a stale note would survive forever precisely because the row exists. Critically, seeding alone changed NOTHING for buyers: dbFallbackOutput injected only two curated rows with no ORDER BY, so insertion order handed every search to the mega-ODMs — fixed in a4c4b76 (MOQ ascending, NULLS LAST) and verified against the production table (a serum query now injects COSMAX 1,000 + COSMEDIQUE 1,000). 6 new honesty-invariant tests: a CGMP claim must match the government list by business-reg number, an MOQ must be the company's own published figure or null, trustScore stays null, and the rejected middlemen cannot reappear. Green: tsc, eslint (0 errors), npm test 25/25, next build. Prior increments this branch: GLO-EN-JSONLD-PRICE (8306d94), GLO-EN-TRUSTANCHOR (7abe07a), GLO-EN-PAYHIST (406b411), GLO-HARDEN (a1e8f62)."
   },
-  "next_ready_task": "GLO-EN-DBSEED-EXPAND — the curated supplier seed holds only three large ODMs (COSMAX, Kolmar Korea, Cosmecca), so the 'GloSource Verified' badge lands on suppliers our ICP (low-MOQ indie brands) cannot actually use. Curate real low-MOQ Korean factories into scripts/seed-suppliers.ts (unknown figures stay null — no fabrication). Writing the curation and the seed is NOT gated; only running it against the prod DB is (DATABASE_URL). Pending human input (non-blocking): FOUNDER.linkedin URL + a real founder photo -> app/lib/founder.ts. Gated: GLO-EN-PAYHIST live verify (growth:payments:dummy needs DATABASE_URL + one Polar test payment). KPIs stay 0 until real customer evidence.",
+  "next_ready_task": "GLO-EN-SUPPLIER-EVIDENCE — the curation evidence (business-reg number, licence date, plant location, CGMP status) currently lives only as prose inside verified_suppliers.notes, so registry cross-checks still match on company NAME. Add a `bizrno` column and match on it: that removes same-name mismatches and lets the existing real-time NTS (국세청) status check cover curated suppliers too. Needs a schema migration, so the prod rollout is gated; writing the migration and code is not. Also open: the 20 K-Food/K-Fashion rows (addedBy=harness:curate-fallback) have null MOQ and no registry cross-check — they need the same bar K-Beauty just got. Pending human input (non-blocking): FOUNDER.linkedin URL + a real founder photo -> app/lib/founder.ts. Gated: GLO-EN-PAYHIST live verify (growth:payments:dummy needs DATABASE_URL + one Polar test payment). KPIs stay 0 until real customer evidence.",
   "resource_allocation": {
     "glosource_percent": 80,
     "k_defense_percent": 20,
@@ -120,8 +120,13 @@
     },
     {
       "flag": "seed_suppliers_wrong_icp",
+      "state": "resolved",
+      "resolves_in": "Resolved 2026-07-12 (GLO-EN-DBSEED-EXPAND, seeded to prod with operator approval): a serum query now injects two factories that publish a 1,000-unit minimum an indie brand can meet (COSMAX's 2023 indie programme + COSMEDIQUE), instead of mega-ODMs whose minimum nobody published. Every badged row cites its MFDS manufacturing licence and business-reg number, and a CGMP claim is test-checked against the government list."
+    },
+    {
+      "flag": "food_fashion_rows_unvetted",
       "state": "open",
-      "resolves_in": "GLO-EN-DBSEED-EXPAND: the seed holds only three large ODMs, so 'GloSource Verified' badges point low-MOQ indie buyers at factories that will not take their order. Curate real low-MOQ Korean factories (no fabricated figures)."
+      "resolves_in": "The 20 K-Food / K-Fashion rows (addedBy=harness:curate-fallback) carry the same 'GloSource Verified' badge but have null MOQ and were never cross-checked against a government registry (HACCP for food; none ingested for fashion). They need the bar K-Beauty just got, or the badge means two different things depending on category."
     }
   ],
   "gates_pending": [
@@ -135,11 +140,14 @@
     "commands": [
       "npx tsc --noEmit (exit 0)",
       "npm run lint (0 errors; 1 pre-existing unrelated warning in _measure-attach.ts)",
-      "npm test (tsx --test) -> 19/19 pass incl. 7 new plans cases",
+      "npm test (tsx --test) -> 25/25 pass incl. 6 new curated-supplier honesty invariants",
       "npm run build (exit 0)",
-      "next start -> GET /en: JSON-LD offers = 39/99/249, zero occurrences of the retired $19/$49, all four price cards render price+quota+CTA; /en 200; /en/billing 302 -> login (auth gate intact)",
+      "MFDS registry cross-check (prod, read-only): NOWCOS / Hankook Cosmo / COSMEDIQUE / CTK all hold a 화장품제조 licence with a business-reg number and plant address; Laonhase has none -> rejected",
+      "CGMP list cross-check by business-reg number: COSMAX, Kolmar, Cosmecca, NOWCOS, Hankook Cosmo certified; COSMEDIQUE and CTK are not -> recorded as-is, no inflation",
+      "seed run (prod, approved): 4 inserted + 3 updated; re-run reports 7 unchanged (idempotent)",
+      "injection order (prod): a serum query injects COSMAX (1,000) + COSMEDIQUE (1,000); before the ORDER BY fix it would have injected Kolmar, whose MOQ is unpublished",
       "bash scripts/harness-precommit.sh (sensitive/placeholder/state/lint clean)"
     ],
-    "summary": "2026-07-11: GLO-EN-JSONLD-PRICE implemented + committed (8306d94) and pushed; promote.yml fast-forwards master on green build+test, so this deploys without a separate merge gate. Verified against the rendered page rather than the unit tests alone — the failure being fixed was structured data nobody looks at, so asserting it only in a test we wrote would have repeated the mistake. KPIs unchanged at 0 — no real customer evidence yet; no fabrication."
+    "summary": "2026-07-12: GLO-EN-DBSEED-EXPAND (ef082d8) + injection-order fix (a4c4b76), both promoted to master and seeded to the prod DB with operator approval. The lesson worth keeping: seeding the rows changed nothing on its own — the search only injects two curated suppliers and selected them with no ORDER BY, so the work was invisible to buyers until that was fixed and checked against the production table. KPIs unchanged at 0 — no real customer evidence yet; no fabrication."
   }
 }

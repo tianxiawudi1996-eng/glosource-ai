@@ -3,16 +3,16 @@
 ## Snapshot
 
 - Project: GloSource AI + K-DEFENSE Validation OS
-- Last calibrated: 2026-07-11 22:40 Asia/Seoul
+- Last calibrated: 2026-07-12 Asia/Seoul
 - Current branch: chore/harness-cal-0623
-- Head SHA: 8306d94
+- Head SHA: a4c4b76
 - Main synced: true — `promote.yml`가 브랜치 push마다 빌드+테스트를 돌리고 통과 시에만 master를 FF → Vercel 배포. 병합은 더 이상 수동 게이트가 아니다.
 - Current track: outbound_validation
-- Next READY: GLO-EN-DBSEED-EXPAND (저MOQ 실공장 시드 큐레이션). 그 외는 게이트(리드·발송·결제·비공개 분석).
+- Next READY: GLO-EN-SUPPLIER-EVIDENCE (`verified_suppliers.bizrno` 컬럼 → 이름이 아닌 사업자번호로 레지스트리 대조). 그 외는 게이트(리드·발송·결제·비공개 분석).
 
 ## Last Done Increment
 
-GLO-EN-JSONLD-PRICE @ 8306d94 — 구조화데이터가 폐지된 **$19/$49**를 광고하고 실제 청구는 **$39/$99/$249**였다. 구글이 구매자에게 우리 대신 말해주는 첫 문장이 가격이므로 그게 절반쯤 틀려 있었다. 가격 리터럴이 4벌(랜딩·billing·페이월·JSON-LD) 복제돼 있었고 **아무도 안 보는 사본만** 드리프트했다. 상업적 사실(가격·월쿼터·Polar envKey)을 `app/lib/plans.ts` 단일 소스로 모으고 네 표면 전부 파생하도록 바꿨다(`founder.ts`가 카드+스키마를 먹이는 기존 패턴과 동일). 카피는 표면별 유지, 사실만 공유. contact 티어는 가격 없는 Offer 대신 제외. tsc·lint·test 19/19·build green + 렌더된 `/en` HTML 실검증.
+GLO-EN-DBSEED-EXPAND @ ef082d8 + a4c4b76 (**prod DB 반영 완료**) — 'GloSource Verified' 배지가 대형 ODM 3사에만 붙어, 1,000개 예산의 인디 브랜드를 **주문도 받아주지 않을 공장**으로 안내하고 있었다. 현금화 못 할 신뢰 주장은 배지가 없느니만 못하다. 제품이 공급사를 검증하는 방식 그대로 큐레이션했다: 웹 발굴 → 식약처 제조등록 대조 → CGMP 명단 대조(사업자번호). **레지스트리가 실제로 일을 했다** — 웹에서 "저MOQ 한국 공장"이라 불리는 것 대부분을 탈락시켰고, 특히 최저 MOQ(300개)를 광고하는 라온하세는 제조등록이 없어 배지를 줄 수 없었다(우리 구매자가 빠지는 바로 그 함정). 코스맥스는 2023년 인디 프로그램으로 MOQ가 1만→1,000개로 내려갔는데 기존 노트가 "typically high MOQ"라고 적혀 있어 정작 도우려던 구매자를 쫓아내고 있었다 → 시드를 upsert로 바꿔 정정. 그리고 **시드만으로는 구매자에게 아무것도 안 바뀌었다**: 주입 쿼리에 ORDER BY가 없어 삽입순(대형 ODM)만 노출되고 있었다(a4c4b76에서 MOQ 오름차순으로 수정, prod 실검증).
 
 ## Current State
 
@@ -25,7 +25,8 @@ GLO-EN-JSONLD-PRICE @ 8306d94 — 구조화데이터가 폐지된 **$19/$49**를
 
 - 사람 입력 대기(비차단): 창업자 LinkedIn URL + 실사진 → `app/lib/founder.ts` 두 필드.
 - GLO-EN-PAYHIST 라이브 확인 미완: `npm run growth:payments:dummy`(DATABASE_URL 필요) + Polar 테스트결제 1회 → 게이트.
-- 시드 공급사가 대형 ODM 3사뿐 → 저MOQ ICP에게 'Verified' 배지가 붙는 공급사가 부적합(다음 READY).
+- 큐레이션 근거(사업자번호·CGMP)가 `notes` 산문에만 있어 이름 기반 매칭에 의존 → `bizrno` 컬럼이 다음 READY.
+- K-Food 16 / K-Fashion 4 행(`addedBy=harness:curate-fallback`)은 **MOQ 전부 null이고 레지스트리 대조 이력 없음** — K-Beauty와 같은 기준으로 재검증 필요(미착수).
 - 남은 진행 대부분 게이트: 실 ICP 리드, Gmail OAuth, 외부 발송, 결제 확인, 비공개 플랫폼 분석.
 
 ## Gates Pending
@@ -36,7 +37,15 @@ GLO-EN-JSONLD-PRICE @ 8306d94 — 구조화데이터가 폐지된 **$19/$49**를
 - 비공개 플랫폼 분석 데이터 접근 승인
 - ~~master 병합 승인~~ → `promote.yml`로 자동화(빌드+테스트가 게이트 역할)
 
-## Recent Verification (2026-07-11)
+## Recent Verification (2026-07-12, GLO-EN-DBSEED-EXPAND)
+
+- 식약처 레지스트리 대조(prod, 읽기): 나우코스·한국코스모·코스메디크·씨티케이 모두 `화장품제조` 등록 확인(사업자번호·공장주소). 라온하세 0건 → 탈락.
+- CGMP 명단 대조(사업자번호): 코스맥스·한국콜마·코스메카·나우코스·한국코스모 ✅ / 코스메디크·씨티케이 ✗ → 인증 필드에 그대로 반영(과장 0).
+- 시드 실행(prod, 승인 후): 4 insert + 3 update, 재실행 시 7 unchanged(멱등).
+- 주입 순서 prod 검증: serum 쿼리 → COSMAX(1,000) + COSMEDIQUE(1,000) 주입(수정 전엔 Kolmar[MOQ 미공개]가 노출됐을 것).
+- `npm test` 25/25 (큐레이션 정직성 불변식 6건 신규), tsc·lint 0 errors·build green.
+
+## Earlier Verification (2026-07-11)
 
 - `npx tsc --noEmit`: exit 0
 - `npm run lint`: 0 errors (기존 무관 경고 1건 `_measure-attach.ts`)
