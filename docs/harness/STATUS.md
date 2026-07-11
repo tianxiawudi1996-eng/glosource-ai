@@ -8,7 +8,12 @@
 - Head SHA: b61f5cd
 - Main synced: true — `promote.yml`가 브랜치 push마다 빌드+테스트를 돌리고 통과 시에만 master를 FF → Vercel 배포. 병합은 더 이상 수동 게이트가 아니다.
 - Current track: outbound_validation
-- Next READY: **DRIZZLE-MIGRATION-DRIFT**(⚠ `db:migrate`가 prod에서 터지는 상태 — 잠복 지뢰) → 그다음 GLO-FOOD-BIZRNO-REGISTRY. 그 외는 게이트(리드·발송·결제·비공개 분석).
+- Head SHA: eed52fd
+- Next READY: GLO-FOOD-BIZRNO-REGISTRY(식품 레지스트리 ingest → K-Food 사업자번호를 원장 기반으로). 그 외는 게이트(리드·발송·결제·비공개 분석).
+
+## Last Done Increment (4)
+
+DRIZZLE-MIGRATION-BASELINE @ eed52fd (**prod 이력 정합 완료**) — `db:migrate`가 프로덕션에서 터지는 상태였고, **아무도 안 돌려서 안 터졌을 뿐**이었다. 특히 무서운 건 (2)번: `kr_*` 정부 레지스트리 테이블 8개가 마이그레이션에 아예 없어서, **신규 환경은 제품이 검증에 쓰는 원장 없이 뜬다**. schema.ts를 단일 baseline으로 리셋하되 **그 전에 schema.ts == prod를 컬럼 단위로 확인**했다(어긋난 스키마로 baseline을 깔면 drift를 지우는 게 아니라 축복한다 — 19테이블 전 컬럼 일치). `db:adopt`는 라이브 스키마가 baseline과 다르면 **거부**한다. 실검증: prod에 migrate 2회 정상 통과·스키마 무변경. 재발 방지 테스트가 원래 사고(테이블 추가 후 마이그레이션 누락)를 실제로 잡는다 → 승격 게이트가 master를 막는다.
 
 ## Last Done Increment (3)
 
@@ -33,7 +38,7 @@ GLO-EN-DBSEED-EXPAND @ ef082d8 + a4c4b76 (**prod DB 반영 완료**) — 'GloSou
 
 - 사람 입력 대기(비차단): 창업자 LinkedIn URL + 실사진 → `app/lib/founder.ts` 두 필드.
 - GLO-EN-PAYHIST 라이브 확인 미완: `npm run growth:payments:dummy`(DATABASE_URL 필요) + Polar 테스트결제 1회 → 게이트.
-- ⚠ **`npm run db:migrate`를 프로덕션에 돌리지 말 것** — journal 9건 vs prod 적용기록 3건. 지금 돌리면 기존 테이블 CREATE를 시도한다. 컬럼 추가는 수기 `ALTER ... IF NOT EXISTS`로 직접 적용했다. 정합 작업이 다음 READY.
+- ✅ `npm run db:migrate` 정상화(eed52fd). 스키마 변경 절차: `schema.ts` 수정 → `npm run db:generate` → 커밋. 마이그레이션을 안 만들면 **테스트가 실패하고 승격이 막힌다**(의도된 동작). 기존 DB 신규 편입은 `npm run db:adopt`.
 - **자율 런 산출물은 신뢰하지 말 것**: `harness:curate-fallback`이 넣은 20건이 trustScore를 전부 지어냈고 가짜 인증 라벨을 달았다. 앞으로 큐레이션은 `scripts/curated-suppliers.ts` + `verify-curated.ts`를 통과해야만 DB에 들어간다.
 - K-Fashion 3건은 **원천적으로 검증 불가**(정부 원장 부재)라 배지 의미가 약하다. 의류 제조 원장이 생기거나 대안 근거(예: 수출입 실적)가 확보되기 전까지는 노트의 미검증 고지가 유일한 방어선.
 - 남은 진행 대부분 게이트: 실 ICP 리드, Gmail OAuth, 외부 발송, 결제 확인, 비공개 플랫폼 분석.
