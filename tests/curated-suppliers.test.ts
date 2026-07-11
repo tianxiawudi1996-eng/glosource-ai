@@ -1,31 +1,63 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { CURATED } from '../scripts/curated-suppliers';
+import { CURATED, RETIRED } from '../scripts/curated-suppliers';
 import cgmp from '../app/data/cgmp-firms.json';
 
 // These rows carry a 'GloSource Verified' badge to buyers, so the bar is evidence, not plausibility.
-// Each rule below is a way we could quietly start lying to an indie brand about a factory.
+// Each rule below is a way we could quietly start lying to a buyer about a factory. The registry
+// cross-checks themselves live in scripts/verify-curated.ts and run at seed time, which needs a
+// database; what is asserted here is everything that can be checked without one.
 
 const BIZRNO = /biz reg (\d{3}-\d{2}-\d{5})/;
 const CGMP_SET = new Set((cgmp.bizrnos as string[]).map(b => b.replace(/\D/g, '')));
 
-test('every curated supplier cites the MFDS manufacturing licence that backs its badge', () => {
-  for (const s of CURATED) {
-    const m = BIZRNO.exec(s.notes ?? '');
-    assert.ok(m, `${s.nameEn}: no business-registration number in notes — nothing proves this is a licensed factory`);
+const BEAUTY = CURATED.filter(s => s.category === 'K-Beauty');
+const FOOD = CURATED.filter(s => s.category === 'K-Food');
+const FASHION = CURATED.filter(s => s.category === 'K-Fashion');
+
+test('cosmetics rows cite the MFDS manufacturing licence that backs the badge', () => {
+  assert.ok(BEAUTY.length > 0);
+  for (const s of BEAUTY) {
+    assert.ok(BIZRNO.exec(s.notes ?? ''), `${s.nameEn}: no business-registration number — nothing proves this is a licensed factory`);
     assert.match(s.notes ?? '', /MFDS-licensed manufacturer/, `${s.nameEn}: notes must state the registry check`);
   }
 });
 
 test('a CGMP claim matches the government CGMP list, by business-registration number', () => {
-  for (const s of CURATED) {
+  for (const s of BEAUTY) {
     const biz = BIZRNO.exec(s.notes ?? '')![1].replace(/\D/g, '');
-    const claimsCgmp = (s.certifications ?? '').includes('CGMP');
-    assert.equal(
-      claimsCgmp,
-      CGMP_SET.has(biz),
-      `${s.nameEn}: certifications say CGMP=${claimsCgmp} but the MFDS CGMP list says ${CGMP_SET.has(biz)}`,
+    const claims = (s.certifications ?? '').includes('CGMP');
+    assert.equal(claims, CGMP_SET.has(biz), `${s.nameEn}: certifications say CGMP=${claims} but the MFDS list says ${CGMP_SET.has(biz)}`);
+  }
+});
+
+test('food rows claim HACCP and say where the certificate comes from', () => {
+  assert.ok(FOOD.length > 0);
+  for (const s of FOOD) {
+    assert.match(s.certifications ?? '', /HACCP/, `${s.nameEn}: a badged food supplier with no HACCP claim`);
+    assert.match(s.notes ?? '', /food-safety registry/, `${s.nameEn}: the HACCP claim must name the registry it was matched against`);
+  }
+});
+
+test('apparel rows admit that nothing can verify them', () => {
+  // Korea publishes no registry of apparel manufacturers. The badge cannot mean here what it means
+  // for cosmetics or food, so every fashion row has to say so where the buyer reads it.
+  assert.ok(FASHION.length > 0);
+  for (const s of FASHION) {
+    assert.match(
+      s.notes ?? '',
+      /no government registry of apparel manufacturers/,
+      `${s.nameEn}: must disclose that manufacturer-vs-trader status is unconfirmed`,
     );
+    assert.equal(s.certifications, null, `${s.nameEn}: no registry can back a certificate claim for apparel`);
+  }
+});
+
+test('"NTS-verified" is never listed as a certification', () => {
+  // It only means the business registration is active — sitting next to HACCP and CGMP it reads as
+  // a quality certificate, which is how the first autonomous seed dressed up a nothing-check.
+  for (const s of CURATED) {
+    assert.doesNotMatch(s.certifications ?? '', /NTS/i, `${s.nameEn}: NTS status is not a certification`);
   }
 });
 
@@ -34,7 +66,7 @@ test('a published MOQ names its source; an unknown MOQ stays null', () => {
     if (s.moqMin === null || s.moqMin === undefined) {
       assert.match(
         s.notes ?? '',
-        /publishes no MOQ|No public MOQ|publishes no MOQ figure|no MOQ figure/i,
+        /publishes no MOQ|No public MOQ|no MOQ figure|No published MOQ/i,
         `${s.nameEn}: MOQ is null, so the notes must tell the buyer it is unknown rather than stay silent`,
       );
       continue;
@@ -49,15 +81,14 @@ test('a published MOQ names its source; an unknown MOQ stays null', () => {
 });
 
 test('trust scores are never invented', () => {
+  // The first autonomous seed scored every supplier 78 / 82 / 88 — a formula over which certificates
+  // it found, presented to buyers as if someone had audited the factory.
   for (const s of CURATED) {
     assert.equal(s.trustScore, null, `${s.nameEn}: trustScore must stay null until a real audit produces one`);
   }
 });
 
 test('the rejected middlemen never reappear as verified suppliers', () => {
-  // Each of these outranks real factories for "Korean low-MOQ manufacturer" but is an agency,
-  // a brand owner, or has no MFDS manufacturing record at all. Badging one would make GloSource
-  // the middleman problem it sells against.
   const REJECTED = ['laonhase', 'factosquare', 'selfcos', 'smallcosmetic', 'oemkorea', 'coskorea', 'crescentseoul', 'mayk-factory', 'sourcing-lab', 'kprivatelabel'];
   for (const s of CURATED) {
     const host = new URL(s.url!).hostname.toLowerCase();
@@ -67,9 +98,16 @@ test('the rejected middlemen never reappear as verified suppliers', () => {
   }
 });
 
+test('a retired supplier cannot be curated again', () => {
+  // OSOI is a bag-and-shoe brand — a factory's customer, not a supplier. It was badged once.
+  assert.ok(RETIRED.length > 0);
+  const retired = new Set(RETIRED.map(r => r.name));
+  for (const s of CURATED) {
+    assert.ok(!retired.has(s.name), `${s.nameEn} was retired from the badge and must not come back`);
+  }
+});
+
 test('the low-MOQ tier the ICP needs actually exists in the list', () => {
-  // The whole point of the curation: an indie brand must find at least one badged factory that
-  // publishes a minimum it can afford. If this fails, the badge is decoration.
   const affordable = CURATED.filter(s => (s.moqMin ?? Infinity) <= 1000);
   assert.ok(affordable.length >= 2, 'a low-MOQ indie brand needs more than one option they can actually order from');
 });

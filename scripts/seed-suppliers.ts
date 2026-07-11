@@ -33,7 +33,8 @@
  */
 import { eq } from 'drizzle-orm';
 import { db, verifiedSuppliers } from '../app/lib/db';
-import { CURATED, type CuratedSupplier } from './curated-suppliers';
+import { CURATED, RETIRED, type CuratedSupplier } from './curated-suppliers';
+import { verifyCurated } from './verify-curated';
 
 // Fields this script owns. Everything else on an existing row (id, verifiedAt, active) is left alone.
 function curatedFields(s: CuratedSupplier) {
@@ -58,6 +59,35 @@ async function main(): Promise<void> {
   let updated = 0;
 
   if (dry) console.log('DRY RUN — no writes\n');
+
+  // Re-check every claim against the registries before anything is written. A row that fails is a
+  // row that would tell a buyer something we cannot back, so nothing is seeded until it is fixed.
+  console.log('verifying claims against the government registries…');
+  const verdicts = await verifyCurated(CURATED);
+  for (const v of verdicts) {
+    for (const w of v.warnings) console.warn(`  ! ${v.supplier}: ${w}`);
+  }
+  const failed = verdicts.filter(v => v.problems.length);
+  if (failed.length) {
+    console.error('\nREFUSING TO SEED — these rows make claims the registries do not back:\n');
+    for (const v of failed) {
+      console.error(`  ${v.supplier}`);
+      for (const p of v.problems) console.error(`     - ${p}`);
+    }
+    process.exit(1);
+  }
+  console.log(`  all ${verdicts.length} rows check out\n`);
+
+  for (const r of RETIRED) {
+    const [row] = await db
+      .select({ id: verifiedSuppliers.id, active: verifiedSuppliers.active })
+      .from(verifiedSuppliers)
+      .where(eq(verifiedSuppliers.name, r.name))
+      .limit(1);
+    if (!row || !row.active) continue;
+    if (!dry) await db.update(verifiedSuppliers).set({ active: false, updatedAt: new Date() }).where(eq(verifiedSuppliers.id, row.id));
+    console.log(`${dry ? 'would retire' : 'retired'}: ${r.name} — ${r.reason}`);
+  }
 
   for (const s of CURATED) {
     const existing = await db
