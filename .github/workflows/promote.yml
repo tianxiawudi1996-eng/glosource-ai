@@ -8,8 +8,11 @@ name: Promote to master
 # existed), so commits used to sit on a branch unpromoted for days. This replaces
 # that assumption with something that actually runs.
 #
-# Escape hatch: put [no-promote] in the head commit message to push a branch
-# without promoting it.
+# Escape hatch: put [no-promote] in the commit *subject* (first line) to push a
+# branch without promoting it. The subject only — matching the whole message means
+# a commit that merely mentions the tag (a doc change, a postmortem) silently fails
+# to deploy. That is not hypothetical: the commit that introduced this workflow
+# described the escape hatch in its body and skipped its own promotion.
 
 on:
   push:
@@ -24,11 +27,12 @@ concurrency:
 
 jobs:
   promote:
-    # head_commit is null for branch deletions; skip those and honor the escape hatch.
+    # head_commit is null for branch deletions — nothing to build or promote.
+    # The [no-promote] check is NOT here: job-level `if` can only match the whole
+    # message, and it is read from git in the gate step below instead.
     if: >-
       github.event_name == 'workflow_dispatch' ||
-      (github.event.head_commit != null &&
-       !contains(github.event.head_commit.message, '[no-promote]'))
+      github.event.head_commit != null
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -38,13 +42,25 @@ jobs:
         with:
           fetch-depth: 0 # need master's history to test fast-forwardability
 
-      # Cheap check first: a branch that has diverged from master can't be promoted,
+      # Cheap checks first: a branch that has diverged from master can't be promoted,
       # and there is no point spending CI minutes building it.
-      - name: Check master can fast-forward to this commit
+      #
+      # The subject is read with `git log`, not from the event payload, so it is never
+      # interpolated into the shell — a commit message is attacker-controlled input in
+      # the general case, and `${{ }}` inside `run:` would be a script injection.
+      #
+      # `%B | head -1`, not `%s`: %s is the first *paragraph*, so a commit that omits
+      # the blank line after its subject has its whole body folded into %s — which
+      # would let a body mention of the tag skip the deploy, the exact bug this check
+      # is being written to avoid.
+      - name: Decide whether to promote
         id: ff
         run: |
           git fetch origin master
-          if [ "$(git rev-parse HEAD)" = "$(git rev-parse origin/master)" ]; then
+          if git log -1 --format=%B HEAD | head -n 1 | grep -qF '[no-promote]'; then
+            echo "promotable=false" >> "$GITHUB_OUTPUT"
+            echo "Skipped: commit subject contains \`[no-promote]\`." >> "$GITHUB_STEP_SUMMARY"
+          elif [ "$(git rev-parse HEAD)" = "$(git rev-parse origin/master)" ]; then
             echo "Already on master. Nothing to promote."
             echo "promotable=false" >> "$GITHUB_OUTPUT"
             echo "Nothing to promote — this commit is already master." >> "$GITHUB_STEP_SUMMARY"
