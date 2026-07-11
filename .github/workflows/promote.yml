@@ -1,0 +1,108 @@
+name: Promote to master
+
+# Fast-forwards master to a feature branch, but only after build + tests pass.
+# Pushing master is what triggers the Vercel production deploy, so this workflow
+# is the deploy gate: nothing reaches production without compiling and passing tests.
+#
+# There is no promote worker on the home PC (a previous one was assumed and never
+# existed), so commits used to sit on a branch unpromoted for days. This replaces
+# that assumption with something that actually runs.
+#
+# Escape hatch: put [no-promote] in the head commit message to push a branch
+# without promoting it.
+
+on:
+  push:
+    branches-ignore:
+      - master
+  workflow_dispatch:
+
+# Serialize promotions so two pushes can't race to fast-forward master.
+concurrency:
+  group: promote-master
+  cancel-in-progress: false
+
+jobs:
+  promote:
+    # head_commit is null for branch deletions; skip those and honor the escape hatch.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.head_commit != null &&
+       !contains(github.event.head_commit.message, '[no-promote]'))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # need master's history to test fast-forwardability
+
+      # Cheap check first: a branch that has diverged from master can't be promoted,
+      # and there is no point spending CI minutes building it.
+      - name: Check master can fast-forward to this commit
+        id: ff
+        run: |
+          git fetch origin master
+          if [ "$(git rev-parse HEAD)" = "$(git rev-parse origin/master)" ]; then
+            echo "Already on master. Nothing to promote."
+            echo "promotable=false" >> "$GITHUB_OUTPUT"
+            echo "Nothing to promote — this commit is already master." >> "$GITHUB_STEP_SUMMARY"
+          elif git merge-base --is-ancestor origin/master HEAD; then
+            echo "promotable=true" >> "$GITHUB_OUTPUT"
+            echo "before=$(git rev-parse origin/master)" >> "$GITHUB_OUTPUT"
+          else
+            echo "promotable=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Branch has diverged from master — not a fast-forward, so it will NOT be promoted. Rebase onto master to deploy it."
+            {
+              echo "### Not promoted"
+              echo "This branch has diverged from \`master\`, so it cannot be fast-forwarded."
+              echo "Rebase onto master to make it promotable:"
+              echo '```'
+              echo "git rebase origin/master"
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - uses: actions/setup-node@v4
+        if: steps.ff.outputs.promotable == 'true'
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        if: steps.ff.outputs.promotable == 'true'
+        run: npm ci
+
+      - name: Test
+        if: steps.ff.outputs.promotable == 'true'
+        run: npm test
+
+      # Placeholder values only. This build is a gate, not a deploy artifact — it is
+      # thrown away, and Vercel rebuilds from master with the real environment. The
+      # app reads DATABASE_URL at module scope, so the build needs *a* value present,
+      # not a working database: every DB-backed route is dynamic and queries nothing
+      # at build time. Keep real secrets out of CI.
+      - name: Build
+        if: steps.ff.outputs.promotable == 'true'
+        env:
+          DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+          AUTH_SECRET: ci-placeholder-not-a-real-secret-000000000000
+          AUTH_URL: http://localhost:3000
+        run: npm run build
+
+      - name: Promote to master
+        if: steps.ff.outputs.promotable == 'true'
+        env:
+          BEFORE: ${{ steps.ff.outputs.before }}
+        run: |
+          # Fast-forward only. A plain ref push is rejected by the server if master
+          # moved underneath us, so this can never clobber or create a merge commit.
+          git push origin HEAD:master
+          {
+            echo "### Promoted to master"
+            echo ""
+            echo "\`${GITHUB_REF_NAME}\` → \`master\` @ \`$(git rev-parse --short HEAD)\` — Vercel is deploying."
+            echo ""
+            git log --oneline "${BEFORE}..HEAD" | sed 's/^/- /'
+          } >> "$GITHUB_STEP_SUMMARY"
