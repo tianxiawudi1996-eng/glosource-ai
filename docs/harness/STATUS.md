@@ -5,12 +5,16 @@
 - Project: GloSource AI + K-DEFENSE Validation OS
 - Last calibrated: 2026-07-12 Asia/Seoul
 - Current branch: chore/harness-cal-0623
-- Head SHA: a4c4b76
+- Head SHA: 21d1b79
 - Main synced: true — `promote.yml`가 브랜치 push마다 빌드+테스트를 돌리고 통과 시에만 master를 FF → Vercel 배포. 병합은 더 이상 수동 게이트가 아니다.
 - Current track: outbound_validation
 - Next READY: GLO-EN-SUPPLIER-EVIDENCE (`verified_suppliers.bizrno` 컬럼 → 이름이 아닌 사업자번호로 레지스트리 대조). 그 외는 게이트(리드·발송·결제·비공개 분석).
 
-## Last Done Increment
+## Last Done Increment (2)
+
+GLO-SUPPLIER-REVET @ 21d1b79 (**prod 반영 완료**) — 배지가 카테고리마다 다른 뜻이었다. 자율 런이 넣은 20건이 근거 없는 배지를 달고 있었고, 특히 **trustScore 20건 전부가 조작**이었다(78/82/88 = 발견한 인증 조합에 대한 공식이지 실사가 아니다). "NTS-verified"는 인증란에서 HACCP·CGMP 행세를 하고 있었지만 사업자등록이 살아있다는 뜻뿐이다. **HACCP 주장 16건은 전부 진짜였다** — 그건 날조가 아니었고, 샘표는 오히려 원장에 있는데 **놓치고** 있었다(공장명으로 등재돼 정확일치 매칭이 실패). 오소이는 가방·신발 **브랜드**라 배지를 뗐다. K-Fashion은 한국에 의류 제조업 정부 원장이 **없어** 검증이 원천 불가 → 노트에 미검증을 명시(차장님 결정). 기준을 **실행 가능한 코드**로 만들었다: `scripts/verify-curated.ts`가 쓰기 전에 모든 주장을 원장·URL과 대조하고 실패하면 시드를 거부한다.
+
+## Last Done Increment (1)
 
 GLO-EN-DBSEED-EXPAND @ ef082d8 + a4c4b76 (**prod DB 반영 완료**) — 'GloSource Verified' 배지가 대형 ODM 3사에만 붙어, 1,000개 예산의 인디 브랜드를 **주문도 받아주지 않을 공장**으로 안내하고 있었다. 현금화 못 할 신뢰 주장은 배지가 없느니만 못하다. 제품이 공급사를 검증하는 방식 그대로 큐레이션했다: 웹 발굴 → 식약처 제조등록 대조 → CGMP 명단 대조(사업자번호). **레지스트리가 실제로 일을 했다** — 웹에서 "저MOQ 한국 공장"이라 불리는 것 대부분을 탈락시켰고, 특히 최저 MOQ(300개)를 광고하는 라온하세는 제조등록이 없어 배지를 줄 수 없었다(우리 구매자가 빠지는 바로 그 함정). 코스맥스는 2023년 인디 프로그램으로 MOQ가 1만→1,000개로 내려갔는데 기존 노트가 "typically high MOQ"라고 적혀 있어 정작 도우려던 구매자를 쫓아내고 있었다 → 시드를 upsert로 바꿔 정정. 그리고 **시드만으로는 구매자에게 아무것도 안 바뀌었다**: 주입 쿼리에 ORDER BY가 없어 삽입순(대형 ODM)만 노출되고 있었다(a4c4b76에서 MOQ 오름차순으로 수정, prod 실검증).
 
@@ -25,8 +29,9 @@ GLO-EN-DBSEED-EXPAND @ ef082d8 + a4c4b76 (**prod DB 반영 완료**) — 'GloSou
 
 - 사람 입력 대기(비차단): 창업자 LinkedIn URL + 실사진 → `app/lib/founder.ts` 두 필드.
 - GLO-EN-PAYHIST 라이브 확인 미완: `npm run growth:payments:dummy`(DATABASE_URL 필요) + Polar 테스트결제 1회 → 게이트.
-- 큐레이션 근거(사업자번호·CGMP)가 `notes` 산문에만 있어 이름 기반 매칭에 의존 → `bizrno` 컬럼이 다음 READY.
-- K-Food 16 / K-Fashion 4 행(`addedBy=harness:curate-fallback`)은 **MOQ 전부 null이고 레지스트리 대조 이력 없음** — K-Beauty와 같은 기준으로 재검증 필요(미착수).
+- 큐레이션 근거(사업자번호·CGMP)가 `notes` 산문에만 있어 이름 기반 매칭에 의존 → `bizrno` 컬럼이 다음 READY. 샘표 HACCP 누락이 이 약점의 실증.
+- **자율 런 산출물은 신뢰하지 말 것**: `harness:curate-fallback`이 넣은 20건이 trustScore를 전부 지어냈고 가짜 인증 라벨을 달았다. 앞으로 큐레이션은 `scripts/curated-suppliers.ts` + `verify-curated.ts`를 통과해야만 DB에 들어간다.
+- K-Fashion 3건은 **원천적으로 검증 불가**(정부 원장 부재)라 배지 의미가 약하다. 의류 제조 원장이 생기거나 대안 근거(예: 수출입 실적)가 확보되기 전까지는 노트의 미검증 고지가 유일한 방어선.
 - 남은 진행 대부분 게이트: 실 ICP 리드, Gmail OAuth, 외부 발송, 결제 확인, 비공개 플랫폼 분석.
 
 ## Gates Pending
