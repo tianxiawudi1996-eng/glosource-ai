@@ -9,6 +9,7 @@ import YetGlyph from './YetHangul';
 import CategoryTileMedia from './CategoryTileMedia';
 import { GiwaEaves, SaekdongBand, DancheongBand, SumaksaeRosette } from './KoreanOrnaments';
 import PolarCheckoutButton from './PolarCheckoutButton';
+import { PLANS as PLAN_FACTS, priceLabel, priceUnit, type PlanId } from '@/app/lib/plans';
 import Link from 'next/link';
 import { auth } from '@/auth';
 import SampleReportLeadForm from './SampleReportLeadForm';
@@ -72,14 +73,11 @@ export const metadata: Metadata = {
   },
 };
 
-const PLANS = [
-  {
-    id: 'starter',
-    name: 'Starter',
+// Price, quota and checkout key come from app/lib/plans.ts; only the pitch copy
+// is local to the landing page.
+const PLAN_COPY: Record<PlanId, { tag: string; features: string[]; cta?: string }> = {
+  starter: {
     tag: 'For one active product',
-    price: '$39',
-    unit: '/mo',
-    per: '40 shortlist searches / month',
     features: [
       '3–5 Korean supplier candidates per search',
       'Manufacturer-vs-trader and risk signals',
@@ -87,16 +85,9 @@ const PLANS = [
       'English RFQ draft ready to review',
       'Source links for independent verification',
     ],
-    highlight: false,
-    envKey: 'NEXT_PUBLIC_POLAR_STARTER_LINK',
   },
-  {
-    id: 'pro',
-    name: 'Pro',
+  pro: {
     tag: 'Best for multiple launches',
-    price: '$99',
-    unit: '/mo',
-    per: '100 shortlist searches / month',
     features: [
       'Everything in Starter',
       'Compare multiple product briefs side by side',
@@ -104,32 +95,18 @@ const PLANS = [
       'Buyer checklist and follow-up email draft',
       'Priority support',
     ],
-    highlight: true,
-    envKey: 'NEXT_PUBLIC_POLAR_PRO_LINK',
   },
-  {
-    id: 'enterprise',
-    name: 'Business',
+  enterprise: {
     tag: 'High-volume sourcing',
-    price: '$249',
-    unit: '/mo',
-    per: '300 shortlist searches / month',
     features: [
       'Everything in Pro',
       'Saved projects & comparison',
       'CSV / PDF export',
       'Team workflow by request',
     ],
-    highlight: false,
-    envKey: 'NEXT_PUBLIC_POLAR_AGENCY_LINK',
   },
-  {
-    id: 'contact',
-    name: 'Enterprise',
+  contact: {
     tag: 'Custom & API',
-    price: 'Custom',
-    unit: '',
-    per: 'Unlimited volume · team · API',
     features: [
       'Everything in Business',
       'Dedicated onboarding',
@@ -137,11 +114,19 @@ const PLANS = [
       'API access by request',
       'Priority SLA support',
     ],
-    highlight: false,
     cta: 'Contact sales →',
-    envKey: 'NEXT_PUBLIC_POLAR_ENTERPRISE_CONTACT',
   },
-] as const;
+};
+
+const PLANS = PLAN_FACTS.map(plan => ({
+  ...plan,
+  price: priceLabel(plan),
+  unit: priceUnit(plan),
+  per: plan.searchesPerMonth === null
+    ? 'Unlimited volume · team · API'
+    : `${plan.searchesPerMonth} shortlist searches / month`,
+  ...PLAN_COPY[plan.id],
+}));
 
 
 const PROBLEMS = [
@@ -543,7 +528,7 @@ export default async function EnPage({
                 </ul>
                 <PolarCheckoutButton
                   checkoutUrl={process.env[plan.envKey] ?? `mailto:hello@glosourceai.com?subject=${encodeURIComponent(`GloSource AI ${plan.name} plan inquiry`)}`}
-                  label={'cta' in plan && plan.cta ? plan.cta : `Get ${plan.name} →`}
+                  label={plan.cta ?? `Get ${plan.name} →`}
                   planId={plan.id}
                   onDark={plan.highlight}
                 />

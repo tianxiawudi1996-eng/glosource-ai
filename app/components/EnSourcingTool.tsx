@@ -10,10 +10,25 @@ import EmptyState from './EmptyState';
 import { trackSearch, trackBeginCheckout } from '@/app/lib/analytics';
 import GloSourceVoiceModal from './GloSourceVoiceModal';
 import SourcingChatWidget from './SourcingChatWidget';
+import { planById, priceLabel, priceUnit } from '@/app/lib/plans';
 
 type SourceRegion = 'china' | 'korea';
 
 const FREE_COUNT_KEY = 'glosource_en_free_count';
+
+// Prices and quotas come from app/lib/plans.ts; only the one-line pitch is local.
+const STARTER = planById('starter');
+const PRO = planById('pro');
+
+const PAYWALL_PLANS = [
+  { plan: STARTER, pitch: 'All certification signals' },
+  { plan: PRO, pitch: 'China sourcing · PDF reports' },
+].map(({ plan, pitch }) => ({
+  name: plan.name,
+  price: `${priceLabel(plan)}${priceUnit(plan)}`,
+  searches: `${plan.searchesPerMonth} searches/month · ${pitch}`,
+  highlight: plan.highlight,
+}));
 
 interface EnSourcingToolProps {
   initialProduct?: string;
@@ -790,10 +805,7 @@ export default function EnSourcingTool({
           {/* Pricing CTA */}
           <div className="px-6 py-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-              {[
-                { name: 'Starter', price: '$39/mo', searches: '40 searches/month · All certification signals', highlight: false },
-                { name: 'Pro', price: '$99/mo', searches: '100 searches/month · China sourcing · PDF reports', highlight: true },
-              ].map(p => (
+              {PAYWALL_PLANS.map(p => (
                 <div key={p.name} className={`rounded-xl border p-4 ${p.highlight ? 'border-[#EA580C] bg-orange-50' : 'border-slate-200 bg-white'}`}>
                   <div className="flex items-center justify-between mb-1">
                     <p className={`font-bold text-sm ${p.highlight ? 'text-[#EA580C]' : 'text-[#0D1B2A]'}`}>{p.name}</p>
@@ -809,7 +821,7 @@ export default function EnSourcingTool({
                 target="_blank" rel="noopener noreferrer"
                 onClick={() => trackBeginCheckout('starter')}
                 className="block w-full text-center py-3.5 rounded-xl font-bold text-sm text-white bg-[#EA580C] hover:bg-[#DC4C00] transition-all shadow-lg shadow-orange-900/20">
-                Get Starter — $39/mo →
+                Get Starter — {priceLabel(STARTER)}{priceUnit(STARTER)} →
               </a>
               <a href="/en/billing"
                 className="block w-full text-center py-2.5 rounded-xl font-semibold text-sm text-[#0D1B2A] bg-slate-100 hover:bg-slate-200 transition-all">

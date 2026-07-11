@@ -7,9 +7,12 @@
  * 5/26 자비스 자율 추가 — brand-consistency report 후속 (SEO 강화).
  * founder/sameAs는 app/lib/founder.ts 단일 소스에서 채운다. LinkedIn URL이
  * 확정되면 그 파일의 FOUNDER.linkedin만 채우면 sameAs와 founder에 함께 반영된다.
+ * offers도 같은 이유로 app/lib/plans.ts에서 생성한다: 여기서 가격을 따로 들고
+ * 있다가 $19/$49 폐지가로 뒤처졌고, 그건 구글이 구매자에게 보여주는 가격이다.
  */
 
 import { FOUNDER, founderPersonSchema, founderSameAs } from '@/app/lib/founder';
+import { planOffers } from '@/app/lib/plans';
 
 const ORG_SCHEMA = {
   '@context': 'https://schema.org',
@@ -58,22 +61,7 @@ const APP_SCHEMA = {
   operatingSystem: 'Web',
   description:
     'AI-ranked Korean supplier candidates with trust scores, MOQ/price comparison, certification signals (MFDS/KC/HACCP), and ready-to-send English RFQ.',
-  offers: [
-    {
-      '@type': 'Offer',
-      name: 'Starter',
-      price: '19',
-      priceCurrency: 'USD',
-      description: '30 searches / month · K-beauty · K-food · K-fashion',
-    },
-    {
-      '@type': 'Offer',
-      name: 'Pro',
-      price: '49',
-      priceCurrency: 'USD',
-      description: '60 searches / month · Korea + China sourcing',
-    },
-  ],
+  offers: planOffers(),
   aggregateRating: undefined, // TODO: add after 5+ verified user reviews
   publisher: {
     '@type': 'Organization',

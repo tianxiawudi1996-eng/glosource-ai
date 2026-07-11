@@ -6,46 +6,24 @@ import { db, payments, subscriptions } from '@/app/lib/db';
 import BrandLogo from '@/app/components/BrandLogo';
 import { CancelPolarButton } from './BillingActions';
 import { CheckoutLink, PurchaseTracker } from '@/app/components/FunnelTracking';
+import { PLANS as PLAN_FACTS, priceLabel, priceUnit, searchesLabel, type PlanId } from '@/app/lib/plans';
 
-const PLANS = [
-  {
-    id: 'starter',
-    name: 'Starter',
-    price: '$39',
-    unit: '/mo',
-    searches: '40 searches / month',
-    envKey: 'NEXT_PUBLIC_POLAR_STARTER_LINK',
-    features: ['Up to 3–5 supplier candidates per search', 'Trust score 0–100', 'English RFQ draft', 'MFDS / KC signals'],
-  },
-  {
-    id: 'pro',
-    name: 'Pro',
-    price: '$99',
-    unit: '/mo',
-    searches: '100 searches / month',
-    envKey: 'NEXT_PUBLIC_POLAR_PRO_LINK',
-    highlight: true,
-    features: ['All Starter features', 'HACCP / ISO / medical-device signals', 'Saved projects & comparison', 'Full PDF report', 'Priority support'],
-  },
-  {
-    id: 'enterprise',
-    name: 'Business',
-    price: '$249',
-    unit: '/mo',
-    searches: '300 searches / month',
-    envKey: 'NEXT_PUBLIC_POLAR_AGENCY_LINK',
-    features: ['All Pro features', 'High-volume usage', 'CSV / PDF export', 'Team workflow by request', 'Project history'],
-  },
-  {
-    id: 'contact',
-    name: 'Enterprise',
-    price: 'Custom',
-    unit: '',
-    searches: 'Unlimited volume',
-    envKey: 'NEXT_PUBLIC_POLAR_ENTERPRISE_CONTACT',
-    features: ['Everything in Business', 'Dedicated onboarding', 'Team seats & SSO by request', 'API access by request', 'Priority SLA support'],
-  },
-] as const;
+// Price, quota and checkout key come from app/lib/plans.ts; only the feature
+// copy is local to this page.
+const FEATURES: Record<PlanId, string[]> = {
+  starter: ['Up to 3–5 supplier candidates per search', 'Trust score 0–100', 'English RFQ draft', 'MFDS / KC signals'],
+  pro: ['All Starter features', 'HACCP / ISO / medical-device signals', 'Saved projects & comparison', 'Full PDF report', 'Priority support'],
+  enterprise: ['All Pro features', 'High-volume usage', 'CSV / PDF export', 'Team workflow by request', 'Project history'],
+  contact: ['Everything in Business', 'Dedicated onboarding', 'Team seats & SSO by request', 'API access by request', 'Priority SLA support'],
+};
+
+const PLANS = PLAN_FACTS.map(plan => ({
+  ...plan,
+  price: priceLabel(plan),
+  unit: priceUnit(plan),
+  searches: searchesLabel(plan),
+  features: FEATURES[plan.id],
+}));
 
 function formatDate(date: Date | null): string {
   if (!date) return '—';
@@ -135,8 +113,8 @@ export default async function EnBillingPage({
               <article key={plan.id}
                 className={`rounded-2xl border bg-white p-6 shadow-sm flex flex-col ${
                   isCurrent ? 'border-[#EA580C] ring-1 ring-[#EA580C]/20' : 'border-slate-200'
-                } ${'highlight' in plan && plan.highlight ? 'relative' : ''}`}>
-                {'highlight' in plan && plan.highlight && (
+                } ${plan.highlight ? 'relative' : ''}`}>
+                {plan.highlight && (
                   <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[#EA580C] px-3 py-1 text-[10px] font-black text-white uppercase tracking-wider whitespace-nowrap">
                     Most popular
                   </span>
