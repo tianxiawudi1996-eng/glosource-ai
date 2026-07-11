@@ -1,80 +1,92 @@
 /**
- * Seed `verified_suppliers` with REAL, publicly-documented Korean OEM/ODM manufacturers.
+ * Seed / correct `verified_suppliers` with REAL, government-verifiable Korean cosmetics manufacturers.
  *
- * Honesty rules:
- *  - Only accurate public facts are stored (name, real URL, manufacturer status, publicly-known cert systems).
- *  - Unknown numbers (MOQ, trustScore, lead time) are left NULL — never invented.
- *  - These are established, high-MOQ ODMs (good for credibility/comparison). Low-MOQ, indie-friendly
- *    Korean factories still need manual curation — that is Phase 1b (real sourcing work, no fabrication).
+ * Our ICP is a low-MOQ indie brand, so a 'GloSource Verified' badge on a factory that will not take
+ * their order is a trust claim we cannot cash. Every row in scripts/curated-suppliers.ts is therefore
+ * checked the same way the product itself checks suppliers — web discovery, then cross-checked
+ * against the government registries we already ingest:
  *
- * Run with the DATABASE_URL env var set:  npx tsx scripts/seed-suppliers.ts
- * Idempotent: skips rows whose `name` already exists.
+ *   1. MFDS cosmetics registry (kr_cosmetics_firms, induty=화장품제조) — proves the company holds a
+ *      manufacturing licence, with a business-registration number and a plant address. A broker or a
+ *      brand owner is registered 화장품책임판매 (or not at all) and is rejected.
+ *   2. MFDS CGMP list (app/data/cgmp-firms.json, matched on business-reg number) — proves GMP scope.
+ *
+ * MOQ is in NO registry. It is a commercial term, so `moqMin` is filled only when the company states
+ * a figure on its own public site, and the note says so. Otherwise it stays null. Never invented.
+ *
+ * Rejected during curation (recorded so we do not re-add them):
+ *   - Laonhase (laonhase.com) — advertises the lowest MOQ found (300 units) but has NO MFDS
+ *     manufacturing record under that name. Unverifiable, so it gets no badge. This is precisely the
+ *     trap our buyers fall into.
+ *   - Factosquare — 화장품책임판매 only, no manufacturing licence: a platform, not a factory.
+ *   - Selfcos, Smallcosmetic — no registry record at all (matching platforms).
+ *   - OEMKorea, CosKorea, Crescent Seoul, Mayk, Sourcing Lab, KPrivateLabel — sourcing agencies that
+ *     rank for "Korean factory" but resell someone else's plant. Badging them would make us the
+ *     middleman problem we sell against.
+ *
+ * Note the trade-off the data actually shows: the CGMP-certified plants here do NOT publish an MOQ,
+ * and the two that publish a 1,000-unit MOQ are NOT CGMP-listed. The notes say so plainly rather
+ * than implying every badged supplier is both easy to start with and top-certified.
+ *
+ * Run with DATABASE_URL set:  npx tsx --env-file=.env.local scripts/seed-suppliers.ts
+ * Pass --dry to print the plan without touching the database (these rows are what buyers see).
  */
 import { eq } from 'drizzle-orm';
 import { db, verifiedSuppliers } from '../app/lib/db';
+import { CURATED, type CuratedSupplier } from './curated-suppliers';
 
-const SEED: Array<typeof verifiedSuppliers.$inferInsert> = [
-  {
-    name: '코스맥스',
-    nameEn: 'COSMAX',
-    platform: 'Direct',
-    url: 'https://www.cosmax.com',
-    category: 'K-Beauty',
-    country: 'KR',
-    certifications: 'ISO 22716,CGMP',
-    trustScore: null,
-    moqMin: null,
-    leadTimeDays: null,
-    notes: 'World-scale Korean cosmetics ODM (skincare / serum / ampoule). Established manufacturer; typically high MOQ — confirm indie/small-batch program and current certificates directly.',
-    addedBy: 'seed-script',
-  },
-  {
-    name: '한국콜마',
-    nameEn: 'Kolmar Korea',
-    platform: 'Direct',
-    url: 'https://www.kolmar.co.kr',
-    category: 'K-Beauty',
-    country: 'KR',
-    certifications: 'ISO 22716,CGMP',
-    trustScore: null,
-    moqMin: null,
-    leadTimeDays: null,
-    notes: 'Major science-led Korean cosmetics ODM with strong actives formulation. Confirm indie MOQ, lead time, and certificate scope directly.',
-    addedBy: 'seed-script',
-  },
-  {
-    name: '코스메카코리아',
-    nameEn: 'Cosmecca Korea',
-    platform: 'Direct',
-    url: 'https://www.cosmecca.com',
-    category: 'K-Beauty',
-    country: 'KR',
-    certifications: 'ISO 22716,CGMP',
-    trustScore: null,
-    moqMin: null,
-    leadTimeDays: null,
-    notes: 'Established Korean cosmetics ODM with broad formulation capability (works with global and indie brands). Confirm serum-line MOQ and certificates directly.',
-    addedBy: 'seed-script',
-  },
-];
+// Fields this script owns. Everything else on an existing row (id, verifiedAt, active) is left alone.
+function curatedFields(s: CuratedSupplier) {
+  return {
+    nameEn: s.nameEn,
+    platform: s.platform,
+    url: s.url,
+    category: s.category,
+    country: s.country,
+    certifications: s.certifications,
+    trustScore: s.trustScore,
+    moqMin: s.moqMin,
+    leadTimeDays: s.leadTimeDays,
+    notes: s.notes,
+    updatedAt: new Date(),
+  };
+}
 
 async function main(): Promise<void> {
+  const dry = process.argv.includes('--dry');
   let inserted = 0;
-  for (const s of SEED) {
+  let updated = 0;
+
+  if (dry) console.log('DRY RUN — no writes\n');
+
+  for (const s of CURATED) {
     const existing = await db
-      .select({ id: verifiedSuppliers.id })
+      .select({ id: verifiedSuppliers.id, notes: verifiedSuppliers.notes, moqMin: verifiedSuppliers.moqMin })
       .from(verifiedSuppliers)
       .where(eq(verifiedSuppliers.name, s.name))
       .limit(1);
-    if (existing.length > 0) {
-      console.log('skip (exists):', s.nameEn);
+
+    if (existing.length === 0) {
+      if (!dry) await db.insert(verifiedSuppliers).values(s);
+      console.log(`${dry ? 'would insert' : 'inserted'}:`, s.nameEn, `(moq ${s.moqMin ?? 'null'}, certs ${s.certifications ?? 'none'})`);
+      inserted += 1;
       continue;
     }
-    await db.insert(verifiedSuppliers).values(s);
-    console.log('inserted:', s.nameEn);
-    inserted += 1;
+
+    // Upsert rather than skip. The first seed shipped COSMAX with a "typically high MOQ" note, which
+    // stopped being true when it opened a 1,000-unit indie programme; skipping existing rows would
+    // have left that misleading note in front of buyers forever.
+    const row = existing[0];
+    if (row.notes === s.notes && row.moqMin === (s.moqMin ?? null)) {
+      console.log('unchanged:', s.nameEn);
+      continue;
+    }
+    if (!dry) await db.update(verifiedSuppliers).set(curatedFields(s)).where(eq(verifiedSuppliers.id, row.id));
+    console.log(`${dry ? 'would update' : 'updated'}:`, s.nameEn, `(moq ${row.moqMin ?? 'null'} -> ${s.moqMin ?? 'null'})`);
+    updated += 1;
   }
-  console.log(`done. ${inserted} inserted, ${SEED.length - inserted} skipped.`);
+
+  console.log(`\n${dry ? 'plan' : 'done'}. ${inserted} inserted, ${updated} updated, ${CURATED.length - inserted - updated} unchanged.`);
   process.exit(0);
 }
 
