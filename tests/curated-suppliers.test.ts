@@ -15,6 +15,35 @@ const BEAUTY = CURATED.filter(s => s.category === 'K-Beauty');
 const FOOD = CURATED.filter(s => s.category === 'K-Food');
 const FASHION = CURATED.filter(s => s.category === 'K-Fashion');
 
+test('a business number always says where it came from', () => {
+  // A number from a government registry outranks one a company published about itself. Storing the
+  // number without its provenance would flatten that difference and hide which rows are weaker.
+  const seen = new Set<string>();
+  for (const s of CURATED) {
+    if (!s.bizrno) {
+      assert.equal(s.bizrnoSource, undefined, `${s.nameEn}: a source with no number is meaningless`);
+      continue;
+    }
+    assert.match(s.bizrno, /^\d{10}$/, `${s.nameEn}: business numbers are 10 digits, unpunctuated`);
+    assert.ok(
+      s.bizrnoSource === 'mfds-registry' || s.bizrnoSource === 'company-site',
+      `${s.nameEn}: unknown provenance "${s.bizrnoSource}"`,
+    );
+    assert.ok(!seen.has(s.bizrno), `${s.nameEn}: ${s.bizrno} is already used by another supplier — one of them is wrong`);
+    seen.add(s.bizrno);
+  }
+});
+
+test('every cosmetics row carries the number from the MFDS registry', () => {
+  // Cosmetics is the one category where a registry maps company name to number authoritatively,
+  // so there is no excuse for a K-Beauty row to be matched by name.
+  for (const s of BEAUTY) {
+    assert.equal(s.bizrnoSource, 'mfds-registry', `${s.nameEn}: must take its number from the registry, not a website`);
+    const inNotes = BIZRNO.exec(s.notes ?? '')![1].replace(/\D/g, '');
+    assert.equal(s.bizrno, inNotes, `${s.nameEn}: the stored number and the number shown to the buyer disagree`);
+  }
+});
+
 test('cosmetics rows cite the MFDS manufacturing licence that backs the badge', () => {
   assert.ok(BEAUTY.length > 0);
   for (const s of BEAUTY) {

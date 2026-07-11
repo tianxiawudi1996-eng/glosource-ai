@@ -138,6 +138,13 @@ async function dbFallbackOutput(req: SourcingRequest, lang: string): Promise<Sou
   };
   const matches = rows.filter(r => (KW[r.category] ?? []).some(k => hay.includes(k))).slice(0, 4);
   if (!matches.length) return null;
+
+  // Live 국세청 status for the curated rows that carry a registration number. Until verified_suppliers
+  // stored one, this check only reached cosmetics suppliers (MFDS is the only registry we ingest that
+  // carries the number) — a curated food supplier could have closed and still shown a verified badge.
+  const en = lang === 'en';
+  const nts = await checkBusinessStatus(matches.map(r => r.bizrno));
+
   const suppliers: Supplier[] = matches.map((r, i) => ({
     rank: i + 1,
     name: r.nameEn || r.name,
@@ -159,6 +166,23 @@ async function dbFallbackOutput(req: SourcingRequest, lang: string): Promise<Sou
     hscode: '',
     exportToKoreaExperience: false,
   }));
+
+  // A curated supplier that has closed must lose its badge, not keep it because a human vetted it
+  // months ago. Where we hold no number we say nothing rather than imply the check passed.
+  matches.forEach((r, i) => {
+    const st = r.bizrno ? nts.get(r.bizrno.replace(/\D/g, '')) : undefined;
+    if (!st?.registered) return;
+    if (st.active) {
+      addGovActive(suppliers[i], en
+        ? `✓ Active registered business — verified live with Korea NTS${st.taxType ? ` (${st.taxType})` : ''} · biz reg ${r.bizrno}`
+        : `✓ 국세청 실시간 계속사업자 확인${st.taxType ? ` · ${st.taxType}` : ''} · 사업자 ${r.bizrno}`);
+    } else {
+      suppliers[i].redFlags = [en
+        ? `⚠ Not an active business per Korea NTS: ${st.statusText} — do not transact before reconfirming.`
+        : `⚠ 국세청 실시간 조회상 정상영업 아님: ${st.statusText} — 거래 전 재확인 필수.`];
+    }
+  });
+
   return {
     suppliers,
     recommendation: lang === 'en'

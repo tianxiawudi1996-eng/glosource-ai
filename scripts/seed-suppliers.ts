@@ -48,6 +48,8 @@ function curatedFields(s: CuratedSupplier) {
     trustScore: s.trustScore,
     moqMin: s.moqMin,
     leadTimeDays: s.leadTimeDays,
+    bizrno: s.bizrno ?? null,
+    bizrnoSource: s.bizrnoSource ?? null,
     notes: s.notes,
     updatedAt: new Date(),
   };
@@ -91,7 +93,7 @@ async function main(): Promise<void> {
 
   for (const s of CURATED) {
     const existing = await db
-      .select({ id: verifiedSuppliers.id, notes: verifiedSuppliers.notes, moqMin: verifiedSuppliers.moqMin })
+      .select({ id: verifiedSuppliers.id, notes: verifiedSuppliers.notes, moqMin: verifiedSuppliers.moqMin, bizrno: verifiedSuppliers.bizrno })
       .from(verifiedSuppliers)
       .where(eq(verifiedSuppliers.name, s.name))
       .limit(1);
@@ -107,7 +109,7 @@ async function main(): Promise<void> {
     // stopped being true when it opened a 1,000-unit indie programme; skipping existing rows would
     // have left that misleading note in front of buyers forever.
     const row = existing[0];
-    if (row.notes === s.notes && row.moqMin === (s.moqMin ?? null)) {
+    if (row.notes === s.notes && row.moqMin === (s.moqMin ?? null) && row.bizrno === (s.bizrno ?? null)) {
       console.log('unchanged:', s.nameEn);
       continue;
     }

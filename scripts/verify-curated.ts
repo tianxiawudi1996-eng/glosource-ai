@@ -13,6 +13,7 @@
 import { sql } from 'drizzle-orm';
 import { db, krCosmeticsFirms, krHaccpFirms } from '../app/lib/db';
 import { normFirmName } from '../app/lib/mfds';
+import { checkBusinessStatus } from '../app/lib/nts';
 import cgmp from '../app/data/cgmp-firms.json';
 import type { CuratedSupplier } from './curated-suppliers';
 
@@ -75,6 +76,10 @@ export async function verifyCurated(rows: CuratedSupplier[]): Promise<Verdict[]>
     .select({ company: krHaccpFirms.company, norm: krHaccpFirms.companyNorm, area: krHaccpFirms.area1 })
     .from(krHaccpFirms);
 
+  // One live 국세청 call for every number we hold: a supplier that has closed or suspended must not
+  // keep a 'verified' badge, and a number that is not even registered was never really checked.
+  const ntsStatus = await checkBusinessStatus(rows.map(r => r.bizrno));
+
   const out: Verdict[] = [];
 
   for (const s of rows) {
@@ -83,19 +88,43 @@ export async function verifyCurated(rows: CuratedSupplier[]): Promise<Verdict[]>
     const evidence: string[] = [];
     const norm = normFirmName(s.name);
     const certs = s.certifications ?? '';
+    const biz = (s.bizrno ?? '').replace(/\D/g, '');
 
     if (s.trustScore != null) problems.push(`trustScore=${s.trustScore} is invented — no audit produced it`);
     if (/NTS-verified/i.test(certs)) problems.push('"NTS-verified" is not a certification — it only means the business registration is active');
 
+    if (biz) {
+      if (biz.length !== 10) problems.push(`bizrno ${s.bizrno} is not a 10-digit business-registration number`);
+      if (!s.bizrnoSource) problems.push('a business number without a source cannot be judged — say where it came from');
+      const st = ntsStatus.get(biz);
+      if (!st) warnings.push(`NTS did not answer for ${biz} — status unconfirmed this run`);
+      else if (!st.registered) problems.push(`NTS does not recognise ${biz} as a registered business`);
+      else if (!st.active) problems.push(`NTS says ${biz} is not an active business (${st.statusText}) — it must not carry a verified badge`);
+      else evidence.push(`NTS: ${biz} 계속사업자${st.taxType ? ` (${st.taxType})` : ''}`);
+    }
+
     if (s.category === 'K-Beauty') {
-      const hit = cosmetics.find(c => nameMatches(norm, c.norm));
-      if (!hit) problems.push('no MFDS 화장품제조 licence — cannot be badged as a verified manufacturer');
-      else {
-        const biz = (hit.bizrno ?? '').replace(/\D/g, '');
-        evidence.push(`MFDS 화장품제조: ${hit.name} (${biz})`);
+      // Match on the number when we have it. Name matching is the weak path that missed Sempio.
+      const hit = biz
+        ? cosmetics.find(c => (c.bizrno ?? '').replace(/\D/g, '') === biz)
+        : cosmetics.find(c => nameMatches(norm, c.norm));
+      if (!hit) {
+        problems.push(biz
+          ? `no MFDS 화장품제조 licence for biz reg ${biz} — the number and the badge disagree`
+          : 'no MFDS 화장품제조 licence — cannot be badged as a verified manufacturer');
+      } else {
+        const hitBiz = (hit.bizrno ?? '').replace(/\D/g, '');
+        // The number must belong to the company we named, or we have badged the wrong firm.
+        if (biz && !nameMatches(norm, hit.norm)) {
+          problems.push(`biz reg ${biz} belongs to "${hit.name}", not "${s.name}"`);
+        }
+        if (s.bizrnoSource === 'mfds-registry' && biz && biz !== hitBiz) {
+          problems.push(`bizrno claims to come from the MFDS registry but the registry says ${hitBiz}`);
+        }
+        evidence.push(`MFDS 화장품제조: ${hit.name} (${hitBiz})`);
         const claimsCgmp = certs.includes('CGMP');
-        if (claimsCgmp !== CGMP_SET.has(biz)) {
-          problems.push(`CGMP claim=${claimsCgmp} but the government CGMP list says ${CGMP_SET.has(biz)}`);
+        if (claimsCgmp !== CGMP_SET.has(hitBiz)) {
+          problems.push(`CGMP claim=${claimsCgmp} but the government CGMP list says ${CGMP_SET.has(hitBiz)}`);
         }
       }
     } else if (s.category === 'K-Food') {

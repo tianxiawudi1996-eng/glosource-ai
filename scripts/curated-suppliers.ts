@@ -11,7 +11,7 @@ export type CuratedSupplier = typeof verifiedSuppliers.$inferInsert;
 export const CURATED: CuratedSupplier[] = [
   // ── Mega-ODMs. Kept for credibility and comparison; both now run indie programmes. ──
   {
-    name: '코스맥스',
+    name: '코스맥스', bizrno: '1438119635', bizrnoSource: 'mfds-registry',
     nameEn: 'COSMAX',
     platform: 'Direct',
     url: 'https://www.cosmax.com',
@@ -26,7 +26,7 @@ export const CURATED: CuratedSupplier[] = [
     addedBy: 'seed-script',
   },
   {
-    name: '한국콜마',
+    name: '한국콜마', bizrno: '3078102816', bizrnoSource: 'mfds-registry',
     nameEn: 'Kolmar Korea',
     platform: 'Direct',
     url: 'https://www.kolmar.co.kr',
@@ -41,7 +41,7 @@ export const CURATED: CuratedSupplier[] = [
     addedBy: 'seed-script',
   },
   {
-    name: '코스메카코리아',
+    name: '코스메카코리아', bizrno: '3038124119', bizrnoSource: 'mfds-registry',
     nameEn: 'Cosmecca Korea',
     platform: 'Direct',
     url: 'https://www.cosmecca.com',
@@ -58,7 +58,7 @@ export const CURATED: CuratedSupplier[] = [
 
   // ── Mid-size CGMP plants. Smaller than the mega-ODMs, but they publish no MOQ. ──
   {
-    name: '(주)나우코스',
+    name: '(주)나우코스', bizrno: '1308169444', bizrnoSource: 'mfds-registry',
     nameEn: 'NOWCOS',
     platform: 'Direct',
     url: 'https://nowcos.com',
@@ -73,7 +73,7 @@ export const CURATED: CuratedSupplier[] = [
     addedBy: 'seed-script',
   },
   {
-    name: '(주)한국코스모',
+    name: '(주)한국코스모', bizrno: '1308187189', bizrnoSource: 'mfds-registry',
     nameEn: 'Hankook Cosmo',
     platform: 'Direct',
     url: 'https://hankookcosmo.co.kr',
@@ -90,7 +90,7 @@ export const CURATED: CuratedSupplier[] = [
 
   // ── Publishes a low MOQ. Licensed manufacturers, but NOT CGMP-listed — say so. ──
   {
-    name: '(주)코스메디크',
+    name: '(주)코스메디크', bizrno: '2068158905', bizrnoSource: 'mfds-registry',
     nameEn: 'COSMEDIQUE KOREA',
     platform: 'Direct',
     url: 'https://www.cmq.kr',
@@ -105,7 +105,7 @@ export const CURATED: CuratedSupplier[] = [
     addedBy: 'seed-script',
   },
   {
-    name: '주식회사씨티케이',
+    name: '주식회사씨티케이', bizrno: '2148681682', bizrnoSource: 'mfds-registry',
     nameEn: 'CTK (CTKCLIP)',
     platform: 'Direct',
     url: 'https://www.ctkclip.com',
@@ -127,7 +127,7 @@ export const CURATED: CuratedSupplier[] = [
   //    certificate (the registry lists its plants, not its head office), and held Haitai's without
   //    claiming it. Fixed here. ──
   {
-    name: '(주)농심', nameEn: 'Nongshim Co., Ltd.', platform: 'Direct', url: 'https://www.nongshim.com/',
+    name: '(주)농심', bizrno: '1188103914', bizrnoSource: 'company-site', nameEn: 'Nongshim Co., Ltd.', platform: 'Direct', url: 'https://www.nongshim.com/',
     category: 'K-Food', country: 'KR', certifications: 'HACCP', trustScore: null, moqMin: null, leadTimeDays: null,
     notes: 'Korea\'s largest instant-noodle and snack maker, known for Shin Ramyun. HACCP-certified food manufacturer in the Korea food-safety registry (plants incl. Chungcheongnam-do). It publishes no MOQ — ask for the minimum on your SKU.',
     addedBy: 'seed-script',
@@ -139,31 +139,31 @@ export const CURATED: CuratedSupplier[] = [
     addedBy: 'seed-script',
   },
   {
-    name: '(주)움트리', nameEn: 'Woomtree Co., Ltd.', platform: 'Direct', url: 'http://www.woomtree.co.kr',
+    name: '(주)움트리', bizrno: '1288124779', bizrnoSource: 'company-site', nameEn: 'Woomtree Co., Ltd.', platform: 'Direct', url: 'http://www.woomtree.co.kr',
     category: 'K-Food', country: 'KR', certifications: 'HACCP', trustScore: null, moqMin: null, leadTimeDays: null,
     notes: 'Sauce and seasoning manufacturer (spices, premixes, fermented pastes) exporting to many markets. HACCP-certified food manufacturer in the Korea food-safety registry (Gyeonggi-do). It publishes no MOQ — ask for the minimum on your SKU.',
     addedBy: 'seed-script',
   },
   {
-    name: '(주)진미식품', nameEn: 'Jinmi Foods Company', platform: 'Direct', url: 'http://www.jinmifoods.co.kr/',
+    name: '(주)진미식품', bizrno: '3148101299', bizrnoSource: 'company-site', nameEn: 'Jinmi Foods Company', platform: 'Direct', url: 'http://www.jinmifoods.co.kr/',
     category: 'K-Food', country: 'KR', certifications: 'HACCP', trustScore: null, moqMin: null, leadTimeDays: null,
     notes: 'Fermented-paste maker (gochujang, doenjang, ssamjang, chunjang), operating since 1948. HACCP-certified food manufacturer in the Korea food-safety registry. It publishes no MOQ — ask for the minimum on your SKU.',
     addedBy: 'seed-script',
   },
   {
-    name: '(주)크라운제과', nameEn: 'Crown Confectionery Co., Ltd.', platform: 'Direct', url: 'https://www.crown.co.kr/',
+    name: '(주)크라운제과', bizrno: '4118700569', bizrnoSource: 'company-site', nameEn: 'Crown Confectionery Co., Ltd.', platform: 'Direct', url: 'https://www.crown.co.kr/',
     category: 'K-Food', country: 'KR', certifications: 'HACCP', trustScore: null, moqMin: null, leadTimeDays: null,
     notes: 'Confectionery manufacturer (biscuits, crackers, pies, candy, chocolate). HACCP-certified food manufacturer in the Korea food-safety registry (Asan and Jincheon plants). It publishes no MOQ — ask for the minimum on your SKU.',
     addedBy: 'seed-script',
   },
   {
-    name: '(주)팔도', nameEn: 'Paldo Co., Ltd.', platform: 'Direct', url: 'https://www.paldofood.co.kr/',
+    name: '(주)팔도', bizrno: '3088103161', bizrnoSource: 'company-site', nameEn: 'Paldo Co., Ltd.', platform: 'Direct', url: 'https://www.paldofood.co.kr/',
     category: 'K-Food', country: 'KR', certifications: 'HACCP', trustScore: null, moqMin: null, leadTimeDays: null,
     notes: 'Noodles, beverages and ready-to-eat meals (Bibim Men, Wang Ttukkeong). HACCP-certified food manufacturer in the Korea food-safety registry. It publishes no MOQ — ask for the minimum on your SKU.',
     addedBy: 'seed-script',
   },
   {
-    name: '(주)한국제면', nameEn: 'Korean Noodles Co.,Ltd.', platform: 'Direct', url: 'https://www.koreannoodles.co.kr/',
+    name: '(주)한국제면', bizrno: '7338702322', bizrnoSource: 'company-site', nameEn: 'Korean Noodles Co.,Ltd.', platform: 'Direct', url: 'https://www.koreannoodles.co.kr/',
     category: 'K-Food', country: 'KR', certifications: 'HACCP', trustScore: null, moqMin: null, leadTimeDays: null,
     notes: 'Fresh-noodle specialist offering OEM / ODM / RMR, with over 30 years in the trade — one of the smaller plants here, so likelier to talk to a small buyer. HACCP-certified food manufacturer in the Korea food-safety registry (Gyeonggi-do; fresh and frozen noodle lines). It publishes no MOQ — ask for the minimum on your SKU.',
     addedBy: 'seed-script',
@@ -199,19 +199,19 @@ export const CURATED: CuratedSupplier[] = [
     addedBy: 'seed-script',
   },
   {
-    name: '샘표식품', nameEn: 'Sempio Foods Company', platform: 'Direct', url: 'https://www.sempio.com/',
+    name: '샘표식품', bizrno: '4468700473', bizrnoSource: 'company-site', nameEn: 'Sempio Foods Company', platform: 'Direct', url: 'https://www.sempio.com/',
     category: 'K-Food', country: 'KR', certifications: 'HACCP', trustScore: null, moqMin: null, leadTimeDays: null,
     notes: 'Soy sauce and fermented foods, 80+ years old. HACCP-certified food manufacturer in the Korea food-safety registry (Yeongdong and Icheon plants) — the earlier seed missed this because the registry lists the plants, not the head office. It publishes no MOQ — ask for the minimum on your SKU.',
     addedBy: 'seed-script',
   },
   {
-    name: '신송식품(주)', nameEn: 'Singsong Food Corporation', platform: 'Direct', url: 'https://www.singsongfood.com/',
+    name: '신송식품(주)', bizrno: '1078722801', bizrnoSource: 'company-site', nameEn: 'Singsong Food Corporation', platform: 'Direct', url: 'https://www.singsongfood.com/',
     category: 'K-Food', country: 'KR', certifications: 'HACCP', trustScore: null, moqMin: null, leadTimeDays: null,
     notes: 'Korean sauces and pastes (gochujang, ssamjang, doenjang, soy sauce), 40+ years old. HACCP-certified food manufacturer in the Korea food-safety registry (Chungcheongnam-do). It publishes no MOQ — ask for the minimum on your SKU.',
     addedBy: 'seed-script',
   },
   {
-    name: '씨제이제일제당(주)', nameEn: 'CJ CheilJedang Corp.', platform: 'Direct', url: 'https://www.cj.co.kr',
+    name: '씨제이제일제당(주)', bizrno: '1048609535', bizrnoSource: 'company-site', nameEn: 'CJ CheilJedang Corp.', platform: 'Direct', url: 'https://www.cj.co.kr',
     category: 'K-Food', country: 'KR', certifications: 'HACCP', trustScore: null, moqMin: null, leadTimeDays: null,
     notes: 'Korea\'s largest food company (Bibigo, sauces, frozen and processed foods). HACCP-certified food manufacturer in the Korea food-safety registry (many plants). It publishes no MOQ — ask for the minimum on your SKU.',
     addedBy: 'seed-script',

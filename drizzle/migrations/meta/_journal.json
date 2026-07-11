@@ -57,6 +57,13 @@
       "when": 1781568000000,
       "tag": "0007_polar_password_tracking",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1783786565690,
+      "tag": "0008_add_supplier_bizrno",
+      "breakpoints": true
     }
   ]
 }

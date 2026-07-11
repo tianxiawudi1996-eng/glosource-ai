@@ -182,6 +182,12 @@ export const verifiedSuppliers = pgTable('verified_suppliers', {
   leadTimeDays: integer('lead_time_days'),
   certifications: text('certifications'), // comma-separated: MFDS,HACCP,KC,KS,ISO
   trustScore: integer('trust_score'), // 수동 검증 점수 0-100
+  // 사업자등록번호. Registry cross-checks used to match on the company NAME, which silently missed
+  // Sempio's real HACCP certificate (the registry lists plants — "샘표식품(주)영동공장" — not head
+  // offices). A number matches exactly, and it is what the live 국세청 폐업/휴업 check needs.
+  bizrno: text('bizrno'),
+  // Where the number came from: a government registry outranks a company's own website.
+  bizrnoSource: text('bizrno_source', { enum: ['mfds-registry', 'company-site'] }),
   notes: text('notes'),
   active: boolean('active').default(true).notNull(),
   verifiedAt: timestamp('verified_at', { mode: 'date' }).defaultNow().notNull(),
