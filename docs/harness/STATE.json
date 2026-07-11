@@ -2,19 +2,19 @@
   "schema_version": "1.0.0",
   "project": "GloSource AI + K-DEFENSE Validation OS",
   "repo": "tianxiawudi1996-eng/glosource-ai",
-  "calibrated_at": "2026-07-09T01:40:00+09:00",
+  "calibrated_at": "2026-07-11T22:40:00+09:00",
   "current_branch": "chore/harness-cal-0623",
-  "head_sha": "7abe07a",
-  "main_sha": "d401aa3",
-  "origin_main_sha": "d401aa3",
-  "main_synced": false,
+  "head_sha": "8306d94",
+  "main_sha": "auto-promoted by .github/workflows/promote.yml on every green push",
+  "origin_main_sha": "auto-promoted by .github/workflows/promote.yml on every green push",
+  "main_synced": true,
   "track": "outbound_validation",
   "last_done_increment": {
-    "id": "GLO-EN-TRUSTANCHOR",
-    "sha": "7abe07a (chore/harness-cal-0623; NOT merged to master — master still d401aa3)",
-    "summary": "2026-07-09: EN founder trust anchor for foreign B2B buyers. app/lib/founder.ts is the single source of truth (John Kim, Korea-based — real, from the About page) with unit-tested helpers; photo and LinkedIn stay null until confirmed (no fabrication), and NO domestic business-registration number by direction (GloSource not yet domestically registered; the operator's employer number must never be used — dual-track). FounderCard.tsx renders an initials avatar until a real photo exists, name/role/location, and the concrete safety signals a buyer can check (live gov registries MFDS/HACCP/medical-device/NTS, Polar merchant-of-record, founder support); LinkedIn link renders only when set. /en/about 'Who built this' now leads with the card. JsonLdGloSource Organization gains founder (schema.org Person) + sameAs from the same config, so a confirmed LinkedIn drops into card + JSON-LD at once. EN-only; KO untouched. Verified green: tsc, eslint, npm test 12/12, next build (/en/about registered). Prior increments this branch: GLO-EN-PAYHIST (406b411), GLO-HARDEN (a1e8f62)."
+    "id": "GLO-EN-JSONLD-PRICE",
+    "sha": "8306d94 (chore/harness-cal-0623; pushed — promote.yml fast-forwards master on green build+test)",
+    "summary": "2026-07-11: the JSON-LD advertised a retired $19/$49 tier while the checkout charged $39/$99/$249. That is the price Google quotes to a buyer before they ever reach the site, so the first thing we told them about ourselves was wrong by half. Root cause: the numbers were copied into four places (landing, billing, paywall, JSON-LD) and only the invisible copy drifted, because it is the one nobody looks at. Fix: the commercial facts (price, monthly quota, Polar checkout envKey) now live only in app/lib/plans.ts and all four surfaces derive from it — the same pattern app/lib/founder.ts already uses to feed both the founder card and its schema. Copy stays per-surface; only the facts are shared. The contact tier emits no Offer rather than a placeholder price (an Offer without a price earns no rich result, and inventing one would misquote the checkout in the other direction). 7 new unit tests fail if a retired price ever resurfaces. Verified against the rendered page, not just the tests: GET /en emits offers at 39/99/249 with zero occurrences of $19/$49, and all four visible cards still render price, quota and CTA. Green: tsc, eslint (0 errors), npm test 19/19, next build. Prior increments this branch: GLO-EN-TRUSTANCHOR (7abe07a), GLO-EN-PAYHIST (406b411), GLO-HARDEN (a1e8f62)."
   },
-  "next_ready_task": "GLO-EN-JSONLD-PRICE — JsonLdGloSource APP_SCHEMA offers still show stale $19/$49; real pricing is $39/$99/$249 (starter/pro/business). Align structured-data offers with the live billing page (review rule: prices must match deployment). Pending human input (not blocking this increment): FOUNDER.linkedin URL + a real founder photo -> drop into app/lib/founder.ts. Gated: GLO-EN-PAYHIST live verify (growth:payments:dummy needs DATABASE_URL + one Polar test payment); master merge + Vercel deploy. KPIs stay 0 until real customer evidence.",
+  "next_ready_task": "GLO-EN-DBSEED-EXPAND — the curated supplier seed holds only three large ODMs (COSMAX, Kolmar Korea, Cosmecca), so the 'GloSource Verified' badge lands on suppliers our ICP (low-MOQ indie brands) cannot actually use. Curate real low-MOQ Korean factories into scripts/seed-suppliers.ts (unknown figures stay null — no fabrication). Writing the curation and the seed is NOT gated; only running it against the prod DB is (DATABASE_URL). Pending human input (non-blocking): FOUNDER.linkedin URL + a real founder photo -> app/lib/founder.ts. Gated: GLO-EN-PAYHIST live verify (growth:payments:dummy needs DATABASE_URL + one Polar test payment). KPIs stay 0 until real customer evidence.",
   "resource_allocation": {
     "glosource_percent": 80,
     "k_defense_percent": 20,
@@ -115,30 +115,31 @@
     },
     {
       "flag": "branch_not_merged",
-      "state": "gate",
-      "resolves_in": "chore/harness-cal-0623 is ~50 commits ahead of master and carries all live /en product work + GLO-HARDEN + GLO-EN-PAYHIST. Merge to master + Vercel deploy are human gates."
+      "state": "resolved",
+      "resolves_in": "Resolved 2026-07-11 (cdaae3d): .github/workflows/promote.yml runs build + tests on every branch push and fast-forwards master only when they pass, which Vercel then deploys. Merge is no longer a human gate; a red build is the gate. Escape hatch [no-promote] is read from the commit subject line only."
+    },
+    {
+      "flag": "seed_suppliers_wrong_icp",
+      "state": "open",
+      "resolves_in": "GLO-EN-DBSEED-EXPAND: the seed holds only three large ODMs, so 'GloSource Verified' badges point low-MOQ indie buyers at factories that will not take their order. Curate real low-MOQ Korean factories (no fabricated figures)."
     }
   ],
   "gates_pending": [
-    "branch_merge_approval",
-    "deployment_approval",
     "outbound_send_approval",
     "payment_test_approval",
     "social_publish_approval",
     "private_platform_analytics_access"
   ],
   "verification": {
-    "last_green_at": "2026-07-09T01:40:00+09:00",
+    "last_green_at": "2026-07-11T22:40:00+09:00",
     "commands": [
       "npx tsc --noEmit (exit 0)",
       "npm run lint (0 errors; 1 pre-existing unrelated warning in _measure-attach.ts)",
-      "npm test (tsx --test) -> 12/12 pass incl. 3 new founder cases",
-      "npm run build (exit 0; /en/about registered)",
-      "node scripts/check-state-json.mjs docs/harness/STATE.json",
-      "node scripts/check-harness-placeholders.mjs docs/harness",
-      "node scripts/check-sensitive-strings.mjs .harness-blocklist.local",
-      "git diff --check"
+      "npm test (tsx --test) -> 19/19 pass incl. 7 new plans cases",
+      "npm run build (exit 0)",
+      "next start -> GET /en: JSON-LD offers = 39/99/249, zero occurrences of the retired $19/$49, all four price cards render price+quota+CTA; /en 200; /en/billing 302 -> login (auth gate intact)",
+      "bash scripts/harness-precommit.sh (sensitive/placeholder/state/lint clean)"
     ],
-    "summary": "2026-07-09: GLO-EN-TRUSTANCHOR implemented + committed (7abe07a) on chore/harness-cal-0623. All local gates green (tsc/lint/test 12/12/build). Live visual smoke (360/1440) and the real photo/LinkedIn drop-in recommended at deploy. Not merged to master, not deployed (human gates). KPIs unchanged at 0 — no real customer evidence yet; no fabrication."
+    "summary": "2026-07-11: GLO-EN-JSONLD-PRICE implemented + committed (8306d94) and pushed; promote.yml fast-forwards master on green build+test, so this deploys without a separate merge gate. Verified against the rendered page rather than the unit tests alone — the failure being fixed was structured data nobody looks at, so asserting it only in a test we wrote would have repeated the mistake. KPIs unchanged at 0 — no real customer evidence yet; no fabrication."
   }
 }

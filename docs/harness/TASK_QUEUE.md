@@ -4,7 +4,7 @@
 
 ## READY (다음 비게이트 증분)
 
-- GLO-EN-JSONLD-PRICE — `JsonLdGloSource.tsx` APP_SCHEMA offers가 stale($19/$49). 실제 가격 $39/$99/$249(starter/pro/business)로 정정해 라이브 billing과 일치(리뷰 규칙: 가격은 배포 설정과 일치). GLO-EN-TRUSTANCHOR 작업 중 발견.
+- GLO-EN-DBSEED-EXPAND — 시드 공급사가 대형 ODM 3사(COSMAX·한국콜마·코스메카코리아)뿐이라 ICP(저MOQ 인디 브랜드)에게 'Verified' 배지가 붙는 공급사가 사실상 부적합. 저MOQ 실제 공장 큐레이션을 `scripts/seed-suppliers.ts`에 확장(모르는 수치 null 유지·날조 0). prod 반영은 DATABASE_URL 게이트지만 **큐레이션·시드 코드 작성은 비게이트**.
 
 ## 사람 입력 대기 (확보 시 즉시 반영)
 
@@ -31,6 +31,7 @@
 
 ## DONE
 
+- GLO-EN-JSONLD-PRICE @ 8306d94(chore/harness-cal-0623, 2026-07-11, pushed→master 자동승격) — **구조화데이터 가격 정정**. JSON-LD가 폐지된 $19/$49를 광고 중이었고 실제 청구는 $39/$99/$249 — 즉 구매자가 사이트에 닿기도 전에 구글이 보는 가격이 절반쯤 틀렸음. 원인은 가격 리터럴이 **4벌 복제**(랜딩·billing·페이월·JSON-LD)돼 있고 아무도 안 보는 JSON-LD만 뒤처진 것. **수정**: 상업적 사실(가격·월쿼터·Polar 체크아웃 envKey)을 `app/lib/plans.ts` 단일 소스로 모으고 4개 표면 전부 파생(`app/lib/founder.ts`가 카드+스키마를 먹이는 것과 동일 패턴). 카피는 표면별로 유지, 사실만 공유. contact 티어는 가격 없는 Offer를 만들지 않고 **제외**(placeholder 가격=역방향 오인용). 단위테스트 7건(폐지가 재등장 시 실패). tsc·lint·test 19/19·build green + **렌더된 HTML 실검증**: `GET /en` offers=39/99/249, 폐지가 0건, 4개 카드 가격·쿼터·CTA 정상.
 - GLO-EN-TRUSTANCHOR @ 7abe07a(chore/harness-cal-0623, 2026-07-09) — **EN 전용** 창업자 신뢰앵커. `app/lib/founder.ts` 단일 소스(John Kim·한국 소재, About 실값) + 순수 헬퍼 단위테스트 3건. `FounderCard.tsx`: 이니셜 아바타(실사진 확보 전)·이름/역할/소재 + 구매자 확인가능 신뢰요소(정부 레지스트리 MFDS/HACCP/의료기기/NTS·Polar 판매자대행·창업자 지원). `/en/about` 'Who built this' 상단 배치. `JsonLdGloSource` Organization에 `founder`(schema.org Person) + sameAs 동일 소스 주입. **사진/LinkedIn=null 유지(날조 X)**, **국내 사업자등록번호 없음(미등록·차장님 지시, 서원토건 번호 사용 금지)**. tsc·lint·test 12/12·build green(/en/about). 병합·배포 게이트, 라이브 360/1440 스모크는 배포 시 권장.
 - GLO-EN-PAYHIST @ 406b411(chore/harness-cal-0623, 2026-07-09, pushed) — `/en/billing` 결제내역 실작동. Polar는 결제 금액을 subscription이 아니라 **`order.*`**(created/paid/updated/refunded)로 보내는데 웹훅이 이를 early-return으로 무시 → 결제해도 내역 0. **수정**: `app/lib/polarOrder.ts`(의존성 없는 순수 매핑+단위테스트 4건: status·`total_amount` 우선 금액·currency, $0/무금액 skip) + 웹훅 `order.*` **멱등 upsert**(주문 id=`payments.polarPaymentId` unique, subscription 있으면 링크, `payment_done` 로깅). subscription 생명주기 그대로(주문 id≠invoice id + 실 subscription 이벤트에 금액 없어 이중기록 없음). tsc·lint·test 9/9·build green, `/api/polar/webhook` 등록. **라이브 확인=게이트**(growth:payments:dummy는 DATABASE_URL, Polar 테스트결제 1회).
 - GLO-HARDEN @ a1e8f62(chore/harness-cal-0623, 2026-07-08, pushed) — 보안·품질 하드닝: chat·image-analyze 라우트를 테스트 가능한 `handler.ts`+auth/rate-limit `wrapper`+얇은 `route.js`로 분리(chat 분당/일 rate-limit 신설), **`xlsx` 제거**(prototype-pollution/ReDoS)→자체 `app/lib/csv.ts`(수식인젝션 방어·BOM·CRLF), `next` 15.3.9→15.5.20, growth 런처 `_post-index`+`*-handler` 분리, `tsx --test` 러너 + `scripts/harness-precommit.sh`. tsc·lint·test·build green.
