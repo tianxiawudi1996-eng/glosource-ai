@@ -5,10 +5,14 @@
 - Project: GloSource AI + K-DEFENSE Validation OS
 - Last calibrated: 2026-07-12 Asia/Seoul
 - Current branch: chore/harness-cal-0623
-- Head SHA: 21d1b79
+- Head SHA: b61f5cd
 - Main synced: true — `promote.yml`가 브랜치 push마다 빌드+테스트를 돌리고 통과 시에만 master를 FF → Vercel 배포. 병합은 더 이상 수동 게이트가 아니다.
 - Current track: outbound_validation
-- Next READY: GLO-EN-SUPPLIER-EVIDENCE (`verified_suppliers.bizrno` 컬럼 → 이름이 아닌 사업자번호로 레지스트리 대조). 그 외는 게이트(리드·발송·결제·비공개 분석).
+- Next READY: **DRIZZLE-MIGRATION-DRIFT**(⚠ `db:migrate`가 prod에서 터지는 상태 — 잠복 지뢰) → 그다음 GLO-FOOD-BIZRNO-REGISTRY. 그 외는 게이트(리드·발송·결제·비공개 분석).
+
+## Last Done Increment (3)
+
+GLO-EN-SUPPLIER-EVIDENCE @ b61f5cd (**prod 스키마+데이터 반영 완료**) — 레지스트리 대조를 **이름 → 사업자번호**로 전환. 이름 매칭이 샘표 HACCP를 놓친 진범이었다(원장이 공장 단위로 등재). `bizrno` + `bizrno_source`를 저장하는데, **출처를 함께 저장하는 게 핵심**이다: 식약처 원장 7건은 회사명↔번호를 권위 있게 매핑하지만, 식품 9건은 회사가 자사 사이트에 스스로 공개한 번호(국세청 계속사업자 확인 완료)라 근거가 더 약하다 — 둘을 "검증됨"으로 뭉개지 않는다. **제품 이득**: 국세청 실시간 폐업조회가 화장품에만 걸리던 것이 큐레이션 공급사 전체로 확대 → 폐업한 공급사는 배지 대신 red flag. 검증기가 타사 번호 오귀속까지 잡는다. **번호 없는 10건**(식품 7·패션 3)은 조회 불가 — 통과 처리하지 않고 명시.
 
 ## Last Done Increment (2)
 
@@ -29,7 +33,7 @@ GLO-EN-DBSEED-EXPAND @ ef082d8 + a4c4b76 (**prod DB 반영 완료**) — 'GloSou
 
 - 사람 입력 대기(비차단): 창업자 LinkedIn URL + 실사진 → `app/lib/founder.ts` 두 필드.
 - GLO-EN-PAYHIST 라이브 확인 미완: `npm run growth:payments:dummy`(DATABASE_URL 필요) + Polar 테스트결제 1회 → 게이트.
-- 큐레이션 근거(사업자번호·CGMP)가 `notes` 산문에만 있어 이름 기반 매칭에 의존 → `bizrno` 컬럼이 다음 READY. 샘표 HACCP 누락이 이 약점의 실증.
+- ⚠ **`npm run db:migrate`를 프로덕션에 돌리지 말 것** — journal 9건 vs prod 적용기록 3건. 지금 돌리면 기존 테이블 CREATE를 시도한다. 컬럼 추가는 수기 `ALTER ... IF NOT EXISTS`로 직접 적용했다. 정합 작업이 다음 READY.
 - **자율 런 산출물은 신뢰하지 말 것**: `harness:curate-fallback`이 넣은 20건이 trustScore를 전부 지어냈고 가짜 인증 라벨을 달았다. 앞으로 큐레이션은 `scripts/curated-suppliers.ts` + `verify-curated.ts`를 통과해야만 DB에 들어간다.
 - K-Fashion 3건은 **원천적으로 검증 불가**(정부 원장 부재)라 배지 의미가 약하다. 의류 제조 원장이 생기거나 대안 근거(예: 수출입 실적)가 확보되기 전까지는 노트의 미검증 고지가 유일한 방어선.
 - 남은 진행 대부분 게이트: 실 ICP 리드, Gmail OAuth, 외부 발송, 결제 확인, 비공개 플랫폼 분석.
