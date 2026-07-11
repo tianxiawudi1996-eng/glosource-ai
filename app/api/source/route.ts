@@ -12,7 +12,7 @@ import { enforceVerifiedSupplierQualityGate, verifiedSupplierUnavailableMessage 
 import { matchAeoCompanies } from '../../lib/aeo-companies';
 import { logAbuseSignal } from '@/app/lib/abuse';
 import { db, usageLogs, searchHistory, verifiedSuppliers } from '@/app/lib/db';
-import { and, eq, gte, or } from 'drizzle-orm';
+import { and, eq, gte, or, sql } from 'drizzle-orm';
 
 export const maxDuration = 120;
 
@@ -117,7 +117,15 @@ async function dbFallbackOutput(req: SourcingRequest, lang: string): Promise<Sou
   if (cp !== 'korea' && cp !== 'both' && cp !== 'any') return null; // curated set is Korea-only
   let rows: (typeof verifiedSuppliers.$inferSelect)[];
   try {
-    rows = await db.select().from(verifiedSuppliers).where(eq(verifiedSuppliers.active, true)).limit(50);
+    // Lowest published MOQ first, unknown MOQ last. Only two of these are injected into a search,
+    // so without an order the mega-ODMs won win on insertion order alone and an indie buyer would
+    // never see the factories that will actually take their order.
+    rows = await db
+      .select()
+      .from(verifiedSuppliers)
+      .where(eq(verifiedSuppliers.active, true))
+      .orderBy(sql`${verifiedSuppliers.moqMin} ASC NULLS LAST`)
+      .limit(50);
   } catch {
     return null;
   }
