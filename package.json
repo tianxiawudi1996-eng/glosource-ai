@@ -34,6 +34,7 @@
     "growth:reddit:dry-run": "node scripts/growth/reddit-launch.js --dry-run",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
+    "db:adopt": "tsx --env-file=.env.local scripts/adopt-baseline.ts",
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
