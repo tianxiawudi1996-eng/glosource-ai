@@ -215,3 +215,39 @@ for (const s of targets) {
   writeFileSync(out, md, 'utf8');
   console.log(`${out}  (${entries.length} entries, ${(md.length / 1024).toFixed(0)} KB)`);
 }
+
+writeIndex();
+
+// A folder of hex-named files is not "readable". The index says what each conversation was about,
+// so a past discussion can be found without opening a 5 MB file to check.
+function writeIndex() {
+  const rows = [];
+  for (const s of all) {
+    const file = readdirSync(OUT_DIR).find(f => f.endsWith(`${s.id.slice(0, 8)}.md`));
+    if (!file) continue;
+    const entries = readEntries(s.file);
+    const openers = entries
+      .filter(e => e.type === 'user' && typeof e.message?.content === 'string' && !NOISE.test(e.message.content.trim()))
+      .map(e => e.message.content.replace(/\s+/g, ' ').trim())
+      .filter(t => t.length > 4);
+    const topic = redact((openers[0] ?? '(no prompt)').slice(0, 70));
+    const size = (statSync(path.join(OUT_DIR, file)).size / 1024).toFixed(0);
+    rows.push(`| ${file.slice(0, 10)} | [${file}](./${file}) | ${openers.length} | ${size} KB | ${topic.replace(/\|/g, '/')} |`);
+  }
+  const md = [
+    '# Conversation history',
+    '',
+    'Readable exports of the Claude Code sessions for this project. Regenerate with `npm run sessions:all`',
+    '(or `npm run sessions` for the current one). The `.jsonl` originals live under `~/.claude/projects/`.',
+    '',
+    'Secrets are redacted on export. These files are **not committed** — they carry whatever the tools',
+    'printed (database rows, supplier records, API responses).',
+    '',
+    '| Date | File | Prompts | Size | Opened with |',
+    '|---|---|---|---|---|',
+    ...rows,
+    '',
+  ].join('\n');
+  writeFileSync(path.join(OUT_DIR, 'INDEX.md'), md, 'utf8');
+  console.log(`\n${path.join(OUT_DIR, 'INDEX.md')}  ← start here`);
+}
