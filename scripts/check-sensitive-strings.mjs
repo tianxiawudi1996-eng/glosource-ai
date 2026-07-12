@@ -22,17 +22,25 @@ if (terms.length === 0) {
   fail(`[sensitive-check] BLOCKED: ${blocklistPath} has no active entries.`);
 }
 
+// A secret scanner that swallows its own failures is worse than none: it reports "clean" loudest
+// when it read nothing at all. This used to catch every error and return "", so an 8.6 MB staged
+// diff blew past execSync's 1 MB default maxBuffer, the read failed, and the check passed — failing
+// open exactly when there was the most to scan.
 function capture(command) {
   try {
-    return execSync(command, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
-  } catch {
-    return "";
+    return execSync(command, {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+      maxBuffer: 512 * 1024 * 1024,
+    });
+  } catch (err) {
+    fail(`[sensitive-check] BLOCKED: could not read \`${command}\` (${err.code ?? err.message}). Refusing to report clean on a scan that did not run.`);
   }
 }
 
 const diff = `${capture("git diff --cached -- .")}\n${capture("git diff -- .")}`;
 if (!diff.trim()) {
-  console.log("[sensitive-check] clean: no diff to scan");
+  console.log("[sensitive-check] clean: nothing staged or modified");
   process.exit(0);
 }
 
