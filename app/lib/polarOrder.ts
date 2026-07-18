@@ -30,6 +30,19 @@ export interface ResolvedOrderPayment {
   status: PolarPaymentStatus;
 }
 
+export type PolarSubscriptionOwnerDecision =
+  | { kind: 'existing'; userId: string }
+  | { kind: 'retained' }
+  | { kind: 'provision' };
+
+export function polarSubscriptionOwnerDecision(
+  existingUserId: string | null | undefined,
+): PolarSubscriptionOwnerDecision {
+  if (existingUserId === undefined) return { kind: 'provision' };
+  if (existingUserId === null) return { kind: 'retained' };
+  return { kind: 'existing', userId: existingUserId };
+}
+
 export function orderPaymentStatus(data: Pick<PolarOrderData, 'status' | 'paid'>): PolarPaymentStatus {
   const s = (data.status ?? '').toLowerCase();
   if (s === 'refunded' || s === 'partially_refunded') return 'canceled';

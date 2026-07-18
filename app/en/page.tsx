@@ -15,6 +15,7 @@ import { auth } from '@/auth';
 import SampleReportLeadForm from './SampleReportLeadForm';
 import PricingViewTracker from './PricingViewTracker';
 import TrustCredibility from '@/app/components/TrustCredibility';
+import { REFUND_POLICY } from '@/app/lib/refundPolicy';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://glosourceai.com'),
@@ -328,7 +329,7 @@ export default async function EnPage({
               </p>
             </article>
           </div>
-          <p className="mt-6 text-xs leading-relaxed text-slate-500">
+          <p className="mt-6 text-xs leading-relaxed text-slate-400">
             Registry matches are surfaced automatically when records align, and shown as evidence for your own verification — never as a guarantee or endorsement. Not every company appears in a registry; fashion and general goods have no equivalent public registry.
           </p>
         </div>
@@ -352,7 +353,7 @@ export default async function EnPage({
             {[
               { glyph: 'hwa', img: 'hwa', tint: '#8F3A26', en: 'K-Beauty', note: 'MFDS cosmetics registry · CGMP', accent: 'border-[#8F3A26]/30 hover:border-[#8F3A26]', chip: 'text-[#8F3A26] bg-[#8F3A26]/5', span: 'row-span-2', big: true },
               { glyph: 'sik', img: 'sik', tint: '#B45309', en: 'K-Food', note: 'HACCP-certified manufacturers', accent: 'border-amber-500/30 hover:border-amber-600', chip: 'text-amber-700 bg-amber-500/10' },
-              { glyph: 'pae', img: 'pae', tint: '#1D4ED8', en: 'K-Fashion', note: 'Curated verified makers', accent: 'border-blue-700/25 hover:border-blue-700', chip: 'text-blue-800 bg-blue-700/5' },
+              { glyph: 'pae', img: 'pae', tint: '#1D4ED8', en: 'K-Fashion', note: 'Manually curated candidates', accent: 'border-blue-700/25 hover:border-blue-700', chip: 'text-blue-800 bg-blue-700/5' },
               { glyph: 'ui', img: 'ui', tint: '#475569', en: 'Medical devices', note: 'MFDS device licences', accent: 'border-slate-400/40 hover:border-slate-500', chip: 'text-slate-600 bg-slate-500/10' },
               { glyph: 'geon', img: 'geon', tint: '#047857', en: 'Health foods', note: 'MFDS functional-food registry', accent: 'border-emerald-600/30 hover:border-emerald-600', chip: 'text-emerald-700 bg-emerald-600/10' },
               { glyph: 'uiyakoepum', img: 'uiyakoepum', tint: '#0D1B2A', en: 'Quasi-drugs', ko: '의약외품', note: 'MFDS quasi-drug permits', accent: 'border-[#0D1B2A]/30 hover:border-[#0D1B2A]', chip: 'text-[#0D1B2A] bg-[#0D1B2A]/5' },
@@ -540,7 +541,9 @@ export default async function EnPage({
             <strong className="text-slate-700">Free tier:</strong> 5 anonymous trial searches; verified free accounts get 10 searches/month · up to 3–5 AI-surfaced Korean supplier candidates per search · Trust score · English RFQ draft
           </div>
           <p className="mt-3 text-center text-xs text-slate-400">
-            Secure checkout via Polar · 14-day refund policy · No Korean entity required
+            Secure checkout via Polar ·{' '}
+            <Link href={REFUND_POLICY.termsPath} className="underline hover:text-slate-300">Refund policy (Terms §3.4)</Link>
+            {' '}· No Korean entity required
           </p>
         </div>
       </section>
@@ -569,22 +572,22 @@ export default async function EnPage({
         <div className="max-w-5xl mx-auto px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <BrandLogo compact />
           <div className="text-center">
-            <p className="text-xs text-slate-600">
+            <p className="text-xs text-slate-300">
               GloSource AI is a sourcing research tool, not a trade agent. Contact:{' '}
-              <a href="mailto:hello@glosourceai.com" className="underline hover:text-slate-400">hello@glosourceai.com</a>
+              <a href="mailto:hello@glosourceai.com" className="underline hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EA580C]">hello@glosourceai.com</a>
             </p>
-            <p className="mt-1.5 text-[11px] text-slate-700">
-              Built in Korea on Korean government open data · <HaeryeText className="text-slate-500">나라의 공공데이터로 낱낱이 검증하니라</HaeryeText>
+            <p className="mt-1.5 text-[11px] text-slate-400">
+              Built in Korea on Korean government open data · <HaeryeText className="text-slate-400">나라의 공공데이터로 낱낱이 검증하니라</HaeryeText>
             </p>
           </div>
-          <div className="flex items-center gap-4 text-xs text-slate-600">
-            <Link href="/en/about" className="hover:text-slate-400 transition-colors">About</Link>
-            <Link href="/en/case-studies" className="hover:text-slate-400 transition-colors">Examples</Link>
-            <Link href="/en/blog" className="hover:text-slate-400 transition-colors">Blog</Link>
-            <Link href="/terms" className="hover:text-slate-400 transition-colors">Terms</Link>
-            <Link href="/privacy" className="hover:text-slate-400 transition-colors">Privacy</Link>
-            <Link href="/" className="hover:text-slate-400 transition-colors">Korean version →</Link>
-            <a href="https://twitter.com/glosourceai" target="_blank" rel="noopener noreferrer" className="hover:text-slate-400 transition-colors" aria-label="Twitter/X">
+          <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-slate-300">
+            <Link href="/en/about" className="hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EA580C]">About</Link>
+            <Link href="/en/case-studies" className="hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EA580C]">Examples</Link>
+            <Link href="/en/blog" className="hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EA580C]">Blog</Link>
+            <Link href="/terms" className="hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EA580C]">Terms</Link>
+            <Link href="/privacy" className="hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EA580C]">Privacy</Link>
+            <Link href="/" className="hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EA580C]">Korean version →</Link>
+            <a href="https://twitter.com/glosourceai" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EA580C]" aria-label="Twitter/X">
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.258 5.622L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg>
             </a>
           </div>

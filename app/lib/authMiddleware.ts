@@ -4,6 +4,7 @@ import { db, usageLogs, PLAN_LIMITS, users } from '@/app/lib/db';
 import { eq, and, gte, sql, inArray } from 'drizzle-orm';
 import { extractTrustedIp } from './kv';
 import { logAbuseSignal } from './abuse';
+import { evaluateInternalBypass } from './internal-auth';
 
 export type AuthResult =
   | { ok: true; userId: string; plan: keyof typeof PLAN_LIMITS }
@@ -27,21 +28,20 @@ export async function checkAuthAndQuota(
 ): Promise<AuthResult> {
   const lang = detectLang(request);
 
-  // Internal API key bypass (for admin automation / testing)
-  // Restricted to allowlisted IPs when INTERNAL_API_ALLOWED_IPS is set.
-  const internalKey = process.env.INTERNAL_API_KEY;
-  if (internalKey && request.headers.get('x-api-key') === internalKey) {
-    const allowedIps = (process.env.INTERNAL_API_ALLOWED_IPS ?? '')
-      .split(',').map(s => s.trim()).filter(Boolean);
-    if (allowedIps.length > 0) {
-      const callerIp = extractTrustedIp(request.headers);
-      if (!allowedIps.includes(callerIp)) {
-        return {
-          ok: false,
-          response: NextResponse.json({ error: 'forbidden' }, { status: 403 }),
-        };
-      }
-    }
+  // Internal automation is enabled only when both a key and a caller IP allowlist match.
+  const internalDecision = evaluateInternalBypass({
+    configuredKey: process.env.INTERNAL_API_KEY,
+    providedKey: request.headers.get('x-api-key'),
+    allowedIps: process.env.INTERNAL_API_ALLOWED_IPS,
+    callerIp: extractTrustedIp(request.headers),
+  });
+  if (internalDecision === 'forbidden') {
+    return {
+      ok: false,
+      response: NextResponse.json({ error: 'forbidden' }, { status: 403 }),
+    };
+  }
+  if (internalDecision === 'authorized') {
     return { ok: true, userId: 'internal', plan: 'enterprise' };
   }
 

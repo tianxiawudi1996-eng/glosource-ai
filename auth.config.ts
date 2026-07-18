@@ -1,4 +1,5 @@
 import type { NextAuthConfig } from 'next-auth';
+import { adminPathDecision } from './app/lib/admin-auth';
 
 // Edge-compatible auth config (no bcrypt, no DB imports)
 // Used by middleware.ts only. Full config with credentials/DB is in auth.ts.
@@ -10,7 +11,18 @@ export const authConfig: NextAuthConfig = {
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
-      const protectedPrefixes = ['/dashboard', '/billing', '/admin', '/account', '/en/billing', '/en/dashboard', '/en/account'];
+      const adminDecision = adminPathDecision(
+        nextUrl.pathname,
+        auth?.user?.email,
+        process.env.ADMIN_EMAILS ?? process.env.ADMIN_EMAIL,
+      );
+      if (adminDecision === 'public-login' || adminDecision === 'authorized') return true;
+      if (adminDecision === 'unauthenticated') {
+        return Response.redirect(new URL(`/admin/login?callbackUrl=${encodeURIComponent(nextUrl.pathname)}`, nextUrl));
+      }
+      if (adminDecision === 'forbidden') return Response.redirect(new URL('/', nextUrl));
+
+      const protectedPrefixes = ['/dashboard', '/billing', '/account', '/en/billing', '/en/dashboard', '/en/account'];
       const isProtected = protectedPrefixes.some(p => nextUrl.pathname.startsWith(p));
       if (isProtected) {
         if (isLoggedIn) return true;

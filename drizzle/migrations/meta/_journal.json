@@ -8,6 +8,20 @@
       "when": 1783787537179,
       "tag": "0000_baseline",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1784288755520,
+      "tag": "0001_bitter_skrulls",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1784297976092,
+      "tag": "0002_hot_chronomancer",
+      "breakpoints": true
     }
   ]
 }

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { trackBeginCheckout, trackEvent } from '@/app/lib/analytics';
+import { REFUND_POLICY } from '@/app/lib/refundPolicy';
 
 interface PolarCheckoutButtonProps {
   checkoutUrl: string;
@@ -41,7 +42,9 @@ export default function PolarCheckoutButton({ checkoutUrl, label, planId, onDark
             className="mt-0.5 h-4 w-4 rounded border-slate-300 text-orange-600 focus:ring-orange-500 shrink-0"
           />
           <span className={`text-xs leading-relaxed transition-colors ${onDark ? 'text-slate-300 group-hover:text-slate-200' : 'text-slate-500 group-hover:text-slate-600'}`}>
-            I agree that access starts immediately and the 14-day refund window ends once I run my first search.
+            I agree that access starts immediately upon payment. Refund eligibility is limited to the first {REFUND_POLICY.firstPaymentWindowHours} hours (see{' '}
+            <a href={REFUND_POLICY.termsPath} target="_blank" rel="noopener noreferrer" className="underline">Terms §3.4</a>
+            ).
           </span>
         </label>
       )}

@@ -26,7 +26,9 @@ test('a business number always says where it came from', () => {
     }
     assert.match(s.bizrno, /^\d{10}$/, `${s.nameEn}: business numbers are 10 digits, unpunctuated`);
     assert.ok(
-      s.bizrnoSource === 'mfds-registry' || s.bizrnoSource === 'company-site',
+      s.bizrnoSource === 'mfds-registry'
+        || s.bizrnoSource === 'opendart-registry'
+        || s.bizrnoSource === 'company-site',
       `${s.nameEn}: unknown provenance "${s.bizrnoSource}"`,
     );
     assert.ok(!seen.has(s.bizrno), `${s.nameEn}: ${s.bizrno} is already used by another supplier — one of them is wrong`);

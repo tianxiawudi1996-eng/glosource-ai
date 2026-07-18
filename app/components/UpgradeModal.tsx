@@ -2,10 +2,16 @@
 
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
+import { TOSS_PLANS } from '@/app/lib/tossPlans';
 
 interface UpgradeModalProps {
   onClose: () => void;
 }
+
+// This Korean modal follows the KRW/Toss catalog, not the EN/USD Polar plans.
+const PLAN_QUOTA_SUMMARY = TOSS_PLANS
+  .map(plan => `${plan.name}: ${plan.searchesLabel}`)
+  .join(' · ');
 
 export default function UpgradeModal({ onClose }: UpgradeModalProps) {
   const { data: session } = useSession();
@@ -61,7 +67,7 @@ export default function UpgradeModal({ onClose }: UpgradeModalProps) {
         </div>
 
         <p className="mt-5 text-center text-xs text-slate-400">
-          Starter: 월 30회 · Pro: 월 60회 · Enterprise: 무제한
+          {PLAN_QUOTA_SUMMARY}
         </p>
       </div>
     </div>

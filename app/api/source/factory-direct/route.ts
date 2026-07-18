@@ -1,18 +1,27 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import type { EnhancedGenerateContentResponse, Tool } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
 import { getCategoryByCode } from '../../../lib/categories';
 import type { Category } from '../../../lib/categories';
-import type { SourcingRequest, SourcingOutput, Supplier } from '../types';
+import type { SourcingRequest } from '../types';
 import { kvConsumeFreeCredit, kvSaveHistory, extractTrustedIp } from '../../../lib/kv';
 import { checkAuthAndQuota, logUsage } from '../../../lib/authMiddleware';
-import { enforceVerifiedSupplierQualityGate, verifiedSupplierUnavailableMessage } from '../../../lib/supplier-verification';
+import { verifiedSupplierUnavailableMessage } from '../../../lib/supplier-verification';
+import {
+  FACTORY_DIRECT_MODEL_ATTEMPTS,
+  FACTORY_DIRECT_POST_MODEL_RESERVE_MS,
+  FACTORY_DIRECT_ROUTE_BUDGET_MS,
+  groundingSourceHosts,
+  hasGroundingMetadata,
+} from '../../../lib/gemini-grounding';
+import {
+  isRetryableFactoryError,
+  parseFactoryDirectRequest,
+  verifyFactoryDirectOutput,
+} from '../../../lib/factory-direct-verification';
 
 export const maxDuration = 60;
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-const GOOGLE_SEARCH_TOOLS: Tool[] = [{ googleSearchRetrieval: {} }];
-
 function sanitizeInput(raw: string): string {
   return raw
     .replace(/ignore\s+(all\s+)?(previous|prior|above)\s+(instructions?|prompts?|rules?|context)/gi, '[filtered]')
@@ -21,14 +30,6 @@ function sanitizeInput(raw: string): string {
     .replace(/<\/?[^>]+(>|$)/g, '')
     .trim()
     .slice(0, 600);
-}
-
-function hasGroundingMetadata(response: EnhancedGenerateContentResponse): boolean {
-  return response.candidates?.some(candidate => {
-    const chunks = candidate.groundingMetadata?.groundingChunks?.length ?? 0;
-    const supports = candidate.groundingMetadata?.groundingSupports?.length ?? 0;
-    return chunks > 0 || supports > 0;
-  }) ?? false;
 }
 
 function build1688Prompt(req: SourcingRequest, categoryContext?: Category): string {
@@ -147,56 +148,17 @@ function extractJSON(text: string): string {
   return clean;
 }
 
-function normalizeFactoryOutput(parsed: Omit<SourcingOutput, 'groundingUsed'>, groundingUsed: boolean): SourcingOutput {
-  const suppliers: Supplier[] = Array.isArray(parsed.suppliers) ? parsed.suppliers.map((supplier, index) => {
-    const productStage = ['raw_material', 'semi_finished', 'finished_product'].includes(supplier.productStage)
-      ? supplier.productStage
-      : 'finished_product';
-
-    return {
-      rank: typeof supplier.rank === 'number' ? supplier.rank : index + 1,
-      name: supplier.name || `Supplier ${index + 1}`,
-      platform: supplier.platform || '1688',
-      country: supplier.country || '중국',
-      url: supplier.url || '',
-      trustScore: typeof supplier.trustScore === 'number' ? Math.max(0, Math.min(100, supplier.trustScore)) : 0,
-      trustEvidence: Array.isArray(supplier.trustEvidence) ? supplier.trustEvidence : [],
-      redFlags: Array.isArray(supplier.redFlags) ? supplier.redFlags : [],
-      productMatch: supplier.productMatch || '',
-      estimatedPrice: supplier.estimatedPrice || '',
-      moq: supplier.moq || '',
-      summary: supplier.summary || '',
-      verificationStatus: supplier.verificationStatus === 'grounding_confirmed' ? 'grounding_confirmed' : 'ai_estimated',
-      productStage,
-      leadTimeDays: supplier.leadTimeDays || '',
-      hscode: supplier.hscode || '',
-      exportToKoreaExperience: Boolean(supplier.exportToKoreaExperience),
-    };
-  }) : [];
-
-  return {
-    suppliers,
-    recommendation: parsed.recommendation || '',
-    rfqEmail: {
-      en: parsed.rfqEmail?.en || '',
-      zh: parsed.rfqEmail?.zh || '',
-    },
-    disclaimer: parsed.disclaimer || '1688.com은 중국 내수용 플랫폼입니다. 국제 배송 및 통관은 포워딩 업체를 통해 진행하시기 바랍니다. 본 분석은 AI 참고용 자료입니다.',
-    groundingUsed,
-  };
-}
-
 export async function POST(request: NextRequest) {
   const start = Date.now();
   try {
-    const body = (await request.json()) as Pick<SourcingRequest, 'productDescription' | 'quantity' | 'budget' | 'categoryCode'>;
-
-    if (!body.productDescription?.trim()) {
-      return NextResponse.json({ error: '제품/자재명을 입력해주세요.' }, { status: 400 });
+    let requestBody: unknown;
+    try {
+      requestBody = await request.json();
+    } catch {
+      return NextResponse.json({ error: '올바른 JSON 요청을 보내주세요.' }, { status: 400 });
     }
-    if (!body.quantity?.trim()) {
-      return NextResponse.json({ error: '필요 수량을 입력해주세요.' }, { status: 400 });
-    }
+    const body = parseFactoryDirectRequest(requestBody);
+    if (!body) return NextResponse.json({ error: '제품/자재명과 필요 수량을 입력해주세요.' }, { status: 400 });
 
     const authResult = await checkAuthAndQuota(request, 'factory_direct');
     if (!authResult.ok) return authResult.response;
@@ -214,57 +176,58 @@ export async function POST(request: NextRequest) {
 
     const categoryContext = req.categoryCode ? getCategoryByCode(req.categoryCode) : undefined;
     const prompt = build1688Prompt(req, categoryContext);
+    const deadlineAt = start + FACTORY_DIRECT_ROUTE_BUDGET_MS;
     let text = '';
-    let groundingUsed = false;
+    let sourceHosts: string[] = [];
 
-    const MODELS = [
-      { model: 'gemini-2.5-flash',      ms: 25000, grounding: true },
-      { model: 'gemini-2.5-flash',      ms: 20000, grounding: false },
-      { model: 'gemini-2.5-flash',      ms: 15000, grounding: false },
-      { model: 'gemini-2.5-flash', ms: 12000, grounding: false },
-    ];
-    for (const m of MODELS) {
+    for (const [attemptIndex, attempt] of FACTORY_DIRECT_MODEL_ATTEMPTS.entries()) {
       try {
+        const remainingModelMs = deadlineAt - Date.now() - FACTORY_DIRECT_POST_MODEL_RESERVE_MS;
+        if (remainingModelMs <= 0) break;
         const model = genAI.getGenerativeModel({
-          model: m.model,
-          ...(m.grounding ? { tools: GOOGLE_SEARCH_TOOLS } : {}),
+          model: attempt.model,
+          tools: attempt.tools,
         });
-        const result = await Promise.race([
-          model.generateContent(prompt),
-          new Promise<never>((_, reject) =>
-            setTimeout(() => reject(new Error('timeout')), m.ms)),
-        ]);
-        text = result.response.text().trim();
-        groundingUsed = hasGroundingMetadata(result.response);
+        const result = await model.generateContent(prompt, {
+          timeout: Math.min(attempt.ms, remainingModelMs),
+          signal: request.signal,
+        });
+        const candidateText = result.response.text().trim();
+        if (!candidateText || !hasGroundingMetadata(result.response)) {
+          console.warn('[1688] grounded attempt returned no usable grounding metadata');
+          continue;
+        }
+        text = candidateText;
+        sourceHosts = groundingSourceHosts(result.response);
         break;
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
-        const retryable = msg.includes('503') || msg.includes('429') || msg.includes('400') ||
-          msg.includes('403') || msg.includes('404') || msg.includes('no longer available') ||
-          msg === 'timeout';
+        const retryable = isRetryableFactoryError(e, request.signal.aborted);
         if (!retryable) throw new Error('1688 소싱 분석 실패: ' + msg.slice(0, 80));
-        console.warn('[1688] attempt failed:', m.model, msg.slice(0, 80));
-        await new Promise(r => setTimeout(r, 500));
+        console.warn('[1688] attempt failed:', attempt.model, msg.slice(0, 80));
+        if (attemptIndex < FACTORY_DIRECT_MODEL_ATTEMPTS.length - 1) {
+          if (request.signal.aborted) throw e;
+          await new Promise(r => setTimeout(r, 500));
+        }
       }
     }
     if (!text) throw new Error('1688 소싱 분석에 실패했습니다. 잠시 후 다시 시도해주세요.');
 
     const jsonText = extractJSON(text);
 
-    let parsed: Omit<SourcingOutput, 'groundingUsed'>;
+    let parsed: unknown;
     try {
-      parsed = JSON.parse(jsonText) as Omit<SourcingOutput, 'groundingUsed'>;
+      parsed = JSON.parse(jsonText) as unknown;
     } catch {
       console.error('[1688] JSON parse failed:', jsonText.slice(0, 200));
       return NextResponse.json({ error: 'AI 응답 파싱 실패. 다시 시도해주세요.' }, { status: 500 });
     }
 
-    if (!parsed.suppliers?.length) {
-      return NextResponse.json({ error: '1688에서 공급자를 찾지 못했습니다. 제품 설명을 더 구체적으로 입력해주세요.' }, { status: 500 });
-    }
-
-    const normalizedOutput = normalizeFactoryOutput(parsed, groundingUsed);
-    const qualityGate = enforceVerifiedSupplierQualityGate(normalizedOutput);
+    const qualityGate = await verifyFactoryDirectOutput(parsed, true, {
+      signal: request.signal,
+      deadlineAt,
+      groundingHosts: sourceHosts,
+    });
 
     if (!qualityGate.ok) {
       kvSaveHistory({

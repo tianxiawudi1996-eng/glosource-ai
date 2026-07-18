@@ -1,6 +1,6 @@
-import { createHash } from 'crypto';
 import { sql } from 'drizzle-orm';
 import { abuseEvents, abuseIdentities, db } from '@/app/lib/db';
+import { sha256Hex } from '@/app/lib/hash';
 
 type AbuseEvent =
   | 'signup_created'
@@ -31,10 +31,6 @@ interface AbuseSignalInput {
   metadata?: Record<string, unknown>;
 }
 
-function sha256(value: string): string {
-  return createHash('sha256').update(value).digest('hex');
-}
-
 function normalizeEmail(email?: string | null): { domain: string | null; local: string | null } {
   if (!email) return { domain: null, local: null };
   const [local, domain] = email.trim().toLowerCase().split('@');
@@ -60,7 +56,7 @@ export async function logAbuseSignal(input: AbuseSignalInput): Promise<void> {
     let identityId: string | null = null;
 
     if (identity) {
-      const identityHash = sha256(`${identity.type}:${identity.value}`);
+      const identityHash = sha256Hex(`${identity.type}:${identity.value}`);
       identityId = `${identity.type}:${identityHash}`;
       const now = new Date();
       const severity = input.severity ?? 1;

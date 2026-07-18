@@ -2,15 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { and, eq, gt, lt, isNull } from 'drizzle-orm';
 import { db, users } from '@/app/lib/db';
 import { sendPolarResetReminderEmail } from '@/app/lib/email';
+import { isCronAuthorized } from '@/app/lib/cron-auth';
 
 // 48시간 리마인드 cron — 결제했지만 아직 비밀번호를 설정하지 않은 Polar 가입자에게
 // 1회만 리마인드 메일을 보낸다. welcome_reminder_sent_at 으로 멱등 보장.
 // vercel.json 의 crons 에 등록되어 매일 실행된다.
 export async function GET(request: NextRequest) {
   // CRON_SECRET Bearer 검증 (social-post cron 과 동일 패턴)
-  const authHeader = request.headers.get('authorization');
-  const cronSecret = process.env.CRON_SECRET;
-  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+  if (!isCronAuthorized(request.headers.get('authorization'), process.env.CRON_SECRET)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

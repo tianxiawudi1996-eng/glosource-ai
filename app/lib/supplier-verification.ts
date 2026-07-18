@@ -1,6 +1,15 @@
-import type { SourcingOutput } from '../api/source/types';
+import { SUPPLIER_CANDIDATE_POLICY, type SourcingOutput, type Supplier } from '../api/source/types';
 
-const SUPPLIER_CANDIDATE_POLICY = 'search_grounded_supplier_candidates' as const;
+export type SupplierVerificationKind = 'government' | 'curated' | 'url' | 'unconfirmed';
+
+export function supplierVerificationKind(
+  supplier: Pick<Supplier, 'govVerified' | 'dbVerified' | 'urlCompanyMatch'>,
+): SupplierVerificationKind {
+  if (supplier.govVerified) return 'government';
+  if (supplier.dbVerified) return 'curated';
+  if (supplier.urlCompanyMatch) return 'url';
+  return 'unconfirmed';
+}
 
 export interface SupplierQualityGateResult {
   ok: boolean;
@@ -15,17 +24,19 @@ export function enforceVerifiedSupplierQualityGate(output: SourcingOutput): Supp
     rejectionReasons.push('AI response did not include search grounding metadata.');
   }
 
-  const accepted = output.groundingUsed
-    ? output.suppliers.filter(s =>
-        s.name?.trim() &&
-        s.verificationStatus === 'grounding_confirmed' &&
-        /^https?:\/\//i.test(s.url || ''),
-      )
-    : [];
+  const accepted = output.suppliers.filter(s =>
+    s.name?.trim() &&
+    /^https?:\/\//i.test(s.url || '') &&
+    (s.dbVerified === true || (
+      output.groundingUsed &&
+      s.verificationStatus === 'grounding_confirmed' &&
+      s.urlCompanyMatch === true
+    )),
+  );
 
   const rejectedCount = output.suppliers.length - accepted.length;
   if (rejectedCount > 0) {
-    rejectionReasons.push('Rejected candidates without a search-grounded URL.');
+    rejectionReasons.push('Rejected candidates without a server-confirmed URL/company match or curated database match.');
   }
 
   const gatedOutput: SourcingOutput = {
@@ -49,7 +60,7 @@ export function enforceVerifiedSupplierQualityGate(output: SourcingOutput): Supp
 
 export function verifiedSupplierUnavailableMessage(lang: 'ko' | 'en'): string {
   if (lang === 'en') {
-    return 'No search-grounded supplier candidates were found. Try a more specific product name and search again.';
+    return 'No server-confirmed supplier candidates were found. Try a more specific product name and search again.';
   }
-  return '검색 근거가 있는 공급자 후보를 찾지 못했습니다. 더 구체적인 제품명으로 다시 검색해주세요.';
+  return '서버에서 확인된 공급자 후보를 찾지 못했습니다. 더 구체적인 제품명으로 다시 검색해주세요.';
 }

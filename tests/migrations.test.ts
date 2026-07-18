@@ -70,3 +70,98 @@ test('the migration snapshot describes exactly the columns schema.ts defines', (
     assert.deepEqual(extra, [], `${table}: in the migrations but not in schema.ts: ${extra.join(', ')}`);
   }
 });
+
+test('usage-log quota and history hot paths have composite indexes', () => {
+  const config = getTableConfig(schema.usageLogs);
+  const names = new Set(config.indexes.map(index => index.config.name));
+  const ip = config.columns.find(column => column.name === 'ip');
+  assert.equal(ip?.notNull, false, 'expired usage-log IPs must be removable with NULL');
+  assert.equal(names.has('usage_logs_user_created_at_idx'), true);
+  assert.equal(names.has('usage_logs_ip_created_at_idx'), true);
+  assert.equal(names.has('usage_logs_created_at_idx'), true);
+});
+
+test('privacy-retention scans have created-at indexes', () => {
+  const tables = [
+    [schema.payments, 'payments_created_at_idx'],
+    [schema.searchHistory, 'search_history_created_at_idx'],
+    [schema.abuseEvents, 'abuse_events_created_at_idx'],
+    [schema.waitlist, 'waitlist_created_at_idx'],
+    [schema.abuseIdentities, 'abuse_identities_last_seen_at_idx'],
+  ] as const;
+
+  for (const [table, expected] of tables) {
+    const names = new Set(getTableConfig(table).indexes.map(index => index.config.name));
+    assert.equal(names.has(expected), true, `${expected} is required by the daily retention job`);
+  }
+});
+
+test('account-owned logs cascade while billing references survive without an owner', () => {
+  const expected = [
+    [schema.usageLogs, 'usage_logs_user_id_users_id_fk', 'cascade'],
+    [schema.abuseEvents, 'abuse_events_user_id_users_id_fk', 'cascade'],
+    [schema.subscriptions, 'subscriptions_user_id_users_id_fk', 'set null'],
+  ] as const;
+
+  for (const [table, name, action] of expected) {
+    const config = getTableConfig(table);
+    const foreignKey = config.foreignKeys.find(candidate => candidate.getName() === name);
+    assert.equal(foreignKey?.onDelete, action);
+  }
+
+  const subscriptionUser = getTableConfig(schema.subscriptions).columns.find(column => column.name === 'user_id');
+  assert.equal(subscriptionUser?.notNull, false);
+});
+
+test('production retention indexes are created concurrently and retry safely', () => {
+  const retentionIndexes = new Set([
+    'abuse_events_created_at_idx',
+    'abuse_identities_last_seen_at_idx',
+    'payments_created_at_idx',
+    'search_history_created_at_idx',
+    'usage_logs_user_created_at_idx',
+    'usage_logs_ip_created_at_idx',
+    'usage_logs_created_at_idx',
+    'waitlist_created_at_idx',
+  ]);
+  const sql = fs.readdirSync(FOLDER)
+    .filter(file => file.endsWith('.sql'))
+    .map(file => fs.readFileSync(`${FOLDER}/${file}`, 'utf8'))
+    .join('\n');
+  const indexStatements = sql.split(/\r?\n/).filter(line =>
+    line.startsWith('CREATE INDEX')
+    && [...retentionIndexes].some(name => line.includes(`"${name}"`)),
+  );
+  assert.equal(indexStatements.length, retentionIndexes.size);
+  for (const statement of indexStatements) {
+    assert.match(statement, /^CREATE INDEX CONCURRENTLY IF NOT EXISTS /);
+  }
+});
+
+test('payment records survive account and subscription deletion without retaining a user link', () => {
+  const config = getTableConfig(schema.payments);
+  const userId = config.columns.find(column => column.name === 'user_id');
+  assert.equal(userId?.notNull, false, 'payments.user_id must be nullable so the user FK can be set null');
+
+  const actions = new Map(config.foreignKeys.map(foreignKey => [foreignKey.getName(), foreignKey.onDelete]));
+  assert.equal(actions.get('payments_user_id_users_id_fk'), 'set null');
+  assert.equal(actions.get('payments_subscription_id_subscriptions_id_fk'), 'set null');
+});
+
+test('OpenDART registry migration stores authoritative business-number mappings retry safely', () => {
+  const config = getTableConfig(schema.krDartFirms);
+  const columns = new Map(config.columns.map(column => [column.name, column]));
+  const indexes = new Set(config.indexes.map(index => index.config.name));
+  assert.equal(columns.get('bizrno')?.notNull, true);
+  assert.equal(indexes.has('kr_dart_firms_name_norm_idx'), true);
+  assert.equal(indexes.has('kr_dart_firms_bizrno_idx'), true);
+
+  const source = getTableConfig(schema.verifiedSuppliers).columns
+    .find(column => column.name === 'bizrno_source');
+  assert.ok(source?.enumValues?.includes('opendart-registry'));
+
+  const sql = fs.readFileSync(`${FOLDER}/0002_hot_chronomancer.sql`, 'utf8');
+  assert.match(sql, /CREATE TABLE IF NOT EXISTS "kr_dart_firms"/);
+  assert.match(sql, /CREATE INDEX IF NOT EXISTS "kr_dart_firms_name_norm_idx"/);
+  assert.match(sql, /CREATE INDEX IF NOT EXISTS "kr_dart_firms_bizrno_idx"/);
+});

@@ -1,3 +1,5 @@
+import { refundEligibilitySummary, refundPolicyPublicUrl } from '@/app/lib/refundPolicy';
+
 export interface Scenario {
   id: string;
   category: string;
@@ -36,9 +38,9 @@ Vision @ GloSource AI`,
 
 I'm really sorry the results didn't meet your expectations — that's genuinely frustrating, and I take that feedback seriously.
 
-I've flagged your case for a personal review and our team will reach out within 1 business day to discuss options including a refund or an extended trial period.
+Per our refund policy (Terms §3.4), a full refund is available if you request ${refundEligibilitySummary()}. If you're within that window, reply and I'll process it right away.
 
-Could you tell me what product you were sourcing? This helps me personally investigate what went wrong and improve quality for your category.
+If you're outside that window, I've still flagged your case for a personal review. Could you tell me what product you were sourcing? This helps me personally investigate what went wrong and improve quality for your category.
 
 Best,
 Vision @ GloSource AI`,
@@ -1415,7 +1417,7 @@ Vision @ GloSource AI`,
     escalate: true,
     response: `Hi {{name}},
 
-I want you to feel good about your subscription. If GloSource isn't delivering value, reply and tell me what went wrong — our team reviews refund requests case by case within 1 business day and we'll find a fair resolution.
+Here's our refund policy: subscriptions are generally non-refundable once your billing period has started, with one exception — if you request ${refundEligibilitySummary()}, we'll issue a full refund. Full details: ${refundPolicyPublicUrl()}.
 
 You can cancel anytime to stop future charges via the Polar customer portal.
 

@@ -68,7 +68,8 @@ export default function WeChatCard({ post }: WeChatCardProps) {
       )}
       {post.contactHint && (
         <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-2">
-          <p className="text-xs text-amber-800"><span className="font-semibold">연락처 힌트:</span> {post.contactHint}</p>
+          <p className="text-xs text-amber-800"><span className="font-semibold">연락처 힌트 (미검증):</span> {post.contactHint}</p>
+          <p className="mt-1 text-[10px] text-amber-700">공개 정보 또는 AI 추출값이며, 거래 전 직접 확인해야 합니다.</p>
         </div>
       )}
       {post.url ? (

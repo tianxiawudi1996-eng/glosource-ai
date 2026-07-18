@@ -7,6 +7,7 @@ export type BuyerCountry = 'KR' | 'US' | 'EU' | 'GB' | 'BR' | 'MX' | 'JP' | 'SG'
 export type OutputLanguage = 'ko' | 'en';
 export type CurrencyCode = 'KRW' | 'USD' | 'EUR' | 'JPY' | 'SGD' | 'AUD';
 export type UnitSystem = 'metric' | 'imperial';
+export const SUPPLIER_CANDIDATE_POLICY = 'server_verified_supplier_candidates' as const;
 
 export interface SourcingRequest {
   productDescription: string;
@@ -38,6 +39,7 @@ export interface Supplier {
   moq: string;
   summary: string;
   verificationStatus: VerificationStatus;
+  urlCompanyMatch?: boolean; // true only when the fetched page content matches the supplier name
   dbVerified?: boolean; // matched a manually-curated row in verified_suppliers (real, GloSource-curated)
   koreanName?: string; // Korean registered company name (한글 상호) for MFDS registry matching
   // ── Government-registry verification (real data, distinct from AI trustEvidence) ──
@@ -80,7 +82,7 @@ export interface SourcingOutput {
   disclaimer: string;
   groundingUsed: boolean;
   qualityGate?: {
-    policy: 'search_grounded_supplier_candidates';
+    policy: typeof SUPPLIER_CANDIDATE_POLICY;
     acceptedCount: number;
     rejectedCount: number;
     rejectionReasons: string[];

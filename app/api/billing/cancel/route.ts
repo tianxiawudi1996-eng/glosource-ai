@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server';
-import { eq } from 'drizzle-orm';
+import { and, eq, isNull } from 'drizzle-orm';
 import { auth } from '@/auth';
 import { db, subscriptions } from '@/app/lib/db';
 import { logAbuseSignal } from '@/app/lib/abuse';
+import {
+  decideTossCancellation,
+  scheduleCancelAtPeriodEnd,
+} from '@/app/lib/subscriptionLifecycle';
 
 export async function POST() {
   const session = await auth();
@@ -13,21 +17,25 @@ export async function POST() {
   const [subscription] = await db
     .select()
     .from(subscriptions)
-    .where(eq(subscriptions.userId, session.user.id))
+    .where(and(
+      eq(subscriptions.userId, session.user.id),
+      eq(subscriptions.status, 'active'),
+      isNull(subscriptions.polarSubscriptionId),
+    ))
     .limit(1);
 
-  if (!subscription || subscription.status !== 'active') {
+  const decision = decideTossCancellation(subscription);
+  if (decision === 'not_found') {
     return NextResponse.json({ error: '활성 구독이 없습니다.' }, { status: 404 });
+  }
+
+  if (decision === 'already_scheduled') {
+    return NextResponse.json({ success: true });
   }
 
   await db
     .update(subscriptions)
-    .set({
-      cancelAtPeriodEnd: true,
-      status: 'canceled',
-      canceledAt: new Date(),
-      updatedAt: new Date(),
-    })
+    .set(scheduleCancelAtPeriodEnd())
     .where(eq(subscriptions.id, subscription.id));
 
   logAbuseSignal({

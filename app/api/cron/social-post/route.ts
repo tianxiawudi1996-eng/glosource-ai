@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { eq } from 'drizzle-orm';
 import { db, socialPosts } from '@/app/lib/db';
+import { isCronAuthorized } from '@/app/lib/cron-auth';
 
 const DAILY_POSTS = [
   'Finding a Korean supplier is easy. Verifying whether they can actually export, meet your MOQ, and support your category is the hard part.',
@@ -85,8 +86,7 @@ async function publishToBuffer(text: string) {
 }
 
 export async function GET(request: NextRequest) {
-  const cronSecret = process.env.CRON_SECRET;
-  if (!cronSecret || request.headers.get('authorization') !== `Bearer ${cronSecret}`) {
+  if (!isCronAuthorized(request.headers.get('authorization'), process.env.CRON_SECRET)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

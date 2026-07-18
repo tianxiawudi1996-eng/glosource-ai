@@ -77,7 +77,7 @@ const COPY: Record<Lang, Copy> = {
     buttonLabel: 'How we verify',
     ariaOpen: 'See how suppliers are verified',
     eyebrow: 'Supplier Trust Model',
-    title: 'How every supplier here is verified',
+    title: 'How supplier results are cross-checked',
     subtitle: 'AI finds them. Korean government registries verify them. Every result is labeled with the stage it came from — an estimate is never dressed up as a verified fact.',
     stepsLabel: 'A two-layer model',
     steps: [

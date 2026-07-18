@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db, subscriptions, payments, users } from '@/app/lib/db';
 import { eq } from 'drizzle-orm';
 import { sendReceiptEmail } from '@/app/lib/email';
+import { completeTossPayment } from '@/app/lib/tossSubscription';
+import {
+  shouldApplyTossPaymentStatus,
+  tossPaymentStatus,
+  tossPlanByAmount,
+} from '@/app/lib/tossPlans';
 
 export const maxDuration = 10;
 
@@ -48,32 +54,83 @@ export async function POST(request: NextRequest) {
       const method = data.method as string;
       const approvedAt = data.approvedAt ? new Date(data.approvedAt as string) : null;
 
-      const userId = (data.metadata as Record<string, string>)?.userId ?? '';
-      await db.insert(payments).values({
-        tossPaymentKey: paymentKey,
-        tossOrderId: orderId,
-        amount,
-        method,
-        status: status === 'DONE' ? 'done' : status === 'CANCELED' ? 'canceled' : 'failed',
-        approvedAt: approvedAt ?? undefined,
-        userId,
-        subscriptionId: (data.metadata as Record<string, string>)?.subscriptionId ?? undefined,
-      }).onConflictDoUpdate({
-        target: payments.tossOrderId,
-        set: {
-          tossPaymentKey: paymentKey,
-          amount,
-          method,
-          status: status === 'DONE' ? 'done' : 'failed',
-          approvedAt: approvedAt ?? undefined,
-        },
-      });
+      // The pending order is the server-authoritative owner, amount, and plan.
+      // Toss metadata comes from the client checkout request and must not decide
+      // which user receives paid access.
+      const [pendingPayment] = await db
+        .select()
+        .from(payments)
+        .where(eq(payments.tossOrderId, orderId))
+        .limit(1);
 
-      if (status === 'DONE' && userId) {
+      if (!pendingPayment) {
+        console.warn('[Toss Webhook] ignoring unknown order:', orderId);
+        return NextResponse.json({ received: true });
+      }
+
+      // Account-deleted payment rows are retained for statutory records only.
+      // A delayed/replayed webhook must never recreate access for an ownerless row.
+      if (amount !== pendingPayment.amount) {
+        console.error('[Toss Webhook] amount mismatch:', orderId, amount, pendingPayment.amount);
+        return NextResponse.json({ error: 'Amount mismatch' }, { status: 400 });
+      }
+
+      const resolvedStatus = tossPaymentStatus(status);
+      if (!shouldApplyTossPaymentStatus(pendingPayment.status, resolvedStatus)) {
+        return NextResponse.json({ received: true });
+      }
+
+      const completed = resolvedStatus === 'done';
+      const completionTime = approvedAt ?? pendingPayment.approvedAt ?? new Date();
+      let newlyCompleted = false;
+
+      if (completed) {
+        const userId = pendingPayment.userId;
+        if (!userId) {
+          await db
+            .update(payments)
+            .set({
+              tossPaymentKey: paymentKey || undefined,
+              method,
+              status: resolvedStatus,
+              approvedAt: completionTime,
+            })
+            .where(eq(payments.id, pendingPayment.id));
+          console.warn('[Toss Webhook] recorded completion without restoring owner access:', orderId);
+          return NextResponse.json({ received: true });
+        }
+        const resolvedPaymentKey = paymentKey || pendingPayment.tossPaymentKey;
+        if (!resolvedPaymentKey) {
+          return NextResponse.json({ error: 'Missing payment key' }, { status: 400 });
+        }
+        ({ newlyCompleted } = await completeTossPayment({
+          paymentId: pendingPayment.id,
+          paymentKey: resolvedPaymentKey,
+          method,
+          userId,
+          orderId,
+          amount: pendingPayment.amount,
+          approvedAt: completionTime,
+        }));
+      } else {
+        await db
+          .update(payments)
+          .set({
+            tossPaymentKey: paymentKey || undefined,
+            method,
+            status: resolvedStatus,
+            approvedAt: approvedAt ?? undefined,
+          })
+          .where(eq(payments.id, pendingPayment.id));
+      }
+
+      if (newlyCompleted) {
+        const userId = pendingPayment.userId;
+        if (!userId) return NextResponse.json({ received: true });
         const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
         if (user?.email) {
-          const planName = (data.metadata as Record<string, string>)?.planName ?? 'Pro';
-          sendReceiptEmail(user.email, user.name ?? '', planName, amount, approvedAt ?? new Date()).catch(() => {});
+          const planName = tossPlanByAmount(pendingPayment.amount)?.name ?? 'Pro';
+          sendReceiptEmail(user.email, user.name ?? '', planName, amount, completionTime).catch(() => {});
         }
       }
     }

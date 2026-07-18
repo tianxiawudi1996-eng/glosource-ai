@@ -201,7 +201,10 @@ export default function AccountPage() {
           </Section>
           {/* 회원 탈퇴 */}
           <Section title="회원 탈퇴">
-            <p className="mb-4 text-sm text-slate-500">계정을 삭제하면 모든 데이터가 영구 삭제되며 복구할 수 없습니다.</p>
+            <p className="mb-4 text-sm text-slate-500">
+              계정과 검색 데이터는 영구 삭제되며 복구할 수 없습니다. 법령상 보존이 필요한 결제 참조 기록은
+              계정과의 연결을 제거한 뒤 5년간 보관됩니다.
+            </p>
             <div className="space-y-3">
               <Field label={`탈퇴하려면 아래에 "탈퇴"를 입력하세요`}>
                 <input

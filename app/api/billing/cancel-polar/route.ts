@@ -3,6 +3,7 @@ import { and, eq } from 'drizzle-orm';
 import { auth } from '@/auth';
 import { db, subscriptions } from '@/app/lib/db';
 import { logAbuseSignal } from '@/app/lib/abuse';
+import { scheduleCancelAtPeriodEnd } from '@/app/lib/subscriptionLifecycle';
 
 export async function POST(request: NextRequest) {
   const session = await auth();
@@ -74,7 +75,7 @@ export async function POST(request: NextRequest) {
 
   // Only mark locally after Polar accepts the cancellation request.
   await db.update(subscriptions)
-    .set({ cancelAtPeriodEnd: true, updatedAt: new Date() })
+    .set(scheduleCancelAtPeriodEnd())
     .where(eq(subscriptions.id, sub.id));
 
   logAbuseSignal({

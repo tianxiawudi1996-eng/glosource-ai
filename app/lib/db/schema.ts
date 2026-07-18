@@ -4,6 +4,7 @@ import {
   timestamp,
   boolean,
   integer,
+  index,
   primaryKey,
 } from 'drizzle-orm/pg-core';
 import type { AdapterAccountType } from 'next-auth/adapters';
@@ -62,7 +63,7 @@ export const verificationTokens = pgTable('verification_tokens', {
 
 export const subscriptions = pgTable('subscriptions', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
-  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  userId: text('user_id').references(() => users.id, { onDelete: 'set null' }),
   plan: text('plan', { enum: ['starter', 'pro', 'enterprise'] }).notNull(),
   status: text('status', { enum: ['active', 'canceled', 'past_due', 'trialing'] }).notNull().default('trialing'),
   // Toss Payments (KO)
@@ -86,8 +87,8 @@ export const subscriptions = pgTable('subscriptions', {
 
 export const usageLogs = pgTable('usage_logs', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
-  userId: text('user_id').references(() => users.id, { onDelete: 'set null' }),
-  ip: text('ip').notNull(),
+  userId: text('user_id').references(() => users.id, { onDelete: 'cascade' }),
+  ip: text('ip'),
   action: text('action', {
     enum: ['source', 'factory_direct', 'wechat', 'image_analyze'],
   }).notNull(),
@@ -96,14 +97,19 @@ export const usageLogs = pgTable('usage_logs', {
   durationMs: integer('duration_ms'),
   status: integer('status').notNull().default(200),
   createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
-});
+}, (t) => [
+  index('usage_logs_user_created_at_idx').on(t.userId, t.createdAt),
+  index('usage_logs_ip_created_at_idx').on(t.ip, t.createdAt),
+  index('usage_logs_created_at_idx').on(t.createdAt),
+]);
 
 // ── 결제 내역 ─────────────────────────────────────────────────────────
 
 export const payments = pgTable('payments', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
-  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  subscriptionId: text('subscription_id').references(() => subscriptions.id),
+  // Statutory payment records survive account deletion, while the personal link is removed.
+  userId: text('user_id').references(() => users.id, { onDelete: 'set null' }),
+  subscriptionId: text('subscription_id').references(() => subscriptions.id, { onDelete: 'set null' }),
   tossPaymentKey: text('toss_payment_key').unique(),
   tossOrderId: text('toss_order_id').unique(),
   polarPaymentId: text('polar_payment_id').unique(),
@@ -113,7 +119,9 @@ export const payments = pgTable('payments', {
   method: text('method'),
   approvedAt: timestamp('approved_at', { mode: 'date' }),
   createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
-});
+}, (t) => [
+  index('payments_created_at_idx').on(t.createdAt),
+]);
 
 // ── 남용 신호 / 계정군 추적 ──────────────────────────────────────────
 
@@ -128,11 +136,13 @@ export const abuseIdentities = pgTable('abuse_identities', {
   userCount: integer('user_count').default(0).notNull(),
   firstSeenAt: timestamp('first_seen_at', { mode: 'date' }).defaultNow().notNull(),
   lastSeenAt: timestamp('last_seen_at', { mode: 'date' }).defaultNow().notNull(),
-});
+}, (t) => [
+  index('abuse_identities_last_seen_at_idx').on(t.lastSeenAt),
+]);
 
 export const abuseEvents = pgTable('abuse_events', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
-  userId: text('user_id').references(() => users.id, { onDelete: 'set null' }),
+  userId: text('user_id').references(() => users.id, { onDelete: 'cascade' }),
   identityId: text('identity_id').references(() => abuseIdentities.id, { onDelete: 'set null' }),
   event: text('event', {
     enum: [
@@ -157,7 +167,9 @@ export const abuseEvents = pgTable('abuse_events', {
   ip: text('ip'),
   metadata: text('metadata'),
   createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
-});
+}, (t) => [
+  index('abuse_events_created_at_idx').on(t.createdAt),
+]);
 
 // ── 베타 웨이트리스트 ─────────────────────────────────────────────────
 
@@ -167,7 +179,9 @@ export const waitlist = pgTable('waitlist', {
   source: text('source').default('landing').notNull(),
   ip: text('ip'),
   createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
-});
+}, (t) => [
+  index('waitlist_created_at_idx').on(t.createdAt),
+]);
 
 // ── 검증 공급자 DB (수동 검증된 실제 공급자) ─────────────────────────
 export const verifiedSuppliers = pgTable('verified_suppliers', {
@@ -187,7 +201,7 @@ export const verifiedSuppliers = pgTable('verified_suppliers', {
   // offices). A number matches exactly, and it is what the live 국세청 폐업/휴업 check needs.
   bizrno: text('bizrno'),
   // Where the number came from: a government registry outranks a company's own website.
-  bizrnoSource: text('bizrno_source', { enum: ['mfds-registry', 'company-site'] }),
+  bizrnoSource: text('bizrno_source', { enum: ['mfds-registry', 'opendart-registry', 'company-site'] }),
   notes: text('notes'),
   active: boolean('active').default(true).notNull(),
   verifiedAt: timestamp('verified_at', { mode: 'date' }).defaultNow().notNull(),
@@ -222,6 +236,23 @@ export const krHaccpFirms = pgTable('kr_haccp_firms', {
   area2: text('area2'),
   issueDate: text('issue_date'),
 });
+
+// ── 금융감독원 OpenDART 기업개황 (회사명 ↔ 사업자등록번호 권위 매핑) ──
+export const krDartFirms = pgTable('kr_dart_firms', {
+  corpCode: text('corp_code').primaryKey(),
+  name: text('name').notNull(),
+  nameNorm: text('name_norm').notNull(),
+  nameEn: text('name_en'),
+  stockCode: text('stock_code'),
+  jurirNo: text('jurir_no'),
+  bizrno: text('bizrno').notNull(),
+  address: text('address'),
+  homepage: text('homepage'),
+  fetchedAt: timestamp('fetched_at', { mode: 'date' }).defaultNow().notNull(),
+}, (t) => [
+  index('kr_dart_firms_name_norm_idx').on(t.nameNorm),
+  index('kr_dart_firms_bizrno_idx').on(t.bizrno),
+]);
 
 // ── 의료기기 제조/수입 업체 (식약처 통합업체 정보, 업체명+사업자번호 매칭) ──
 export const krMedicalDeviceFirms = pgTable('kr_medical_device_firms', {
@@ -313,6 +344,8 @@ export const searchHistory = pgTable('search_history', {
   resultJson: text('result_json'),
   durationMs: integer('duration_ms'),
   createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
-});
+}, (t) => [
+  index('search_history_created_at_idx').on(t.createdAt),
+]);
 
 export type SearchHistory = typeof searchHistory.$inferSelect;

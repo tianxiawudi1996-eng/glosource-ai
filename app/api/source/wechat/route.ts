@@ -4,10 +4,30 @@ import { NextRequest, NextResponse } from 'next/server';
 import type { WeChatPost, WeChatSourcingOutput } from '../types';
 import { kvConsumeFreeCredit, kvSaveHistory, extractTrustedIp } from '../../../lib/kv';
 import { checkAuthAndQuota, logUsage } from '../../../lib/authMiddleware';
+import { normalizeWeChatOutput, parseWeChatKeyword, verifyWeChatPostUrls } from '../../../lib/wechat-verification';
+import { GOOGLE_SEARCH_TOOLS, groundingUrls } from '../../../lib/gemini-grounding';
 
 export const maxDuration = 60;
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+
+interface RequestBudget {
+  deadlineAt: number;
+  signal: AbortSignal;
+}
+
+function timeoutWithinBudget(budget: RequestBudget, maxMs: number): number {
+  const remainingMs = budget.deadlineAt - Date.now();
+  if (remainingMs <= 0) throw new Error('timeout');
+  return Math.min(maxMs, remainingMs);
+}
+
+function requestOptions(budget: RequestBudget, maxMs: number) {
+  return {
+    timeout: timeoutWithinBudget(budget, maxMs),
+    signal: budget.signal,
+  };
+}
 
 function sanitizeInput(raw: string): string {
   return raw
@@ -31,15 +51,18 @@ function parseWeChatJSON(text: string): WeChatSourcingOutput {
   return JSON.parse(clean) as WeChatSourcingOutput;
 }
 
-function isRetryable(e: unknown): boolean {
+function isRetryable(e: unknown, signal: AbortSignal): boolean {
+  if (signal.aborted) return false;
   const msg = e instanceof Error ? e.message : String(e);
+  const lowerMsg = msg.toLowerCase();
   return msg.includes('404') || msg.includes('429') || msg.includes('503') ||
     msg.includes('no longer available') || msg.includes('Resource exhausted') ||
-    msg === 'timeout';
+    lowerMsg.includes('timeout') || lowerMsg.includes('timed out') ||
+    lowerMsg.includes('request aborted') || lowerMsg.includes('operation was aborted');
 }
 
 // Translate Korean keyword to Chinese manufacturing terminology while preserving specs.
-async function translateKeywordToZh(keyword: string): Promise<string> {
+async function translateKeywordToZh(keyword: string, budget: RequestBudget): Promise<string> {
   const safeKeyword = sanitizeInput(keyword);
   const CHINESE_RANGE = /[一-鿿]/;
   const chineseCount = [...safeKeyword].filter((c) => CHINESE_RANGE.test(c)).length;
@@ -58,15 +81,14 @@ async function translateKeywordToZh(keyword: string): Promise<string> {
   for (const modelId of ['gemini-2.5-flash', 'gemini-2.5-flash']) {
     try {
       const model = genAI.getGenerativeModel({ model: modelId });
-      const result = await Promise.race([
-        model.generateContent(prompt),
-        new Promise<never>((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000)),
-      ]);
+      const result = await model.generateContent(prompt, requestOptions(budget, 5000));
       const translated = result.response.text().trim().replace(/["']/g, '').replace(/\s+/g, ' ');
       if (CHINESE_RANGE.test(translated) && translated.length >= 2 && translated.length <= 48) {
         return translated;
       }
-    } catch { /* fall through */ }
+    } catch (error) {
+      if (budget.signal.aborted) throw error;
+    }
   }
   return safeKeyword;
 }
@@ -87,7 +109,7 @@ interface SogouArticle {
   snippet: string;
 }
 
-async function scrapeSogouWeChat(zhKeyword: string): Promise<SogouArticle[]> {
+async function scrapeSogouWeChat(zhKeyword: string, budget: RequestBudget): Promise<SogouArticle[]> {
   // Try multiple search queries for better coverage
   const queries = [
     `"${zhKeyword}" 厂家直销 报价`,
@@ -102,8 +124,15 @@ async function scrapeSogouWeChat(zhKeyword: string): Promise<SogouArticle[]> {
   for (const q of queries) {
     try {
       const url = `https://weixin.sogou.com/weixin?type=2&query=${encodeURIComponent(q)}&ie=utf8&page=1`;
-      const res = await fetch(url, { headers: SOGOU_HEADERS, signal: AbortSignal.timeout(7000) });
-      if (!res.ok) continue;
+      const signal = AbortSignal.any([
+        budget.signal,
+        AbortSignal.timeout(timeoutWithinBudget(budget, 7000)),
+      ]);
+      const res = await fetch(url, { headers: SOGOU_HEADERS, signal });
+      if (!res.ok) {
+        await res.body?.cancel().catch(() => {});
+        continue;
+      }
 
       const html = await res.text();
       const $ = load(html);
@@ -140,7 +169,11 @@ async function scrapeSogouWeChat(zhKeyword: string): Promise<SogouArticle[]> {
 
 // A+B: Primary strategy — Gemini with Google Search grounding
 // Searches for real Chinese factory info with WeChat contacts for the specific product
-async function searchWithGrounding(keyword: string, zhKeyword: string): Promise<WeChatSourcingOutput> {
+async function searchWithGrounding(
+  keyword: string,
+  zhKeyword: string,
+  budget: RequestBudget,
+): Promise<WeChatSourcingOutput> {
   const safeKeyword = sanitizeInput(keyword);
   const safeZhKeyword = sanitizeInput(zhKeyword);
   const prompt = `당신은 중국 제조업체 소싱 전문가입니다. Google 검색을 통해 USER_INPUT의 제품을 실제 생산하는 중국 공장 정보를 찾아주세요.
@@ -193,7 +226,6 @@ async function searchWithGrounding(keyword: string, zhKeyword: string): Promise<
       "priceRange": "¥XX~XX/단위",
       "moq": "최소 주문 수량",
       "location": "광동성 포산시 등",
-      "sourceType": "web_search",
       "relevanceScore": 85
     }
   ],
@@ -207,19 +239,19 @@ async function searchWithGrounding(keyword: string, zhKeyword: string): Promise<
     try {
       const model = genAI.getGenerativeModel({
         model: modelId,
-        // googleSearch grounding — SDK types lag behind API; cast required
-        tools: [{ googleSearch: {} }] as unknown as Parameters<typeof genAI.getGenerativeModel>[0]['tools'],
+        tools: GOOGLE_SEARCH_TOOLS,
       });
-      const result = await Promise.race([
-        model.generateContent(prompt),
-        new Promise<never>((_, reject) => setTimeout(() => reject(new Error('timeout')), ms)),
-      ]);
+      const result = await model.generateContent(prompt, requestOptions(budget, ms));
       const text = result.response.text().trim();
       const parsed = parseWeChatJSON(text);
-      if (parsed.posts?.length) return parsed;
+      if (parsed.posts?.length) {
+        return normalizeWeChatOutput(parsed, {
+          groundingUrls: groundingUrls(result.response),
+        });
+      }
     } catch (e) {
       console.warn('[WeChat-grounding]', modelId, e instanceof Error ? e.message.slice(0, 80) : String(e));
-      if (!isRetryable(e)) throw e;
+      if (!isRetryable(e, budget.signal)) throw e;
     }
   }
 
@@ -227,13 +259,13 @@ async function searchWithGrounding(keyword: string, zhKeyword: string): Promise<
   for (const [modelId, ms] of [['gemini-2.5-flash', 15000], ['gemini-2.5-flash', 12000]] as [string, number][]) {
     try {
       const model = genAI.getGenerativeModel({ model: modelId });
-      const result = await Promise.race([
-        model.generateContent(prompt),
-        new Promise<never>((_, reject) => setTimeout(() => reject(new Error('timeout')), ms)),
-      ]);
-      return parseWeChatJSON(result.response.text().trim());
+      const result = await model.generateContent(prompt, requestOptions(budget, ms));
+      return normalizeWeChatOutput(
+        parseWeChatJSON(result.response.text().trim()),
+        { groundingUrls: [] },
+      );
     } catch (e) {
-      if (!isRetryable(e)) throw e;
+      if (!isRetryable(e, budget.signal)) throw e;
     }
   }
   throw new Error('WeChat 소싱 분석 실패');
@@ -290,7 +322,6 @@ ${articleList}
       "priceRange": "¥XX~XX/단위 또는 문의 필요",
       "moq": "최소 주문량",
       "location": "소재지",
-      "sourceType": "wechat_article",
       "relevanceScore": 85
     }
   ],
@@ -300,21 +331,31 @@ ${articleList}
 }`;
 }
 
-async function analyzeArticles(prompt: string): Promise<WeChatSourcingOutput> {
+async function analyzeArticles(prompt: string, budget: RequestBudget): Promise<WeChatSourcingOutput> {
   for (const [modelId, ms] of [['gemini-2.5-flash', 15000], ['gemini-2.5-flash', 12000], ['gemini-2.5-flash', 20000]] as [string, number][]) {
     try {
       const model = genAI.getGenerativeModel({ model: modelId });
-      const result = await Promise.race([
-        model.generateContent(prompt),
-        new Promise<never>((_, reject) => setTimeout(() => reject(new Error('timeout')), ms)),
-      ]);
+      const result = await model.generateContent(prompt, requestOptions(budget, ms));
       return parseWeChatJSON(result.response.text().trim());
     } catch (e) {
-      if (!isRetryable(e)) throw e;
+      if (!isRetryable(e, budget.signal)) throw e;
       console.warn('[WeChat-analyze]', modelId, e instanceof Error ? e.message.slice(0, 80) : String(e));
     }
   }
   throw new Error('AI 분석 실패');
+}
+
+async function analyzeSogouArticles(
+  keyword: string,
+  zhKeyword: string,
+  articles: SogouArticle[],
+  budget: RequestBudget,
+): Promise<WeChatSourcingOutput> {
+  const prompt = buildProductFocusedPrompt(keyword, zhKeyword, articles);
+  return normalizeWeChatOutput(
+    await analyzeArticles(prompt, budget),
+    { sogouUrls: articles.map((article) => article.url) },
+  );
 }
 
 // Merge Sogou articles + grounding results, deduplicate by accountName
@@ -329,29 +370,20 @@ function mergeResults(grounding: WeChatSourcingOutput, sogou?: WeChatSourcingOut
   };
 }
 
-function normalizeWeChatOutput(output: WeChatSourcingOutput): WeChatSourcingOutput {
-  return {
-    ...output,
-    posts: (output.posts ?? []).map((post) => ({
-      ...post,
-      productKeywords: Array.isArray(post.productKeywords) ? post.productKeywords : [],
-      contactHint: post.contactHint ?? '',
-      priceRange: post.priceRange || '문의 필요',
-      moq: post.moq || '문의 필요',
-      location: post.location || '미확인',
-      productSpecs: post.productSpecs || '미확인',
-      productEvidence: post.productEvidence || '',
-      sourceType: post.sourceType || (post.url ? 'web_search' : 'ai_estimated'),
-      relevanceScore: Math.max(0, Math.min(100, Number(post.relevanceScore) || 0)),
-    })),
-  };
-}
-
 export async function POST(request: NextRequest) {
   const start = Date.now();
+  const budget: RequestBudget = {
+    deadlineAt: start + 55_000,
+    signal: request.signal,
+  };
   try {
-    const body = (await request.json()) as { keyword: string };
-    const keyword = body.keyword?.trim();
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: '검색할 제품/키워드를 입력해주세요.' }, { status: 400 });
+    }
+    const keyword = parseWeChatKeyword(body);
     if (!keyword) {
       return NextResponse.json({ error: '검색할 제품/키워드를 입력해주세요.' }, { status: 400 });
     }
@@ -362,12 +394,12 @@ export async function POST(request: NextRequest) {
     const ip = extractTrustedIp(request.headers);
 
     // Step 1: Translate keyword to Chinese manufacturing terminology
-    const zhKeyword = await translateKeywordToZh(keyword);
+    const zhKeyword = await translateKeywordToZh(keyword, budget);
 
     // Step 2: Run grounding search (B) + Sogou scraping (A) in parallel
     const [groundingResult, sogouArticles] = await Promise.allSettled([
-      searchWithGrounding(keyword, zhKeyword),
-      scrapeSogouWeChat(zhKeyword),
+      searchWithGrounding(keyword, zhKeyword, budget),
+      scrapeSogouWeChat(zhKeyword, budget),
     ]);
 
     let output: WeChatSourcingOutput;
@@ -378,21 +410,16 @@ export async function POST(request: NextRequest) {
       // Supplement with Sogou results if available
       if (sogouArticles.status === 'fulfilled' && sogouArticles.value.length > 0) {
         try {
-          const sogouPrompt = buildProductFocusedPrompt(keyword, zhKeyword, sogouArticles.value);
-          const sogouOutput = await analyzeArticles(sogouPrompt);
+          const sogouOutput = await analyzeSogouArticles(keyword, zhKeyword, sogouArticles.value, budget);
           output = mergeResults(output, sogouOutput);
         } catch { /* Sogou analysis failed — use grounding result only */ }
       }
     } else if (sogouArticles.status === 'fulfilled' && sogouArticles.value.length > 0) {
       // Grounding failed but Sogou has data
-      const sogouPrompt = buildProductFocusedPrompt(keyword, zhKeyword, sogouArticles.value);
-      output = await analyzeArticles(sogouPrompt);
+      output = await analyzeSogouArticles(keyword, zhKeyword, sogouArticles.value, budget);
     } else {
-      // Both failed — last resort: grounding without tools
-      output = await searchWithGrounding(keyword, zhKeyword);
+      throw new Error('WeChat 소싱 분석 실패');
     }
-
-    output = normalizeWeChatOutput(output);
 
     // Filter low-relevance and generic guide-like results.
     if (output.posts?.length) {
@@ -414,6 +441,9 @@ export async function POST(request: NextRequest) {
     // Sort by relevance
     output.posts.sort((a: WeChatPost, b: WeChatPost) => b.relevanceScore - a.relevanceScore);
     output.posts = output.posts.slice(0, 8);
+
+    const remainingVerificationMs = Math.max(0, budget.deadlineAt - Date.now());
+    await verifyWeChatPostUrls(output.posts, fetch, remainingVerificationMs, request.signal);
 
     if (zhKeyword !== keyword) {
       output.translatedKeyword = zhKeyword;

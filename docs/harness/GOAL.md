@@ -27,10 +27,10 @@ GloSource AI는 이 Next.js 저장소의 `/en` 퍼널, Polar 결제, 성장 스�
 
 - [ ] 실제 ICP 100명 접촉 및 원본 발송 증거
 - [ ] GloSource 응답·샘플 요청·인터뷰·유료 의향·결제 증거
-- [ ] K-Beauty OEM 랜딩·샘플 CTA·$19/$49 결제 퍼널 green
+- [x] K-Beauty OEM 랜딩·샘플 CTA·현재 $39/$99/$249 결제 퍼널 green (`$19/$49`는 폐기된 가격)
 - [ ] K-DEFENSE 쇼츠·클릭·플레이·상호작용·교육자료 요청·구매 증거
-- [ ] GloSource 80%, K-DEFENSE 20% 작업 비중 증거
-- [ ] 14일 계속/수정/중단 최종 보고서
+- [x] GloSource 80%, K-DEFENSE 20% 작업 비중 증거
+- [x] 14일 계속/수정/중단 최종 보고서
 
 ## Non-goals
 

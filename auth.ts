@@ -5,6 +5,8 @@ import Google from 'next-auth/providers/google';
 import type { Provider } from 'next-auth/providers';
 import bcrypt from 'bcryptjs';
 import { db, users, subscriptions } from '@/app/lib/db';
+import { checkLoginRateLimit } from '@/app/lib/loginRateLimit';
+import { isPasswordSessionInvalidated } from '@/app/lib/session-security';
 import { and, eq, gt } from 'drizzle-orm';
 
 // [C-3] bcrypt 기반 해싱 — SHA-256(legacy) 대비 GPU 브루트포스 저항
@@ -31,8 +33,10 @@ const providers: Provider[] = [
       email: { label: '이메일', type: 'email' },
       password: { label: '비밀번호', type: 'password' },
     },
-    async authorize(credentials) {
+    async authorize(credentials, request) {
       if (!credentials?.email || !credentials?.password) return null;
+      const allowed = await checkLoginRateLimit(credentials.email as string, request.headers);
+      if (!allowed) return null;
       const [user] = await db
         .select()
         .from(users)
@@ -73,7 +77,24 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   providers,
   callbacks: {
     async jwt({ token, user }) {
-      if (user) token.id = user.id;
+      if (user) {
+        token.id = user.id;
+        token.sessionIssuedAtMs = Date.now();
+        return token;
+      }
+      if (token.id) {
+        const [account] = await db
+          .select({ passwordSetAt: users.passwordSetAt })
+          .from(users)
+          .where(eq(users.id, token.id as string))
+          .limit(1);
+        if (!account || isPasswordSessionInvalidated(
+          typeof token.sessionIssuedAtMs === 'number' ? token.sessionIssuedAtMs : undefined,
+          account.passwordSetAt,
+        )) {
+          return null;
+        }
+      }
       return token;
     },
     async session({ session, token }) {

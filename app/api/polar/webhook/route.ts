@@ -4,7 +4,11 @@ import { db, users, subscriptions, payments, verificationTokens } from '@/app/li
 import { hashPassword } from '@/auth';
 import { sendPolarWelcomeEmail } from '@/app/lib/email';
 import { logAbuseSignal } from '@/app/lib/abuse';
-import { resolveOrderPayment, type PolarOrderData } from '@/app/lib/polarOrder';
+import {
+  polarSubscriptionOwnerDecision,
+  resolveOrderPayment,
+  type PolarOrderData,
+} from '@/app/lib/polarOrder';
 
 // Polar plan_id env var → internal plan tier
 function resolvePlan(productId: string): 'starter' | 'pro' | 'enterprise' | null {
@@ -130,7 +134,7 @@ async function maybeResendPolarSetPassword(
 }
 
 async function upsertSubscription(
-  userId: string,
+  userId: string | null,
   eventData: PolarSubscriptionEvent['data'],
   plan: 'starter' | 'pro' | 'enterprise',
 ): Promise<string> {
@@ -163,6 +167,8 @@ async function upsertSubscription(
     return existing.id;
   }
 
+  if (!userId) throw new Error('Cannot create a subscription without an owner');
+
   const newId = crypto.randomUUID();
   await db.insert(subscriptions).values({
     id: newId,
@@ -187,9 +193,26 @@ async function recordOrderPayment(orderData: PolarOrderData): Promise<void> {
   const resolved = resolveOrderPayment(orderData);
   if (!resolved) return;
 
+  const [existing] = await db
+    .select({ id: payments.id, userId: payments.userId })
+    .from(payments)
+    .where(eq(payments.polarPaymentId, resolved.polarPaymentId))
+    .limit(1);
+
+  const paidAt = resolved.status === 'done' ? { approvedAt: new Date() } : {};
+  if (existing?.userId === null) {
+    await db.update(payments).set({
+      amount: resolved.amount,
+      currency: resolved.currency,
+      status: resolved.status,
+      ...paidAt,
+    }).where(eq(payments.id, existing.id));
+    return;
+  }
+
   const email = orderData.customer?.email;
   if (!email) return;
-  const { id: userId } = await findOrCreateUser(email, orderData.customer?.name);
+  const userId = existing?.userId ?? (await findOrCreateUser(email, orderData.customer?.name)).id;
 
   // Link to the internal subscription when the order belongs to one.
   let subscriptionId: string | null = null;
@@ -201,14 +224,6 @@ async function recordOrderPayment(orderData: PolarOrderData): Promise<void> {
       .limit(1);
     subscriptionId = sub?.id ?? null;
   }
-
-  const paidAt = resolved.status === 'done' ? { approvedAt: new Date() } : {};
-
-  const [existing] = await db
-    .select({ id: payments.id })
-    .from(payments)
-    .where(eq(payments.polarPaymentId, resolved.polarPaymentId))
-    .limit(1);
 
   if (existing) {
     // e.g. order.paid follows order.created, or a later order.refunded flips status.
@@ -289,7 +304,22 @@ export async function POST(request: NextRequest) {
   const { email, name } = data.customer;
 
   try {
-    const { id: userId, isNew } = await findOrCreateUser(email, name);
+    const [existingSubscription] = await db
+      .select({ id: subscriptions.id, userId: subscriptions.userId })
+      .from(subscriptions)
+      .where(eq(subscriptions.polarSubscriptionId, data.id))
+      .limit(1);
+    const ownerDecision = polarSubscriptionOwnerDecision(existingSubscription?.userId);
+
+    if (ownerDecision.kind === 'retained') {
+      await upsertSubscription(null, data, plan);
+      return NextResponse.json({ received: true });
+    }
+
+    const owner = ownerDecision.kind === 'existing'
+      ? { id: ownerDecision.userId, isNew: false }
+      : await findOrCreateUser(email, name);
+    const { id: userId, isNew } = owner;
     const subId = await upsertSubscription(userId, data, plan);
 
     if (type === 'subscription.created' || type === 'subscription.active') {

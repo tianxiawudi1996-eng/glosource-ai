@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { auth } from '@/auth';
-import { db, users } from '@/app/lib/db';
+import { db, payments, subscriptions, users, waitlist } from '@/app/lib/db';
 import { eq } from 'drizzle-orm';
 import { hashPassword } from '@/auth';
 
@@ -38,7 +38,12 @@ export async function PATCH(request: NextRequest) {
     }
 
     const newHash = await hashPassword(body.newPassword);
-    await db.update(users).set({ passwordHash: newHash, updatedAt: new Date() }).where(eq(users.id, userId));
+    const changedAt = new Date();
+    await db.update(users).set({
+      passwordHash: newHash,
+      passwordSetAt: changedAt,
+      updatedAt: changedAt,
+    }).where(eq(users.id, userId));
     return NextResponse.json({ success: true, field: 'password' });
   }
 
@@ -53,8 +58,38 @@ export async function DELETE(request: NextRequest) {
   }
 
   try {
-    // cascade로 accounts, sessions, subscriptions, payments, usageLogs 모두 삭제됨 (schema 참고)
-    await db.delete(users).where(eq(users.id, session.user.id));
+    const userId = session.user.id;
+    const [account] = await db
+      .select({ email: users.email })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+
+    if (!account) {
+      return NextResponse.json({ error: '계정을 찾을 수 없습니다.' }, { status: 404 });
+    }
+
+    // Scrub billing ownership first. On an unmigrated schema these NULL writes fail,
+    // preventing the old CASCADE constraints from deleting statutory payment records.
+    await Promise.all([
+      db.update(payments)
+        .set({ userId: null, subscriptionId: null })
+        .where(eq(payments.userId, userId)),
+      db.update(subscriptions)
+        .set({
+          userId: null,
+          tossBillingKey: null,
+          tossCustomerKey: null,
+          tossOrderId: null,
+          polarCustomerId: null,
+          updatedAt: new Date(),
+        })
+        .where(eq(subscriptions.userId, userId)),
+    ]);
+    await db.delete(waitlist).where(eq(waitlist.email, account.email));
+    // User-owned search, usage, and abuse rows use ON DELETE CASCADE. That closes
+    // the race where a concurrent request inserts a final log during deletion.
+    await db.delete(users).where(eq(users.id, userId));
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json({ error: '계정 삭제 중 오류가 발생했습니다.' }, { status: 500 });

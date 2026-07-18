@@ -4,7 +4,7 @@
 
 ## READY (다음 비게이트 증분)
 
-- GLO-FOOD-BIZRNO-REGISTRY — K-Food 7곳(오뚜기·롯데웰푸드·매일식품·몽고식품·삼양식품·삼진푸드·해태)이 사업자번호를 자사 사이트에 공개하지 않아 **국세청 실시간 폐업조회 대상에서 빠진다**. HACCP 원장에는 사업자번호가 없다. 사업자번호를 포함한 식품 인허가 레지스트리(예: 식약처 식품영업허가 정보)를 `kr_*` 테이블로 추가 ingest하면 K-Food도 K-Beauty처럼 **원장 기반 번호**를 얻는다(현재 9곳은 'company-site' 출처라 근거가 약함).
+- 없음 — GLO-FOOD-BIZRNO-REGISTRY의 로컬 구현은 완료됐고, 남은 활성화는 OpenDART 인증키·prod DB 마이그레이션/수집 게이트다. READY가 다시 생길 때까지 증거 감사만 수행한다.
 
 ## 사람 입력 대기 (확보 시 즉시 반영)
 
@@ -13,10 +13,12 @@
 
 ## BLOCKED (게이트/외부 필요)
 
+- GLO-FOOD-BIZRNO-REGISTRY-ACTIVATE — `DART_API_KEY` 발급 + prod 마이그레이션 후 `npm run db:ingest:opendart`. 수집 결과가 7개 업체를 실제로 매칭한 경우에만 curated 번호를 `opendart-registry`로 승격하고 prod 시드를 실행한다. 미매칭·동명이인은 fail-closed하며 번호를 추정하지 않는다.
+- GLO-REPLY-TRIAGE-ACTIVATE — `growth:replies`는 `GMAIL_OAUTH_CLIENT_ID`, `GMAIL_OAUTH_CLIENT_SECRET`, `GMAIL_OAUTH_REFRESH_TOKEN`, `GMAIL_ACCOUNT` 부재로 2026-07-18 fail. 값 확보 후 reply 탐지/분류만 재개하며 실제 draft 생성·발송은 별도 승인 게이트다.
 - GLO-003 — 실제 ICP 리드 20명 1차 배치: **SOP/플레이북 완료**([kbeauty-lead-sourcing-playbook.md](../growth/kbeauty-lead-sourcing-playbook.md)) — 채널별 쿼리·인테이크 스키마·게이트 워크플로우 준비됨. **남은 것=실 수집**: intent 채널(LinkedIn/커뮤니티) 사람 판정 또는 인바운드(배포 후). 콜드 스크래핑 부적합·가짜 리드 금지.
 - GLO-005 — 1차 20명 발송 후 응답 분류: EXT-001(발송 승인) + tianxiawudi1996 Gmail OAuth 필요.
 - GLO-006 — 다음 30명 타깃·메시지 개선: GLO-005 응답 데이터 필요.
-- GLO-007 — 인터뷰 및 $19/$49 가격 제시: 실제 리드 응답 필요.
+- GLO-007 — 인터뷰 및 현재 Pro $99 가격 제시: 실제 리드 응답 필요. `$19/$49`는 폐기된 가격이다.
 - GLO-008 — 결제 전환/거절 정리: EXT-003(결제) + 실 트래픽 필요.
 - KDE-002 — 쇼츠·itch.io·교육자료 반응 판정: KDE-DATA-001(플랫폼 데이터 접근) 필요.
 - EXT-001 발송 / EXT-002 Vercel 배포 / EXT-003 결제·환불: 사람 승인.
@@ -31,6 +33,9 @@
 
 ## DONE
 
+- EVIDENCE-AUDIT-2026-07-18 @ working-tree — revenue/funnel·payment·case-study·acquisition dry-run·buyer activity·ops sync pass. 최근 7일 사용자/검색 0, 결제/구독/사례 후보 0. reply triage만 Gmail OAuth 4개 값 부재로 fail. 소셜은 dry-run, Slack/Notion은 outbox뿐이며 외부 발송 0. 상세: `docs/harness/reports/2026-07-18-evidence-audit.md`.
+- FINAL-14-DAY-REPORT @ working-tree(2026-07-17) — 실제 증거를 감사해 계속/수정/중단, 가장 빠른 매출안, 30일 계획, 개발·마케팅·비용·매출 가능성, 대표용 요약을 `docs/harness/FINAL_14_DAY_REPORT.md`에 작성. Done Bar는 3/6. GloSource는 제품 개발을 동결하고 실제 ICP 100명 판매 검증으로 수정 후 조건부 계속, K-DEFENSE는 교육 요청/전환 증거 전까지 게임 개발 중단. KPI를 보간하거나 가짜 반응을 만들지 않았다.
+- GLO-FOOD-BIZRNO-REGISTRY @ working-tree(2026-07-17, **로컬 구현 완료·prod 미실행**) — READY의 전제를 공식 원장으로 재검증하니 식품안전나라 `I2500`은 인허가번호·업종·업소명·대표자·전화·허가일·주소만 제공하고 **사업자등록번호가 없었다**. 없는 필드를 가정한 식품 테이블 대신, 사업자번호 `bizr_no`를 명시적으로 제공하는 금융감독원 **OpenDART 기업개황**을 연결했다. `kr_dart_firms`(회사명·정규화명·corp code·법인번호·사업자번호) + 멱등 수집기 `npm run db:ingest:opendart` + curated 검증 연동. 이름은 법인접미사 제거 후 **유일 exact match만** 허용하고 동명이인·번호 충돌·잘못된 출처는 fail-closed. 마이그레이션은 재시도 안전(`IF NOT EXISTS`). 로컬 파서/충돌/스키마 테스트 green. 실제 번호 확정·prod 반영은 DART_API_KEY/DB 게이트로 분리했고 추정값 0.
 - DRIZZLE-MIGRATION-BASELINE @ eed52fd(chore/harness-cal-0623, 2026-07-12, **prod 이력 정합 완료**) — **`db:migrate`가 프로덕션에서 다시 돌아간다**(지뢰 제거). 세 가지가 어긋나 있었고 아무도 대조하지 않았다: (1) prod 적용기록 3/9 — drizzle은 **마지막 기록의 created_at**과 각 마이그레이션의 `when`을 비교하므로 0003~0008을 재실행하려 했다(기존 테이블 CREATE), (2) **8개 테이블이 마이그레이션에 아예 없었다**(`kr_*`·blog_posts·social_posts·search_history = push로 생성) → 신규 환경은 **제품이 검증에 쓰는 정부 레지스트리 테이블 전부가 없는 채로** 뜬다, (3) journal에 없는 SQL 파일 2건. **해결**: schema.ts에서 단일 `0000_baseline` 생성. **단, 그 전에 schema.ts == prod를 테이블·컬럼 단위로 먼저 확인**(어긋난 스키마로 baseline을 깔면 drift를 지우는 게 아니라 축복하는 셈) → 19테이블 전 컬럼 일치 확인 후 진행. 기존 DB는 `npm run db:adopt`로 **DDL 실행 없이** 적용 기록만 남기되, **라이브 스키마가 baseline과 다르면 거부**(거짓 기록 = 진짜 변경이 영구 누락). 거부 경로 실증(프로덕션에 없는 테이블을 baseline에 넣으면 이름 짚어 거부). **실검증**: prod에 `drizzle-kit migrate` 2회 연속 정상 통과 + 스키마 무변경. **재발 방지**: `tests/migrations.test.ts`가 schema.ts·journal·snapshot을 매 테스트마다 오프라인 대조 → schema.ts에 테이블 추가하고 마이그레이션 안 만들면 **테스트 실패 → 승격 게이트가 master를 막는다**(원래 사고 재현으로 실증). 구 마이그레이션은 `drizzle/legacy-migrations/`에 설명과 함께 보존(미실행). tsc·lint·test 34/34·build green.
 - GLO-EN-SUPPLIER-EVIDENCE @ b61f5cd(chore/harness-cal-0623, 2026-07-12, **prod 스키마+데이터 반영 완료**) — **레지스트리 대조를 이름이 아닌 사업자번호로**. 이름 매칭이 샘표 HACCP를 놓친 원인이었다(원장은 `샘표식품(주)영동공장`처럼 **공장** 단위 등재). `verified_suppliers`에 `bizrno` + **`bizrno_source`**(출처) 추가 — 근거 강도가 다르기 때문: **식약처 원장 7건**(회사명→번호 권위 매핑) vs **회사 자체 공개 9건**(자사 도메인의 "사업자등록번호" 라벨 옆 + 국세청 계속사업자 확인). 5건은 웹 검색으로 귀속 실물 확인(샘표·크라운·한국제면·신송·CJ 전부 본사 법인 일치). **제품 이득**: 국세청 실시간 폐업/휴업 조회가 지금까지 **화장품에만** 걸렸는데(MFDS만 번호를 가진 원장), 이제 큐레이션 공급사 전체가 매 검색마다 조회 → 폐업 시 배지 대신 **red flag**. 검증기 실증: 타사 번호 오귀속("307-81-02816은 한국콜마 것이지 코스맥스 것이 아니다")·미등록 번호·출처 없는 번호·형식 오류 전부 거부. **미해결 10건**(식품 7 + 패션 3)은 번호 미공개라 실시간 조회 불가 — 통과 처리하지 않고 명시. 마이그레이션은 **수기 작성**(자동 생성이 stale 스냅샷과 diff해 기존 테이블 CREATE를 뱉음 → DRIZZLE-MIGRATION-DRIFT로 별도 큐잉). tsc·lint·test 31/31·build green.
 - GLO-SUPPLIER-REVET @ 21d1b79(chore/harness-cal-0623, 2026-07-12, **prod DB 반영 완료** — 차장님 승인) — **K-Food/K-Fashion 20건을 K-Beauty와 같은 기준으로 재검증**. 배지가 카테고리마다 다른 뜻이었음. 실제 문제: (1) **20건 전부 trustScore 조작**(78/82/88 = 인증 조합 공식, 실사 아님 → 전부 null), (2) **"NTS-verified"가 인증란에 HACCP·CGMP와 나란히** 있었으나 사업자등록이 살아있다는 것뿐 → 제거, (3) 죽은 링크 2건(한세=https만 생존, 신송=singsongfood.com으로 이전), (4) **샘표 HACCP 누락**(원장이 `샘표식품(주)영동공장`처럼 공장명으로 등재 → 정확일치 매처가 놓침) + 해태는 보유하고도 미주장, (5) **오소이=가방·신발 브랜드**(공장의 고객이지 공급사 아님) → 배지 해제(delete 아닌 active=false, 감사추적 유지). **좋은 소식: HACCP 16건 주장은 전부 실제 원장이 뒷받침**(날조 아님). **K-Fashion은 정직한 한계**: 한국에 의류 제조업체 정부 원장이 **없어** 제조사/중개상 구분이 원천 불가 → 노트에 "미검증"을 명시(차장님 결정). **기준을 실행 가능하게**: `scripts/verify-curated.ts`가 시드 쓰기 전 모든 주장을 원장+URL과 대조, 실패 시 **쓰기 거부**. 실증: 실제 시드됐던 행을 먹이면 조작점수·가짜인증·죽은링크·가공의 공장을 전부 잡음. **자기정정**: roundsquare.ai를 무관한 회사로 오판했으나 검사가 통과시킴 — 삼양라운드스퀘어(삼양 지주사 사이트)가 맞았음. 삼양 URL은 운영사(samyangfoods.com)로 변경하되 "버그 수정 아닌 선택"으로 노트 명시. prod 최종: K-Beauty 7·K-Food 16·K-Fashion 3, 조작점수 0·가짜인증 0. tsc·lint·test 29/29·build green.

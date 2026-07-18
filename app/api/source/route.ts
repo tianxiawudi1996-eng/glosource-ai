@@ -1,5 +1,4 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import type { EnhancedGenerateContentResponse, Tool } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
 import { getCategoryByCode } from '../../lib/categories';
 import type { Category } from '../../lib/categories';
@@ -9,6 +8,9 @@ import { lookupMfdsFirms, lookupHaccpFirms, lookupMedicalDeviceFirms, lookupHeal
 import { checkBusinessStatus } from '../../lib/nts';
 import { checkAuthAndQuota, logUsage } from '../../lib/authMiddleware';
 import { enforceVerifiedSupplierQualityGate, verifiedSupplierUnavailableMessage } from '../../lib/supplier-verification';
+import { verifySupplierUrlIdentities } from '../../lib/supplier-url-verification';
+import { GOOGLE_SEARCH_TOOLS, hasGroundingMetadata } from '../../lib/gemini-grounding';
+import { normalizeSupplierCandidate } from '../../lib/supplier-normalization';
 import { matchAeoCompanies } from '../../lib/aeo-companies';
 import { logAbuseSignal } from '@/app/lib/abuse';
 import { db, usageLogs, searchHistory, verifiedSuppliers } from '@/app/lib/db';
@@ -33,43 +35,6 @@ function addGovActive(s: Supplier, ev: string): void {
 }
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-// Gemini 2.x grounding: { googleSearch: {} }. (The older 1.5 googleSearchRetrieval tool
-// 400s as "not supported" on 2.5 models, so it is no longer used.)
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const GOOGLE_SEARCH_TOOLS_20: Tool[] = [{ googleSearch: {} } as any];
-
-// Best-effort server-side liveness check: a supplier keeps its "web-confirmed" badge only
-// if its listed URL actually resolves. Hard failures (DNS/connection error, 404/410) downgrade
-// the supplier to ai_estimated + add a red flag, so a buyer is never shown a "confirmed"
-// supplier whose link is dead (audit finding #1). Timeouts / 403 / anti-bot are treated as
-// ambiguous (not penalized). Runs in parallel, 4s per-URL timeout, and never throws.
-async function verifySupplierUrls(suppliers: Supplier[]): Promise<void> {
-  await Promise.allSettled(
-    suppliers.map(async (s) => {
-      if (!s.url || !/^https?:\/\//i.test(s.url)) return;
-      let dead = false;
-      try {
-        const res = await fetch(s.url, {
-          method: 'GET',
-          redirect: 'follow',
-          signal: AbortSignal.timeout(4000),
-          headers: { 'User-Agent': 'Mozilla/5.0 (compatible; GloSourceBot/1.0; +https://glosourceai.com)' },
-        });
-        if (res.status === 404 || res.status === 410) dead = true;
-      } catch (err) {
-        const name = (err as { name?: string } | null)?.name;
-        if (name === 'AbortError' || name === 'TimeoutError') return; // slow/blocking site — don't penalize
-        dead = true; // DNS / connection failure → treat as dead
-      }
-      if (dead) {
-        s.verificationStatus = 'ai_estimated';
-        const existing = Array.isArray(s.redFlags) ? s.redFlags : [];
-        s.redFlags = ['Listed URL did not resolve on an automated check — verify the supplier and link directly.', ...existing];
-      }
-    }),
-  );
-}
-
 // Cross-check LLM results against the manually-curated verified_suppliers DB: if a returned
 // supplier matches a curated row by URL host OR by normalized company name (Korean 상호 or
 // English name), flag it dbVerified (a real GloSource-curated signal) and surface the curated
@@ -216,14 +181,6 @@ function sanitizeInput(raw: string): string {
     .replace(/<\/?[^>]+(>|$)/g, '')
     .trim()
     .slice(0, 600);
-}
-
-function hasGroundingMetadata(response: EnhancedGenerateContentResponse): boolean {
-  return response.candidates?.some(candidate => {
-    const chunks = candidate.groundingMetadata?.groundingChunks?.length ?? 0;
-    const supports = candidate.groundingMetadata?.groundingSupports?.length ?? 0;
-    return chunks > 0 || supports > 0;
-  }) ?? false;
 }
 
 // Korean construction terminology → Chinese search terms + English keyword (철콘/골조/건축 특화)
@@ -628,31 +585,13 @@ function replaceRfqProductPlaceholders(value: string | undefined, productDescrip
 }
 
 function normalizeSourcingOutput(parsed: Omit<SourcingOutput, 'groundingUsed'>, groundingUsed: boolean, productDescription: string): SourcingOutput {
-  const suppliers: Supplier[] = Array.isArray(parsed.suppliers) ? parsed.suppliers.map((supplier, index): Supplier => {
-    const productStage = ['raw_material', 'semi_finished', 'finished_product'].includes(supplier.productStage)
-      ? supplier.productStage
-      : 'finished_product';
-
-    return {
-      rank: typeof supplier.rank === 'number' ? supplier.rank : index + 1,
-      name: supplier.name || `Supplier ${index + 1}`,
+  const suppliers: Supplier[] = Array.isArray(parsed.suppliers) ? parsed.suppliers.flatMap((supplier, index) => {
+    const normalized = normalizeSupplierCandidate(supplier, index, { platform: 'Unknown', country: '' });
+    if (!normalized) return [];
+    return [{
+      ...normalized,
       koreanName: typeof supplier.koreanName === 'string' && supplier.koreanName.trim() ? supplier.koreanName.trim() : undefined,
-      platform: supplier.platform || 'Unknown',
-      country: supplier.country || '',
-      url: supplier.url || '',
-      trustScore: typeof supplier.trustScore === 'number' ? Math.max(0, Math.min(100, supplier.trustScore)) : 0,
-      trustEvidence: Array.isArray(supplier.trustEvidence) ? supplier.trustEvidence : [],
-      redFlags: Array.isArray(supplier.redFlags) ? supplier.redFlags : [],
-      productMatch: supplier.productMatch || '',
-      estimatedPrice: supplier.estimatedPrice || '',
-      moq: supplier.moq || '',
-      summary: supplier.summary || '',
-      verificationStatus: supplier.verificationStatus === 'grounding_confirmed' ? 'grounding_confirmed' : 'ai_estimated',
-      productStage,
-      leadTimeDays: supplier.leadTimeDays || '',
-      hscode: supplier.hscode || '',
-      exportToKoreaExperience: Boolean(supplier.exportToKoreaExperience),
-    };
+    }];
   }) : [];
 
   return {
@@ -809,6 +748,8 @@ function lockSupplierDetailsForFree(output: SourcingOutput, plan: string): Sourc
 
 export async function POST(request: NextRequest) {
   const start = Date.now();
+  const routeDeadlineAt = start + 115_000;
+  const postModelReserveMs = 15_000;
   try {
     // Validate body BEFORE quota check — malformed requests must not consume quota
     const body = (await request.json()) as SourcingRequest;
@@ -870,10 +811,10 @@ export async function POST(request: NextRequest) {
     // (1.5-only) call that 400s instantly on 2.5 — i.e. there used to be only one real
     // grounded attempt. 45+45+15 ≈ 105s leaves headroom under maxDuration 120s for the
     // government-registry/NTS enrichment that runs after a successful search.
-    type ModelConfig = { model: string; ms: number; tools: Tool[] | null };
+    type ModelConfig = { model: string; ms: number; tools: typeof GOOGLE_SEARCH_TOOLS | null };
     const MODELS: ModelConfig[] = [
-      { model: 'gemini-2.5-flash', ms: 45000, tools: GOOGLE_SEARCH_TOOLS_20 },
-      { model: 'gemini-2.5-flash', ms: 45000, tools: GOOGLE_SEARCH_TOOLS_20 },
+      { model: 'gemini-2.5-flash', ms: 40000, tools: GOOGLE_SEARCH_TOOLS },
+      { model: 'gemini-2.5-flash', ms: 40000, tools: GOOGLE_SEARCH_TOOLS },
       { model: 'gemini-2.5-flash', ms: 15000, tools: null },
     ];
 
@@ -881,36 +822,42 @@ export async function POST(request: NextRequest) {
     let groundingUsed = false;
     let lastError: Error | null = null;
 
-    for (const m of MODELS) {
+    for (const [attemptIndex, m] of MODELS.entries()) {
       try {
+        const remainingModelMs = routeDeadlineAt - Date.now() - postModelReserveMs;
+        if (remainingModelMs <= 0) break;
         const model = genAI.getGenerativeModel({
           model: m.model,
           ...(m.tools ? { tools: m.tools } : {}),
           generationConfig: { temperature: 0 },
         });
-        const result = await Promise.race([
-          model.generateContent(prompt),
-          new Promise<never>((_, reject) =>
-            setTimeout(() => reject(new Error('timeout')), m.ms)),
-        ]);
+        const result = await model.generateContent(prompt, {
+          timeout: Math.min(m.ms, remainingModelMs),
+          signal: request.signal,
+        });
         text = result.response.text().trim();
         groundingUsed = hasGroundingMetadata(result.response);
         break;
       } catch (e) {
         lastError = e instanceof Error ? e : new Error(String(e));
         const msg = lastError.message;
+        const lowerMsg = msg.toLowerCase();
         console.warn(`[GloSource] attempt ${m.model}:`, msg.slice(0, 100));
         const isRetryable =
           msg.includes('503') || msg.includes('Service Unavailable') ||
           msg.includes('429') || msg.includes('Too Many') ||
           msg.includes('400') || msg.includes('403') ||
           msg.includes('404') || msg.includes('no longer available') ||
-          msg === 'timeout';
+          lowerMsg.includes('timeout') || lowerMsg.includes('timed out') ||
+          (!request.signal.aborted && (lowerMsg.includes('request aborted') || lowerMsg.includes('operation was aborted')));
         if (!isRetryable) throw lastError;
         console.warn(`[GloSource] attempt failed (${m.model}):`, msg.slice(0, 120));
         // 429 Too Many Requests: 더 긴 대기 (1500ms vs 500ms)
-        const retryDelay = (msg.includes('429') || msg.includes('Too Many')) ? 1500 : 500;
-        await new Promise(r => setTimeout(r, retryDelay));
+        if (attemptIndex < MODELS.length - 1) {
+          const retryDelay = (msg.includes('429') || msg.includes('Too Many')) ? 1500 : 500;
+          const remainingRetryMs = routeDeadlineAt - Date.now() - postModelReserveMs;
+          if (remainingRetryMs > retryDelay) await new Promise(r => setTimeout(r, retryDelay));
+        }
       }
     }
 
@@ -955,6 +902,17 @@ export async function POST(request: NextRequest) {
     }
 
     const normalizedOutput = normalizeSourcingOutput(parsed, groundingUsed, req.productDescription);
+    // The LLM's verificationStatus is only a claim. Confirm that the returned page is public,
+    // reachable, and contains the supplier identity before the quality gate can accept it.
+    try {
+      await verifySupplierUrlIdentities(normalizedOutput.suppliers, {
+        signal: request.signal,
+        deadlineAt: routeDeadlineAt,
+      });
+    } catch { /* fail closed in quality gate */ }
+    // A curated DB match is an independent server-owned signal and may pass even when a site
+    // blocks automated page inspection.
+    try { await crossCheckVerifiedDb(normalizedOutput.suppliers); } catch { /* fail closed in quality gate */ }
     const qualityGate = enforceVerifiedSupplierQualityGate(normalizedOutput);
 
     if (!qualityGate.ok) {
@@ -981,10 +939,6 @@ export async function POST(request: NextRequest) {
 
     const output = qualityGate.output;
 
-    // Verify listed URLs actually resolve before any "web-confirmed" badge is shown (best-effort).
-    try { await verifySupplierUrls(output.suppliers); } catch { /* never block the response */ }
-    // Flag any result that matches a real, manually-curated supplier in our verified DB.
-    try { await crossCheckVerifiedDb(output.suppliers); } catch { /* never block the response */ }
     // Surface up to 2 curated verified suppliers ahead of LLM candidates (deduped by host).
     // They carry the dbVerified badge + their notes (incl. MOQ caveats), so high-MOQ ODMs are
     // labelled honestly rather than implied to fit every buyer.

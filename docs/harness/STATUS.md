@@ -3,13 +3,24 @@
 ## Snapshot
 
 - Project: GloSource AI + K-DEFENSE Validation OS
-- Last calibrated: 2026-07-12 Asia/Seoul
+- Last calibrated: 2026-07-18 Asia/Seoul
 - Current branch: chore/harness-cal-0623
-- Head SHA: b61f5cd
+- Head SHA: c4b3d8b34bff3078521c13ac0f5423a3c42f3730
 - Main synced: true — `promote.yml`가 브랜치 push마다 빌드+테스트를 돌리고 통과 시에만 master를 FF → Vercel 배포. 병합은 더 이상 수동 게이트가 아니다.
-- Current track: outbound_validation
-- Head SHA: eed52fd
-- Next READY: GLO-FOOD-BIZRNO-REGISTRY(식품 레지스트리 ingest → K-Food 사업자번호를 원장 기반으로). 그 외는 게이트(리드·발송·결제·비공개 분석).
+- Current track: decision_report
+- Working-tree increment: GLO-FOOD-BIZRNO-REGISTRY(로컬 구현 green, prod 미실행)
+- Next READY: 없음. OpenDART 키·prod DB 활성화와 나머지 진행은 게이트(리드·발송·결제·비공개 분석).
+
+## Final 14-Day Decision
+
+- 판정: **수정 후 조건부 계속** — 전체 Done Bar 3/6.
+- GloSource: 신규 기능을 멈추고 실제 ICP 100명에게 현재 Pro $99를 판매하는 30일 founder-led 검증만 진행.
+- K-DEFENSE: 교육자료 요청 1건 또는 비공개 전환 증거 전까지 게임 개발 중단, 콘텐츠 후킹 실험만 20% 유지.
+- 보고서: `docs/harness/FINAL_14_DAY_REPORT.md`
+
+## Last Done Increment (5)
+
+GLO-FOOD-BIZRNO-REGISTRY @ working-tree (**로컬 구현 완료·prod 미실행**) — 공식 식품 인허가 원장은 사업자번호를 제공하지 않는다는 전제 오류를 먼저 바로잡았다. 사업자번호를 실제 제공하는 금융감독원 OpenDART 기업개황을 `kr_dart_firms`로 연결하고, K-Food curated 검증기가 원장에 번호가 있는데 누락하거나 다른 번호를 쓰면 시드를 거부하도록 했다. 동명이인은 자동 귀속하지 않는다. 수집기는 `DART_API_KEY`가 있어야 실행되며 prod DB에는 적용하지 않았다.
 
 ## Last Done Increment (4)
 
@@ -33,6 +44,7 @@ GLO-EN-DBSEED-EXPAND @ ef082d8 + a4c4b76 (**prod DB 반영 완료**) — 'GloSou
 - 가격은 이제 `app/lib/plans.ts` 한 곳. 재가격 시 그 파일만 고치면 랜딩·billing·페이월·JSON-LD가 함께 움직이고, 단위테스트가 폐지가 재등장을 막는다.
 - 신뢰앵커는 EN에만 적용(KO/국내 미변경). 사업자등록번호 미포함(차장님 지시: 국내 사업자등록 보류).
 - KPI 전 항목 0 유지. 실제 고객·결제 증거 없음(조작 없음).
+- K-Food 사업자번호 원장 연결은 코드·마이그레이션·검증기까지 준비됨. 활성화는 `DART_API_KEY` + prod 마이그레이션/수집 게이트이며 실제 번호 7건은 아직 확정하지 않았다.
 
 ## Open Flags
 
@@ -42,6 +54,25 @@ GLO-EN-DBSEED-EXPAND @ ef082d8 + a4c4b76 (**prod DB 반영 완료**) — 'GloSou
 - **자율 런 산출물은 신뢰하지 말 것**: `harness:curate-fallback`이 넣은 20건이 trustScore를 전부 지어냈고 가짜 인증 라벨을 달았다. 앞으로 큐레이션은 `scripts/curated-suppliers.ts` + `verify-curated.ts`를 통과해야만 DB에 들어간다.
 - K-Fashion 3건은 **원천적으로 검증 불가**(정부 원장 부재)라 배지 의미가 약하다. 의류 제조 원장이 생기거나 대안 근거(예: 수출입 실적)가 확보되기 전까지는 노트의 미검증 고지가 유일한 방어선.
 - 남은 진행 대부분 게이트: 실 ICP 리드, Gmail OAuth, 외부 발송, 결제 확인, 비공개 플랫폼 분석.
+- 식품 인허가 원장에는 사업자번호가 없으므로 OpenDART를 사용한다. 키가 없거나 회사명이 유일 매칭되지 않으면 번호를 넣지 않는다.
+
+## Evidence Audit (2026-07-18)
+
+- `npm run growth:today`: 5개 daily 항목 중 4개 pass, reply triage 1개만 Gmail OAuth 부재로 fail; post-run ops sync pass.
+- 결제 안전성: checkout 3개 reachable, Polar product 3개 readable, critical/warning 0.
+- buyer activity: 총 사용자 3, 최근 24시간/7일 사용자 0, 최근 24시간/7일 검색 0, 결제 0, active subscription 0.
+- 사례 후보 0. 소셜 9건은 dry-run만 생성했고 외부 게시 0.
+- Slack/Notion은 outbox만 생성; 외부 발송 0.
+- STATE·placeholder·민감정보·diff 검사 clean.
+- 보고서: `docs/harness/reports/2026-07-18-evidence-audit.md`.
+
+## Recent Verification (2026-07-17, GLO-FOOD-BIZRNO-REGISTRY)
+
+- 공식 데이터 구조 확인: 식품안전나라 I2500 출력에는 사업자번호 없음. OpenDART 기업개황은 `bizr_no` 제공.
+- OpenDART 순수 테스트: 법인접미사 정규화·유일매칭·동명이인 fail-closed·10자리 번호 검증.
+- 마이그레이션 테스트: `kr_dart_firms` snapshot/journal 일치, name/bizrno 인덱스, 재시도 안전 DDL.
+- 전체 검증: `npm test` 109/109, TypeScript, lint(0 errors), Next build, diff/sensitive/placeholder/STATE, growth audit/payment audit 모두 통과.
+- prod DB/실제 OpenDART 수집/curated 번호 변경: 미실행(외부 키·DB 게이트).
 
 ## Gates Pending
 
@@ -70,7 +101,7 @@ GLO-EN-DBSEED-EXPAND @ ef082d8 + a4c4b76 (**prod DB 반영 완료**) — 'GloSou
 
 ## Notes for Next Session
 
-1. 다음 비게이트 READY = GLO-EN-DBSEED-EXPAND(저MOQ 실공장 시드 큐레이션). prod 반영은 DATABASE_URL 게이트지만 큐레이션 자체는 비게이트.
-2. 배포는 이제 push로 자동 승격된다 — 별도 병합 요청 불필요. 다만 **실패 시 master가 안 움직인다**는 점이 유일한 안전망이므로 테스트를 계속 실질적으로 유지할 것.
-3. 창업자 실사진/LinkedIn 확보 시 `app/lib/founder.ts` 두 필드만 채우면 카드+JSON-LD 동시 반영.
-4. 가격 변경 시 `app/lib/plans.ts` 단일 수정 → 4개 표면 자동 반영(테스트가 드리프트 차단).
+1. 다음 비게이트 READY는 없음. 게이트가 열릴 때까지 자동 세션은 오늘자 증거 감사만 수행한다.
+2. Gmail OAuth 4개 값이 생기면 `growth:replies`로 reply 탐지부터 재개하되 발송은 별도 승인 전 0건 유지.
+3. OpenDART key + prod migration 승인이 생기면 K-Food 7곳 수집/검증을 재개.
+4. 실제 ICP 채널 접근·발송 승인·실결제·K-DEFENSE private analytics 없이는 KPI를 올리지 않는다.

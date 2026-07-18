@@ -1,6 +1,17 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { orderPaymentAmount, orderPaymentStatus, resolveOrderPayment } from '../app/lib/polarOrder';
+import {
+  orderPaymentAmount,
+  orderPaymentStatus,
+  polarSubscriptionOwnerDecision,
+  resolveOrderPayment,
+} from '../app/lib/polarOrder';
+
+test('Polar subscription ownership distinguishes active, retained, and new records', () => {
+  assert.deepEqual(polarSubscriptionOwnerDecision('user-1'), { kind: 'existing', userId: 'user-1' });
+  assert.deepEqual(polarSubscriptionOwnerDecision(null), { kind: 'retained' });
+  assert.deepEqual(polarSubscriptionOwnerDecision(undefined), { kind: 'provision' });
+});
 
 test('order status maps paid, refunded, pending and unknown', () => {
   assert.equal(orderPaymentStatus({ status: 'paid' }), 'done');

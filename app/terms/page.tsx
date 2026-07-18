@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { REFUND_POLICY } from '@/app/lib/refundPolicy';
 
 export const metadata: Metadata = {
   title: 'Terms of Service — GloSource AI',
@@ -91,7 +92,7 @@ export default function TermsPage() {
               We will issue a full refund if:
             </p>
             <ul className="list-disc list-inside space-y-1.5 pl-2 mb-3">
-              <li>You request a refund within 48 hours of your first payment <em>and</em> have used fewer than 3 searches.</li>
+              <li>You request a refund within {REFUND_POLICY.firstPaymentWindowHours} hours of your first payment <em>and</em> have used fewer than {REFUND_POLICY.maxSearchesExclusive} searches.</li>
               <li>A verified technical failure on our side prevented service delivery for more than 72 consecutive hours.</li>
             </ul>
             <p className="mb-3">

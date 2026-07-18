@@ -5,15 +5,16 @@
  *
  * What each category can actually be checked against:
  *   K-Beauty  MFDS cosmetics registry (화장품제조 licence) + MFDS CGMP list, matched on biz-reg no.
- *   K-Food    Korea food-safety HACCP registry, matched on company name (incl. plant suffixes).
+ *   K-Food    HACCP registry for the certificate + OpenDART for the business-registration number.
  *   K-Fashion NOTHING. Korea publishes no registry of apparel manufacturers, so manufacturer-vs-
  *             trader cannot be confirmed. Those rows must say so in their notes; the check enforces
  *             the disclosure rather than pretending the supplier was verified.
  */
 import { sql } from 'drizzle-orm';
-import { db, krCosmeticsFirms, krHaccpFirms } from '../app/lib/db';
+import { db, krCosmeticsFirms, krDartFirms, krHaccpFirms } from '../app/lib/db';
 import { normFirmName } from '../app/lib/mfds';
 import { checkBusinessStatus } from '../app/lib/nts';
+import { evaluateDartBusinessNumber, type DartCompanyProfile } from '../app/lib/opendart';
 import cgmp from '../app/data/cgmp-firms.json';
 import type { CuratedSupplier } from './curated-suppliers';
 
@@ -75,6 +76,16 @@ export async function verifyCurated(rows: CuratedSupplier[]): Promise<Verdict[]>
   const haccp = await db
     .select({ company: krHaccpFirms.company, norm: krHaccpFirms.companyNorm, area: krHaccpFirms.area1 })
     .from(krHaccpFirms);
+  const dart: DartCompanyProfile[] = (await db.select().from(krDartFirms)).map((row) => ({
+    corpCode: row.corpCode,
+    name: row.name,
+    nameEn: row.nameEn,
+    stockCode: row.stockCode,
+    jurirNo: row.jurirNo,
+    bizrno: row.bizrno,
+    address: row.address,
+    homepage: row.homepage,
+  }));
 
   // One live 국세청 call for every number we hold: a supplier that has closed or suspended must not
   // keep a 'verified' badge, and a number that is not even registered was never really checked.
@@ -133,6 +144,25 @@ export async function verifyCurated(rows: CuratedSupplier[]): Promise<Verdict[]>
       if (claimsHaccp && !hits.length) problems.push('HACCP claimed but no entry in the food-safety registry');
       if (!claimsHaccp && hits.length) warnings.push(`HACCP certified in the registry but not claimed (${hits[0].company})`);
       if (hits.length) evidence.push(`HACCP: ${hits[0].company}${hits[0].area ? ` (${hits[0].area})` : ''}, ${hits.length} entries`);
+
+      const dartDecision = evaluateDartBusinessNumber(dart, s.name, s.bizrno);
+      if (s.bizrnoSource === 'opendart-registry') {
+        if (dartDecision.kind === 'confirmed') {
+          evidence.push(`OpenDART: ${dartDecision.profile.name} · biz reg ${dartDecision.profile.bizrno}`);
+        } else if (dartDecision.kind === 'conflict') {
+          problems.push(`OpenDART says ${dartDecision.profile.bizrno}, not claimed biz reg ${biz}`);
+        } else {
+          problems.push(`bizrno claims OpenDART provenance but registry decision is ${dartDecision.kind}`);
+        }
+      } else if (!biz && dartDecision.kind === 'available') {
+        problems.push(`OpenDART publishes biz reg ${dartDecision.profile.bizrno} for ${dartDecision.profile.name}; omitting it leaves the live NTS closure check disabled`);
+      } else if (biz && dartDecision.kind === 'conflict') {
+        problems.push(`stored biz reg ${biz} conflicts with OpenDART ${dartDecision.profile.bizrno}`);
+      } else if (biz && dartDecision.kind === 'confirmed') {
+        evidence.push(`OpenDART confirms biz reg ${dartDecision.profile.bizrno}`);
+      } else if (dartDecision.kind === 'ambiguous') {
+        problems.push('OpenDART company-name match is ambiguous — do not assign a business number');
+      }
     } else if (s.category === 'K-Fashion') {
       // No registry exists. The only honest move is to say so where the buyer will read it.
       if (!/no government registry|cannot confirm manufacturer/i.test(s.notes ?? '')) {

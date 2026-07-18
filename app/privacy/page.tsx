@@ -28,7 +28,7 @@ export default function PrivacyPage() {
       <main className="max-w-3xl mx-auto px-6 py-16">
         <h1 className="text-3xl font-black mb-2">Privacy Policy</h1>
         <p className="text-slate-400 text-sm mb-12">
-          Last updated: May 15, 2026 · 최종 업데이트: 2026년 5월 15일
+          Last updated: July 17, 2026 · 최종 업데이트: 2026년 7월 17일
         </p>
 
         <div className="space-y-10 text-sm leading-relaxed text-slate-300">
@@ -79,7 +79,7 @@ export default function PrivacyPage() {
                     <td className="py-2">5 years (legal requirement)</td>
                   </tr>
                   <tr>
-                    <td className="py-2 pr-4">IP address (anonymised)</td>
+                    <td className="py-2 pr-4">IP address</td>
                     <td className="py-2 pr-4">Security, rate limiting</td>
                     <td className="py-2">90 days</td>
                   </tr>
@@ -88,6 +88,11 @@ export default function PrivacyPage() {
             </div>
             <p className="mt-3">
               We do <strong className="text-white">not</strong> collect payment card numbers, passport or ID numbers, or sensitive personal data.
+            </p>
+            <p className="mt-3">
+              IP addresses are kept only for active security and rate-limiting checks, then removed after 90 days.
+              When an account is deleted, linked usage-log IPs and search terms are removed immediately. Payment
+              references required by law are retained without an account link and deleted after five years.
             </p>
           </section>
 
@@ -114,6 +119,8 @@ export default function PrivacyPage() {
             <div className="space-y-3">
               {[
                 { name: 'Google (Gemini API)', purpose: 'AI supplier analysis and search grounding — your search queries are processed to generate results. Google does not use these queries to train its models under its API terms.', location: 'US', policy: 'https://policies.google.com/privacy' },
+                { name: 'Google Analytics', purpose: 'Aggregate website usage analytics — only loaded after you accept analytics cookies in the consent banner. See Section 5.', location: 'US', policy: 'https://policies.google.com/privacy' },
+                { name: 'Polar', purpose: 'Payment processing and subscription billing for international (USD) plans', location: 'US / EU', policy: 'https://polar.sh/legal/privacy' },
                 { name: 'Vercel', purpose: 'Hosting and serverless infrastructure', location: 'US / EU', policy: 'https://vercel.com/legal/privacy-policy' },
                 { name: 'Neon (PostgreSQL)', purpose: 'Account and usage log storage', location: 'US (AWS us-east-1)', policy: 'https://neon.tech/privacy' },
                 { name: 'Resend', purpose: 'Transactional email delivery', location: 'US', policy: 'https://resend.com/legal/privacy-policy' },
@@ -130,14 +137,23 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-lg font-bold text-white mb-3">5. Cookies and Tracking</h2>
             <p className="mb-3">
-              We use session cookies for authentication only. We do <strong className="text-white">not</strong> use
+              We use session cookies for authentication. We do <strong className="text-white">not</strong> use
               advertising cookies, cross-site tracking pixels, or behavioral profiling SDKs.
             </p>
             <p className="mb-3">
-              We use <strong className="text-white">Vercel Analytics</strong>, a cookieless, privacy-first analytics
-              service. It collects only aggregate page-view counts and Web Vitals — no cookies, no fingerprinting,
-              no personal identifiers. Query parameters (which could contain search terms) are stripped before any
-              data is sent. See{' '}
+              With your consent — collected via the cookie banner shown on your first visit — we also use{' '}
+              <strong className="text-white">Google Analytics</strong> cookies to understand aggregate site usage
+              (pages visited, traffic sources). These cookies are <strong className="text-white">not loaded until you
+              accept</strong>; declining keeps you on session cookies only. Page URLs sent to Google Analytics have
+              query parameters (which could contain search terms) stripped beforehand. You can change your choice at
+              any time by clearing this site&rsquo;s local storage in your browser and reloading, which shows the
+              banner again.
+            </p>
+            <p className="mb-3">
+              We also use <strong className="text-white">Vercel Analytics</strong>, a cookieless, privacy-first analytics
+              service that runs regardless of your cookie choice. It collects only aggregate page-view counts and Web
+              Vitals — no cookies, no fingerprinting, no personal identifiers. Query parameters (which could contain
+              search terms) are stripped before any data is sent. See{' '}
               <a href="https://vercel.com/docs/analytics/privacy-policy" target="_blank" rel="noopener noreferrer"
                 className="text-orange-400 hover:underline">
                 vercel.com/docs/analytics/privacy-policy
@@ -215,9 +231,9 @@ export default function PrivacyPage() {
             <div className="bg-white/5 border border-white/10 rounded-xl p-5 space-y-3 text-slate-300">
               <p><strong className="text-white">수집 데이터:</strong> 이메일, 검색 쿼리, 사용 로그, 결제 참조번호(카드번호 미수집)</p>
               <p><strong className="text-white">이용 목적:</strong> 소싱 결과 제공, 구독 관리, 서비스 개선. 광고 목적 제3자 제공 없음.</p>
-              <p><strong className="text-white">제3자 처리자:</strong> Google(Gemini AI), Vercel(호스팅), Neon(DB), Resend(이메일)</p>
+              <p><strong className="text-white">제3자 처리자:</strong> Google(Gemini AI), Google Analytics(쿠키 동의 시에만 로드), Polar(해외 결제), Vercel(호스팅), Neon(DB), Resend(이메일)</p>
               <p><strong className="text-white">정보주체 권리:</strong> 열람·수정·삭제·이동·처리 정지 요청 가능. 이메일로 30일 내 처리.</p>
-              <p><strong className="text-white">보존 기간:</strong> 계정 삭제 후 30일 내 이메일 삭제, 검색 기록 12개월, 결제 정보 5년(법적 의무)</p>
+              <p><strong className="text-white">보존 기간:</strong> 계정 삭제 후 30일 내 이메일 삭제, IP 90일, 사용 로그 6개월, 검색 기록 12개월, 결제 참조 기록 5년(법적 의무). 계정 삭제 시 결제 기록의 계정 연결은 즉시 제거됩니다.</p>
               <p><strong className="text-white">문의:</strong> glosourceai@gmail.com (제목: 개인정보 요청 — 요청 유형)</p>
             </div>
           </section>

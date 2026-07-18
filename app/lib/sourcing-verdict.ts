@@ -25,7 +25,10 @@ function parseMaxPrice(priceStr: string): { value: number; currency: string } {
   else if (/EUR|€/i.test(priceStr)) currency = 'EUR';
   else if (/KRW|₩|원/i.test(priceStr)) currency = 'KRW';
 
-  const nums = priceStr.match(/[\d.]+/g)?.map(Number).filter((n) => !isNaN(n) && n > 0) ?? [];
+  const nums = priceStr
+    .match(/\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?/g)
+    ?.map((value) => Number(value.replace(/,/g, '')))
+    .filter((value) => Number.isFinite(value) && value > 0) ?? [];
   const max = nums.length > 0 ? Math.max(...nums) : 0;
   return { value: max, currency };
 }
@@ -41,7 +44,7 @@ export function getVerdict(supplier: Supplier): Verdict {
     return 'RFQ 먼저';
   }
 
-  // 웹 확인 기준: 신뢰도 78+ AND 레드플래그 없어야 검토 추천
+  // 서버 확인 기준: 신뢰도 78+ AND 레드플래그 없어야 검토 추천
   if (trustScore >= 78 && redFlags.length === 0) return '검토 추천';
   if (trustScore >= 65) return '조건부 검토';
   return 'RFQ 먼저';
@@ -72,8 +75,8 @@ export function getPilotCost(supplier: Supplier): PilotCost | null {
 
   const sampleQty = Math.min(Math.max(moqNum, 3), 50);
   const productCost = Math.round(maxPrice * sampleQty);
-  const freightBuffer = Math.max(35, Math.round(productCost * 0.35));
-  const inspectionBuffer = supplier.trustScore < 60 ? 450 : 250;
+  const freightBuffer = Math.round(productCost * 0.35);
+  const inspectionBuffer = Math.round(productCost * (supplier.trustScore < 60 ? 0.25 : 0.15));
 
   return {
     sampleQty,

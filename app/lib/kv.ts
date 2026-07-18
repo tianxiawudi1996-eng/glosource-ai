@@ -74,17 +74,24 @@ export function isKvConfigured(): boolean {
   return !!(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN);
 }
 
-export function extractTrustedIp(headers: Headers): string {
+export function extractTrustedIp(
+  headers: Headers,
+  env: Readonly<Record<string, string | undefined>> = process.env,
+): string {
   // Vercel injects x-vercel-forwarded-for at the edge, so prefer it over
   // client-controlled forwarding headers.
-  const vercelIp = headers.get('x-vercel-forwarded-for');
-  if (vercelIp) return vercelIp.split(',')[0]?.trim() || 'unknown';
+  if (env.VERCEL === '1') {
+    const vercelIp = headers.get('x-vercel-forwarded-for');
+    if (vercelIp) return vercelIp.split(',')[0]?.trim() || 'unknown';
+  }
 
-  const xff = headers.get('x-forwarded-for');
-  if (xff) return xff.split(',')[0]?.trim() || 'unknown';
+  if (env.TRUST_PROXY_HEADERS === 'true') {
+    const xff = headers.get('x-forwarded-for');
+    if (xff) return xff.split(',')[0]?.trim() || 'unknown';
 
-  const realIp = headers.get('x-real-ip');
-  if (realIp) return realIp.trim() || 'unknown';
+    const realIp = headers.get('x-real-ip');
+    if (realIp) return realIp.trim() || 'unknown';
+  }
 
   return 'unknown';
 }

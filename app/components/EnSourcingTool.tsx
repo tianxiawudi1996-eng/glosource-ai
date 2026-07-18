@@ -11,6 +11,7 @@ import { trackSearch, trackBeginCheckout } from '@/app/lib/analytics';
 import GloSourceVoiceModal from './GloSourceVoiceModal';
 import SourcingChatWidget from './SourcingChatWidget';
 import { planById, priceLabel, priceUnit } from '@/app/lib/plans';
+import { supplierVerificationKind } from '@/app/lib/supplier-verification';
 
 type SourceRegion = 'china' | 'korea';
 
@@ -172,9 +173,10 @@ function AeoPanel({ matches, region }: { matches: { korea: AeoMatchedCompany[]; 
 }
 
 
-function ListingQualityScore({ s, certs, isVerified }: { s: Supplier; certs: { label: string }[]; isVerified: boolean }) {
+function ListingQualityScore({ s, certs }: { s: Supplier; certs: { label: string }[] }) {
+  const urlCompanyMatched = s.urlCompanyMatch === true;
   const scores = [
-    { label: 'Search-grounded URL signal', pts: 30, met: isVerified },
+    { label: 'URL access + company-name match', pts: 30, met: urlCompanyMatched },
     { label: 'Certification signals', pts: 25, met: certs.length > 0 },
     { label: 'MOQ specified', pts: 15, met: !!(s.moq && s.moq !== 'Inquire' && s.moq !== 'N/A') },
     { label: 'Lead time specified', pts: 15, met: !!(s.leadTimeDays && s.leadTimeDays !== 'TBD') },
@@ -237,8 +239,9 @@ async function trackAbuseEvent(event: string, metadata: Record<string, unknown>)
 
 function SupplierCard({ s, rank, keyword, locked, onStartVoiceCall }: { s: Supplier; rank: number; keyword: string; locked: boolean; onStartVoiceCall?: (supplier: Supplier) => void }) {
   const isVerified = s.verificationStatus === 'grounding_confirmed';
-  const dbVerified = s.dbVerified === true;
+  const urlCompanyMatched = s.urlCompanyMatch === true;
   const govVerified = s.govVerified === true;
+  const verificationKind = supplierVerificationKind(s);
   const govEvidence = Array.isArray(s.govEvidence) ? s.govEvidence : [];
   const govRegistries = Array.isArray(s.govRegistries) ? s.govRegistries : [];
   const trustEvidence = Array.isArray(s.trustEvidence) ? s.trustEvidence : [];
@@ -258,23 +261,23 @@ function SupplierCard({ s, rank, keyword, locked, onStartVoiceCall }: { s: Suppl
             <p className="text-xs text-slate-400 mt-0.5">{s.platform} · {s.country}</p>
           </div>
         </div>
-        {govVerified ? (
+        {verificationKind === 'government' ? (
           <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-black border flex-shrink-0 bg-emerald-600 border-emerald-700 text-white shadow-sm" title={`Cross-checked against Korean government registries: ${govRegistries.join(', ')}`}>
             <svg className="w-2.5 h-2.5 fill-current flex-shrink-0" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-1.06 13.54L7.4 11l1.41-1.41 2.12 2.12 4.24-4.24 1.41 1.41-5.65 5.65z" /></svg>
             <span className="hidden sm:inline">Gov-Verified{s.govActiveBusiness ? ' · Active biz' : ''}</span>
             <span className="sm:hidden">Gov ✓</span>
           </span>
-        ) : dbVerified ? (
+        ) : verificationKind === 'curated' ? (
           <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold border flex-shrink-0 bg-blue-50 border-blue-300 text-blue-700" title="Hand-picked by the GloSource team — a curated supplier, not a government-registry match">
             <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 bg-blue-500" />
             <span className="hidden sm:inline">GloSource curated</span>
             <span className="sm:hidden">Curated</span>
           </span>
         ) : (
-          <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold border flex-shrink-0 ${isVerified ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-slate-100 border-slate-200 text-slate-500'}`}>
-            <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${isVerified ? 'bg-emerald-500' : 'bg-slate-400'}`} />
-            <span className="hidden sm:inline">{isVerified ? 'Search-grounded URL signal' : 'AI Estimate - Not Search-Grounded'}</span>
-            <span className="sm:hidden">{isVerified ? 'Grounded' : 'AI Est.'}</span>
+          <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold border flex-shrink-0 ${urlCompanyMatched ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-slate-100 border-slate-200 text-slate-500'}`} title={urlCompanyMatched ? 'URL access succeeded and the page contained matching company-name tokens.' : 'URL-company identity was not confirmed.'}>
+            <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${urlCompanyMatched ? 'bg-emerald-500' : 'bg-slate-400'}`} />
+            <span className="hidden sm:inline">{urlCompanyMatched ? 'URL access confirmed' : 'URL-company match unconfirmed'}</span>
+            <span className="sm:hidden">{urlCompanyMatched ? 'URL checked' : 'Unconfirmed'}</span>
           </span>
         )}
       </div>
@@ -330,7 +333,7 @@ function SupplierCard({ s, rank, keyword, locked, onStartVoiceCall }: { s: Suppl
       </div>
 
       {/* Listing Quality */}
-      <ListingQualityScore s={s} certs={certs} isVerified={isVerified} />
+      <ListingQualityScore s={s} certs={certs} />
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-2">
@@ -648,35 +651,42 @@ export default function EnSourcingTool({
       {/* Form */}
       <form ref={formRef} onSubmit={handleSubmit} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-6">
         <div className="mb-4">
-          <label className="block text-xs font-bold text-[#0D1B2A] uppercase tracking-wide mb-2">
+          <label htmlFor="source-product" className="block text-xs font-bold text-[#0D1B2A] uppercase tracking-wide mb-2">
             Product description <span className="text-[#EA580C]">*</span>
           </label>
           <input
+            id="source-product"
+            name="productDescription"
+            autoComplete="off"
             type="text" value={product} onChange={e => setProduct(e.target.value)} required
-            placeholder="e.g. Korean collagen serum OEM, K-beauty sheet mask, Korean instant noodles bulk"
-            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-[#0D1B2A] placeholder:text-slate-400 focus:border-[#EA580C] focus:outline-none focus:ring-2 focus:ring-[#EA580C]/10 transition-all"
+            placeholder="e.g., Korean collagen serum OEM…"
+            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-[#0D1B2A] placeholder:text-slate-400 focus-visible:border-[#EA580C] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EA580C]/20 transition-colors"
           />
         </div>
 
-        <div className="mb-4">
-          <label className="block text-xs font-bold text-[#0D1B2A] uppercase tracking-wide mb-2">Source region</label>
+        <fieldset className="mb-4">
+          <legend className="block text-xs font-bold text-[#0D1B2A] uppercase tracking-wide mb-2">Source region</legend>
           <div className="flex flex-col sm:flex-row gap-2">
             {REGION_BUTTONS.map(btn => (
               <button key={btn.value} type="button" onClick={() => setRegion(btn.value)}
-                className={`flex-1 py-2.5 px-3 rounded-xl text-sm border transition-all text-left sm:text-center ${region === btn.value ? 'bg-[#0D1B2A] border-[#0D1B2A] text-white shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'}`}>
+                aria-pressed={region === btn.value}
+                className={`flex-1 py-2.5 px-3 rounded-xl text-sm border transition-colors text-left sm:text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EA580C] focus-visible:ring-offset-2 ${region === btn.value ? 'bg-[#0D1B2A] border-[#0D1B2A] text-white shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'}`}>
                 <span className="font-bold block">{btn.label}</span>
                 <span className={`text-[10px] font-normal ${region === btn.value ? 'text-slate-300' : 'text-slate-400'}`}>{btn.sub}</span>
               </button>
             ))}
           </div>
-        </div>
+        </fieldset>
 
         <div className="mb-4">
-          <label className="block text-xs font-bold text-[#0D1B2A] uppercase tracking-wide mb-2">Buyer market</label>
+          <label htmlFor="buyer-market" className="block text-xs font-bold text-[#0D1B2A] uppercase tracking-wide mb-2">Buyer market</label>
           <select
+            id="buyer-market"
+            name="buyerCountry"
+            autoComplete="off"
             value={buyerCountry}
             onChange={e => setBuyerCountry(e.target.value as BuyerCountry)}
-            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-[#0D1B2A] focus:border-[#EA580C] focus:outline-none focus:ring-2 focus:ring-[#EA580C]/10 transition-all"
+            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-[#0D1B2A] focus-visible:border-[#EA580C] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EA580C]/20 transition-colors"
           >
             {BUYER_COUNTRIES.map(country => (
               <option key={country.value} value={country.value}>{country.label}</option>
@@ -686,18 +696,18 @@ export default function EnSourcingTool({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
           <div>
-            <label className="block text-xs font-bold text-[#0D1B2A] uppercase tracking-wide mb-2">
+            <label htmlFor="source-quantity" className="block text-xs font-bold text-[#0D1B2A] uppercase tracking-wide mb-2">
               Quantity <span className="text-[#EA580C]">*</span>
             </label>
-            <input type="text" value={quantity} onChange={e => setQuantity(e.target.value)} placeholder="e.g. 500 units" required
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-[#0D1B2A] placeholder:text-slate-400 focus:border-[#EA580C] focus:outline-none focus:ring-2 focus:ring-[#EA580C]/10 transition-all" />
+            <input id="source-quantity" name="quantity" autoComplete="off" type="text" value={quantity} onChange={e => setQuantity(e.target.value)} placeholder="e.g., 500 units…" required
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-[#0D1B2A] placeholder:text-slate-400 focus-visible:border-[#EA580C] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EA580C]/20 transition-colors" />
           </div>
           <div>
-            <label className="block text-xs font-bold text-[#0D1B2A] uppercase tracking-wide mb-2">
+            <label htmlFor="source-budget" className="block text-xs font-bold text-[#0D1B2A] uppercase tracking-wide mb-2">
               Budget <span className="text-slate-400 font-normal normal-case">(optional)</span>
             </label>
-            <input type="text" value={budget} onChange={e => setBudget(e.target.value)} placeholder="e.g. $5,000"
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-[#0D1B2A] placeholder:text-slate-400 focus:border-[#EA580C] focus:outline-none focus:ring-2 focus:ring-[#EA580C]/10 transition-all" />
+            <input id="source-budget" name="budget" autoComplete="off" type="text" value={budget} onChange={e => setBudget(e.target.value)} placeholder="e.g., $5,000…"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-[#0D1B2A] placeholder:text-slate-400 focus-visible:border-[#EA580C] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EA580C]/20 transition-colors" />
           </div>
         </div>
 
@@ -712,8 +722,8 @@ export default function EnSourcingTool({
           </div>
         )}
 
-        <button type="submit" disabled={loading || !product.trim() || !quantity.trim()}
-          className="w-full min-h-[44px] py-3.5 px-6 rounded-xl font-bold text-sm text-white bg-[#EA580C] hover:bg-[#DC4C00] disabled:opacity-60 disabled:cursor-not-allowed transition-all shadow-lg shadow-orange-900/20 flex items-center justify-center gap-2">
+        <button type="submit" disabled={loading || !product.trim() || !quantity.trim()} aria-busy={loading}
+          className="w-full min-h-[44px] py-3.5 px-6 rounded-xl font-bold text-sm text-white bg-[#EA580C] hover:bg-[#DC4C00] disabled:opacity-60 disabled:cursor-not-allowed transition-colors shadow-lg shadow-orange-900/20 flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EA580C] focus-visible:ring-offset-2">
           {loading ? (
             <>
               <svg className="w-4 h-4 animate-spin flex-shrink-0" fill="none" viewBox="0 0 24 24">
@@ -726,7 +736,8 @@ export default function EnSourcingTool({
         </button>
 
         {loading && (
-          <div className="mt-3 flex items-center justify-center gap-1.5">
+          <div className="mt-3 flex items-center justify-center gap-1.5" role="status" aria-live="polite" aria-atomic="true">
+            <span className="sr-only">{loadingSteps[loadingStep]}</span>
             {loadingSteps.map((_, i) => (
               <span key={i} className={`w-1.5 h-1.5 rounded-full transition-all duration-500 ${i === loadingStep ? 'bg-[#EA580C] scale-125' : 'bg-slate-200'}`} />
             ))}
@@ -736,7 +747,7 @@ export default function EnSourcingTool({
 
       {/* Error */}
       {verifyBlocked && (
-        <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 p-5">
+        <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 p-5" role="alert">
           <p className="text-sm font-bold text-amber-800 mb-1">Verify your email to start searching</p>
           <p className="text-sm text-amber-700 leading-relaxed">
             We&apos;ve emailed you a verification link — click it to unlock your free monthly searches.
@@ -758,7 +769,7 @@ export default function EnSourcingTool({
       )}
 
       {error && !verifyBlocked && (
-        <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-5 flex items-start gap-3">
+        <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-5 flex items-start gap-3" role="alert">
           <svg className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>

@@ -4,12 +4,7 @@ import Link from 'next/link';
 import { auth } from '@/auth';
 import { db, payments, subscriptions } from '@/app/lib/db';
 import { CancelSubscriptionButton, UpgradeButton } from './BillingActions';
-
-const planCards = [
-  { id: 'starter', name: 'Starter', price: '190,000원/월', usage: '소싱 30회/월' },
-  { id: 'pro', name: 'Pro', price: '490,000원/월', usage: '소싱 60회/월' },
-  { id: 'enterprise', name: 'Enterprise', price: '990,000원/월', usage: '무제한' },
-] as const;
+import { isTossCheckoutConfigured, TOSS_PLANS } from '@/app/lib/tossPlans';
 
 function formatDate(date: Date | null): string {
   if (!date) return '-';
@@ -37,9 +32,18 @@ export default async function BillingPage() {
 
   const subscription = subscriptionRows[0];
   const currentPlan = subscription?.plan ?? session.user.plan;
-  const hasActiveSubscription = subscription?.status === 'active';
+  const hasActiveSubscription = subscription?.status === 'active' && !subscription.cancelAtPeriodEnd;
+  const statusLabel = subscription?.cancelAtPeriodEnd
+    ? '기간 종료 후 해지 예정'
+    : (subscription?.status ?? 'free');
 
-  const tossReady = Boolean(process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY);
+  const tossReady = isTossCheckoutConfigured(process.env);
+  const planCards = TOSS_PLANS.map(plan => ({
+    id: plan.id,
+    name: plan.name,
+    price: `${formatCurrency(plan.amount)}/월`,
+    usage: plan.searchesLabel,
+  }));
 
   return (
     <main className="min-h-screen bg-slate-50">
@@ -67,7 +71,7 @@ export default async function BillingPage() {
             <p className="text-sm font-bold text-[#EA580C]">Billing</p>
             <h1 className="mt-2 text-3xl font-black text-[#0D1B2A]">구독 관리</h1>
             <p className="mt-2 text-sm text-slate-500">
-              현재 상태: {subscription?.status ?? 'free'} · 다음 갱신일: {formatDate(subscription?.currentPeriodEnd ?? null)}
+              현재 상태: {statusLabel} · 다음 갱신일: {formatDate(subscription?.currentPeriodEnd ?? null)}
             </p>
           </div>
           {hasActiveSubscription ? <CancelSubscriptionButton /> : null}

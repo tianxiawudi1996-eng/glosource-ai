@@ -2,6 +2,7 @@ import { Icon } from './icons';
 import TrustScoreGauge from './TrustScoreGauge';
 import type { Supplier } from '../api/source/types';
 import { getVerdict, getVerdictStyle, getPilotCost } from '../lib/sourcing-verdict';
+import { supplierVerificationKind } from '../lib/supplier-verification';
 
 interface SupplierRowProps {
   supplier: Supplier;
@@ -10,9 +11,19 @@ interface SupplierRowProps {
 }
 
 function riskLabel(score: number): { label: string; color: string; dot: string } {
-  if (score >= 80) return { label: '낮음', color: 'text-emerald-700', dot: 'bg-emerald-500' };
-  if (score >= 60) return { label: '보통', color: 'text-amber-700', dot: 'bg-amber-500' };
-  return { label: '높음', color: 'text-red-700', dot: 'bg-red-500' };
+  if (score >= 80) return { label: '낮음 (AI 추정)', color: 'text-emerald-700', dot: 'bg-emerald-500' };
+  if (score >= 60) return { label: '보통 (AI 추정)', color: 'text-amber-700', dot: 'bg-amber-500' };
+  return { label: '높음 (AI 추정)', color: 'text-red-700', dot: 'bg-red-500' };
+}
+
+function verificationBadge(supplier: Supplier): { label: string; className: string } {
+  const badgeByKind = {
+    government: { label: '정부 레지스트리 확인', className: 'bg-emerald-50 text-emerald-700' },
+    curated: { label: 'GloSource 큐레이션', className: 'bg-blue-50 text-blue-700' },
+    url: { label: 'URL 접속 확인', className: 'bg-emerald-50 text-emerald-700' },
+    unconfirmed: { label: 'AI 추정', className: 'bg-slate-100 text-slate-500' },
+  } as const;
+  return badgeByKind[supplierVerificationKind(supplier)];
 }
 
 interface SupplierComparisonTableProps {
@@ -40,6 +51,7 @@ export function SupplierComparisonTable({ suppliers, selectedRank, onSelect }: S
           const risk = riskLabel(s.trustScore);
           const verdict = getVerdict(s);
           const vs = getVerdictStyle(verdict);
+          const verification = verificationBadge(s);
           const selected = selectedRank === s.rank;
           return (
             <button
@@ -57,6 +69,9 @@ export function SupplierComparisonTable({ suppliers, selectedRank, onSelect }: S
                   <div className="min-w-0">
                     <p className="text-sm font-bold text-[#0D1B2A] truncate">{s.name}</p>
                     <p className="text-xs text-slate-400">{s.platform} · {s.country}</p>
+                    <span className={`mt-1 inline-flex rounded-full px-1.5 py-0.5 text-[10px] font-bold ${verification.className}`}>
+                      {verification.label}
+                    </span>
                   </div>
                 </div>
                 <div className="flex flex-col items-end gap-1 flex-shrink-0">
@@ -99,7 +114,7 @@ export function SupplierComparisonTable({ suppliers, selectedRank, onSelect }: S
               <th className="px-4 py-3 text-xs font-bold">MOQ</th>
               <th className="px-4 py-3 text-xs font-bold">예상 단가</th>
               <th className="px-4 py-3 text-xs font-bold">리드타임</th>
-              <th className="px-4 py-3 text-xs font-bold">리스크</th>
+              <th className="px-4 py-3 text-xs font-bold">위험도 (AI 추정)</th>
               <th className="px-4 py-3 text-xs font-bold">확인 상태</th>
               <th className="px-4 py-3 text-xs font-bold">판정</th>
             </tr>
@@ -109,6 +124,7 @@ export function SupplierComparisonTable({ suppliers, selectedRank, onSelect }: S
               const risk = riskLabel(s.trustScore);
               const verdict = getVerdict(s);
               const vs = getVerdictStyle(verdict);
+              const verification = verificationBadge(s);
               const selected = selectedRank === s.rank;
               return (
                 <tr
@@ -138,8 +154,8 @@ export function SupplierComparisonTable({ suppliers, selectedRank, onSelect }: S
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`inline-flex rounded-full px-2 py-1 text-[11px] font-bold ${s.verificationStatus === 'grounding_confirmed' ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
-                      {s.verificationStatus === 'grounding_confirmed' ? '웹 확인' : 'AI 추정'}
+                    <span className={`inline-flex rounded-full px-2 py-1 text-[11px] font-bold ${verification.className}`} title={s.urlCompanyMatch ? 'URL 접속 및 페이지 내 회사명 토큰 일치' : undefined}>
+                      {verification.label}
                     </span>
                   </td>
                   <td className="px-4 py-3">
@@ -156,7 +172,7 @@ export function SupplierComparisonTable({ suppliers, selectedRank, onSelect }: S
       </div>
 
       <div className="border-t border-slate-100 px-4 py-3 text-xs text-slate-400">
-        항목을 선택하면 신뢰 근거와 주의사항을 확인할 수 있습니다.
+        AI 추정 점수는 인증이나 보증이 아닙니다. 항목을 선택해 근거와 주의사항을 확인하세요.
       </div>
     </div>
   );
@@ -318,7 +334,7 @@ export function SupplierDetail({ supplier: s, onStartVoiceCall }: SupplierDetail
       {/* 신뢰 근거 */}
       {s.trustEvidence.length > 0 && (
         <div className="mb-2">
-          <p className="text-xs font-bold text-emerald-700 mb-1.5">신뢰 근거</p>
+          <p className="text-xs font-bold text-emerald-700 mb-1.5">AI 추정 신뢰 신호</p>
           <ul className="space-y-1">
             {s.trustEvidence.map((e, i) => (
               <li key={i} className="flex items-center gap-1.5 text-xs text-slate-600">
