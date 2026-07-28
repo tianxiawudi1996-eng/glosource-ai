@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { and, count, desc, eq, gte } from 'drizzle-orm';
+import { and, count, desc, eq, gte, isNull } from 'drizzle-orm';
 import { auth } from '@/auth';
-import { db, PLAN_LIMITS, subscriptions, usageLogs } from '@/app/lib/db';
+import { db, subscriptions, usageLogs } from '@/app/lib/db';
 import type { PlanTier } from '@/app/lib/db/schema';
+import { monthlySearchQuota } from '@/app/lib/product-contracts';
 
 const actionLabels: Record<string, string> = {
   source: '통합 검색',
@@ -33,26 +34,36 @@ export default async function DashboardPage() {
   if (!session?.user?.id) redirect('/auth/login');
 
   const userId = session.user.id;
-  const plan = session.user.plan as PlanTier;
+  const plan = (session.user.plans?.kr ?? 'free') as PlanTier;
   const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
 
   const [monthlyUsageRows, subscriptionRows, recentLogs] = await Promise.all([
     db
       .select({ value: count() })
       .from(usageLogs)
-      .where(and(eq(usageLogs.userId, userId), gte(usageLogs.createdAt, monthStart))),
-    db.select().from(subscriptions).where(eq(subscriptions.userId, userId)).limit(1),
+      .where(and(
+        eq(usageLogs.userId, userId),
+        eq(usageLogs.surface, 'kr'),
+        gte(usageLogs.createdAt, monthStart),
+      )),
+    db.select().from(subscriptions).where(and(
+      eq(subscriptions.userId, userId),
+      isNull(subscriptions.polarSubscriptionId),
+    )).orderBy(desc(subscriptions.updatedAt)).limit(1),
     db
       .select()
       .from(usageLogs)
-      .where(eq(usageLogs.userId, userId))
+      .where(and(
+        eq(usageLogs.userId, userId),
+        eq(usageLogs.surface, 'kr'),
+      ))
       .orderBy(desc(usageLogs.createdAt))
       .limit(5),
   ]);
 
   const usageCount = monthlyUsageRows[0]?.value ?? 0;
-  const limit = PLAN_LIMITS[plan]?.monthly ?? PLAN_LIMITS.free.monthly;
-  const usagePercent = limit > 0 ? Math.min(100, Math.round((usageCount / limit) * 100)) : 0;
+  const limit = monthlySearchQuota('kr', plan);
+  const usagePercent = limit && limit > 0 ? Math.min(100, Math.round((usageCount / limit) * 100)) : 0;
   const subscription = subscriptionRows[0];
 
   return (
@@ -75,7 +86,9 @@ export default async function DashboardPage() {
             <p className="text-sm font-bold text-slate-500">이번달 사용량</p>
             <div className="mt-3 flex items-end gap-2">
               <strong className="text-4xl font-black text-[#0D1B2A]">{usageCount}</strong>
-              <span className="pb-1 text-sm font-bold text-slate-500">/ {limit}회</span>
+              <span className="pb-1 text-sm font-bold text-slate-500">
+                / {limit === null ? '무제한' : `${limit}회`}
+              </span>
             </div>
             <div className="mt-5 h-3 overflow-hidden rounded-full bg-slate-100">
               <div className={`h-full rounded-full bg-[#EA580C] ${usageWidthClass(usagePercent)}`} />
@@ -110,8 +123,8 @@ export default async function DashboardPage() {
               <Link href="/#sourcing-tool" className="min-h-[44px] flex items-center rounded-xl bg-[#0D1B2A] px-4 py-2.5 text-sm font-black text-white hover:bg-slate-800 transition-colors">
                 소싱 시작 →
               </Link>
-              <Link href="/billing" className="min-h-[44px] flex items-center rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-black text-[#0D1B2A] hover:bg-slate-50 transition-colors">
-                구독 관리
+              <Link href="/#waitlist" className="min-h-[44px] flex items-center rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-black text-[#0D1B2A] hover:bg-slate-50 transition-colors">
+                출시 알림
               </Link>
             </div>
           </div>

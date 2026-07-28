@@ -41,6 +41,7 @@ export interface Supplier {
   verificationStatus: VerificationStatus;
   urlCompanyMatch?: boolean; // true only when the fetched page content matches the supplier name
   dbVerified?: boolean; // matched a manually-curated row in verified_suppliers (real, GloSource-curated)
+  repeatQuery?: boolean; // curated row was inserted for a repeated query cluster in the current 24h window
   koreanName?: string; // Korean registered company name (한글 상호) for MFDS registry matching
   // ── Government-registry verification (real data, distinct from AI trustEvidence) ──
   govVerified?: boolean; // matched ≥1 Korean government registry (MFDS/HACCP/medical/health/quasi-drug)
@@ -92,10 +93,16 @@ export interface SourcingOutput {
     china: AeoMatchedCompany[];
   };
   marketRiskFlags?: MarketRiskFlag[];
+  resultComposition?: {
+    liveSupplierCount: number;
+    curatedSupplierCount: number;
+  };
   access?: {
     plan: string;
     supplierDetailsLocked: boolean;
     lockedReason?: string;
+    hiddenSupplierCount?: number;
+    resultPreviewCount?: number;
   };
 }
 

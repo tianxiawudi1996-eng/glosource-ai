@@ -31,7 +31,7 @@ function VerificationPanel({ v }: { v: Verification }) {
       <div className="mt-1.5 rounded-xl border border-emerald-200 bg-emerald-50/80 px-3 py-2.5">
         <div className="flex items-center gap-1.5 mb-1.5">
           <svg className="w-3.5 h-3.5 text-emerald-600 fill-current" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-1.06 13.54L7.4 11l1.41-1.41 2.12 2.12 4.24-4.24 1.41 1.41-5.65 5.65z" /></svg>
-          <p className="text-[10px] font-black text-emerald-700 uppercase tracking-wide">Gov-verified{v.activeBusiness ? ' · Active business' : ''}</p>
+          <p className="text-[10px] font-black text-emerald-700 uppercase tracking-wide">Registry match{v.activeBusiness ? ' · Active business' : ''}</p>
         </div>
         <ul className="space-y-1">
           {v.evidence.map((e, i) => (

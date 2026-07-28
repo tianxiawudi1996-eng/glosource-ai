@@ -113,7 +113,7 @@ test('account-owned logs cascade while billing references survive without an own
   assert.equal(subscriptionUser?.notNull, false);
 });
 
-test('production retention indexes are created concurrently and retry safely', () => {
+test('production retention indexes are transaction-safe and retry safely', () => {
   const retentionIndexes = new Set([
     'abuse_events_created_at_idx',
     'abuse_identities_last_seen_at_idx',
@@ -134,8 +134,30 @@ test('production retention indexes are created concurrently and retry safely', (
   );
   assert.equal(indexStatements.length, retentionIndexes.size);
   for (const statement of indexStatements) {
-    assert.match(statement, /^CREATE INDEX CONCURRENTLY IF NOT EXISTS /);
+    assert.match(statement, /^CREATE INDEX IF NOT EXISTS /);
+    assert.doesNotMatch(
+      statement,
+      /\bCONCURRENTLY\b/,
+      'Drizzle runs PostgreSQL migrations in a transaction, where CREATE INDEX CONCURRENTLY is forbidden',
+    );
   }
+});
+
+test('the Drizzle config loads Next environment files before migration', () => {
+  const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8')) as {
+    scripts?: Record<string, string>;
+  };
+  const command = pkg.scripts?.['db:migrate'] ?? '';
+  const config = fs.readFileSync('drizzle.config.ts', 'utf8');
+
+  assert.equal(command, 'drizzle-kit migrate');
+  assert.match(config, /import \{ loadEnvConfig \} from '@next\/env';/);
+  assert.match(config, /loadEnvConfig\(process\.cwd\(\)\);/);
+});
+
+test('the surface migration can be retried after a partial deployment', () => {
+  const sql = fs.readFileSync(`${FOLDER}/0003_red_surge.sql`, 'utf8');
+  assert.match(sql, /ADD COLUMN IF NOT EXISTS "surface" text/);
 });
 
 test('payment records survive account and subscription deletion without retaining a user link', () => {

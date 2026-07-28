@@ -35,7 +35,7 @@ export default async function AssistantPage() {
           <div className="rounded-3xl border border-orange-200 bg-white p-8 shadow-sm sm:p-12">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-[#EA580C]">Free account required</p>
             <h2 className="mt-3 text-2xl font-black sm:text-3xl">Sign up to use the AI Sourcing Assistant</h2>
-            <p className="mt-4 text-sm leading-7 text-slate-500">Your account includes 10 free searches per month and keeps government-verification results connected to your sourcing workspace.</p>
+            <p className="mt-4 text-sm leading-7 text-slate-500">Your account includes 3 free searches per month with preview results. Paid plans unlock full supplier details and sourcing outputs.</p>
             <div className="mt-7 flex flex-wrap justify-center gap-3">
               <Link href="/en/register" className="rounded-xl bg-[#EA580C] px-6 py-3 text-sm font-black text-white hover:bg-[#DC4C00]">Create free account</Link>
               <Link href="/en/login" className="rounded-xl border border-slate-300 bg-white px-6 py-3 text-sm font-black text-[#0D1B2A] hover:bg-slate-50">Sign in</Link>

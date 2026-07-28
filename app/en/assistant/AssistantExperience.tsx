@@ -129,8 +129,8 @@ export default function AssistantExperience() {
   }
 
   const free = result?.access?.plan === 'free';
-  const visible = free ? result?.suppliers.slice(0, 3) : result?.suppliers;
-  const hiddenCount = free ? Math.max(0, (result?.suppliers.length ?? 0) - 3) : 0;
+  const visible = result?.suppliers;
+  const hiddenCount = free ? result?.access?.hiddenSupplierCount ?? 0 : 0;
 
   return (
     <div className="mx-auto grid max-w-6xl gap-6 px-4 py-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:px-6">

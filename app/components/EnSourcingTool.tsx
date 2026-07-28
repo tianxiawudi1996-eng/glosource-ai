@@ -12,6 +12,8 @@ import GloSourceVoiceModal from './GloSourceVoiceModal';
 import SourcingChatWidget from './SourcingChatWidget';
 import { planById, priceLabel, priceUnit } from '@/app/lib/plans';
 import { supplierVerificationKind } from '@/app/lib/supplier-verification';
+import { FREE_SEARCH_LIMIT } from '@/app/lib/free-plan';
+import { extractUnverifiedCertificationMentions } from '@/app/lib/certification-signals';
 
 type SourceRegion = 'china' | 'korea';
 
@@ -23,7 +25,7 @@ const PRO = planById('pro');
 
 const PAYWALL_PLANS = [
   { plan: STARTER, pitch: 'All certification signals' },
-  { plan: PRO, pitch: 'China sourcing · PDF reports' },
+  { plan: PRO, pitch: 'PDF sourcing reports' },
 ].map(({ plan, pitch }) => ({
   name: plan.name,
   price: `${priceLabel(plan)}${priceUnit(plan)}`,
@@ -40,7 +42,6 @@ interface EnSourcingToolProps {
 
 const REGION_BUTTONS: { value: SourceRegion; label: string; sub: string }[] = [
   { value: 'korea', label: 'Korea', sub: 'EC21 · BuyKorea · tradeKorea' },
-  { value: 'china', label: 'China add-on', sub: '1688 · Alibaba · WeChat' },
 ];
 
 const BUYER_COUNTRIES: { value: BuyerCountry; label: string }[] = [
@@ -56,39 +57,10 @@ const KOREA_LOADING_STEPS = [
   'Using AI to search publicly available listings on EC21 (1/3)...',
   'Using AI to search BuyKorea — KOTRA-listed exporters (2/3)...',
   'Using AI to search tradeKorea — KITA-listed manufacturers (3/3)...',
-  'Detecting MFDS · HACCP · KC · KS certification signals in AI-gathered data...',
+  'Detecting mentions of MFDS · HACCP · KC · KS in AI-gathered data...',
   'Ranking suppliers by AI trust signals and export evidence...',
   'Generating your pre-filled English RFQ draft...',
 ];
-
-const CHINA_LOADING_STEPS = [
-  'Searching 1688.com — China\'s wholesale marketplace (1/3)...',
-  'Checking Alibaba factory-direct suppliers (2/3)...',
-  'Scanning WeChat trade channels (3/3)...',
-  'Evaluating factory certification signals...',
-  'Ranking suppliers by trust score and export evidence...',
-  'Generating your pre-filled English RFQ draft...',
-];
-
-// Known certification patterns → display label + color class
-const CERT_PATTERNS: { re: RegExp; label: string; cls: string }[] = [
-  { re: /KFDA|MFDS|식약처/i,          label: 'MFDS',      cls: 'bg-amber-50 text-amber-700 border-amber-200' },
-  { re: /HACCP/i,                     label: 'HACCP',     cls: 'bg-amber-50 text-amber-700 border-amber-200' },
-  { re: /\bKC\b|Korea Certification/i,label: 'KC',        cls: 'bg-blue-50 text-blue-700 border-blue-200' },
-  { re: /\bKS\b|Korean Standard/i,    label: 'KS',        cls: 'bg-blue-50 text-blue-700 border-blue-200' },
-  { re: /ISO 22716/i,                 label: 'ISO 22716', cls: 'bg-slate-100 text-slate-600 border-slate-200' },
-  { re: /ISO 22000/i,                 label: 'ISO 22000', cls: 'bg-slate-100 text-slate-600 border-slate-200' },
-  { re: /ISO 9001/i,                  label: 'ISO 9001',  cls: 'bg-slate-100 text-slate-600 border-slate-200' },
-  { re: /HALAL/i,                     label: 'HALAL',     cls: 'bg-green-50 text-green-700 border-green-200' },
-  { re: /KOTRA\s*[Ll]isted|BuyKorea/i, label: 'On BuyKorea', cls: 'bg-slate-100 text-slate-600 border-slate-200' },
-  { re: /\bCE\b/,                     label: 'CE',        cls: 'bg-slate-100 text-slate-600 border-slate-200' },
-  { re: /\bSGS\b/i,                   label: 'SGS',       cls: 'bg-slate-100 text-slate-600 border-slate-200' },
-];
-
-function extractCerts(evidence: string[]): { label: string; cls: string }[] {
-  const joined = (Array.isArray(evidence) ? evidence : []).join(' ');
-  return CERT_PATTERNS.filter(p => p.re.test(joined)).map(p => ({ label: p.label, cls: p.cls }));
-}
 
 function AeoCompanyCard({ company }: { company: AeoMatchedCompany }) {
   const tierInfo = AEO_TIER_LABEL[company.tier];
@@ -173,11 +145,11 @@ function AeoPanel({ matches, region }: { matches: { korea: AeoMatchedCompany[]; 
 }
 
 
-function ListingQualityScore({ s, certs }: { s: Supplier; certs: { label: string }[] }) {
+function ListingQualityScore({ s }: { s: Supplier }) {
   const urlCompanyMatched = s.urlCompanyMatch === true;
   const scores = [
     { label: 'URL access + company-name match', pts: 30, met: urlCompanyMatched },
-    { label: 'Certification signals', pts: 25, met: certs.length > 0 },
+    { label: 'Government registry match', pts: 25, met: s.govVerified === true },
     { label: 'MOQ specified', pts: 15, met: !!(s.moq && s.moq !== 'Inquire' && s.moq !== 'N/A') },
     { label: 'Lead time specified', pts: 15, met: !!(s.leadTimeDays && s.leadTimeDays !== 'TBD') },
     { label: 'Platform listing found', pts: 15, met: !!(s.url || s.platform) },
@@ -237,7 +209,7 @@ async function trackAbuseEvent(event: string, metadata: Record<string, unknown>)
   } catch { /* best-effort telemetry */ }
 }
 
-function SupplierCard({ s, rank, keyword, locked, onStartVoiceCall }: { s: Supplier; rank: number; keyword: string; locked: boolean; onStartVoiceCall?: (supplier: Supplier) => void }) {
+export function SupplierCard({ s, rank, keyword, locked, onStartVoiceCall }: { s: Supplier; rank: number; keyword: string; locked: boolean; onStartVoiceCall?: (supplier: Supplier) => void }) {
   const isVerified = s.verificationStatus === 'grounding_confirmed';
   const urlCompanyMatched = s.urlCompanyMatch === true;
   const govVerified = s.govVerified === true;
@@ -246,7 +218,10 @@ function SupplierCard({ s, rank, keyword, locked, onStartVoiceCall }: { s: Suppl
   const govRegistries = Array.isArray(s.govRegistries) ? s.govRegistries : [];
   const trustEvidence = Array.isArray(s.trustEvidence) ? s.trustEvidence : [];
   const redFlags = Array.isArray(s.redFlags) ? s.redFlags : [];
-  const certs = extractCerts(trustEvidence);
+  const certs = extractUnverifiedCertificationMentions(
+    trustEvidence,
+    govVerified ? govRegistries : [],
+  );
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex flex-col gap-3 hover:shadow-md hover:border-slate-300 transition-all">
@@ -261,33 +236,40 @@ function SupplierCard({ s, rank, keyword, locked, onStartVoiceCall }: { s: Suppl
             <p className="text-xs text-slate-400 mt-0.5">{s.platform} · {s.country}</p>
           </div>
         </div>
-        {verificationKind === 'government' ? (
-          <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-black border flex-shrink-0 bg-emerald-600 border-emerald-700 text-white shadow-sm" title={`Cross-checked against Korean government registries: ${govRegistries.join(', ')}`}>
-            <svg className="w-2.5 h-2.5 fill-current flex-shrink-0" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-1.06 13.54L7.4 11l1.41-1.41 2.12 2.12 4.24-4.24 1.41 1.41-5.65 5.65z" /></svg>
-            <span className="hidden sm:inline">Gov-Verified{s.govActiveBusiness ? ' · Active biz' : ''}</span>
-            <span className="sm:hidden">Gov ✓</span>
-          </span>
-        ) : verificationKind === 'curated' ? (
-          <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold border flex-shrink-0 bg-blue-50 border-blue-300 text-blue-700" title="Hand-picked by the GloSource team — a curated supplier, not a government-registry match">
-            <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 bg-blue-500" />
-            <span className="hidden sm:inline">GloSource curated</span>
-            <span className="sm:hidden">Curated</span>
-          </span>
-        ) : (
-          <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold border flex-shrink-0 ${urlCompanyMatched ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-slate-100 border-slate-200 text-slate-500'}`} title={urlCompanyMatched ? 'URL access succeeded and the page contained matching company-name tokens.' : 'URL-company identity was not confirmed.'}>
-            <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${urlCompanyMatched ? 'bg-emerald-500' : 'bg-slate-400'}`} />
-            <span className="hidden sm:inline">{urlCompanyMatched ? 'URL access confirmed' : 'URL-company match unconfirmed'}</span>
-            <span className="sm:hidden">{urlCompanyMatched ? 'URL checked' : 'Unconfirmed'}</span>
-          </span>
-        )}
+        <div className="flex flex-wrap justify-end gap-1">
+          {verificationKind === 'government' ? (
+            <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-black border flex-shrink-0 bg-emerald-600 border-emerald-700 text-white shadow-sm" title={`Cross-checked against Korean government registries: ${govRegistries.join(', ')}`}>
+              <svg className="w-2.5 h-2.5 fill-current flex-shrink-0" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-1.06 13.54L7.4 11l1.41-1.41 2.12 2.12 4.24-4.24 1.41 1.41-5.65 5.65z" /></svg>
+              <span className="hidden sm:inline">Registry Match{s.govActiveBusiness ? ' · Active biz' : ''}</span>
+              <span className="sm:hidden">Gov ✓</span>
+            </span>
+          ) : verificationKind === 'curated' ? (
+            <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold border flex-shrink-0 bg-blue-50 border-blue-300 text-blue-700" title="Hand-picked by the GloSource team — a curated supplier, not a government-registry match">
+              <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 bg-blue-500" />
+              <span className="hidden sm:inline">GloSource curated</span>
+              <span className="sm:hidden">Curated</span>
+            </span>
+          ) : (
+            <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold border flex-shrink-0 ${urlCompanyMatched ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-slate-100 border-slate-200 text-slate-500'}`} title={urlCompanyMatched ? 'URL access succeeded and the page contained matching company-name tokens.' : 'URL-company identity was not confirmed.'}>
+              <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${urlCompanyMatched ? 'bg-emerald-500' : 'bg-slate-400'}`} />
+              <span className="hidden sm:inline">{urlCompanyMatched ? 'URL access confirmed' : 'URL-company match unconfirmed'}</span>
+              <span className="sm:hidden">{urlCompanyMatched ? 'URL checked' : 'Unconfirmed'}</span>
+            </span>
+          )}
+          {s.dbVerified && s.repeatQuery && (
+            <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-700" title="This is a repeated query cluster, so curated candidates may overlap with earlier results.">
+              Repeat query · curated
+            </span>
+          )}
+        </div>
       </div>
 
-      {/* Government-verified facts — hard signals, distinct from AI estimates */}
+      {/* Government registry facts — hard signals, distinct from AI estimates */}
       {govVerified && govEvidence.length > 0 && (
         <div className="rounded-xl border border-emerald-200 bg-emerald-50/70 px-3 py-2.5">
           <div className="flex items-center gap-1.5 mb-1.5">
             <svg className="w-3.5 h-3.5 text-emerald-600 fill-current flex-shrink-0" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-1.06 13.54L7.4 11l1.41-1.41 2.12 2.12 4.24-4.24 1.41 1.41-5.65 5.65z" /></svg>
-            <p className="text-[10px] font-black text-emerald-700 uppercase tracking-wide">Verified · Korean government registries</p>
+            <p className="text-[10px] font-black text-emerald-700 uppercase tracking-wide">Matched · Korean government registries</p>
           </div>
           <ul className="space-y-1">
             {govEvidence.map((e, i) => (
@@ -310,14 +292,14 @@ function SupplierCard({ s, rank, keyword, locked, onStartVoiceCall }: { s: Suppl
         </div>
       )}
 
-      {/* Cert badges — only shown for grounding_confirmed suppliers */}
+      {/* AI certification mentions — only shown for grounding-confirmed listings */}
       {isVerified && certs.length > 0 && (
         <div>
-          <p className="text-xs font-bold text-amber-600 uppercase tracking-wide mb-1">AI-detected signals (unverified) — confirm directly with supplier</p>
+          <p className="text-xs font-bold text-amber-600 uppercase tracking-wide mb-1">AI-detected certification mentions — unverified; confirm directly with supplier</p>
           <div className="flex flex-wrap gap-1">
             {certs.map(c => (
-              <span key={c.label} className={`text-[10px] font-bold border rounded-full px-1.5 py-0.5 ${c.cls}`}>
-                {c.label} <span className="font-normal opacity-60">~</span>
+              <span key={c.key} className={`text-[10px] font-bold border rounded-full px-1.5 py-0.5 ${c.className}`}>
+                {c.label}
               </span>
             ))}
           </div>
@@ -333,7 +315,7 @@ function SupplierCard({ s, rank, keyword, locked, onStartVoiceCall }: { s: Suppl
       </div>
 
       {/* Listing Quality */}
-      <ListingQualityScore s={s} certs={certs} />
+      <ListingQualityScore s={s} />
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-2">
@@ -402,7 +384,7 @@ function SupplierCard({ s, rank, keyword, locked, onStartVoiceCall }: { s: Suppl
       )}
       {locked && (
         <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[11px] font-semibold text-amber-800">
-          Full supplier URL, export-ready RFQ, and contact details unlock after buyer verification or upgrade.
+          Full supplier URL, export-ready RFQ, and contact details unlock on a paid plan.
         </div>
       )}
       {s.url && !isVerified && (
@@ -458,7 +440,7 @@ export default function EnSourcingTool({
   initialProduct = '',
   initialQuantity = '',
   plan = 'free',
-  freeSearchLimit = 5,
+  freeSearchLimit = FREE_SEARCH_LIMIT,
 }: EnSourcingToolProps) {
   const [product, setProduct] = useState(initialProduct);
   const [quantity, setQuantity] = useState(initialQuantity);
@@ -489,11 +471,13 @@ export default function EnSourcingTool({
   };
 
   const formRef = useRef<HTMLFormElement>(null);
-  const loadingSteps = region === 'china' ? CHINA_LOADING_STEPS : KOREA_LOADING_STEPS;
-  const submitLabel = region === 'china' ? 'Find China Suppliers →' : 'Find Korean Suppliers →';
+  const loadingSteps = KOREA_LOADING_STEPS;
+  const submitLabel = 'Find Korean Suppliers →';
   const isFreePlan = plan === 'free';
   const effectiveFreeLimit = Math.max(1, freeSearchLimit);
   const searchesLeft = Math.max(0, effectiveFreeLimit - freeCount);
+  const resultLocked = result?.access?.supplierDetailsLocked ?? false;
+  const hiddenSupplierCount = result?.access?.hiddenSupplierCount ?? 0;
 
   // Load free count from localStorage
   useEffect(() => {
@@ -580,10 +564,10 @@ export default function EnSourcingTool({
   const handleChatSearch = (params: { product: string; quantity: string; country: 'korea' | 'china'; buyerCountry: string }) => {
     setProduct(params.product);
     setQuantity(params.quantity);
-    setRegion(params.country);
+    setRegion('korea');
     setBuyerCountry(params.buyerCountry as BuyerCountry);
     formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    void runSearch(params.product, params.quantity, params.country, params.buyerCountry as BuyerCountry);
+    void runSearch(params.product, params.quantity, 'korea', params.buyerCountry as BuyerCountry);
   };
 
   const handleResendVerification = async () => {
@@ -750,7 +734,7 @@ export default function EnSourcingTool({
         <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 p-5" role="alert">
           <p className="text-sm font-bold text-amber-800 mb-1">Verify your email to start searching</p>
           <p className="text-sm text-amber-700 leading-relaxed">
-            We&apos;ve emailed you a verification link — click it to unlock your free monthly searches.
+            We&apos;ve emailed you a verification link — click it to unlock your 3 free monthly searches.
             Didn&apos;t get it? Check your spam folder, resend below, or email{' '}
             <a href="mailto:hello@glosourceai.com" className="font-semibold underline">hello@glosourceai.com</a>.
           </p>
@@ -839,7 +823,7 @@ export default function EnSourcingTool({
                 View all plans →
               </a>
             </div>
-            <p className="text-[10px] text-slate-400 text-center mt-2">Secure checkout where available · Email fallback for early access · No Korean entity required</p>
+            <p className="text-[10px] text-slate-400 text-center mt-2">Secure USD checkout and subscription billing by Polar</p>
           </div>
         </div>
       )}
@@ -892,24 +876,39 @@ export default function EnSourcingTool({
                     title="Show only suppliers matched to a Korean government registry"
                   >
                     <svg className="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-1.06 13.54L7.4 11l1.41-1.41 2.12 2.12 4.24-4.24 1.41 1.41-5.65 5.65z" /></svg>
-                    {govOnly ? 'Gov-verified only ✓' : `Gov-verified (${result.suppliers.filter((s) => s.govVerified).length})`}
+                    {govOnly ? 'Registry matches only ✓' : `Registry matches (${result.suppliers.filter((s) => s.govVerified).length})`}
                   </button>
                 )}
               </div>
-              <ExportButton suppliers={result.suppliers} keyword={product} lang="en" locked={result.access?.supplierDetailsLocked ?? false} />
+              {!resultLocked && <ExportButton suppliers={result.suppliers} keyword={product} lang="en" />}
             </div>
+            {resultLocked && (
+              <div className="mb-4 rounded-2xl border border-orange-200 bg-orange-50 p-5">
+                <p className="text-xs font-black uppercase tracking-wide text-[#EA580C]">Free search preview</p>
+                <p className="mt-1 text-sm font-bold text-[#0D1B2A]">
+                  Showing {result.suppliers.length} preview result{result.suppliers.length !== 1 ? 's' : ''}
+                  {hiddenSupplierCount > 0 ? ` · ${hiddenSupplierCount} more hidden` : ''}
+                </p>
+                <p className="mt-1 text-xs leading-5 text-slate-600">
+                  Free accounts can search and inspect a limited preview. Upgrade to view all candidates, source URLs, RFQ drafts, CSV/PDF exports, and contact-ready details.
+                </p>
+                <a href="/en/billing" className="mt-3 inline-flex rounded-xl bg-[#EA580C] px-4 py-2 text-xs font-black text-white hover:bg-[#DC4C00]">
+                  Unlock full results →
+                </a>
+              </div>
+            )}
             {result.suppliers.length === 0 ? (
               <EmptyState type="no_results" lang="en" region={region} />
             ) : (() => {
               const displayed = (govOnly ? result.suppliers.filter((s) => s.govVerified) : [...result.suppliers])
                 .sort((a, b) => ((b.govActiveBusiness ? 2 : 0) + (b.govVerified ? 1 : 0)) - ((a.govActiveBusiness ? 2 : 0) + (a.govVerified ? 1 : 0)));
               return displayed.length === 0 ? (
-                <p className="text-sm text-slate-500 italic py-4">No government-verified suppliers in this result — toggle off to see all.</p>
+                <p className="text-sm text-slate-500 italic py-4">No government registry matches in this result — toggle off to see all.</p>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {displayed.map((s, i) => (
                     <div key={s.rank}>
-                      <SupplierCard s={s} rank={i + 1} keyword={product} locked={result.access?.supplierDetailsLocked ?? false} onStartVoiceCall={handleStartVoiceCall} />
+                      <SupplierCard s={s} rank={i + 1} keyword={product} locked={resultLocked} onStartVoiceCall={handleStartVoiceCall} />
                     </div>
                   ))}
                 </div>
@@ -917,7 +916,7 @@ export default function EnSourcingTool({
             })()}
           </div>
 
-          {result.recommendation && (
+          {!resultLocked && result.recommendation && (
             <div className="bg-white rounded-2xl border border-[#EA580C]/20 shadow-sm p-5">
               <div className="flex items-center justify-between mb-3">
                 <p className="text-xs font-bold text-[#EA580C] uppercase tracking-wide">AI Sourcing Notes</p>
@@ -932,7 +931,7 @@ export default function EnSourcingTool({
             </div>
           )}
 
-          {result.rfqEmail?.en && (
+          {!resultLocked && result.rfqEmail?.en && (
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
               {/* Amber warning */}
               <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 mb-4 flex items-start gap-2">
@@ -1019,8 +1018,8 @@ export default function EnSourcingTool({
         lang="en"
       />
 
-      {/* AI sourcing & verification assistant (free: verify-only; Pro+: also sources) */}
-      <SourcingChatWidget onSearch={handleChatSearch} />
+      {/* AI sourcing & verification assistant (paid plans only; free stays search-only). */}
+      {!isFreePlan && <SourcingChatWidget onSearch={handleChatSearch} />}
     </div>
   );
 }

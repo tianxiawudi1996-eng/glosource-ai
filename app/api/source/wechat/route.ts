@@ -388,7 +388,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '검색할 제품/키워드를 입력해주세요.' }, { status: 400 });
     }
 
-    const authResult = await checkAuthAndQuota(request, 'wechat');
+    const authResult = await checkAuthAndQuota(request, 'wechat', 'kr');
     if (!authResult.ok) return authResult.response;
     const { userId } = authResult;
     const ip = extractTrustedIp(request.headers);
@@ -459,8 +459,8 @@ export async function POST(request: NextRequest) {
       raw: output,
     }).catch(() => {});
 
-    logUsage(userId, ip, 'wechat', keyword, output.posts?.length, Date.now() - start).catch(() => {});
-    if (!userId) kvConsumeFreeCredit(ip).catch(() => {});
+    logUsage(userId, ip, 'kr', 'wechat', keyword, output.posts?.length, Date.now() - start).catch(() => {});
+    if (!userId) kvConsumeFreeCredit(ip, 'kr').catch(() => {});
 
     return NextResponse.json({ success: true, data: output });
   } catch (error) {

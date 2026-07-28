@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { and, eq, gte } from 'drizzle-orm';
 import { auth } from '@/auth';
 import { db, payments } from '@/app/lib/db';
-import { isTossCheckoutConfigured, tossPlanById } from '@/app/lib/tossPlans';
+import { isKoreanCommercializationEnabled, tossPlanById } from '@/app/lib/tossPlans';
 
 export async function POST(request: NextRequest) {
   const session = await auth();
@@ -10,8 +10,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 });
   }
 
-  if (!isTossCheckoutConfigured(process.env)) {
-    return NextResponse.json({ error: '결제 시스템 준비 중입니다.' }, { status: 503 });
+  if (!isKoreanCommercializationEnabled(process.env)) {
+    return NextResponse.json({
+      error: '국내 유료 서비스는 아직 출시 전입니다. 베타 사전 신청을 이용해주세요.',
+    }, { status: 503 });
   }
 
   const body = await request.json() as { planId?: string };

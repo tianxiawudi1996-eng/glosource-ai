@@ -6,6 +6,7 @@ import {
   shouldApplyTossPaymentStatus,
   tossPeriodEnd,
   isTossCheckoutConfigured,
+  isKoreanCommercializationEnabled,
   tossPlanByAmount,
   tossPlanById,
 } from '../app/lib/tossPlans';
@@ -92,6 +93,36 @@ test('Toss checkout is exposed only when every server and client credential exis
     NEXT_PUBLIC_TOSS_CLIENT_KEY: 'client',
     TOSS_SECRET_KEY: 'secret',
   }), false);
+});
+
+test('Korean checkout stays closed until legal launch is explicitly enabled', () => {
+  const credentials = {
+    NEXT_PUBLIC_TOSS_CLIENT_KEY: 'client',
+    TOSS_SECRET_KEY: 'secret',
+    TOSS_WEBHOOK_SECRET: 'webhook',
+  };
+
+  assert.equal(isKoreanCommercializationEnabled(credentials), false);
+  assert.equal(isKoreanCommercializationEnabled({
+    ...credentials,
+    KR_COMMERCIALIZATION_ENABLED: 'false',
+  }), false);
+  assert.equal(isKoreanCommercializationEnabled({
+    ...credentials,
+    KR_COMMERCIALIZATION_ENABLED: 'true',
+  }), true);
+});
+
+test('the Korean payment API enforces the legal commercialization gate', () => {
+  const source = fs.readFileSync('app/api/payments/toss/initiate/route.ts', 'utf8');
+  const successPage = fs.readFileSync('app/billing/success/page.tsx', 'utf8');
+  const webhook = fs.readFileSync('app/api/payments/toss/webhook/route.ts', 'utf8');
+
+  assert.match(source, /isKoreanCommercializationEnabled/);
+  assert.match(source, /국내 유료 서비스는 아직 출시 전입니다/);
+  assert.match(successPage, /isKoreanCommercializationEnabled/);
+  assert.match(webhook, /isKoreanCommercializationEnabled/);
+  assert.match(webhook, /commercialization_disabled/);
 });
 
 test('the same Toss order always targets the same internal subscription id', () => {

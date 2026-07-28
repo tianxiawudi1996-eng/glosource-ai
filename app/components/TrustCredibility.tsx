@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * TrustCredibility — "How every supplier is verified" trust modal.
+ * TrustCredibility — explains how supplier evidence is cross-checked.
  *
  * Self-contained client island: renders a nav trigger button + the modal, and
  * auto-opens once per browser (localStorage). Content mirrors the credibility
@@ -42,12 +42,12 @@ const COPY: Record<Lang, Copy> = {
     ariaOpen: '공신력 검증 방식 보기',
     eyebrow: 'Supplier Trust Model',
     title: '이 검색 결과는 어떻게 검증되나요?',
-    subtitle: 'AI가 찾고, 한국 정부 등록부가 검증합니다. 각 결과가 어느 단계에서 나왔는지 화면에 그대로 표시됩니다 — 추정을 사실로 위장하지 않습니다.',
+    subtitle: 'AI가 후보를 찾고, 식별 가능한 한글 상호를 지원되는 한국 정부 등록부와 대조합니다. 등록부 일치는 공급사 보증이 아닙니다.',
     stepsLabel: '2단계 검증 구조',
     steps: [
       { n: '01', t: '발굴 · AI', d: 'Google Gemini + 실시간 Google 검색이 EC21·BuyKorea(KOTRA)·tradeKorea 등 공개 B2B 소스에서 실존 공급사 후보를 찾습니다. 모델엔 “검색으로 찾은 것만 반환, 지어내지 말 것” 규칙이 걸려 있습니다.' },
-      { n: '02', t: '교차검증 · 정부 등록부', d: '후보의 한글 상호를 한국 정부 공식 등록부에 대조해 실존·인증 여부를 확인합니다.' },
-      { n: '03', t: '정직한 표시', d: '정부 등록부에서 확인되면 초록 Gov-Verified 배지가, AI 추정에는 “추정(AI Estimate)” 라벨이 붙습니다. 가격·MOQ·리드타임은 항상 추정으로 표기합니다.' },
+      { n: '02', t: '교차대조 · 정부 등록부', d: '식별 가능한 한글 상호를 적용 가능한 한국 정부 공식 등록부에 대조하고, 일치한 기록만 근거로 표시합니다.' },
+      { n: '03', t: '정직한 표시', d: '정부 등록부에서 일치하면 초록 “정부 원장 일치” 배지가, AI 추정에는 “추정(AI Estimate)” 라벨이 붙습니다. 가격·MOQ·리드타임은 항상 추정으로 표기합니다.' },
     ],
     registryLabel: '검증에 쓰는 국가 데이터',
     registryNote: '모든 등록부는 정부 공공데이터(data.go.kr)에서 나옵니다.',
@@ -60,7 +60,7 @@ const COPY: Record<Lang, Copy> = {
     ],
     badgeLabel: '배지가 말하는 것',
     badges: [
-      { label: 'Gov-Verified', desc: '정부 등록부에서 실제 확인됨', tone: 'emerald' },
+      { label: '정부 원장 일치', desc: '식별 가능한 회사 정보가 지원되는 공식 등록부 기록과 일치', tone: 'emerald' },
       { label: 'AI Estimate', desc: 'AI가 찾았으나 아직 미검증 — “추정”으로 표시', tone: 'slate' },
       { label: 'Curated', desc: 'GloSource가 직접 확인 — 모르는 값은 비워 둠', tone: 'blue' },
     ],
@@ -78,12 +78,12 @@ const COPY: Record<Lang, Copy> = {
     ariaOpen: 'See how suppliers are verified',
     eyebrow: 'Supplier Trust Model',
     title: 'How supplier results are cross-checked',
-    subtitle: 'AI finds them. Korean government registries verify them. Every result is labeled with the stage it came from — an estimate is never dressed up as a verified fact.',
+    subtitle: 'AI finds candidates. When an identifiable Korean company name is available, we cross-check it against applicable registries. A match is evidence, not supplier verification.',
     stepsLabel: 'A two-layer model',
     steps: [
       { n: '01', t: 'Discovery · AI', d: 'Google Gemini with live Google Search finds real supplier candidates across public B2B sources — EC21, BuyKorea (KOTRA), tradeKorea. The model is instructed to return only suppliers found via search — never to fabricate.' },
-      { n: '02', t: 'Verification · Government', d: 'Each candidate’s registered Korean company name is cross-checked against official Korean government registries.' },
-      { n: '03', t: 'Honest output', d: 'A government match earns a green Gov-Verified badge; AI findings are labeled “AI Estimate.” Price, MOQ and lead time are always shown as estimates.' },
+      { n: '02', t: 'Cross-check · Government', d: 'An identifiable registered Korean company name is compared with applicable official Korean government registries.' },
+      { n: '03', t: 'Honest output', d: 'A matched record earns a green “Registry Match” badge; AI findings are labeled “AI Estimate.” Price, MOQ and lead time are always shown as estimates.' },
     ],
     registryLabel: 'The government data behind it',
     registryNote: 'Every registry is sourced from Korea’s official open data (data.go.kr).',
@@ -96,7 +96,7 @@ const COPY: Record<Lang, Copy> = {
     ],
     badgeLabel: 'What each badge means',
     badges: [
-      { label: 'Gov-Verified', desc: 'Confirmed in an official government registry', tone: 'emerald' },
+      { label: 'Registry Match', desc: 'Identifiable company information matched an applicable official registry record', tone: 'emerald' },
       { label: 'AI Estimate', desc: 'Found by AI, not yet cross-verified — labeled as an estimate', tone: 'slate' },
       { label: 'Curated', desc: 'Hand-checked by GloSource — unknown values left blank', tone: 'blue' },
     ],

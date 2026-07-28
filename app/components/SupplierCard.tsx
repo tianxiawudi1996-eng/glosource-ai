@@ -69,9 +69,16 @@ export function SupplierComparisonTable({ suppliers, selectedRank, onSelect }: S
                   <div className="min-w-0">
                     <p className="text-sm font-bold text-[#0D1B2A] truncate">{s.name}</p>
                     <p className="text-xs text-slate-400">{s.platform} · {s.country}</p>
-                    <span className={`mt-1 inline-flex rounded-full px-1.5 py-0.5 text-[10px] font-bold ${verification.className}`}>
-                      {verification.label}
-                    </span>
+                    <div className="mt-1 flex flex-wrap gap-1">
+                      <span className={`inline-flex rounded-full px-1.5 py-0.5 text-[10px] font-bold ${verification.className}`}>
+                        {verification.label}
+                      </span>
+                      {s.dbVerified && s.repeatQuery && (
+                        <span className="inline-flex rounded-full bg-amber-50 px-1.5 py-0.5 text-[10px] font-bold text-amber-700">
+                          반복 검색 큐레이션
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
                 <div className="flex flex-col items-end gap-1 flex-shrink-0">
@@ -154,9 +161,16 @@ export function SupplierComparisonTable({ suppliers, selectedRank, onSelect }: S
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`inline-flex rounded-full px-2 py-1 text-[11px] font-bold ${verification.className}`} title={s.urlCompanyMatch ? 'URL 접속 및 페이지 내 회사명 토큰 일치' : undefined}>
-                      {verification.label}
-                    </span>
+                    <div className="flex flex-wrap gap-1">
+                      <span className={`inline-flex rounded-full px-2 py-1 text-[11px] font-bold ${verification.className}`} title={s.urlCompanyMatch ? 'URL 접속 및 페이지 내 회사명 토큰 일치' : undefined}>
+                        {verification.label}
+                      </span>
+                      {s.dbVerified && s.repeatQuery && (
+                        <span className="inline-flex rounded-full bg-amber-50 px-2 py-1 text-[11px] font-bold text-amber-700">
+                          반복 검색 큐레이션
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td className="px-4 py-3">
                     <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-black ${vs.bg} ${vs.text} ${vs.border}`}>

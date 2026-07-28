@@ -126,10 +126,10 @@ export default function AccountPage() {
               <Field label="플랜">
                 <div className="flex items-center gap-2">
                   <span className="rounded-full bg-[#0D1B2A] px-3 py-1 text-xs font-black text-white">
-                    {planLabel[session.user.plan ?? 'free'] ?? session.user.plan}
+                    {planLabel[session.user.plans?.kr ?? 'free'] ?? session.user.plans?.kr}
                   </span>
-                  <Link href="/billing" className="text-xs font-bold text-[#EA580C] hover:underline">
-                    플랜 변경 →
+                  <Link href="/#waitlist" className="text-xs font-bold text-[#EA580C] hover:underline">
+                    출시 알림 신청 →
                   </Link>
                 </div>
               </Field>

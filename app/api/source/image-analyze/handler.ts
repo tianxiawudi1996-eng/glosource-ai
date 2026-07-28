@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '이미지 크기는 10MB 이하여야 합니다.' }, { status: 400 });
     }
 
-    const authResult = await checkAuthAndQuota(request, 'image_analyze');
+    const authResult = await checkAuthAndQuota(request, 'image_analyze', 'kr');
     if (!authResult.ok) return authResult.response;
     const { userId } = authResult;
     const ip = extractTrustedIp(request.headers);
@@ -89,12 +89,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    logUsage(userId, ip, 'image_analyze', data.productNameKo, undefined, Date.now() - start).catch(() => {});
+    logUsage(userId, ip, 'kr', 'image_analyze', data.productNameKo, undefined, Date.now() - start).catch(() => {});
 
     // Anonymous users: consume a free daily credit only on a successful analysis,
     // matching the sourcing route. image_analyze is now billable, so logged-in
     // usage is metered via the monthly quota count in checkAuthAndQuota.
-    if (!userId) kvConsumeFreeCredit(ip).catch(() => {});
+    if (!userId) kvConsumeFreeCredit(ip, 'kr').catch(() => {});
 
     return NextResponse.json({ success: true, data });
   } catch (e) {

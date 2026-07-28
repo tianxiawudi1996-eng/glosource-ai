@@ -67,7 +67,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   if (!process.env.GEMINI_API_KEY) {
     return NextResponse.json({ reply: 'The assistant is temporarily unavailable.' }, { status: 503 });
   }
-  const auth = await checkAuthAndQuota(request, 'chat');
+  const auth = await checkAuthAndQuota(request, 'chat', 'en');
   if (!auth.ok) return auth.response;
   let body: { messages?: ChatMessage[] };
   try { body = await request.json(); } catch { return NextResponse.json({ error: 'bad request' }, { status: 400 }); }

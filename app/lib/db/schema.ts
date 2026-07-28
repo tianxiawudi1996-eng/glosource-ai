@@ -8,6 +8,7 @@ import {
   primaryKey,
 } from 'drizzle-orm/pg-core';
 import type { AdapterAccountType } from 'next-auth/adapters';
+import { FREE_SEARCH_LIMIT } from '../free-plan';
 
 // ── NextAuth required tables ──────────────────────────────────────────
 
@@ -89,6 +90,7 @@ export const usageLogs = pgTable('usage_logs', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   userId: text('user_id').references(() => users.id, { onDelete: 'cascade' }),
   ip: text('ip'),
+  surface: text('surface', { enum: ['kr', 'en'] }),
   action: text('action', {
     enum: ['source', 'factory_direct', 'wechat', 'image_analyze'],
   }).notNull(),
@@ -290,7 +292,7 @@ export const krQuasiDrugFirms = pgTable('kr_quasi_drug_firms', {
 // ── 플랜별 한도 ───────────────────────────────────────────────────────
 
 export const PLAN_LIMITS = {
-  free:       { monthly: 10,  label: '무료 회원' }, // [C-4] 가입 회원 월 10회 — 익명 체험(kv.ts FREE_DAILY_LIMIT=일 5회)보다 가입이 나은 구조
+  free:       { monthly: FREE_SEARCH_LIMIT, label: '무료 회원' },
   starter:    { monthly: 40,  label: 'Starter' },
   pro:        { monthly: 100, label: 'Pro' },
   enterprise: { monthly: 300, label: 'Business' },

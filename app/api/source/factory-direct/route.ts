@@ -160,7 +160,7 @@ export async function POST(request: NextRequest) {
     const body = parseFactoryDirectRequest(requestBody);
     if (!body) return NextResponse.json({ error: '제품/자재명과 필요 수량을 입력해주세요.' }, { status: 400 });
 
-    const authResult = await checkAuthAndQuota(request, 'factory_direct');
+    const authResult = await checkAuthAndQuota(request, 'factory_direct', 'kr');
     if (!authResult.ok) return authResult.response;
     const { userId } = authResult;
     const ip = extractTrustedIp(request.headers);
@@ -259,8 +259,8 @@ export async function POST(request: NextRequest) {
       raw: output,
     }).catch(() => {});
 
-    logUsage(userId, ip, 'factory_direct', body.productDescription, output.suppliers?.length, Date.now() - start).catch(() => {});
-    if (!userId) kvConsumeFreeCredit(ip).catch(() => {});
+    logUsage(userId, ip, 'kr', 'factory_direct', body.productDescription, output.suppliers?.length, Date.now() - start).catch(() => {});
+    if (!userId) kvConsumeFreeCredit(ip, 'kr').catch(() => {});
 
     return NextResponse.json({ success: true, data: output });
   } catch (error) {

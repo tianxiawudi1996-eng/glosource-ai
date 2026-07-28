@@ -103,7 +103,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         <div className="mt-16 rounded-2xl bg-[#0D1B2A] p-8 text-center">
           <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-3">Ready to source?</p>
           <h2 className="text-xl font-black text-white mb-3">Find Korean suppliers in 90 seconds</h2>
-          <p className="text-slate-300 text-sm mb-6">5 free searches. No credit card. No signup required for first search.</p>
+          <p className="text-slate-300 text-sm mb-6">3 free searches. Preview results. No credit card required.</p>
           <Link
             href="/en#sourcing-tool"
             className="inline-flex items-center gap-2 bg-[#EA580C] hover:bg-[#DC4C00] text-white font-bold px-6 py-3 rounded-xl transition-all text-sm"

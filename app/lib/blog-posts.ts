@@ -562,7 +562,7 @@ Best regards,
 <tr><td>BuyKorea</td><td>KOTRA (Korean gov.)</td><td>Export eligibility signals</td><td>Export-oriented Korean companies</td><td>Yes</td></tr>
 <tr><td>EC21</td><td>Private (Korea)</td><td>Light (self-reported)</td><td>Volume of Korean suppliers</td><td>Yes</td></tr>
 <tr><td>tradeKorea</td><td>KITA</td><td>KITA-vetted exporters</td><td>KITA-listed manufacturers</td><td>Yes</td></tr>
-<tr><td>GloSource AI</td><td>AI aggregator</td><td>AI trust score + Google Search URL evidence</td><td>Fast research across all platforms</td><td>5 free searches</td></tr>
+<tr><td>GloSource AI</td><td>AI aggregator</td><td>AI trust score + Google Search URL evidence</td><td>Fast research across all platforms</td><td>3 free searches</td></tr>
 </tbody>
 </table>
 

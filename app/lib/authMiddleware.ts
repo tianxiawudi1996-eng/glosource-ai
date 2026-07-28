@@ -1,13 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import { db, usageLogs, PLAN_LIMITS, users } from '@/app/lib/db';
+import { db, usageLogs, users, type PlanTier } from '@/app/lib/db';
 import { eq, and, gte, sql, inArray } from 'drizzle-orm';
-import { extractTrustedIp } from './kv';
+import { extractTrustedIp, kvCheckFreeCredit } from './kv';
 import { logAbuseSignal } from './abuse';
 import { evaluateInternalBypass } from './internal-auth';
+import {
+  PRODUCT_CONTRACTS,
+  monthlySearchQuota,
+  type ProductSurface,
+} from './product-contracts';
 
 export type AuthResult =
-  | { ok: true; userId: string; plan: keyof typeof PLAN_LIMITS }
+  | { ok: true; userId: string | null; plan: PlanTier; surface: ProductSurface }
   | { ok: false; response: NextResponse };
 
 export type ActionType = 'source' | 'factory_direct' | 'wechat' | 'image_analyze' | 'chat';
@@ -15,18 +20,12 @@ export type ActionType = 'source' | 'factory_direct' | 'wechat' | 'image_analyze
 const BILLABLE_ACTIONS: Exclude<ActionType, 'chat'>[] = ['source', 'factory_direct', 'wechat', 'image_analyze'];
 const FREE_IP_MONTHLY_LIMIT = Number(process.env.FREE_IP_MONTHLY_LIMIT ?? 0);
 
-function detectLang(request: NextRequest): 'en' | 'ko' {
-  const url = request.nextUrl?.pathname ?? request.url ?? '';
-  if (url.startsWith('/en')) return 'en';
-  const accept = request.headers.get('accept-language') ?? '';
-  return accept.toLowerCase().startsWith('ko') ? 'ko' : 'en';
-}
-
 export async function checkAuthAndQuota(
   request: NextRequest,
   action: ActionType,
+  surface: ProductSurface,
 ): Promise<AuthResult> {
-  const lang = detectLang(request);
+  const lang = surface;
 
   // Internal automation is enabled only when both a key and a caller IP allowlist match.
   const internalDecision = evaluateInternalBypass({
@@ -42,7 +41,7 @@ export async function checkAuthAndQuota(
     };
   }
   if (internalDecision === 'authorized') {
-    return { ok: true, userId: 'internal', plan: 'enterprise' };
+    return { ok: true, userId: 'internal', plan: 'enterprise', surface };
   }
 
   const session = await auth();
@@ -51,17 +50,17 @@ export async function checkAuthAndQuota(
   // 로그인 유저
   if (session?.user?.id) {
     const userId = session.user.id;
-    const plan = (session.user.plan ?? 'free') as keyof typeof PLAN_LIMITS;
-    const limit = PLAN_LIMITS[plan].monthly;
+    const plan = (session.user.plans?.[surface] ?? 'free') as PlanTier;
+    const limit = monthlySearchQuota(surface, plan);
 
     // 어드민은 쿼터 제한 없음 (테스트/운영 목적)
     const adminEmails = (process.env.ADMIN_EMAILS ?? process.env.ADMIN_EMAIL ?? '')
       .split(',').map(e => e.trim()).filter(Boolean);
     if (session.user.email && adminEmails.map(e => e.toLowerCase()).includes(session.user.email.toLowerCase())) {
-      return { ok: true, userId, plan };
+      return { ok: true, userId, plan, surface };
     }
 
-    if (plan !== 'enterprise' && action !== 'chat' && BILLABLE_ACTIONS.includes(action)) {
+    if (limit !== null && action !== 'chat' && BILLABLE_ACTIONS.includes(action)) {
       const startOfMonth = new Date();
       startOfMonth.setDate(1);
       startOfMonth.setHours(0, 0, 0, 0);
@@ -92,6 +91,7 @@ export async function checkAuthAndQuota(
           .where(
             and(
               eq(usageLogs.ip, ip),
+              eq(usageLogs.surface, surface),
               gte(usageLogs.createdAt, startOfMonth),
               inArray(usageLogs.action, BILLABLE_ACTIONS),
             ),
@@ -127,6 +127,7 @@ export async function checkAuthAndQuota(
         .where(
           and(
             eq(usageLogs.userId, userId),
+            eq(usageLogs.surface, surface),
             gte(usageLogs.createdAt, startOfMonth),
             inArray(usageLogs.action, BILLABLE_ACTIONS),
           ),
@@ -156,7 +157,24 @@ export async function checkAuthAndQuota(
       }
     }
 
-    return { ok: true, userId, plan };
+    return { ok: true, userId, plan, surface };
+  }
+
+  if (surface === 'kr' && action !== 'chat' && BILLABLE_ACTIONS.includes(action)) {
+    const anonymousLimit = PRODUCT_CONTRACTS.kr.free.anonymousSearchesPerDay;
+    if (await kvCheckFreeCredit(ip, surface, anonymousLimit)) {
+      return { ok: true, userId: null, plan: 'free', surface };
+    }
+
+    return {
+      ok: false,
+      response: NextResponse.json({
+        error: 'quota_exceeded',
+        type: 'anonymous_daily',
+        plan: 'free',
+        message: `비로그인 무료 체험 ${anonymousLimit}회를 모두 사용했습니다. 로그인하거나 플랜을 업그레이드해주세요.`,
+      }, { status: 429 }),
+    };
   }
 
   const message = lang === 'en'
@@ -175,6 +193,7 @@ export async function checkAuthAndQuota(
 export async function logUsage(
   userId: string | null,
   ip: string,
+  surface: ProductSurface,
   action: Exclude<ActionType, 'chat'>,
   product?: string,
   supplierCount?: number,
@@ -185,6 +204,7 @@ export async function logUsage(
     await db.insert(usageLogs).values({
       userId,
       ip,
+      surface,
       action,
       product,
       supplierCount,

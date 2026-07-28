@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GloSource AI
 
-## Getting Started
+GloSource AI operates two sourcing products in one Next.js application:
 
-First, run the development server:
+- `/`: Korean companies sourcing from overseas markets. This surface is a free beta and does not accept payment yet.
+- `/en`: International buyers sourcing Korean manufacturers and K-products. This surface is commercially live and billed in USD through Polar MoR.
+
+The binding product rules are documented in [GLOSOURCE_PORTFOLIO.md](docs/requirements/GLOSOURCE_PORTFOLIO.md). Route-specific contracts live in the same directory.
+
+## Local Development
 
 ```bash
+npm ci
+npm run db:migrate
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000` for the Korean service and `http://localhost:3000/en` for the global service.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Quality Gates
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm test
+npx tsc --noEmit
+npm run build
+GLOSOURCE_BASE_URL=http://localhost:3000 npm run growth:live-contract
+```
 
-## Learn More
+`growth:live-contract` defaults to `https://glosourceai.com` when `GLOSOURCE_BASE_URL` is not set.
 
-To learn more about Next.js, take a look at the following resources:
+## Standalone Release
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Run the complete verification, production build, and packaging flow with one command:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm run release:product
+```
 
-## Deploy on Vercel
+The command writes a versioned `.tgz` archive and an unpacked standalone server to `dist/`. After extracting the archive, provide the environment variables listed in `RELEASE-MANIFEST.json` and start it with:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+node server.js
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Product Boundaries
+
+- Korean Toss checkout is fail-closed until business registration and the explicit `KR_COMMERCIALIZATION_ENABLED=true` release flag.
+- Polar subscriptions unlock only the global service.
+- Usage logs and quotas are segmented by `kr` and `en`.
+- “Registry Match” is evidence, not GloSource supplier certification or endorsement.

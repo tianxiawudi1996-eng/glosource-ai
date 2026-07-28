@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import EnSourcingTool from '@/app/components/EnSourcingTool';
 import type { PlanTier } from '@/app/lib/db/schema';
+import { FREE_SEARCH_LIMIT } from '@/app/lib/free-plan';
 
 const QUICK_CATEGORIES = [
   {
@@ -59,7 +60,7 @@ const QUICK_CATEGORIES = [
 export default function KSourceWrapper({
   initialProduct = '',
   plan = 'free',
-  freeSearchLimit = 5,
+  freeSearchLimit = FREE_SEARCH_LIMIT,
   authenticated = false,
 }: {
   initialProduct?: string;
@@ -99,7 +100,7 @@ export default function KSourceWrapper({
         <div className="mb-8 rounded-2xl border border-orange-200 bg-orange-50 p-6 text-center">
           <p className="text-xs font-black uppercase tracking-[0.16em] text-[#EA580C]">Free account required</p>
           <h3 className="mt-2 text-xl font-black text-[#0D1B2A]">Sign up before searching Korean companies</h3>
-          <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-slate-600">Create an account to receive 10 free searches per month, save your results, and keep supplier research tied to your workspace.</p>
+          <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-slate-600">Create an account to receive 3 free searches per month. Free results show a limited preview; paid plans unlock the full sourcing workflow.</p>
           <div className="mt-5 flex flex-wrap justify-center gap-3">
             <a href="/en/register" className="rounded-xl bg-[#EA580C] px-5 py-3 text-sm font-black text-white hover:bg-[#DC4C00]">Create free account</a>
             <a href="/en/login" className="rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-black text-[#0D1B2A] hover:bg-slate-50">Sign in</a>

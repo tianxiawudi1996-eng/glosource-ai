@@ -155,7 +155,7 @@ export default function AboutPage() {
 
         {/* CTA */}
         <div className="rounded-2xl bg-[#0D1B2A] p-8 text-center">
-          <h2 className="text-xl font-black text-white mb-3">Try it — 5 free searches</h2>
+          <h2 className="text-xl font-black text-white mb-3">Try it — 3 free searches</h2>
           <p className="text-slate-300 text-sm mb-6">No credit card. See real AI-generated results in ~90 seconds.</p>
           <Link
             href="/en#sourcing-tool"

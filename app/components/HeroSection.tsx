@@ -1,6 +1,10 @@
 'use client';
 
 import { trackShortlistCta } from '@/app/lib/analytics';
+import {
+  KR_ANONYMOUS_DAILY_SEARCH_LIMIT,
+  KR_FREE_RESULT_PREVIEW_COUNT,
+} from '@/app/lib/free-plan';
 import HaeryeText from '@/app/en/HaeryeText';
 import YetGlyph from '@/app/en/YetHangul';
 import { DancheongBand, GiwaEaves, SumaksaeRosette } from '@/app/en/KoreanOrnaments';
@@ -15,12 +19,12 @@ const copy = {
     h1: 'GloSource AI',
     h1sub: '공급자 후보 AI 매칭',
     desc: '1688 · Baidu 爱采购 · Alibaba · WeChat 후보를 비교하고, 발주 전 공급자 리스크와 RFQ 질문 리스트를 정리합니다.',
-    cta1: '무료 5회 체험 시작 →',
-    cta2: '요금제 보기',
+    cta1: `무료 ${KR_ANONYMOUS_DAILY_SEARCH_LIMIT}회 체험 시작 →`,
+    cta2: '무료 샘플 보기',
     note: 'GloSource AI는 납품 대행사가 아닙니다. 공급자 후보 발굴, 비교 분석, RFQ 준비까지 지원합니다.',
-    features: ['공장 후보 3~5개 자동 탐색', '사업자·리스크 신뢰도 분석', 'RFQ 이메일 자동 생성', '예상 원가·MOQ 비교 리포트'],
+    features: [`공장 후보 3~5개 탐색 · 무료 ${KR_FREE_RESULT_PREVIEW_COUNT}개 미리보기`, '사업자·리스크 신뢰도 분석', 'RFQ 이메일 자동 생성', '예상 원가·MOQ 비교 리포트'],
     stats: [
-      { num: '3~5개', label: '공급자 자동 탐색' },
+      { num: `${KR_FREE_RESULT_PREVIEW_COUNT}개`, label: '무료 결과 미리보기' },
       { num: '~90초', label: '평균 분석 소요 시간' },
       { num: '0~100', label: '공급자 리스크 점수' },
       { num: '3단계', label: '검색·검증·RFQ 매칭' },
@@ -180,7 +184,7 @@ function EnVerificationMockPanel() {
             </div>
             <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-emerald-500/15 border border-emerald-400/30 px-2 py-0.5 text-[10px] font-black text-emerald-300">
               <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-              Gov-Verified
+              Registry Match
             </span>
           </div>
 

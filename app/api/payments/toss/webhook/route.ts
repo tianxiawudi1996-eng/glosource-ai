@@ -4,6 +4,7 @@ import { eq } from 'drizzle-orm';
 import { sendReceiptEmail } from '@/app/lib/email';
 import { completeTossPayment } from '@/app/lib/tossSubscription';
 import {
+  isKoreanCommercializationEnabled,
   shouldApplyTossPaymentStatus,
   tossPaymentStatus,
   tossPlanByAmount,
@@ -28,6 +29,13 @@ async function verifyTossSignature(body: string, signature: string): Promise<boo
 }
 
 export async function POST(request: NextRequest) {
+  if (!isKoreanCommercializationEnabled(process.env)) {
+    return NextResponse.json({
+      received: true,
+      ignored: 'commercialization_disabled',
+    });
+  }
+
   const rawBody = await request.text();
   const signature = request.headers.get('toss-payments-signature') ?? '';
 

@@ -133,7 +133,7 @@ export default function EnAccountPage() {
               <Field id="account-plan" label="Plan">
                 <div id="account-plan" className="flex items-center gap-2">
                   <span className="rounded-full bg-[#0D1B2A] px-3 py-1 text-xs font-black text-white">
-                    {planLabel[session.user.plan ?? 'free'] ?? session.user.plan}
+                    {planLabel[session.user.plans?.en ?? 'free'] ?? session.user.plans?.en}
                   </span>
                   <Link href="/en/billing" className="text-xs font-bold text-[#EA580C] hover:underline">
                     Change plan →

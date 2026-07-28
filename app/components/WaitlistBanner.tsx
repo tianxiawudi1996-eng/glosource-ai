@@ -32,27 +32,27 @@ export default function WaitlistBanner() {
 
   if (status === 'done') {
     return (
-      <div className="bg-gradient-to-r from-[#0D1B2A] to-[#1a2f44] border border-[#EA580C]/30 rounded-2xl p-6 text-center">
+      <div id="waitlist" className="scroll-mt-24 bg-gradient-to-r from-[#0D1B2A] to-[#1a2f44] border border-[#EA580C]/30 rounded-2xl p-6 text-center">
         <p className="font-bold text-white text-sm">{msg}</p>
-        <p className="text-slate-400 text-xs mt-1">오픈 알림 + 첫 달 무료 혜택을 이메일로 보내드릴게요.</p>
+        <p className="text-slate-400 text-xs mt-1">정식 출시 일정과 베타 우선 안내를 이메일로 보내드립니다.</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-gradient-to-r from-[#0D1B2A] to-[#1a2f44] border border-[#EA580C]/20 rounded-2xl p-6">
+    <div id="waitlist" className="scroll-mt-24 bg-gradient-to-r from-[#0D1B2A] to-[#1a2f44] border border-[#EA580C]/20 rounded-2xl p-6">
       <div className="mb-4">
-        <p className="font-black text-white text-sm">유료 플랜 오픈 예정 — 지금 베타 신청하면 첫 달 무료</p>
-        <p className="text-slate-400 text-xs mt-0.5">사업자 등록 후 Toss 결제 연동 예정. 사전 신청자 우선 혜택.</p>
+        <p className="font-black text-white text-sm">한국 서비스 무료 베타 — 정식 출시 알림 신청</p>
+        <p className="text-slate-400 text-xs mt-0.5">사업자등록과 국내 유료 서비스 준비가 끝나면 신청자에게 먼저 안내합니다.</p>
       </div>
-      <form onSubmit={handleSubmit} className="flex gap-2">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-2 sm:flex-row">
         <input
           type="email"
           value={email}
           onChange={e => setEmail(e.target.value)}
           placeholder="이메일 주소 입력"
           required
-          className="flex-1 px-3 py-2 rounded-lg border border-slate-600 bg-slate-800 text-white text-sm placeholder-slate-500 focus:outline-none focus:border-[#EA580C]"
+          className="min-w-0 flex-1 px-3 py-2 rounded-lg border border-slate-600 bg-slate-800 text-white text-sm placeholder-slate-500 focus:outline-none focus:border-[#EA580C]"
         />
         <button
           type="submit"

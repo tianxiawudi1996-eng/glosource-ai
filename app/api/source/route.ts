@@ -14,7 +14,13 @@ import { normalizeSupplierCandidate } from '../../lib/supplier-normalization';
 import { matchAeoCompanies } from '../../lib/aeo-companies';
 import { logAbuseSignal } from '@/app/lib/abuse';
 import { db, usageLogs, searchHistory, verifiedSuppliers } from '@/app/lib/db';
-import { and, eq, gte, or, sql } from 'drizzle-orm';
+import { redactSourcingOutputForFree } from '@/app/lib/free-access';
+import {
+  getQueryCluster,
+  mergeCuratedSearchResults,
+  queryClusterHistoryCounts,
+} from '@/app/lib/curated-search-results';
+import { and, desc, eq, gte, or, sql } from 'drizzle-orm';
 
 export const maxDuration = 120;
 
@@ -606,54 +612,75 @@ function normalizeSourcingOutput(parsed: Omit<SourcingOutput, 'groundingUsed'>, 
   };
 }
 
-function getQueryCluster(product: string): string {
-  const normalized = sanitizeInput(product).toLowerCase();
-  const kbeautyTerms = [
-    'k-beauty', 'korean beauty', 'skincare', 'cosmetic', 'toner', 'lotion',
-    'serum', 'ampoule', 'cream', 'sunscreen', 'spf', 'sheet mask', 'toner pad',
-    'olive young', 'pdrn', 'collagen', 'centella', 'cica',
-  ];
-  if (kbeautyTerms.some(term => normalized.includes(term))) return 'kbeauty';
-  return normalized
-    .replace(/[^a-z0-9가-힣\s]/g, ' ')
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 4)
-    .join('-') || 'general';
-}
-
-async function logDuplicateQueryCluster(
+async function inspectDuplicateQueryCluster(
   userId: string | null,
   ip: string,
+  surface: 'kr' | 'en',
   product: string,
   buyerCountry: string,
-): Promise<void> {
-  const cluster = getQueryCluster(product);
+): Promise<number> {
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
-  const rows = await db
-    .select({ product: usageLogs.product })
+  const abuseRowsPromise = db
+    .select({ product: usageLogs.product, userId: usageLogs.userId })
     .from(usageLogs)
     .where(
       and(
         gte(usageLogs.createdAt, since),
         eq(usageLogs.action, 'source'),
+        eq(usageLogs.surface, surface),
         userId
           ? or(eq(usageLogs.userId, userId), eq(usageLogs.ip, ip))
           : eq(usageLogs.ip, ip),
       ),
     )
+    .orderBy(desc(usageLogs.createdAt))
     .limit(50);
+  const requesterRowsPromise = userId
+    ? db
+        .select({ product: usageLogs.product, userId: usageLogs.userId })
+        .from(usageLogs)
+        .where(
+          and(
+            gte(usageLogs.createdAt, since),
+            eq(usageLogs.action, 'source'),
+            eq(usageLogs.surface, surface),
+            eq(usageLogs.userId, userId),
+          ),
+        )
+        .orderBy(desc(usageLogs.createdAt))
+    : abuseRowsPromise;
+  const [abuseRows, requesterRows] = await Promise.all([abuseRowsPromise, requesterRowsPromise]);
 
-  const similarCount = rows.filter(row => row.product && getQueryCluster(row.product) === cluster).length;
-  if (similarCount >= 2) {
+  const sanitizedProduct = sanitizeInput(product);
+  const sanitizeRows = (rows: typeof abuseRows) => rows.map(row => ({
+      ...row,
+      product: row.product ? sanitizeInput(row.product) : null,
+    }));
+  const abuseCounts = queryClusterHistoryCounts(
+    sanitizeRows(abuseRows),
+    sanitizedProduct,
+    null,
+  );
+  const requesterCounts = queryClusterHistoryCounts(
+    sanitizeRows(requesterRows),
+    sanitizedProduct,
+    userId,
+  );
+  if (abuseCounts.abuseSimilarCount >= 2) {
     logAbuseSignal({
       userId,
       event: 'duplicate_query_cluster',
-      severity: Math.min(5, similarCount),
+      severity: Math.min(5, abuseCounts.abuseSimilarCount),
       ip,
-      metadata: { cluster, product: product.slice(0, 160), buyerCountry, similarCount },
+      metadata: {
+        cluster: getQueryCluster(sanitizedProduct),
+        product: product.slice(0, 160),
+        buyerCountry,
+        similarCount: abuseCounts.abuseSimilarCount,
+      },
     }).catch(() => {});
   }
+  return requesterCounts.requesterSimilarCount;
 }
 
 function buildMarketRiskFlags(req: SourcingRequest): MarketRiskFlag[] {
@@ -710,42 +737,6 @@ function buildMarketRiskFlags(req: SourcingRequest): MarketRiskFlag[] {
   return flags;
 }
 
-function lockSupplierDetailsForFree(output: SourcingOutput, plan: string): SourcingOutput {
-  const locked = plan === 'free';
-  if (!locked) {
-    return {
-      ...output,
-      access: { plan, supplierDetailsLocked: false },
-    };
-  }
-
-  return {
-    ...output,
-    suppliers: output.suppliers.map((supplier, index) => ({
-      ...supplier,
-      url: '',
-      trustEvidence: supplier.trustEvidence.slice(0, index === 0 ? 3 : 2),
-      summary: supplier.summary
-        ? `${supplier.summary.slice(0, 180)}${supplier.summary.length > 180 ? '...' : ''}`
-        : supplier.summary,
-    })),
-    rfqEmail: {
-      en: output.rfqEmail.en
-        ? 'Upgrade or verify your buyer account to export the full RFQ draft with supplier-ready details.'
-        : output.rfqEmail.en,
-      zh: output.rfqEmail.zh
-        ? 'Upgrade or verify your buyer account to export the full RFQ draft with supplier-ready details.'
-        : output.rfqEmail.zh,
-    },
-    access: {
-      plan,
-      supplierDetailsLocked: true,
-      lockedReason: 'Free plan shows partial supplier research. URLs, full RFQ export, and contact-ready details are gated.',
-    },
-  };
-}
-
-
 export async function POST(request: NextRequest) {
   const start = Date.now();
   const routeDeadlineAt = start + 115_000;
@@ -766,7 +757,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: message }, { status: 400 });
     }
 
-    const authResult = await checkAuthAndQuota(request, 'source');
+    const surface = lang === 'en' ? 'en' : 'kr';
+    const authResult = await checkAuthAndQuota(request, 'source', surface);
     if (!authResult.ok) return authResult.response;
     const { userId, plan } = authResult;
     const ip = extractTrustedIp(request.headers);
@@ -783,7 +775,13 @@ export async function POST(request: NextRequest) {
       outputLanguage: body.outputLanguage ?? 'ko',
       buyerCountry: body.buyerCountry ?? 'KR',
     };
-    logDuplicateQueryCluster(userId, ip, req.productDescription, req.buyerCountry ?? 'GLOBAL').catch(() => {});
+    const priorSimilarSearchCount = inspectDuplicateQueryCluster(
+      userId,
+      ip,
+      surface,
+      req.productDescription,
+      req.buyerCountry ?? 'GLOBAL',
+    ).catch(() => 0);
 
     if (req.countryPreference === 'both' || req.countryPreference === 'any') {
       const message = lang === 'en'
@@ -869,7 +867,7 @@ export async function POST(request: NextRequest) {
         : (lang === 'en' ? 'All AI models are unavailable. Please try again shortly.' : '모든 AI 모델이 응답하지 않습니다. 잠시 후 다시 시도해주세요.');
       // LLM unavailable — serve DB-curated verified suppliers instead of failing, if any match.
       const fb500 = await dbFallbackOutput(req, lang);
-      if (fb500) return NextResponse.json({ success: true, data: lockSupplierDetailsForFree(fb500, plan) });
+      if (fb500) return NextResponse.json({ success: true, data: redactSourcingOutputForFree(fb500, plan, surface) });
       throw new Error(friendlyMsg);
     }
 
@@ -918,7 +916,7 @@ export async function POST(request: NextRequest) {
     if (!qualityGate.ok) {
       // No search-grounded candidates passed the gate — serve DB-curated verified suppliers if any match.
       const fb424 = await dbFallbackOutput(req, lang);
-      if (fb424) return NextResponse.json({ success: true, data: lockSupplierDetailsForFree(fb424, plan) });
+      if (fb424) return NextResponse.json({ success: true, data: redactSourcingOutputForFree(fb424, plan, surface) });
 
       kvSaveHistory({
         id: `${Date.now()}-ai-rejected`,
@@ -938,22 +936,26 @@ export async function POST(request: NextRequest) {
     }
 
     const output = qualityGate.output;
+    let liveSupplierCount = output.suppliers?.length ?? 0;
+    let curatedSupplierCount = 0;
 
-    // Surface up to 2 curated verified suppliers ahead of LLM candidates (deduped by host).
+    // Surface up to 2 curated verified suppliers ahead of LLM candidates.
     // They carry the dbVerified badge + their notes (incl. MOQ caveats), so high-MOQ ODMs are
-    // labelled honestly rather than implied to fit every buyer.
+    // labelled honestly rather than implied to fit every buyer. Curated rows stay separate from
+    // the live-result count used for usage analytics, and repeated query clusters are disclosed.
     try {
       const fb = await dbFallbackOutput(req, lang);
       const dbSups = fb?.suppliers ?? [];
       if (dbSups.length) {
-        const host = (u: string) => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch { return ''; } };
-        const seen = new Set((output.suppliers ?? []).map(s => host(s.url)).filter(Boolean));
-        const fresh = dbSups.filter(s => { const h = host(s.url); return !h || !seen.has(h); }).slice(0, 2);
-        if (fresh.length) {
-          output.suppliers = [...fresh, ...output.suppliers].map((s, i) => ({ ...s, rank: i + 1 }));
-        }
+        const merged = mergeCuratedSearchResults(output.suppliers ?? [], dbSups, {
+          repeatQuery: (await priorSimilarSearchCount) > 0,
+        });
+        output.suppliers = merged.suppliers;
+        liveSupplierCount = merged.liveSupplierCount;
+        curatedSupplierCount = merged.curatedSupplierCount;
       }
     } catch { /* never block the response */ }
+    output.resultComposition = { liveSupplierCount, curatedSupplierCount };
 
     // Real MFDS (식약처) registry enrichment: confirm manufacturer vs brand/seller, business
     // registration number, and years in business — replacing AI-guessed manufacturer/trust signals.
@@ -1133,7 +1135,7 @@ export async function POST(request: NextRequest) {
     }).catch(() => {});
 
     // Always charge quota — result was returned regardless of grounding quality
-    logUsage(userId, ip, 'source', req.productDescription, output.suppliers?.length, Date.now() - start).catch(() => {});
+    await logUsage(userId, ip, surface, 'source', req.productDescription, liveSupplierCount, Date.now() - start);
 
     // Save full search result for logged-in users (dashboard history)
     if (userId) {
@@ -1162,9 +1164,9 @@ export async function POST(request: NextRequest) {
         },
       }).catch(() => {});
     }
-    if (!userId) kvConsumeFreeCredit(ip).catch(() => {});
+    if (!userId) kvConsumeFreeCredit(ip, surface).catch(() => {});
 
-    return NextResponse.json({ success: true, data: lockSupplierDetailsForFree(output, plan) });
+    return NextResponse.json({ success: true, data: redactSourcingOutputForFree(output, plan, surface) });
   } catch (error) {
     console.error('[GloSource API Error]', error);
     const message = error instanceof Error ? error.message : '소싱 분석 중 오류가 발생했습니다.';
