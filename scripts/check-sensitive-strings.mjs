@@ -1,56 +1,83 @@
 #!/usr/bin/env node
 import { existsSync, readFileSync } from "node:fs";
-import { execSync } from "node:child_process";
-
-const blocklistPath = process.argv[2] || process.env.HARNESS_BLOCKLIST_FILE || ".harness-blocklist.local";
+import { execFileSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 
 function fail(message, code = 2) {
   console.error(message);
   process.exit(code);
 }
 
-if (!existsSync(blocklistPath)) {
-  fail(`[sensitive-check] BLOCKED: ${blocklistPath} not found. Create a gitignored local blocklist first.`);
+export function extractAddedContent(diff) {
+  return diff
+    .split(/\r?\n/)
+    .filter((line) => line.startsWith("+") && !line.startsWith("+++"))
+    .map((line) => line.slice(1))
+    .join("\n");
 }
 
-const terms = readFileSync(blocklistPath, "utf8")
-  .split(/\r?\n/)
-  .map((line) => line.trim())
-  .filter((line) => line && !line.startsWith("#"));
-
-if (terms.length === 0) {
-  fail(`[sensitive-check] BLOCKED: ${blocklistPath} has no active entries.`);
-}
-
-// A secret scanner that swallows its own failures is worse than none: it reports "clean" loudest
-// when it read nothing at all. This used to catch every error and return "", so an 8.6 MB staged
-// diff blew past execSync's 1 MB default maxBuffer, the read failed, and the check passed — failing
-// open exactly when there was the most to scan.
-function capture(command) {
+function captureGit(args) {
   try {
-    return execSync(command, {
+    return execFileSync("git", args, {
       encoding: "utf8",
       stdio: ["ignore", "pipe", "pipe"],
       maxBuffer: 512 * 1024 * 1024,
     });
   } catch (err) {
-    fail(`[sensitive-check] BLOCKED: could not read \`${command}\` (${err.code ?? err.message}). Refusing to report clean on a scan that did not run.`);
+    fail(`[sensitive-check] BLOCKED: could not read git worktree state (${err.code ?? err.message}). Refusing to report clean on a scan that did not run.`);
   }
 }
 
-const diff = `${capture("git diff --cached -- .")}\n${capture("git diff -- .")}`;
-if (!diff.trim()) {
-  console.log("[sensitive-check] clean: nothing staged or modified");
-  process.exit(0);
+function readUntrackedContent() {
+  const paths = captureGit(["ls-files", "--others", "--exclude-standard", "-z"])
+    .split("\0")
+    .filter(Boolean);
+
+  return paths.map((path) => {
+    try {
+      return readFileSync(path, "utf8");
+    } catch (err) {
+      fail(`[sensitive-check] BLOCKED: could not read an untracked file (${err.code ?? err.message}).`);
+    }
+  }).join("\n");
 }
 
-let hitCount = 0;
-for (const term of terms) {
-  if (term.length >= 3 && diff.includes(term)) hitCount += 1;
+export function collectCandidateContent() {
+  const staged = extractAddedContent(captureGit(["diff", "--cached", "--unified=0", "--", "."]));
+  const unstaged = extractAddedContent(captureGit(["diff", "--unified=0", "--", "."]));
+  const untracked = readUntrackedContent();
+  return `${staged}\n${unstaged}\n${untracked}`;
 }
 
-if (hitCount > 0) {
-  fail(`[sensitive-check] BLOCKED: ${hitCount} sensitive term(s) detected. Terms are intentionally hidden.`);
+function main() {
+  const blocklistPath = process.argv[2] || process.env.HARNESS_BLOCKLIST_FILE || ".harness-blocklist.local";
+  if (!existsSync(blocklistPath)) {
+    fail(`[sensitive-check] BLOCKED: ${blocklistPath} not found. Create a gitignored local blocklist first.`);
+  }
+
+  const terms = readFileSync(blocklistPath, "utf8")
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line && !line.startsWith("#"));
+
+  if (terms.length === 0) {
+    fail(`[sensitive-check] BLOCKED: ${blocklistPath} has no active entries.`);
+  }
+
+  const content = collectCandidateContent();
+  if (!content.trim()) {
+    console.log("[sensitive-check] clean: nothing added, staged, or untracked");
+    return;
+  }
+
+  const hitCount = terms.filter((term) => term.length >= 3 && content.includes(term)).length;
+  if (hitCount > 0) {
+    fail(`[sensitive-check] BLOCKED: ${hitCount} sensitive term(s) detected. Terms are intentionally hidden.`);
+  }
+
+  console.log("[sensitive-check] clean");
 }
 
-console.log("[sensitive-check] clean");
+if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+  main();
+}

@@ -2,6 +2,9 @@ import { spawnSync } from 'node:child_process';
 import {
   cp,
   mkdir,
+  readFile,
+  readdir,
+  rm,
   stat,
   writeFile,
 } from 'node:fs/promises';
@@ -11,11 +14,14 @@ import { fileURLToPath } from 'node:url';
 export const REQUIRED_PRODUCTION_ENV = [
   'DATABASE_URL',
   'AUTH_SECRET',
+  'AUTH_URL',
+  'AUTH_TRUST_HOST',
   'GEMINI_API_KEY',
   'UPSTASH_REDIS_REST_URL',
   'UPSTASH_REDIS_REST_TOKEN',
   'RESEND_API_KEY',
   'RESEND_EMAIL_FROM',
+  'RESEND_WEBHOOK_SECRET',
   'POLAR_WEBHOOK_SECRET',
   'POLAR_ACCESS_TOKEN',
   'POLAR_STARTER_PRODUCT_ID',
@@ -31,7 +37,7 @@ export const REQUIRED_PRODUCTION_ENV = [
 ] as const;
 
 export const OPTIONAL_PRODUCTION_ENV = [
-  'AUTH_URL',
+  'RESEND_FULL_API_KEY',
   'GOOGLE_CLIENT_ID',
   'GOOGLE_CLIENT_SECRET',
   'NEXT_PUBLIC_GOOGLE_OAUTH_ENABLED',
@@ -39,6 +45,33 @@ export const OPTIONAL_PRODUCTION_ENV = [
   'NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION',
   'BUFFER_API_KEY',
   'BUFFER_CHANNEL_THREADS',
+] as const;
+
+export const RELEASE_IDENTITY = {
+  product: 'GloSource AI',
+  packageName: 'glosource-ai',
+} as const;
+
+const SENSITIVE_FILE_NAMES = new Set([
+  '.dockerconfigjson',
+  '.netrc',
+  '.npmrc',
+  '.yarnrc',
+  'admin.txt',
+  'credentials',
+  'credentials.json',
+  'id_ed25519',
+  'id_rsa',
+  'supabase.txt',
+]);
+
+const SENSITIVE_FILE_EXTENSIONS = [
+  '.jks',
+  '.key',
+  '.keystore',
+  '.p12',
+  '.pem',
+  '.pfx',
 ] as const;
 
 interface ReleaseManifestInput {
@@ -52,8 +85,7 @@ interface ReleaseManifestInput {
 export function buildReleaseManifest(input: ReleaseManifestInput) {
   return {
     schemaVersion: 1,
-    product: 'GloSource AI',
-    packageName: 'glosource-ai',
+    ...RELEASE_IDENTITY,
     version: input.version,
     builtAt: input.builtAt,
     source: {
@@ -78,92 +110,147 @@ export function buildReleaseManifest(input: ReleaseManifestInput) {
   };
 }
 
-function gitOutput(args: string[]): string {
+function gitOutput(args: string[], cwd: string): string {
   const result = spawnSync('git', args, {
-    cwd: process.cwd(),
+    cwd,
     encoding: 'utf8',
   });
   return result.status === 0 ? result.stdout.trim() : 'unknown';
 }
 
-function shouldPackagePath(sourcePath: string): boolean {
+export function assertPackagePathSafe(sourcePath: string): true {
   const name = basename(sourcePath).toLowerCase();
-  if (name === '.env' || name.startsWith('.env.')) return false;
-  if (name.endsWith('.pem')) return false;
-  return name !== 'admin.txt' && name !== 'supabase.txt';
-}
-
-async function copyIfPresent(source: string, destination: string): Promise<void> {
-  try {
-    await stat(source);
-  } catch {
-    return;
+  const sensitive = (
+    name === '.env'
+    || name === '.envrc'
+    || name.startsWith('.env.')
+    || SENSITIVE_FILE_NAMES.has(name)
+    || SENSITIVE_FILE_EXTENSIONS.some((extension) => name.endsWith(extension))
+    || (
+      name.endsWith('.json')
+      && (
+        name.includes('client_secret')
+        || name.includes('client-secret')
+        || name.includes('service_account')
+        || name.includes('service-account')
+        || name === 'application_default_credentials.json'
+      )
+    )
+  );
+  if (sensitive) {
+    throw new Error(`Refusing to package sensitive file: ${name}`);
   }
-  await cp(source, destination, {
-    recursive: true,
-    filter: shouldPackagePath,
-  });
+  return true;
 }
 
-export async function packageRelease(): Promise<{
+export async function assertStandaloneIntegrity(directory: string): Promise<void> {
+  for (const entry of await readdir(directory, { withFileTypes: true })) {
+    const path = join(directory, entry.name);
+    if (entry.isDirectory()) {
+      await assertStandaloneIntegrity(path);
+      continue;
+    }
+    if (!entry.isFile()) continue;
+
+    const contents = await readFile(path);
+    if (contents.length > 0 && contents.every((byte) => byte === 0)) {
+      throw new Error(`Corrupt standalone build artifact (all zero bytes): ${path}`);
+    }
+  }
+}
+
+export async function packageRelease(projectRoot = process.cwd()): Promise<{
   packageDirectory: string;
   archivePath: string;
 }> {
-  const projectRoot = process.cwd();
   const standaloneDirectory = join(projectRoot, '.next', 'standalone');
   try {
     await stat(join(standaloneDirectory, 'server.js'));
   } catch {
     throw new Error('Missing .next/standalone/server.js. Run npm run build first.');
   }
+  await assertStandaloneIntegrity(standaloneDirectory);
 
   const packageJson = JSON.parse(
-    await import('node:fs/promises').then(({ readFile }) => readFile(
-      join(projectRoot, 'package.json'),
-      'utf8',
-    )),
+    await readFile(join(projectRoot, 'package.json'), 'utf8'),
   ) as { version: string };
-  const timestamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z');
-  const packageName = `glosource-ai-${packageJson.version}-${timestamp}`;
+  const timestamp = new Date().toISOString().replace(/[-:.]/g, '');
+  const packageName = `${RELEASE_IDENTITY.packageName}-${packageJson.version}-${timestamp}`;
   const distRoot = join(projectRoot, 'dist');
   const packageDirectory = join(distRoot, packageName);
   const archivePath = join(distRoot, `${packageName}.tgz`);
 
   await mkdir(distRoot, { recursive: true });
   await mkdir(packageDirectory, { recursive: false });
-  await cp(standaloneDirectory, packageDirectory, {
-    recursive: true,
-    filter: shouldPackagePath,
-  });
-  await copyIfPresent(join(projectRoot, 'public'), join(packageDirectory, 'public'));
-  await copyIfPresent(
-    join(projectRoot, '.next', 'static'),
-    join(packageDirectory, '.next', 'static'),
-  );
+  try {
+    await cp(standaloneDirectory, packageDirectory, {
+      recursive: true,
+      filter: assertPackagePathSafe,
+    });
+    const copyResults = await Promise.allSettled([
+      cp(join(projectRoot, 'public'), join(packageDirectory, 'public'), {
+        recursive: true,
+        filter: assertPackagePathSafe,
+      }),
+      cp(
+        join(projectRoot, '.next', 'static'),
+        join(packageDirectory, '.next', 'static'),
+        {
+          recursive: true,
+          filter: assertPackagePathSafe,
+        },
+      ),
+    ]);
+    const copyFailures = copyResults
+      .filter((result): result is PromiseRejectedResult => result.status === 'rejected')
+      .map((result) => result.reason);
+    if (copyFailures.length === 1) throw copyFailures[0];
+    if (copyFailures.length > 1) {
+      throw new AggregateError(copyFailures, 'Failed to copy release assets.');
+    }
 
-  const manifest = buildReleaseManifest({
-    version: packageJson.version,
-    commit: gitOutput(['rev-parse', '--short=12', 'HEAD']),
-    dirty: gitOutput(['status', '--porcelain']) !== '',
-    builtAt: new Date().toISOString(),
-    nodeVersion: process.version,
-  });
-  await writeFile(
-    join(packageDirectory, 'RELEASE-MANIFEST.json'),
-    `${JSON.stringify(manifest, null, 2)}\n`,
-    'utf8',
-  );
+    const manifest = buildReleaseManifest({
+      version: packageJson.version,
+      commit: gitOutput(['rev-parse', '--short=12', 'HEAD'], projectRoot),
+      dirty: gitOutput(['status', '--porcelain'], projectRoot) !== '',
+      builtAt: new Date().toISOString(),
+      nodeVersion: process.version,
+    });
+    await writeFile(
+      join(packageDirectory, 'RELEASE-MANIFEST.json'),
+      `${JSON.stringify(manifest, null, 2)}\n`,
+      'utf8',
+    );
 
-  const archive = spawnSync(
-    'tar',
-    ['-czf', archivePath, '-C', distRoot, packageName],
-    { cwd: projectRoot, stdio: 'inherit' },
-  );
-  if (archive.status !== 0) {
-    throw new Error('Failed to create the release archive with tar.');
+    const archive = spawnSync(
+      'tar',
+      ['-czf', archivePath, '-C', distRoot, packageName],
+      { cwd: projectRoot, stdio: 'inherit', timeout: 120_000 },
+    );
+    if (archive.error) throw archive.error;
+    if (archive.status !== 0) {
+      throw new Error(
+        `Failed to create the release archive with tar (status ${archive.status}, signal ${archive.signal ?? 'none'}).`,
+      );
+    }
+
+    return { packageDirectory, archivePath };
+  } catch (error: unknown) {
+    const cleanupResults = await Promise.allSettled([
+      rm(packageDirectory, { recursive: true, force: true }),
+      rm(archivePath, { force: true }),
+    ]);
+    const cleanupFailures = cleanupResults
+      .filter((result): result is PromiseRejectedResult => result.status === 'rejected')
+      .map((result) => result.reason);
+    if (cleanupFailures.length > 0) {
+      throw new AggregateError(
+        [error, ...cleanupFailures],
+        'Release packaging failed and cleanup was incomplete.',
+      );
+    }
+    throw error;
   }
-
-  return { packageDirectory, archivePath };
 }
 
 const currentFile = resolve(fileURLToPath(import.meta.url));

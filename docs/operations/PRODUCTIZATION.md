@@ -20,7 +20,8 @@ and ESLint. `package:product` creates a fresh production build and writes:
 
 The archive contains the traced Next.js server, runtime dependencies, public
 assets, static assets, and `RELEASE-MANIFEST.json`. It deliberately excludes
-environment files, PEM files, and local credential notes.
+common environment, private-key, credential-store, and local credential files.
+Packaging also rejects all-zero files left by an interrupted standalone build.
 
 ## Runtime
 
@@ -40,17 +41,28 @@ coordination belong at that layer.
 The package records the authoritative variable-name list in
 `RELEASE-MANIFEST.json`. Core groups are:
 
-- Database and authentication: `DATABASE_URL`, `AUTH_SECRET`
+- Database and authentication: `DATABASE_URL`, `AUTH_SECRET`, the public
+  `AUTH_URL`, and `AUTH_TRUST_HOST=true` when running behind a trusted proxy
 - AI sourcing: `GEMINI_API_KEY`
 - Distributed quotas and rate limits: `UPSTASH_REDIS_REST_URL`,
   `UPSTASH_REDIS_REST_TOKEN`
-- Transactional email: `RESEND_API_KEY`, `RESEND_EMAIL_FROM`
+- Transactional and inbound support email: `RESEND_API_KEY`,
+  `RESEND_EMAIL_FROM`, `RESEND_WEBHOOK_SECRET`. `RESEND_FULL_API_KEY` is
+  optional when `RESEND_API_KEY` already has read access; otherwise configure it
+  as the read-capable inbound key.
 - Global billing: Polar webhook, access token, product IDs, and public links
 - Registry checks: `DATAGO_SERVICE_KEY`
 - Operations: `CRON_SECRET`, `ADMIN_EMAIL`, `ADMIN_PUBLISH_SECRET`
 
 Never put secret values inside the archive. Configure them in the deployment
 platform or process environment.
+
+Creating the `.tgz` archive requires a `tar` executable on the release machine.
+Windows 10/11, macOS, and standard Linux build images normally provide one.
+
+For self-hosting, set `AUTH_URL` to the public HTTPS origin. Only enable
+`AUTH_TRUST_HOST=true` when the reverse proxy controls the forwarded host
+headers; never expose the standalone Node.js process directly to the internet.
 
 ## Product boundaries
 
