@@ -736,7 +736,7 @@ export default function HomePage() {
               <div className="flex overflow-x-auto scrollbar-none border-b border-slate-100">
                 {([
                   { id: 'ai'     as SourceMode, label: 'AI 종합',    badge: '1688+Alibaba+WeChat' },
-                  { id: '1688'   as SourceMode, label: '1688 직거래',  badge: '원가 30~50% 절감' },
+                  { id: '1688'   as SourceMode, label: '1688 직거래',  badge: '공장가 신호 비교' },
                   { id: 'wechat' as SourceMode, label: 'WeChat',      badge: '공장 홍보 직접 탐색' },
                   { id: 'image'  as SourceMode, label: '사진 검색',   badge: 'AI 이미지 매칭' },
                 ] as const).map(tab => (
@@ -1150,14 +1150,14 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── 활용 사례 시뮬레이션 ── */}
+      {/* ── 활용 사례 예시 ── */}
       <section className="bg-[#0D1B2A]">
         <div className="max-w-6xl mx-auto px-6 py-16">
           <div className="mb-10 text-center">
             <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-3">Use Cases</p>
-            <h2 className="text-3xl font-black leading-tight text-white">실제 소싱 시뮬레이션</h2>
+            <h2 className="text-3xl font-black leading-tight text-white">소싱 검토 예시 시나리오</h2>
             <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-slate-400">
-              GloSource AI가 실제 건자재·산업재 품목에서 어떤 결과를 도출했는지 확인하세요.
+              아래 카드는 실제 고객 성과나 확정 견적이 아닙니다. 품목별로 어떤 공급자 자료와 거래 조건을 확인해야 하는지 보여주는 예시입니다.
             </p>
           </div>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
@@ -1165,31 +1165,25 @@ export default function HomePage() {
               {
                 tag: '철강',
                 product: 'SD400 D16 철근 50ton',
-                suppliers: 4,
-                priceRange: '¥3,200~3,850/ton',
-                saving: 'Alibaba 대비 ~38% 절감',
-                moq: '20ton',
-                highlight: '诚信通 인증 공장 3개소, 韩国 수출 경험 포함',
+                supplierScope: '제조·수출 후보를 복수 채널에서 비교',
+                quoteChecks: '강종·수량별 단가, MOQ, 납기, 결제조건',
+                certificationChecks: '재질성적서와 적용 규격 원본 요청',
               },
               {
                 tag: '알루미늄',
                 product: '알루미늄 커튼월 프레임 6063-T5',
-                suppliers: 3,
-                priceRange: '¥28~41/kg',
-                saving: '국내 수입 대비 ~45% 절감',
-                moq: '500kg',
-                highlight: 'OEM 가능 2개소, CE 인증 1개소',
+                supplierScope: '압출·가공 가능 후보와 무역상을 구분',
+                quoteChecks: '합금·표면처리·금형비·MOQ·납기',
+                certificationChecks: '재질 및 시험성적서 발급 주체 확인',
               },
               {
                 tag: '스마트팩토리',
                 product: '협동로봇 6축 UR10e 동급',
-                suppliers: 5,
-                priceRange: '¥58,000~72,000/대',
-                saving: '유럽 브랜드 대비 ~52% 절감',
-                moq: '1대',
-                highlight: 'ISO 10218 인증 후보 2개사, 한국 A/S 파트너십 보유',
+                supplierScope: '제조사·리셀러·통합업체 역할을 구분',
+                quoteChecks: '본체·컨트롤러·설치·교육·보증 범위',
+                certificationChecks: '안전규격과 국내 지원 증빙 요청',
               },
-            ].map(({ tag, product, suppliers, priceRange, saving, moq, highlight }) => (
+            ].map(({ tag, product, supplierScope, quoteChecks, certificationChecks }) => (
               <div key={tag} className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
                 <span className="inline-block rounded-full border border-[#EA580C]/40 bg-[#EA580C]/10 px-3 py-1 text-xs font-bold text-[#EA580C] mb-4">
                   {tag}
@@ -1198,27 +1192,26 @@ export default function HomePage() {
                 <h3 className="text-base font-black text-white mb-5 leading-snug">{product}</h3>
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-slate-400">발굴 공급자</span>
-                    <span className="font-bold text-white">{suppliers}개사</span>
+                    <span className="text-slate-400">확인할 공급자 범위</span>
+                    <span className="ml-4 text-right font-bold text-white">{supplierScope}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">가격 범위</span>
-                    <span className="font-bold text-white">{priceRange}</span>
+                    <span className="text-slate-400">견적 확인 항목</span>
+                    <span className="ml-4 text-right font-bold text-white">{quoteChecks}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">최소 발주</span>
-                    <span className="font-bold text-white">{moq}</span>
+                    <span className="text-slate-400">인증 확인 항목</span>
+                    <span className="ml-4 text-right font-bold text-white">{certificationChecks}</span>
                   </div>
-                  <div className="rounded-lg bg-[#EA580C]/10 px-3 py-2 text-xs text-[#EA580C] font-semibold">
-                    {saving}
+                  <div className="rounded-lg bg-[#EA580C]/10 px-3 py-2 text-xs font-semibold text-[#EA580C]">
+                    가격·MOQ·납기·인증은 공급자 원자료로 확인
                   </div>
-                  <p className="text-xs text-slate-500 leading-relaxed">{highlight}</p>
                 </div>
               </div>
             ))}
           </div>
           <p className="mt-8 text-center text-xs text-slate-500">
-            * 위 수치는 GloSource AI 탐색 시뮬레이션 결과이며 실제 거래 조건은 공급자와 직접 협의 후 확정됩니다.
+            * 예시 시나리오입니다. 실제 조건은 공급자 자료와 견적으로 직접 확인하고, 인증·계약·결제 정보는 독립적으로 확인해야 합니다.
           </p>
         </div>
       </section>

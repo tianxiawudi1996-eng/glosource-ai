@@ -25,7 +25,7 @@ const POSTS = [
 
 GloSource AI turns that first research pass into a focused shortlist with source links, company signals, MOQ context, and an English RFQ draft.
 
-Try 5 searches free → https://glosourceai.com/en?utm_source=threads&utm_medium=organic&utm_campaign=2026-07-korean-supplier-intelligence&utm_content=threads-01
+Create an account for 3 free searches per month → https://glosourceai.com/en?utm_source=threads&utm_medium=organic&utm_campaign=2026-07-korean-supplier-intelligence&utm_content=threads-01
 
 #Sourcing #B2B #KoreanSuppliers`,
 

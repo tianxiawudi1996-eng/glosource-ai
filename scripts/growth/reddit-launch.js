@@ -38,49 +38,49 @@ const DRY_RUN = process.argv.includes('--dry-run');
 const POSTS = [
   {
     subreddit: 'FulfillmentByAmazon',
-    title: "I built a tool that finds Korean suppliers (K-beauty, K-food, electronics) in 60 seconds — free to try",
+    title: "I built a research tool for Korean suppliers (K-beauty, K-food, electronics) — free to try",
     text: `Been sourcing Korean products for a while and the pain point is always the same: you know K-beauty or K-food is hot, but finding a **real manufacturer** (not a reseller) who actually exports is a nightmare.
 
 Google gives you distributors. Alibaba barely has Korean suppliers. EC21/BuyKorea work but you spend hours filtering through dead listings.
 
-So I built **GloSource AI** — you type a product, it scans EC21 · BuyKorea (KOTRA-operated, government-backed) · tradeKorea simultaneously, ranks suppliers by trust score, and generates a pre-filled English RFQ you can send immediately.
+So I built **GloSource AI** — you type a product, it researches public Korean sourcing channels, organizes supplier candidates by evidence signals, and prepares an English RFQ draft for your review.
 
 **What it shows per supplier:**
-- Trust score 0–100 with Listing Quality breakdown
-- MFDS / HACCP / KC / KS certification signals
-- Est. MOQ, unit price, lead time
-- AEO customs-certified companies flagged separately
+- AI-estimated trust and listing-quality signals
+- Registry matches and certification mentions with their evidence state
+- Published, estimated, or unknown MOQ and pricing shown separately
+- Source links and an RFQ draft for independent verification
 
-5 free anonymous searches, no credit card. Free account gets 10 searches/month after email verification: **glosourceai.com/en**
+Create a free account for 3 free searches per month. No credit card required: **glosourceai.com/en**
 
 Would love brutal feedback from people who actually source from Korea.`,
   },
   {
     subreddit: 'ecommerce',
-    title: "Free tool to find Korean suppliers for K-beauty, K-food, electronics OEM — AI-ranked with trust scores",
+    title: "Free tool to research Korean suppliers for K-beauty, K-food, and electronics OEM",
     text: `Quick share — spent months building a sourcing tool specifically for Korean manufacturers after wasting too much time on EC21 with no real results.
 
-**GloSource AI**: describe your product → AI scans EC21, BuyKorea (KOTRA gov-operated), tradeKorea → returns ranked supplier candidates with:
+**GloSource AI**: describe your product → review supplier candidates gathered from public Korean sourcing channels with:
 
-- Certification signals (MFDS, HACCP, KC, KS, ISO)
-- Estimated MOQ & unit price
-- Pre-filled English RFQ draft ready to send
-- AEO customs-certified companies highlighted
+- Registry matches and certification mentions labeled by evidence state
+- Published, estimated, or unknown MOQ and price context
+- A pre-filled English RFQ draft to review before sending
+- Source links for independent verification
 
 Best for: K-beauty OEM, Korean food wholesale, private label cosmetics, electronics (KC-certified).
 
-**Free search:** glosourceai.com/en
+**Create an account for 3 free searches per month:** glosourceai.com/en
 
 Happy to answer questions about Korean sourcing in general too.`,
   },
   {
     subreddit: 'dropship',
-    title: "Korean supplier finder — K-beauty, K-food, electronics. AI trust scores + RFQ draft. Free to try.",
+    title: "Korean supplier research — K-beauty, K-food, electronics, and an RFQ draft. Free to try.",
     text: `If you're trying to source from Korea and hitting walls on Alibaba (barely any Korean suppliers) or spending hours on EC21 with no results — I made something that might help.
 
-**GloSource AI** scans EC21 · BuyKorea (KOTRA) · tradeKorea and returns ranked supplier candidates with trust scores, certification signals (MFDS, HACCP, KC), and a ready-to-send English RFQ.
+**GloSource AI** organizes candidates from public Korean sourcing channels, labels company and certification signals by evidence state, and prepares an English RFQ draft for you to review. It is a research shortcut, not a supplier audit.
 
-5 free anonymous searches: glosourceai.com/en
+Create an account for 3 free searches per month: glosourceai.com/en
 
 Feedback welcome.`,
   },

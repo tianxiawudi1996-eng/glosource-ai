@@ -37,7 +37,7 @@ const TWEETS = [
 
 Build a focused shortlist with source links and an English RFQ.
 
-Try 5 searches free → https://glosourceai.com/en?utm_source=x&utm_medium=organic&utm_campaign=jul26&utm_content=01`,
+Create an account for 3 free searches per month → https://glosourceai.com/en?utm_source=x&utm_medium=organic&utm_campaign=jul26&utm_content=01`,
 
   `Sourcing from Korea?
 
