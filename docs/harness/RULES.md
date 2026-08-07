@@ -24,6 +24,17 @@
 7. STATUS, STATE, TASK_QUEUE를 구현과 함께 갱신.
 8. 게이트는 숨기지 않고 묶어서 보고.
 
+## Lifecycle Rules
+
+1. 세션 시작 시 `npm run lifecycle:validate`와 `npm run lifecycle:status`를 실행한다.
+2. 현재 lifecycle phase와 READY 작업 범위가 일치하지 않으면 구현하지 않는다.
+3. phase를 건너뛰거나 과거 phase를 증거 없이 완료 처리하지 않는다.
+4. phase 완료는 manifest의 모든 exit criterion과 approval gate 참조가 있을 때만 기록한다.
+5. `npm run lifecycle:complete -- <evidence.json>`이 생성한 보고서와 state 전이를 분리하지 않는다.
+6. approval reference는 외부 행동 권한이 아니며 실제 실행은 기존 승인 규칙을 다시 적용한다.
+7. lifecycle evidence에는 비밀값, reviewer 신원, 이메일, provider payload, 원시 민감 로그를 넣지 않는다.
+8. P16 retirement는 파괴적 작업이므로 별도 사람 승인과 복구·데이터 증거 없이는 시작하지 않는다.
+
 ## Data Rules
 
 - 예시·더미·본인 테스트는 외부 KPI에서 제외한다.

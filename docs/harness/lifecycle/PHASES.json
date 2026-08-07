@@ -1,0 +1,246 @@
+{
+  "schemaVersion": "1.0.0",
+  "lifecycleId": "glosource-product-lifecycle-v1",
+  "phases": [
+    {
+      "id": "P00",
+      "slug": "intake-strategy",
+      "title": "Intake and Strategy",
+      "prompt": "docs/harness/lifecycle/prompts/P00_INTAKE_STRATEGY.md",
+      "next": "P01",
+      "externalEffect": false,
+      "exitCriteria": [
+        {"id": "GOAL_DEFINED", "description": "The user, problem, measurable state change, and owner are defined."},
+        {"id": "SCOPE_BOUNDARY_DEFINED", "description": "Included and excluded scope are explicit."},
+        {"id": "SUCCESS_METRICS_DEFINED", "description": "Success and stop metrics have evidence methods."}
+      ],
+      "approvalGates": []
+    },
+    {
+      "id": "P01",
+      "slug": "discovery-evidence",
+      "title": "Discovery and Evidence",
+      "prompt": "docs/harness/lifecycle/prompts/P01_DISCOVERY_EVIDENCE.md",
+      "next": "P02",
+      "externalEffect": false,
+      "exitCriteria": [
+        {"id": "CURRENT_STATE_AUDITED", "description": "Repository, product, user, and operational baselines are directly inspected."},
+        {"id": "EVIDENCE_SOURCES_RECORDED", "description": "Facts link to reproducible evidence sources."},
+        {"id": "RISKS_ASSUMPTIONS_SEPARATED", "description": "Confirmed facts, assumptions, unknowns, and risks are separated."}
+      ],
+      "approvalGates": []
+    },
+    {
+      "id": "P02",
+      "slug": "requirements",
+      "title": "Requirements",
+      "prompt": "docs/harness/lifecycle/prompts/P02_REQUIREMENTS.md",
+      "next": "P03",
+      "externalEffect": false,
+      "exitCriteria": [
+        {"id": "REQUIREMENTS_TESTABLE", "description": "Functional requirements are observable and testable."},
+        {"id": "FLOWS_EXCEPTIONS_DEFINED", "description": "Normal, empty, error, retry, and permission flows are defined."},
+        {"id": "NONFUNCTIONAL_GATES_DEFINED", "description": "Security, privacy, performance, accessibility, and compatibility targets are defined."}
+      ],
+      "approvalGates": ["G_PRODUCT_SCOPE"]
+    },
+    {
+      "id": "P03",
+      "slug": "functional-design",
+      "title": "Functional Design",
+      "prompt": "docs/harness/lifecycle/prompts/P03_FUNCTIONAL_DESIGN.md",
+      "next": "P04",
+      "externalEffect": false,
+      "exitCriteria": [
+        {"id": "USER_FLOW_MODELED", "description": "Start points, steps, decisions, and user outcomes are modeled."},
+        {"id": "STATE_TRANSITIONS_DEFINED", "description": "Inputs, outputs, ownership, and state transitions are explicit."},
+        {"id": "ERROR_RECOVERY_DEFINED", "description": "Failure, retry, rollback, and recovery behaviors are defined."}
+      ],
+      "approvalGates": []
+    },
+    {
+      "id": "P04",
+      "slug": "architecture-infrastructure",
+      "title": "Architecture and Infrastructure",
+      "prompt": "docs/harness/lifecycle/prompts/P04_ARCHITECTURE_INFRASTRUCTURE.md",
+      "next": "P05",
+      "externalEffect": false,
+      "exitCriteria": [
+        {"id": "COMPONENT_BOUNDARIES_DEFINED", "description": "Components, responsibilities, and interfaces are defined."},
+        {"id": "EXTERNAL_DEPENDENCIES_DEFINED", "description": "Runtime, provider, configuration, cost, and availability dependencies are defined."},
+        {"id": "OBSERVABILITY_ROLLBACK_DEFINED", "description": "Logs, metrics, alerts, deployment, and rollback paths are designed."}
+      ],
+      "approvalGates": ["G_ARCHITECTURE_DECISION"]
+    },
+    {
+      "id": "P05",
+      "slug": "data-security-privacy",
+      "title": "Data, Security and Privacy",
+      "prompt": "docs/harness/lifecycle/prompts/P05_DATA_SECURITY_PRIVACY.md",
+      "next": "P06",
+      "externalEffect": false,
+      "exitCriteria": [
+        {"id": "DATA_MODEL_LIFECYCLE_DEFINED", "description": "Entities, ownership, integrity, retention, deletion, and provenance are defined."},
+        {"id": "AUTH_PRIVACY_THREATS_REVIEWED", "description": "Authorization, secrets, privacy, abuse, and threat boundaries are reviewed."},
+        {"id": "MIGRATION_ROLLBACK_DEFINED", "description": "Schema and data migration compatibility and rollback are defined."}
+      ],
+      "approvalGates": ["G_SECURITY_PRIVACY"]
+    },
+    {
+      "id": "P06",
+      "slug": "ui-ux-content",
+      "title": "UI, UX and Content",
+      "prompt": "docs/harness/lifecycle/prompts/P06_UI_UX_CONTENT.md",
+      "next": "P07",
+      "externalEffect": false,
+      "exitCriteria": [
+        {"id": "CONTENT_HIERARCHY_DEFINED", "description": "Information priority, navigation, and primary action are defined."},
+        {"id": "RESPONSIVE_ACCESSIBLE_STATES_DEFINED", "description": "Responsive, accessibility, loading, empty, error, and success states are defined."},
+        {"id": "TOKENS_COMPONENTS_DEFINED", "description": "Meaning-based tokens and reusable component states are defined."}
+      ],
+      "approvalGates": ["G_UI_CONTENT"]
+    },
+    {
+      "id": "P07",
+      "slug": "implementation-planning",
+      "title": "Implementation Planning",
+      "prompt": "docs/harness/lifecycle/prompts/P07_IMPLEMENTATION_PLANNING.md",
+      "next": "P08",
+      "externalEffect": false,
+      "exitCriteria": [
+        {"id": "UNITS_DEPENDENCIES_DEFINED", "description": "Vertical implementation units and dependencies are ordered."},
+        {"id": "FILES_TESTS_MAPPED", "description": "Owning files, patterns, and tests are mapped per unit."},
+        {"id": "RISKS_DONE_CRITERIA_DEFINED", "description": "Risks, stop conditions, and done criteria are explicit."}
+      ],
+      "approvalGates": []
+    },
+    {
+      "id": "P08",
+      "slug": "implementation",
+      "title": "Implementation",
+      "prompt": "docs/harness/lifecycle/prompts/P08_IMPLEMENTATION.md",
+      "next": "P09",
+      "externalEffect": false,
+      "exitCriteria": [
+        {"id": "IMPLEMENTATION_COMPLETE", "description": "All planned vertical units are implemented without hidden scope expansion."},
+        {"id": "UNIT_TESTS_GREEN", "description": "Changed behavior has direct tests and focused checks pass."},
+        {"id": "CHANGE_DOCS_UPDATED", "description": "Affected contracts, decisions, and operator documentation are updated."}
+      ],
+      "approvalGates": []
+    },
+    {
+      "id": "P09",
+      "slug": "verification-qa",
+      "title": "Verification and QA",
+      "prompt": "docs/harness/lifecycle/prompts/P09_VERIFICATION_QA.md",
+      "next": "P10",
+      "externalEffect": false,
+      "exitCriteria": [
+        {"id": "STATIC_INTEGRATION_E2E_GREEN", "description": "Static, unit, integration, and applicable end-to-end gates pass."},
+        {"id": "REGRESSION_ACCESSIBILITY_SECURITY_REVIEWED", "description": "Regression, accessibility, performance, and security risks are reviewed."},
+        {"id": "DEFECTS_RESOLVED_OR_RECORDED", "description": "Blocking defects are fixed and accepted residuals are durably recorded."}
+      ],
+      "approvalGates": []
+    },
+    {
+      "id": "P10",
+      "slug": "release-readiness",
+      "title": "Release Readiness",
+      "prompt": "docs/harness/lifecycle/prompts/P10_RELEASE_READINESS.md",
+      "next": "P11",
+      "externalEffect": false,
+      "exitCriteria": [
+        {"id": "CLEAN_PROVENANCE_VERIFIED", "description": "Release inputs have attributable clean provenance."},
+        {"id": "REQUIRED_CONFIG_NAMES_VERIFIED", "description": "Required Production configuration names and control-plane protections are verified."},
+        {"id": "RELEASE_ARTIFACT_SMOKE_GREEN", "description": "The packaged release passes integrity and runtime smoke checks."},
+        {"id": "CHANGE_ROLLBACK_APPROVED", "description": "Change scope, migration, monitoring, and rollback plan are accepted."}
+      ],
+      "approvalGates": ["G_RELEASE", "G_PRODUCTION_CONTROL_PLANE_CHANGE"]
+    },
+    {
+      "id": "P11",
+      "slug": "staging-uat",
+      "title": "Staging and UAT",
+      "prompt": "docs/harness/lifecycle/prompts/P11_STAGING_UAT.md",
+      "next": "P12",
+      "externalEffect": true,
+      "exitCriteria": [
+        {"id": "STAGING_DEPLOYED", "description": "The approved candidate is deployed to a non-Production validation environment."},
+        {"id": "INTEGRATION_UAT_GREEN", "description": "Integration, smoke, and representative user acceptance checks pass."},
+        {"id": "MIGRATION_ROLLBACK_REHEARSED", "description": "Applicable migration and rollback paths are rehearsed or explicitly not required."}
+      ],
+      "approvalGates": ["G_STAGING_EXTERNAL"]
+    },
+    {
+      "id": "P12",
+      "slug": "production-deployment",
+      "title": "Production Deployment",
+      "prompt": "docs/harness/lifecycle/prompts/P12_PRODUCTION_DEPLOYMENT.md",
+      "next": "P13",
+      "externalEffect": true,
+      "exitCriteria": [
+        {"id": "PRODUCTION_CHANGE_APPLIED", "description": "Only the approved candidate and migrations are applied to Production."},
+        {"id": "PRODUCTION_SMOKE_GREEN", "description": "Critical Production routes and safety controls pass smoke checks."},
+        {"id": "DEPLOYMENT_RECEIPT_RECORDED", "description": "Deployment identity, target, time, and rollback reference are recorded."}
+      ],
+      "approvalGates": ["G_PRODUCTION_DEPLOY"]
+    },
+    {
+      "id": "P13",
+      "slug": "post-deploy-validation",
+      "title": "Post-Deploy Validation",
+      "prompt": "docs/harness/lifecycle/prompts/P13_POST_DEPLOY_VALIDATION.md",
+      "next": "P14",
+      "externalEffect": false,
+      "exitCriteria": [
+        {"id": "HEALTH_SIGNALS_GREEN", "description": "Expected logs, metrics, routes, and product signals are healthy."},
+        {"id": "FAILURE_SIGNALS_ABSENT", "description": "Defined rollback triggers and critical failure signals are absent."},
+        {"id": "ROLLBACK_WINDOW_CLOSED", "description": "The validation window closes with an explicit keep or rollback decision."}
+      ],
+      "approvalGates": []
+    },
+    {
+      "id": "P14",
+      "slug": "operations",
+      "title": "Operations",
+      "prompt": "docs/harness/lifecycle/prompts/P14_OPERATIONS.md",
+      "next": "P15",
+      "externalEffect": false,
+      "exitCriteria": [
+        {"id": "RUNBOOK_ALERTS_OWNERS_DEFINED", "description": "Runbooks, alerts, escalation, and ownership are operational."},
+        {"id": "SLO_COST_CAPACITY_REVIEWED", "description": "Service levels, cost, capacity, and availability are reviewed."},
+        {"id": "SUPPORT_INCIDENT_FLOW_ACTIVE", "description": "Support, incident, recovery, and learning flows are active."}
+      ],
+      "approvalGates": []
+    },
+    {
+      "id": "P15",
+      "slug": "maintenance-iteration",
+      "title": "Maintenance and Iteration",
+      "prompt": "docs/harness/lifecycle/prompts/P15_MAINTENANCE_ITERATION.md",
+      "next": "P16",
+      "externalEffect": false,
+      "exitCriteria": [
+        {"id": "FEEDBACK_METRICS_REVIEWED", "description": "User feedback, incidents, and outcome metrics are reviewed with evidence."},
+        {"id": "DEBT_DEPENDENCIES_PRIORITIZED", "description": "Technical debt, security, and dependency work are prioritized."},
+        {"id": "RETIREMENT_PATH_SELECTED", "description": "Ongoing iteration has ended and the retirement path is explicitly selected."}
+      ],
+      "approvalGates": []
+    },
+    {
+      "id": "P16",
+      "slug": "retirement",
+      "title": "Retirement",
+      "prompt": "docs/harness/lifecycle/prompts/P16_RETIREMENT.md",
+      "next": null,
+      "externalEffect": true,
+      "exitCriteria": [
+        {"id": "RETIREMENT_DECISION_APPROVED", "description": "Retirement scope, owner, timing, and user communication are approved."},
+        {"id": "DATA_EXPORT_DELETION_COMPLETED", "description": "Retention, export, deletion, legal, and audit obligations are completed."},
+        {"id": "TRAFFIC_DEPENDENCIES_REMOVED", "description": "Traffic, credentials, jobs, integrations, and billing dependencies are removed."},
+        {"id": "POST_RETIREMENT_REPORT_COMPLETE", "description": "Final outcome, cost, incidents, and reusable lessons are recorded."}
+      ],
+      "approvalGates": ["G_RETIREMENT"]
+    }
+  ]
+}

@@ -1,14 +1,15 @@
 {
   "schema_version": "1.0.0",
-  "project": "GloSource AI + K-DEFENSE Validation OS",
+  "project": "GloSource AI Validation OS (legacy K-DEFENSE evidence retained)",
   "repo": "tianxiawudi1996-eng/glosource-ai",
-  "calibrated_at": "2026-07-18T00:13:22+09:00",
-  "current_branch": "chore/harness-cal-0623",
-  "head_sha": "c4b3d8b34bff3078521c13ac0f5423a3c42f3730",
-  "main_sha": "auto-promoted by .github/workflows/promote.yml on every green push",
-  "origin_main_sha": "auto-promoted by .github/workflows/promote.yml on every green push",
-  "main_synced": true,
-  "track": "decision_report",
+  "calibrated_at": "2026-08-07T21:10:56+09:00",
+  "current_branch": "codex/p10-provenance-reconstruction",
+  "head_sha": "d0d3ba8488f423e9e3bfa41413549df5513d89c7",
+  "main_sha": "cdaae3d29ff6532290ba86cadb6d7afd76b27fb5",
+  "origin_main_sha": "eed52fd887dad608a2e156573f8fbbe9f4f02176",
+  "main_synced": false,
+  "source_state": "approved five-increment reconstruction; d0d3ba8 is the pre-integration parent and the final integration commit contains this state; read live HEAD for the resulting candidate identity",
+  "track": "full_lifecycle_goal_harness",
   "latest_harness_artifact": {
     "id": "FINAL-14-DAY-REPORT",
     "path": "docs/harness/FINAL_14_DAY_REPORT.md",
@@ -20,6 +21,72 @@
     "path": "docs/harness/reports/2026-07-18-evidence-audit.md",
     "state": "partial_external_gate",
     "summary": "Revenue/funnel, payment, case-study extraction, acquisition dry-run, buyer activity and ops sync passed. Buyer KPIs remain users_7d=0, searches_7d=0, payments=0, active_subscriptions=0 and case-study candidates=0. Reply triage failed only because four Gmail OAuth variables are absent; no external send ran."
+  },
+  "production_remediation_approval": {
+    "state": "local_preferences_awaiting_decisions",
+    "packet_status": "awaiting_decisions",
+    "readiness_status": "blocked",
+    "mutation_status": "not_attempted_by_design",
+    "provider_mutation_authorized": false,
+    "summary": "A local-only packet now records four non-sensitive remediation preferences against a digest of the sanitized control-plane audit, required environment-name contract, and promote workflow. The tracked example defers every preference. Secret values, reviewer identities, exact branch patterns, provider writes, workflow dispatch, push, promotion, and deployment remain outside the contract."
+  },
+  "production_remediation_execution_preflight": {
+    "state": "local_preflight_awaiting_preferences",
+    "preflight_status": "awaiting_preferences",
+    "readiness_status": "blocked",
+    "execution_approval_present": false,
+    "provider_mutation_authorized": false,
+    "mutation_status": "not_attempted_by_design",
+    "proposed_action_count": 0,
+    "summary": "A local-only wrapper now rebuilds the canonical remediation approval packet and maps it to human-handoff readiness. The tracked deferred input emits no action codes. Even handoff_ready would carry no execution approval, command, provider payload, secret, reviewer identity, or exact branch pattern."
+  },
+  "lifecycle_harness": {
+    "lifecycle_id": "glosource-product-lifecycle-v1",
+    "state_path": "docs/harness/lifecycle/STATE.json",
+    "manifest_path": "docs/harness/lifecycle/PHASES.json",
+    "historical_phases_backfilled": false,
+    "summary": "The lifecycle layer defines P00-P16 with one prompt, exit contract, approval boundary, and completion report per phase. Current adoption begins honestly at the observed P10 release-readiness boundary; P00-P09 are not retroactively marked complete."
+  },
+  "agent_instruction_harness": {
+    "state": "adopted_local",
+    "instructions_path": "AGENTS.md",
+    "check_command": "npm run harness:instructions",
+    "report_path": "docs/harness/AGENTS_INSTRUCTION_ADOPTION_REPORT.md",
+    "external_actions": 0,
+    "summary": "The duplicated generic instruction attachment was normalized into a single GloSource-specific root contract covering KR/EN product truth, Next.js App Router, Drizzle/Neon, security, UI, lifecycle, verification, release approval, and honest completion. A local drift checker protects required sections, references, commands, the managed Next.js block, and transcript contamination."
+  },
+  "latest_p10_readiness_audit": {
+    "audited_at": "2026-08-07T20:37:03+09:00",
+    "state": "blocked",
+    "report_path": "docs/harness/reports/2026-08-07-p10-release-readiness-refresh.md",
+    "tracked_modified_count": 27,
+    "untracked_count": 56,
+    "local_required_names": "17/22",
+    "vercel_production_required_names": "20/22",
+    "github_production_protected": false,
+    "phase_advanced": false,
+    "external_actions": 0,
+    "summary": "Fresh read-only evidence confirms mixed dirty provenance, two missing Vercel Production names, absent GitHub reviewer/self-review/branch policy protection, a stale archive relative to the current candidate, and missing approvals. P10 remains blocked and P11 was not started."
+  },
+  "latest_provenance_partition": {
+    "state": "executed_locally",
+    "report_path": "docs/harness/reports/2026-08-07-p10-provenance-partition.md",
+    "snapshot_file_count": 83,
+    "coverage_count": 83,
+    "increment_count": 5,
+    "git_mutation_performed": true,
+    "phase_advanced": false,
+    "summary": "The approved worktree partition was reconstructed on codex/p10-provenance-reconstruction as four domain commits followed by a lifecycle/root harness integration commit. The original branch was preserved. No push, provider mutation, workflow dispatch, promotion, or deployment occurred."
+  },
+  "latest_provenance_reconstruction": {
+    "state": "local_commits_complete",
+    "branch": "codex/p10-provenance-reconstruction",
+    "report_path": "docs/harness/reports/2026-08-07-p10-provenance-reconstruction.md",
+    "commits_before_integration": ["252d6cb", "9edbd83", "54b1f37", "d0d3ba8"],
+    "original_branch_preserved": true,
+    "pushed": false,
+    "deployed": false,
+    "summary": "Release integrity, Production governance, public claims/growth, and SNS whitepaper are committed as separate verified increments. The final integration commit carries lifecycle, root agent instructions, reports, and consolidated state; the full 200-test suite and all local harness guards are green."
   },
   "latest_working_tree_increment": {
     "id": "GLO-FOOD-BIZRNO-REGISTRY",
@@ -46,7 +113,7 @@
     "sha": "ef082d8 + a4c4b76 (chore/harness-cal-0623; pushed; prod DB seeded with operator approval)",
     "summary": "2026-07-12: the 'GloSource Verified' badge sat only on three mega-ODMs, so an indie brand with a 1,000-unit budget was being pointed at factories that would not take their order — a trust claim we cannot cash. Curated four more K-Beauty manufacturers using the product's own method: web discovery, then cross-check against the government registries we already ingest (MFDS kr_cosmetics_firms induty=화장품제조 for the manufacturing licence + business-reg number + plant address; MFDS CGMP list matched on business-reg number). The registry did real work and rejected most of what the web calls a low-MOQ Korean factory: Laonhase advertises the lowest MOQ anyone does (300 units) yet has NO MFDS manufacturing record under that name (exactly the trap our buyers fall into); Factosquare is 화장품책임판매 only (a brand owner); Selfcos and Smallcosmetic have no record at all; OEMKorea/CosKorea/Crescent Seoul/Mayk/Sourcing Lab/KPrivateLabel are sourcing agencies that outrank real factories and resell someone else's plant. Survivors: NOWCOS and Hankook Cosmo (CGMP-certified, mid-size, publish no MOQ) and COSMEDIQUE and CTK (publish a 1,000-unit MOQ but are NOT CGMP-listed) — the notes state that trade-off plainly rather than implying every badged supplier is both cheap to start with and top-certified. COSMAX was corrected, not just kept: its 2023 indie programme dropped the minimum from 10,000 to 1,000 units, so the old 'typically high MOQ' note had been steering away the exact buyer it was meant to help; the seed now upserts instead of skipping, or a stale note would survive forever precisely because the row exists. Critically, seeding alone changed NOTHING for buyers: dbFallbackOutput injected only two curated rows with no ORDER BY, so insertion order handed every search to the mega-ODMs — fixed in a4c4b76 (MOQ ascending, NULLS LAST) and verified against the production table (a serum query now injects COSMAX 1,000 + COSMEDIQUE 1,000). 6 new honesty-invariant tests: a CGMP claim must match the government list by business-reg number, an MOQ must be the company's own published figure or null, trustScore stays null, and the rejected middlemen cannot reappear. Green: tsc, eslint (0 errors), npm test 25/25, next build. Prior increments this branch: GLO-EN-JSONLD-PRICE (8306d94), GLO-EN-TRUSTANCHOR (7abe07a), GLO-EN-PAYHIST (406b411), GLO-HARDEN (a1e8f62)."
   },
-  "next_ready_task": "None. GLO-FOOD-BIZRNO-REGISTRY is implemented locally; activation is blocked on DART_API_KEY and approved production migration/ingest. Remaining work is gated on real leads, outbound approval, payment evidence, or private analytics.",
+  "next_ready_task": "None. Production remediation preferences still require human choices, and every provider setting change remains separately gated. Other remaining work is gated on DART_API_KEY/prod ingest, real leads, outbound approval, payment evidence, or private analytics.",
   "resource_allocation": {
     "glosource_percent": 80,
     "k_defense_percent": 20,
@@ -147,8 +214,8 @@
     },
     {
       "flag": "branch_not_merged",
-      "state": "resolved",
-      "resolves_in": "Resolved 2026-07-11 (cdaae3d): .github/workflows/promote.yml runs build + tests on every branch push and fast-forwards master only when they pass, which Vercel then deploys. Merge is no longer a human gate; a red build is the gate. Escape hatch [no-promote] is read from the commit subject line only."
+      "state": "manual_dispatch_preferences_packet_available_external_protection_missing",
+      "resolves_in": "2026-08-05 working tree: npm run readiness:control-plane confirms the linked glosource-ai Vercel target is missing AUTH_TRUST_HOST and DATAGO_SERVICE_KEY, while GitHub Production has no required reviewer, self-review prevention, or deployment branch policy. A local preference packet now records non-sensitive choices and rejects master-only policy as incompatible, but it never authorizes provider mutation. Reviewer identity, secret entry, exact branch pattern and every remote promotion test still require explicit operator approval."
     },
     {
       "flag": "seed_suppliers_wrong_icp",
@@ -187,22 +254,40 @@
     "outbound_send_approval",
     "payment_test_approval",
     "social_publish_approval",
+    "github_production_environment_protection_configuration",
     "private_platform_analytics_access"
   ],
   "verification": {
-    "last_green_at": "2026-07-17T23:44:28+09:00",
+    "last_green_at": "2026-08-07T20:20:00+09:00",
     "commands": [
-      "npm test -> 109/109 pass",
+      "npm run harness:instructions -> clean",
+      "npx tsx --test tests/agent-instructions.test.ts -> 3/3 pass",
+      "npx tsx --test tests/lifecycle-harness.test.ts -> 8/8 pass",
+      "npm test -> 200/200 pass",
+      "npm run lifecycle:validate -> clean",
+      "npm run lifecycle:status -> brownfield P10 blocked with prompt, blockers, and approvals",
+      "npm run lifecycle:start -> expected exit 1 while blocked; lifecycle state hash unchanged",
       "npx tsc --noEmit -> exit 0",
       "npm run lint -> 0 errors; 1 pre-existing unrelated warning in _measure-attach.ts",
-      "npm run build -> exit 0; 89 static pages generated",
+      "npm run build -> last run 2026-08-04; exit 0; 89 static pages generated; not rerun for the 2026-08-07 documentation-and-local-CLI increment",
       "git diff --check -> exit 0; line-ending warnings only",
       "node scripts/check-sensitive-strings.mjs .harness-blocklist.local -> clean",
       "node scripts/check-harness-placeholders.mjs docs/harness -> clean",
       "node scripts/check-state-json.mjs docs/harness/STATE.json -> clean",
       "npm run growth:audit -> pass",
-      "npm run growth:payments -> pass"
+      "npm run growth:payments -> pass",
+      "npm run growth:live-contract -> 7/7 official routes pass",
+      "npm run growth:social:dry-run -> pass for X, Threads, Instagram",
+      "npm run growth:daily -> pass; 0 case-study candidates extracted",
+      "npm run growth:acquisition:gate -> pass",
+      "npx tsx --test tests/control-plane-readiness.test.ts -> 8/8 pass",
+      "npm run readiness:control-plane -> expected blocked; Vercel Production 20/22 with AUTH_TRUST_HOST and DATAGO_SERVICE_KEY missing; GitHub Production has no required reviewer, self-review prevention, or deployment branch policy; values and reviewer identities excluded",
+      "npx tsx --test tests/production-remediation-approval.test.ts -> 11/11 pass",
+      "npm run readiness:remediation-approval -- deferred example + sanitized audit snapshot -> expected awaiting_decisions; readiness remains blocked; provider mutation authority false; secrets, reviewer identities and commands excluded",
+      "npx tsx --test tests/production-remediation-execution-preflight.test.ts -> 6/6 pass",
+      "npx tsx --test tests/production-remediation-approval.test.ts tests/production-remediation-execution-preflight.test.ts -> 17/17 pass",
+      "npm run readiness:remediation-preflight -- deferred example + current sanitized audit snapshot -> expected awaiting_preferences; readiness blocked; no action codes; execution approval and provider mutation authority false"
     ],
-    "summary": "2026-07-17: GLO-FOOD-BIZRNO-REGISTRY is locally complete and fully green. The original READY assumption was rejected because official food-licence data has no business-registration number; the implementation uses OpenDART company profiles, unique exact normalized matching, and fail-closed conflict handling. No OpenDART key was available, no production migration/ingest or curated-number write ran, and KPIs remain unchanged."
+    "summary": "2026-08-07 the GloSource-specific root AGENTS contract and P00-P16 lifecycle harness are locally adopted: the instruction drift check, 3 focused instruction tests, 8 focused lifecycle tests, 200 full tests, lifecycle validation, typecheck, lint, state, placeholder, sensitive-string, and diff checks are green. The brownfield baseline remains honestly blocked at P10; P00-P09 were not backfilled. The control-plane audit remains blocked at Vercel 20/22 and absent GitHub protections. No provider setting, secret entry, external send, commit, push, workflow dispatch, promotion, deployment, production migration, or historical phase completion ran. The production build was not rerun for this instruction-and-local-harness increment; its last 2026-08-04 result remains green."
   }
 }

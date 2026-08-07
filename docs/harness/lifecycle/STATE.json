@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "1.0.0",
+  "lifecycleId": "glosource-product-lifecycle-v1",
+  "runId": "GLO-BROWNFIELD-20260807",
+  "mode": "brownfield",
+  "baselinePhase": "P10",
+  "activePhase": "P10",
+  "status": "blocked",
+  "phaseStartedAt": "2026-08-07T08:07:50+09:00",
+  "completedPhases": [],
+  "reportIndex": [],
+  "blockers": [
+    "VERCEL_PRODUCTION_REQUIRED_NAMES_MISSING",
+    "GITHUB_PRODUCTION_REVIEW_PROTECTION_MISSING",
+    "REMEDIATION_PREFERENCES_NOT_RECORDED",
+    "FRESH_EXECUTION_APPROVAL_ABSENT"
+  ],
+  "approvalsPending": [
+    "G_RELEASE",
+    "G_PRODUCTION_CONTROL_PLANE_CHANGE"
+  ],
+  "lastValidatedAt": null
+}

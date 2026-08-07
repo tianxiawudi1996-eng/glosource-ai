@@ -2,16 +2,17 @@
 
 ## Session Start
 
-1. `PROJECT_OS.md` 읽기.
-2. 캘리브레이션 명령 실행.
-3. git, STATE, STATUS, TASK_QUEUE 대조.
-4. 기본 브랜치와 dirty worktree 위험 확인.
-5. READY 최상단 1개 범위 잠금.
+1. `PROJECT_OS.md`와 `lifecycle/LIFECYCLE.md` 읽기.
+2. `npm run lifecycle:validate`와 `npm run lifecycle:status` 실행.
+3. 캘리브레이션 명령 실행.
+4. git, STATE, STATUS, TASK_QUEUE와 lifecycle STATE 대조.
+5. 기본 브랜치와 dirty worktree 위험 확인.
+6. 활성 phase와 일치하는 READY 최상단 1개 범위 잠금.
 
 ## Increment Loop
 
 ```text
-Inspect → Select READY 1 → Plan → Implement → Update → Test → Report
+Validate Lifecycle → Read Active Prompt → Select READY 1 → Work Phase → Verify Exit Gate → Complete + Report → Next Phase
 ```
 
 ## Project Allocation
@@ -33,9 +34,11 @@ Inspect → Select READY 1 → Plan → Implement → Update → Test → Report
 
 1. 모든 변경 파일 확인.
 2. 테스트·guardrail 결과 기록.
-3. STATE, STATUS, TASK_QUEUE 갱신.
-4. `REPORT_TEMPLATE.md` 형식으로 보고.
-5. 커밋·push·외부 행동은 게이트로 요청.
+3. phase가 완료됐다면 제한된 evidence JSON으로 `lifecycle:complete`를 실행해 보고서와 다음 상태를 함께 생성.
+4. 미완료 또는 blocked면 lifecycle STATE를 완료로 바꾸지 않고 blocker를 보고.
+5. STATE, STATUS, TASK_QUEUE 갱신.
+6. `REPORT_TEMPLATE.md` 형식으로 보고하고 lifecycle phase report를 연결.
+7. 커밋·push·외부 행동은 게이트로 요청.
 
 ## Failure Handling
 
@@ -46,3 +49,5 @@ Inspect → Select READY 1 → Plan → Implement → Update → Test → Report
 - 사용자 변경 충돌 위험: 즉시 중지하고 파일과 위험을 보고.
 - 외부 KPI 증거 부재: 0으로 기록하고 추정하지 않는다.
 - READY가 거짓: BLOCKED로 이동하고 다음 READY를 재검증.
+- lifecycle manifest/state/report 불일치: 기능 작업을 중지하고 `npm run lifecycle:validate` 오류부터 수리.
+- phase 완료 보고서 생성 실패: 상태 전이를 완료로 주장하지 않고 report/state 파일을 함께 감사.

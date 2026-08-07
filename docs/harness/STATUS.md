@@ -2,14 +2,95 @@
 
 ## Snapshot
 
-- Project: GloSource AI + K-DEFENSE Validation OS
-- Last calibrated: 2026-07-18 Asia/Seoul
-- Current branch: chore/harness-cal-0623
-- Head SHA: c4b3d8b34bff3078521c13ac0f5423a3c42f3730
-- Main synced: true — `promote.yml`가 브랜치 push마다 빌드+테스트를 돌리고 통과 시에만 master를 FF → Vercel 배포. 병합은 더 이상 수동 게이트가 아니다.
-- Current track: decision_report
-- Working-tree increment: GLO-FOOD-BIZRNO-REGISTRY(로컬 구현 green, prod 미실행)
-- Next READY: 없음. OpenDART 키·prod DB 활성화와 나머지 진행은 게이트(리드·발송·결제·비공개 분석).
+- Project: GloSource AI Validation OS (기존 K-DEFENSE 증거는 보존)
+- Last calibrated: 2026-08-07 Asia/Seoul
+- Current branch: codex/p10-provenance-reconstruction
+- Head SHA baseline: 14d4c09fab05f52240c723a86d6f8fe0f98e4167
+- Source state: 승인된 A-E 순서로 로컬 커밋 재구성 완료 단계. 원본 `chore/harness-cal-0623` branch는 보존했고 push·배포는 하지 않았다.
+- Main synced: false — `origin/master`는 eed52fd887dad608a2e156573f8fbbe9f4f02176. 브랜치 push는 검증만 수행하고, master 승격은 수동 dispatch·`PROMOTE` 확인·production 환경 승인이 필요하도록 로컬 변경됨.
+- Current track: full_lifecycle_goal_harness
+- Working-tree increment: P00 최초 기획부터 P16 retirement까지 phase별 metaprompt, exit criteria, approval gate, 상태 전이와 완료 보고서를 기존 Goal Harness에 통합했다.
+- Next READY: 없음. 다음 게이트 입력은 independent reviewer 정책·feature-ref 호환 branch 전략·`AUTH_TRUST_HOST` 선호·DATAGO secret 보관 가능 여부이며 실제 설정은 별도 승인 게이트다.
+
+## 2026-08-07 Full Lifecycle Goal Harness
+
+- `docs/harness/lifecycle/PHASES.json`이 P00-P16의 순서·prompt·exit criteria·approval gate·next phase를 정의한다.
+- 각 phase는 `docs/harness/lifecycle/prompts/`의 독립 metaprompt로 역할, 입력, 절차, 완료 게이트, 보고 의무, 승인 경계와 중단 조건을 가진다.
+- `npm run lifecycle:validate`는 manifest 순서, prompt 구조, state 연속성과 report link를 확인한다.
+- `npm run lifecycle:start`는 `ready` phase만 `in_progress`로 바꾸며 blocked phase를 우회하지 않는다.
+- `npm run lifecycle:complete -- <evidence.json>`은 현재 in-progress phase의 정확한 criteria와 approval만 받고, 비덮어쓰기 보고서 생성과 state 전이를 한 작업으로 처리한다.
+- 현재 제품은 brownfield P10 Release Readiness에서 blocked로 시작하며 P00-P09 과거 이력을 소급 완료하지 않았다.
+- dirty release provenance는 승인된 로컬 commit 재구성으로 해소했다. 현재 blocker는 Vercel 필수 이름 2개, GitHub Production 보호 규칙, remediation preferences와 fresh execution approval 부재다.
+- 외부 설정, secret 입력, commit, push, staging, Production 배포, 게시, 결제와 retirement 작업은 0건이다.
+
+## 2026-08-07 Root Agent Instruction Upgrade
+
+- 중복 본문과 채팅 타임스탬프가 포함된 범용 전역지침을 그대로 복사하지 않고, 실제 Next.js 15 App Router·React 19·Drizzle/Neon·KR/EN 제품 계약·P00-P16 Lifecycle에 맞춘 단일 루트 `AGENTS.md`로 정규화했다.
+- 기존 managed Next.js rule block을 보존하고 설치본에 `node_modules/next/dist/docs/`가 없을 때 읽었다고 주장하지 않는 fallback 경계를 추가했다.
+- `npm run harness:instructions`가 필수 섹션, 제품·Lifecycle 기준 링크, package 명령, managed Next block, 중복 제목과 채팅 transcript artifact를 검사한다.
+- `scripts/harness-precommit.sh`에 instruction drift 검사를 연결하고 3개 회귀 테스트를 추가했다.
+- 제품 runtime, provider 설정, 외부 발송, commit, push와 배포는 변경하거나 실행하지 않았다.
+
+## 2026-08-07 P10 Release Readiness Refresh
+
+- `readiness:product`는 local process 17/22와 dirty source를 확인해 예상대로 blocked다. 로컬 누락 이름은 5개이며 값은 출력하지 않았다.
+- Vercel Production read-only 재감사는 20/22로 `AUTH_TRUST_HOST`, `DATAGO_SERVICE_KEY` 누락을 다시 확인했다.
+- GitHub Production에는 required reviewer가 없고 self-review 방지와 deployment branch policy가 미구성 상태다.
+- 현재 worktree는 tracked 수정 27개와 untracked 56개로, 기존 2026-08-03 archive를 현재 후보 artifact 증거로 재사용할 수 없다.
+- P10 exit criteria 4개와 승인 2개는 모두 미충족이므로 P11로 전이하지 않았다.
+- 상세 증거: `docs/harness/reports/2026-08-07-p10-release-readiness-refresh.md`.
+- provider 변경, secret 입력, build/package, commit, push, dispatch, staging과 Production 배포는 0건이다.
+
+## 2026-08-07 P10 Provenance Partition
+
+- P10 dirty snapshot 83개를 release package integrity 6, Production governance 18, public claims/growth 11, SNS whitepaper 3, lifecycle/root harness 45의 5개 증분으로 83/83 분류했다.
+- `package.json`과 `docs/harness` 상태 문서는 마지막 integration 증분에 두어 중간 후보의 목적과 검증 범위를 흐리지 않도록 했다.
+- 순서는 A release integrity → B governance/readiness → C claims/growth → D whitepaper → E lifecycle/harness다.
+- 분할은 제안만 했으며 stage, commit, reset, checkout, branch 생성, push와 배포는 실행하지 않았다.
+- 상세: `docs/harness/reports/2026-08-07-p10-provenance-partition.md`.
+
+## 2026-08-07 P10 Provenance Reconstruction
+
+- 사용자 승인 후 `codex/p10-provenance-reconstruction` branch를 만들고 A `252d6cb`, B `9edbd83`, C `54b1f37`, D `d0d3ba8`의 4개 domain commit을 순서대로 생성했다.
+- E lifecycle/root harness integration은 전체 200/200 회귀검증과 instruction·lifecycle·state·placeholder·sensitive-string·diff guard를 통과했으며 최종 로컬 commit에 포함한다.
+- C는 focused 6/6, typecheck, lint, production build 89 routes, X·Threads·Instagram dry-run을 통과했다.
+- D의 기존 DOCX는 최신 builder 계약과 어긋나 초기 audit가 실패했지만 builder 재생성 후 구조 감사 전 항목을 통과했다. LibreOffice 부재로 PNG visual QA는 미검증이다.
+- 원본 branch를 reset·삭제하지 않았고 remote push, PR, provider 변경, dispatch, promotion, staging, Production 배포는 0건이다.
+- 상세: `docs/harness/reports/2026-08-07-p10-provenance-reconstruction.md`.
+
+## 2026-08-07 Production Remediation Execution Preflight
+
+- `npm run readiness:remediation-preflight -- <preferences.json> <sanitized-audit.json>`은 기존 approval packet을 다시 계산하고 사람 실행 승인 요청 준비 여부만 판정한다.
+- 현재 read-only control-plane 재감사는 Vercel Production 20/22와 GitHub 보호 규칙 부재를 다시 확인했으며 판정은 `blocked`다.
+- 추적 예시는 모든 선호와 digest를 보류하므로 `awaiting_preferences`, action code 0개다.
+- 모든 선호가 현재 digest에 기록된 경우에도 결과는 `handoff_ready`일 뿐이며 `executionApprovalPresent=false`, `providerMutationAuthorized=false`, `mutationStatus=not_attempted_by_design`이다.
+- action code는 변경 범주만 나타내며 비밀값·reviewer 신원·정확한 branch pattern·명령·provider payload를 포함하지 않는다.
+- Vercel/GitHub 변경, secret 입력, push, workflow dispatch, 승격, 배포와 외부 발송은 0건이다.
+
+## 2026-08-05 Production Remediation Preference Packet
+
+- `npm run readiness:remediation-approval -- <preferences.json> <sanitized-audit.json>`은 로컬 파일만 읽고 provider·network·subprocess adapter 없이 비식별 패킷을 stdout으로 반환한다.
+- 추적 예시는 네 선택과 context digest를 모두 보류한다. 현재 결과는 `awaiting_decisions`이며 Production readiness는 기존 감사의 `blocked`를 그대로 유지한다.
+- audit·`REQUIRED_PRODUCTION_ENV`·`promote.yml`로 context digest를 만들며, 이전 digest와 다르면 `stale`이다.
+- `protected_master_only`는 feature-ref에서 승인 후 `master`로 fast-forward하는 현재 흐름과 호환되지 않아 선택 완료로 인정하지 않는다.
+- 선택을 모두 기록해도 provider mutation 권한은 false이고 fresh execution approval과 post-change audit가 계속 필요하다.
+- 실제 preference packet은 이미 ignore된 `reports/harness/private/` 또는 `reports/harness/tmp/`에만 둔다. 비밀값·reviewer 신원·branch pattern은 입력 계약에서 받지 않는다.
+- Vercel/GitHub 설정 변경, push, workflow dispatch, 승격, 배포와 외부 발송은 0건이다.
+
+## 2026-08-05 Production Control Plane Audit
+
+- `npm run readiness:control-plane`은 Vercel·GitHub 원시 출력을 버리고 이름·개수·boolean만 반환하도록 구현됐다.
+- 실감사 결과 Vercel Production은 필수 22개 중 20개가 확인됐고 `AUTH_TRUST_HOST`, `DATAGO_SERVICE_KEY`가 누락됐다. 값은 보고서에 포함되지 않았다.
+- GitHub Production은 조회됐지만 required-reviewer 규칙이 없고 self-review 방지는 미구성이며 deployment branch policy도 없다.
+- 현재 판정은 의도된 `blocked`다. Vercel/GitHub 설정 변경, push, workflow dispatch, 승격과 배포는 실행하지 않았다.
+- `master` 전용 branch policy는 현재 feature-ref 승인 후 fast-forward하는 workflow를 막을 수 있어 자동 설정 대상에서 제외했다.
+
+## 2026-08-04 Evidence Boundary
+
+- 오늘 확인된 기술 증거: 164개 테스트, TypeScript, lint(오류 0·기존 경고 1), production build, growth audit, Polar 상품 계약, 운영 URL 7개 계약, X·Threads·Instagram social dry-run, daily growth audit, acquisition readiness가 통과했다.
+- 오늘 확인된 차단 증거: 로컬 product readiness는 필수 환경변수 이름 5개 누락과 dirty source로 blocked다. Vercel Production에는 필수 22개 중 20개가 있으며 `AUTH_TRUST_HOST`, `DATAGO_SERVICE_KEY`가 없다. 값은 조회하지 않았다. 오늘 사례 후보 추출은 0건이며 이를 고객 성과나 traction으로 확대 해석하지 않는다.
+- 마지막 구매자 활동 캡처는 2026-07-18 보고서다. 당시 users_7d=0, searches_7d=0, payments=0, active_subscriptions=0이며 현재 시장 상태로 확대 해석하지 않는다.
+- Polar 상품·링크 health 통과는 실제 결제·취소·환불 또는 수요 증거가 아니다.
 
 ## Final 14-Day Decision
 
@@ -40,7 +121,7 @@ GLO-EN-DBSEED-EXPAND @ ef082d8 + a4c4b76 (**prod DB 반영 완료**) — 'GloSou
 
 ## Current State
 
-- **배포 파이프라인 자동화됨**(2026-07-11, cdaae3d): 브랜치 push → `promote.yml` 빌드+테스트 → 통과 시 master FF → Vercel. 실패하면 master는 안 움직인다. 탈출구 `[no-promote]`는 커밋 **제목 줄**에만 유효.
+- **배포 파이프라인은 수동 승격형으로 로컬 수정됐지만 보호 환경 승인은 미구성**(2026-08-05 working tree): 브랜치 push는 검증만 수행하고 master FF는 수동 dispatch·`PROMOTE` 확인을 요구한다. `npm run readiness:control-plane`은 `Production` 환경에 required reviewer·self-review 방지·branch policy가 없음을 fail-closed로 확인한다. commit·push·배포는 하지 않았다.
 - 가격은 이제 `app/lib/plans.ts` 한 곳. 재가격 시 그 파일만 고치면 랜딩·billing·페이월·JSON-LD가 함께 움직이고, 단위테스트가 폐지가 재등장을 막는다.
 - 신뢰앵커는 EN에만 적용(KO/국내 미변경). 사업자등록번호 미포함(차장님 지시: 국내 사업자등록 보류).
 - KPI 전 항목 0 유지. 실제 고객·결제 증거 없음(조작 없음).
@@ -80,7 +161,7 @@ GLO-EN-DBSEED-EXPAND @ ef082d8 + a4c4b76 (**prod DB 반영 완료**) — 'GloSou
 - 실제 아웃바운드 발송 승인 + Gmail OAuth
 - 실제 소셜/쇼츠 게시 승인
 - 비공개 플랫폼 분석 데이터 접근 승인
-- ~~master 병합 승인~~ → `promote.yml`로 자동화(빌드+테스트가 게이트 역할)
+- GitHub `Production` environment에 required reviewer·self-review 방지·허용 브랜치 정책 구성 + 변경된 `promote.yml` 원격 실행 검증
 
 ## Recent Verification (2026-07-12, GLO-EN-DBSEED-EXPAND)
 

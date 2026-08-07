@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "runId": "EXAMPLE-RUN-001",
+  "phaseId": "P00",
+  "completedAt": "2026-08-07T00:00:00.000Z",
+  "criteria": [
+    {
+      "id": "GOAL_DEFINED",
+      "status": "pass",
+      "references": ["docs/requirements/example-goal.md"]
+    },
+    {
+      "id": "SCOPE_BOUNDARY_DEFINED",
+      "status": "pass",
+      "references": ["docs/requirements/example-scope.md"]
+    },
+    {
+      "id": "SUCCESS_METRICS_DEFINED",
+      "status": "pass",
+      "references": ["docs/requirements/example-metrics.md"]
+    }
+  ],
+  "approvals": [],
+  "verification": [
+    {
+      "id": "P00_REVIEW",
+      "status": "pass",
+      "reference": "EVIDENCE-P00-001"
+    }
+  ]
+}

@@ -20,6 +20,7 @@
 # production
 /build
 /dist/
+/.codex-review/
 
 # misc
 .DS_Store

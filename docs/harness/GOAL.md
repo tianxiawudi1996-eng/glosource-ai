@@ -1,5 +1,11 @@
 # GOAL
 
+## Lifecycle Continuity Goal
+
+모든 신규 GloSource 작업은 `docs/harness/lifecycle/PHASES.json`의 P00-P16 순서를 따른다. 각 phase는 전용 metaprompt, exit criteria, approval gate와 완료 보고서를 가지며 `npm run lifecycle:validate`가 연결 상태를 검사한다.
+
+현재 제품은 brownfield 기준선 P10 Release Readiness에서 blocked다. 과거 P00-P09를 새 하네스에서 완료한 것처럼 소급 기록하지 않는다.
+
 ## One-line Goal
 
 14일 동안 해외 바이어 접촉과 교육형 콘텐츠 실험을 실행하면, GloSource AI의 유료 가능성과 K-DEFENSE의 교육형 IP 반응을 숫자와 원본 증거로 판정하는 보고서를 자동 축적한다.
