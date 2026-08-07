@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "contextDigest": null,
+  "preferences": {
+    "authTrustHost": "defer",
+    "datagoSecret": "defer",
+    "requiredReviewer": "defer",
+    "branchPolicy": "defer"
+  }
+}
