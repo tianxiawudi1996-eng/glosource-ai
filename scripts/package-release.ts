@@ -185,11 +185,15 @@ export async function packageRelease(projectRoot = process.cwd()): Promise<{
   try {
     await cp(standaloneDirectory, packageDirectory, {
       recursive: true,
+      // Next.js output tracing may leave junctions/symlinks in standalone.
+      // Dereference them so packaging works on Windows without symlink privilege.
+      dereference: true,
       filter: assertPackagePathSafe,
     });
     const copyResults = await Promise.allSettled([
       cp(join(projectRoot, 'public'), join(packageDirectory, 'public'), {
         recursive: true,
+        dereference: true,
         filter: assertPackagePathSafe,
       }),
       cp(
@@ -197,6 +201,7 @@ export async function packageRelease(projectRoot = process.cwd()): Promise<{
         join(packageDirectory, '.next', 'static'),
         {
           recursive: true,
+          dereference: true,
           filter: assertPackagePathSafe,
         },
       ),

@@ -69,12 +69,16 @@ Lifecycle의 유일한 기계 기준은 `docs/harness/lifecycle/PHASES.json`이�
 
 ## 5. Technology and Architecture
 
-현재 기준 스택은 npm, Next.js 15 App Router, React 19, TypeScript strict mode, Drizzle ORM, PostgreSQL/Neon, NextAuth, Polar, 조건부 Toss, Vercel이다. 실제 `package.json`, lockfile, 설정과 설치 버전을 우선하며 임의로 프레임워크·패키지 관리자·DB를 교체하지 않는다.
+현재 기준 스택은 npm, Next.js 16 App Router, React 19, TypeScript strict mode, Drizzle ORM, PostgreSQL/Neon, NextAuth, Polar, 조건부 Toss, Vercel이다. 실제 `package.json`, lockfile, 설정과 설치 버전을 우선하며 임의로 프레임워크·패키지 관리자·DB를 교체하지 않는다.
 
 <!-- BEGIN:nextjs-agent-rules -->
+
 # This is NOT the Next.js you know
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
 <!-- END:nextjs-agent-rules -->
 
 현재 설치본에 위 문서 경로가 없으면 읽었다고 주장하지 않는다. 관련 Next.js API를 변경해야 할 때는 설치된 타입·소스와 공식 문서를 확인하고, 확인하지 못한 부분을 보고한다.

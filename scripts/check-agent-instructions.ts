@@ -39,27 +39,31 @@ const REQUIRED_SCRIPTS = [
   { name: 'growth:live-contract', command: 'npm run growth:live-contract' },
 ] as const;
 
-const NEXT_RULE_BLOCK = `<!-- BEGIN:nextjs-agent-rules -->
-# This is NOT the Next.js you know
-
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in \`node_modules/next/dist/docs/\` before writing any code. Heed deprecation notices.
-<!-- END:nextjs-agent-rules -->`;
+const NEXT_RULE_BLOCK_MARKER = /<!-- BEGIN:nextjs-agent-rules -->([\s\S]*?)<!-- END:nextjs-agent-rules -->/;
+const REQUIRED_NEXT_RULE_LINES = [
+  '# This is NOT the Next.js you know',
+  'This version has breaking changes',
+  'node_modules/next/dist/docs/',
+] as const;
 
 export function validateAgentInstructions(
   instructions: string,
   packageJson: { scripts?: Record<string, string> },
 ) {
   const errors: string[] = [];
+  const normalizedInstructions = instructions.replace(/\r\n?/g, '\n');
 
   for (const heading of REQUIRED_HEADINGS) {
-    const matches = instructions.split('\n').filter((line) => line.trim() === heading);
+    const matches = normalizedInstructions
+      .split('\n')
+      .filter((line) => line.trim() === heading);
     if (matches.length !== 1) {
       errors.push(`Required heading must appear exactly once: ${heading}`);
     }
   }
 
   for (const reference of REQUIRED_REFERENCES) {
-    if (!instructions.includes(reference)) {
+    if (!normalizedInstructions.includes(reference)) {
       errors.push(`Required repository reference is missing: ${reference}`);
     }
   }
@@ -68,21 +72,25 @@ export function validateAgentInstructions(
     if (!packageJson.scripts?.[script.name]) {
       errors.push(`Required package script is missing: ${script.name}`);
     }
-    if (!instructions.includes(script.command)) {
+    if (!normalizedInstructions.includes(script.command)) {
       errors.push(`AGENTS.md does not document required command: ${script.command}`);
     }
   }
 
-  if (!instructions.includes(NEXT_RULE_BLOCK)) {
+  const nextRuleBlock = normalizedInstructions.match(NEXT_RULE_BLOCK_MARKER)?.[0] ?? '';
+  if (REQUIRED_NEXT_RULE_LINES.some((line) => !nextRuleBlock.includes(line))) {
     errors.push('The managed Next.js agent rule block changed or is missing.');
   }
-  if (/\[20\d{2}-\d{2}-\d{2}[^\]]*\]\s*[A-Z0-9_]+:/.test(instructions)) {
+  if (/\[20\d{2}-\d{2}-\d{2}[^\]]*\]\s*[A-Z0-9_]+:/.test(normalizedInstructions)) {
     errors.push('Chat transcript timestamp artifacts are not allowed in AGENTS.md.');
   }
-  if ((instructions.match(/^# GloSource AI Repository Instructions$/gm) ?? []).length !== 1) {
+  if (
+    (normalizedInstructions.match(/^# GloSource AI Repository Instructions$/gm) ?? [])
+      .length !== 1
+  ) {
     errors.push('AGENTS.md appears duplicated or has the wrong top-level title.');
   }
-  if (instructions.length > 30_000) {
+  if (normalizedInstructions.length > 30_000) {
     errors.push('AGENTS.md exceeds the 30,000-character maintainability limit.');
   }
 

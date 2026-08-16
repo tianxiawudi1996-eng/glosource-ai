@@ -6,13 +6,21 @@
 
 - 없음 — GLO-FOOD-BIZRNO-REGISTRY의 로컬 구현은 완료됐고, 남은 활성화는 OpenDART 인증키·prod DB 마이그레이션/수집 게이트다. READY가 다시 생길 때까지 증거 감사만 수행한다.
 
+## DONE (로컬 제안·외부 실행 없음)
+
+- P10-RELEASE-ADVANCEMENT-20260816 @ working-tree — Vercel Production 22/22와 GitHub reviewer 1명·branch policy를 live read-only 재확인했다. 유일 reviewer가 현재 운영자이고 `preventSelfReview=false`라 독립 reviewer 없이 활성화하면 promotion이 교착된다. 로컬 202/202·typecheck·lint 오류 0·build 88 routes·package integrity·필수 3경로 200·제품 계약 7/7 통과. 최신 archive는 `dirty=true` diagnostic artifact이며 provider 변경·commit·push·dispatch·배포 0건. 보고서: `docs/harness/reports/2026-08-16-p10-release-advancement.md`.
+
+- GLO-WEBSTYLE-PROPOSALS-20260811 @ working-tree — 첨부 `웹스타일 레퍼런스.pptx` 33슬라이드의 스타일 DNA를 분석해 4~5개 레퍼런스 조합의 5개 HTML Mock과 overview를 `public/mockups/`에 추가했다. KR/EN 카피·가격·CTA·sourcing 방향을 분리 보존했으며 경복궁·6개 지역 명소에 한글/영문 라벨과 alt를 제공했다. 360/375/414/768/1440 browser QA, 이미지·overflow·focus 점검을 통과했다. artifact-tool 자동 렌더는 패키지 누락으로 실행하지 못했고 그 한계를 matrix에 기록했다. P10 blocked 유지, 외부 게시·배포·commit·push 0건. 계획: `docs/plans/2026-08-11-webstyle-reference-proposals.md`.
+
 ## 사람 입력 대기 (확보 시 즉시 반영)
 
+- `CHARACTER_SAMPLE_APPROVAL:` 독립 캐릭터 샘플 5종 중 선택·수정 지시가 있어야 투명화·리깅·히어로 통합을 시작한다.
 - `TODO_USER_INPUT:` 창업자 LinkedIn URL → `app/lib/founder.ts`의 `FOUNDER.linkedin`에 넣으면 신뢰앵커 카드 + JSON-LD sameAs/founder에 동시 반영.
 - `TODO_USER_INPUT:` 창업자 실사진 → `public/images/`에 추가 후 `FOUNDER.photo` 경로 설정(현재 이니셜 아바타 'JK').
 
 ## BLOCKED (게이트/외부 필요)
 
+- P10-PRODUCTION-PROMOTION — Vercel required names는 22/22다. GitHub Production의 현재 유일 reviewer가 운영자 본인이므로 독립 reviewer를 추가·지정한 뒤 `preventSelfReview=true`를 활성화해야 한다. 이후 의도된 변경만 clean commit으로 고정하고 `G_RELEASE`·`G_PRODUCTION_CONTROL_PLANE_CHANGE`를 exact SHA/rollback target에 연결한다.
 - GLO-FOOD-BIZRNO-REGISTRY-ACTIVATE — `DART_API_KEY` 발급 + prod 마이그레이션 후 `npm run db:ingest:opendart`. 수집 결과가 7개 업체를 실제로 매칭한 경우에만 curated 번호를 `opendart-registry`로 승격하고 prod 시드를 실행한다. 미매칭·동명이인은 fail-closed하며 번호를 추정하지 않는다.
 - GLO-REPLY-TRIAGE-ACTIVATE — `growth:replies`는 `GMAIL_OAUTH_CLIENT_ID`, `GMAIL_OAUTH_CLIENT_SECRET`, `GMAIL_OAUTH_REFRESH_TOKEN`, `GMAIL_ACCOUNT` 부재로 2026-07-18 fail. 값 확보 후 reply 탐지/분류만 재개하며 실제 draft 생성·발송은 별도 승인 게이트다.
 - GLO-003 — 실제 ICP 리드 20명 1차 배치: **SOP/플레이북 완료**([kbeauty-lead-sourcing-playbook.md](../growth/kbeauty-lead-sourcing-playbook.md)) — 채널별 쿼리·인테이크 스키마·게이트 워크플로우 준비됨. **남은 것=실 수집**: intent 채널(LinkedIn/커뮤니티) 사람 판정 또는 인바운드(배포 후). 콜드 스크래핑 부적합·가짜 리드 금지.
@@ -33,6 +41,21 @@
 
 ## DONE
 
+- GLO-HERO-FACE-SAFE-20260810 @ working-tree(**로컬 UI 후속 수정·배포 없음**) — 사람 얼굴과 히어로 검증 패널이 겹치지 않도록 데스크톱 패널을 오른쪽 열의 하단·좌측으로 재배치하고 폭을 95%로 축소했으며, 계절 커버를 세로 110%·하단 정렬해 얼굴을 패널 위에 고정했다. 모바일 계절 이미지 초점은 KR 75%·EN 65%로 조정했다. 기존 카피·CTA·라우트·가격·쿼터는 유지했다. `/`·`/en` 1440/390 browser QA에서 패널 bounds와 `scrollWidth === viewport`를 확인했으며 P10 blocked, 외부 게시·배포·commit·push 0건.
+
+- GLO-KR-EN-VISUAL-ALIGN-20260810 @ working-tree(**로컬 UI 시각 조정·배포 없음**) — 기존 카피·라우트를 보존한 채 KR/EN 명소 라벨 순서와 이미지 treatment를 분리했다. KR은 현지 발견·한지 톤, EN은 English-first·쿨한 evidence 톤으로 조정했고 1440/390 browser QA, 202/202 tests, typecheck/lint/build/harness checks를 통과했다. P10 blocked, commit·push·배포·외부 게시 0건. 설계: `docs/plans/2026-08-10-007-kr-en-visual-alignment.md`.
+
+- GLO-HERO-LANDMARK-MOCK-20260810 @ working-tree(**로컬 HTML mock·배포 없음**) — `public/mockups/glo-landmark-label-layout.html`에 경복궁 히어로·계절 전환·라벨 배치 가이드·서울/경주/전주/부산/강원/제주 카드의 한·영 명칭을 구현했다. 1440px·390px 브라우저 프리뷰와 겨울 버튼 전환·ARIA snapshot을 확인했으며 외부 게시·배포·commit·push는 0건이다.
+
+- GLO-HERO-LANDMARK-BILINGUAL-20260810 @ working-tree(**로컬 UI 후속 수정·배포 없음**) — `/`·`/en`의 6개 대한민국 명소 이미지에 한글·영문 명소명 캡션과 bilingual alt를 추가하고, 계절별 경복궁 Hero에 `서울 · SEOUL / 경복궁 · Gyeongbokgung` 작은 라벨을 추가했다. 외부 게시·배포·commit·push 0건.
+
+- GLO-HERO-KOREA-JOURNEY-20260810 @ working-tree(**로컬 UI 구현·배포 없음**) — `/`·`/en`에 서울 경복궁·경주 불국사·전주 한옥마을·부산 감천문화마을·강원 설악산·제주 성산일출봉을 잇는 대한민국 한 바퀴 시각 레일을 추가했다. 밝은 극사실주의 이미지 6종, 6.5초 자동 전환, 지역 점/이전/다음, 가로 스냅, 키보드/ARIA, reduced-motion을 구현했다. desktop/mobile browser QA, `npm test` 202/202, typecheck/lint/build 통과. 관광 위치 인증·배포·commit·push는 실행하지 않았고 P10은 blocked 유지. 설계: `docs/plans/2026-08-10-006-korea-journey-visual-system.md`.
+- GLO-HERO-SEASONAL-HOST-20260810 @ working-tree(**로컬 UI 구현·배포 없음**) — 어두운 단일 커버를 밝고 맑은 경복궁 사계절 PNG 4종으로 교체하고 월별 초기 선택·18초 순환·계절 선택 점·우아한 모션·모바일 초점 보정을 연결했다. 한국 호스트는 생성 커버에 포함하고, 10개 포즈×10개 표정의 결정적 100상태 라이브러리로 환영 모션을 순환시킨다(100개 별도 프레임 생성 아님). `/`·`/en` 1440px과 `/` 390×844 browser QA, `npm test` 202/202, typecheck/lint/build·harness guards 통과. P10 유지, 외부 게시·배포·provider 변경·commit·push 0건. 설계: `docs/plans/2026-08-10-004-hero-seasonal-host.md`.
+- GLO-HERO-KOREAN-VISUAL-20260810 @ working-tree(**로컬 UI 구현·배포 없음**) — 경복궁 단청 처마·한복·갓·전통 문양을 생성 커버 이미지로 통합하고 기존 SVG 단청 프레임을 제거했다. `/`·`/en` desktop과 `/` 390×844 preview, build 88 routes, `npm test` 202/202, typecheck/lint·harness guards를 통과했다. P10 state는 전이하지 않았고 외부 게시·배포·provider 변경·commit·push는 0건이다. 설계: `docs/plans/2026-08-10-003-hero-korean-visual.md`.
+- P10-NEXT15-BACKPORT-20260810 @ working-tree(**부분 성공·보안 gate 미해결**) — `next/@next-env 15.5.20→15.5.23` exact 적용. 예상 밖 package/major/downgrade 없음. 전체 201/201, typecheck/lint 오류 0, production build 89 pages, `.next/standalone`의 `/`·`/en`·`/api/auth/session` 200, 제품 계약 7/7. 그러나 npm advisory direct high가 남고 fix는 Next 16.3.0 major뿐이므로 package 생성 없이 중단. 외부 변경·commit·push·배포 0.
+- P10-NEXT16-MIGRATION-20260810 @ working-tree(**로컬 성공·P10 외부 게이트는 별도 blocked**) — `next/@next-env/eslint-config-next 16.3.0` exact, `middleware.ts→proxy.ts`, Windows symlink 역참조 패키징을 적용했다. 201/201, typecheck, ESLint 오류 0, Next 16 build 88 routes, production audit critical/high 0, package 2,845 entries·blocked 0·all-zero 0·7/7 contract·필수 3경로 200. archive `glosource-ai-0.1.0-20260809T223844953Z.tgz`, SHA-256 `6CB653377D92082886EB4472B0A164F4C342A8010E466046F350705FE5B247E8`, manifest `dirty=true`. React Hooks 경고 16개와 Edge Runtime 경고는 후속 정리 대상이며 Vercel/GitHub/승인/배포는 실행하지 않았다. 세부 계약: `docs/operations/P10_NEXT16_MIGRATION_METAPROMPT.md`.
+- P10-AUTH-SECURITY-REMEDIATE @ working-tree(2026-08-09, **로컬 수정·외부 실행 없음**) — Auth.js critical 경로를 `next-auth 5.0.0-beta.32`, `@auth/drizzle-adapter 1.11.3`, `@auth/core 0.41.3`으로 최소 갱신해 production critical 2→0. 집중 인증 6/6, 전체 201/201, typecheck/lint 오류 0, build/package, 차단 파일 0, all-zero 0, 필수 3경로 200, 제품 계약 7/7 통과. 최신 archive SHA-256 `16733E1A4A06957EA3BD5895AC55A1755D7E7720045FA30742319FABB05A79A9`, manifest `dirty=true`. 잔여 high 5/moderate 5이며 Next.js high는 별도 증분. commit·push·배포 0.
+- P10-READINESS-AUDIT-20260809 @ codex/p10-provenance-reconstruction(**로컬 검증·phase 미완료**) — pre-receipt exact candidate `70457e7`은 clean이었다. Windows CRLF checkout 하네스 오탐을 수정하고 201/201·typecheck·lint 오류 0·build·package·integrity·필수 3경로 200·제품 계약 7/7을 통과했다. archive는 `dirty=true` diagnostic artifact라 승격 불가다. Vercel Production 20/22와 GitHub Production 보호 미구성도 그대로다. provider 변경·secret 입력·commit·push·배포 0. 보고서: `docs/harness/reports/2026-08-09-p10-release-readiness-audit.md`.
 - P10-PROVENANCE-RECONSTRUCT-20260807 @ codex/p10-provenance-reconstruction(**승인된 로컬 commit·push 없음**) — A `252d6cb`, B `9edbd83`, C `54b1f37`, D `d0d3ba8`과 최종 E integration으로 dirty snapshot을 목적별 history로 재구성했다. 원본 branch 보존, provider/remote/deploy 변경 0. D DOCX는 최신 builder로 재생성해 구조 audit green, LibreOffice 부재로 visual render 미검증. 보고서: `docs/harness/reports/2026-08-07-p10-provenance-reconstruction.md`.
 - P10-PROVENANCE-PARTITION-20260807 @ working-tree(2026-08-07, **83/83 분류·git 변경 없음**) — dirty snapshot을 A release integrity 6, B Production governance 18, C claims/growth 11, D whitepaper 3, E lifecycle/harness 45로 분리하고 의존 순서·파일 소유권·검증 명령을 고정했다. 실제 stage/commit/branch/push는 하지 않았고 P10은 blocked 유지. 보고서: `docs/harness/reports/2026-08-07-p10-provenance-partition.md`.
 - P10-READINESS-REFRESH-20260807 @ working-tree(2026-08-07, **read-only 감사·phase 미완료**) — local readiness 17/22+dirty, Vercel Production 20/22, GitHub Production reviewer/self-review/branch-policy 부재, tracked 27+untracked 56 provenance 혼합을 새로 확인했다. 기존 2026-08-03 archive는 현재 dirty 후보 artifact가 아니므로 재사용하지 않았다. P10 blocked 유지, 외부 변경·build/package·commit·push·배포 0. 보고서: `docs/harness/reports/2026-08-07-p10-release-readiness-refresh.md`.

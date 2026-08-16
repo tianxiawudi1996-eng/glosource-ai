@@ -3,14 +3,56 @@
 ## Snapshot
 
 - Project: GloSource AI Validation OS (기존 K-DEFENSE 증거는 보존)
-- Last calibrated: 2026-08-07 Asia/Seoul
+- Last calibrated: 2026-08-16 Asia/Seoul
 - Current branch: codex/p10-provenance-reconstruction
-- Head SHA baseline: 14d4c09fab05f52240c723a86d6f8fe0f98e4167
-- Source state: 승인된 A-E 순서로 로컬 커밋 재구성 완료 단계. 원본 `chore/harness-cal-0623` branch는 보존했고 push·배포는 하지 않았다.
+- Head SHA baseline: 70457e7f883ef55804ca91129bf913f60a508c7b
+- Source state: 승인된 A-E 로컬 커밋 재구성의 HEAD는 `70457e7`이다. 이후 UI·Next.js 16·패키징·시각 자산·하네스 변경은 현재 working tree에만 있어 최신 archive는 `dirty=true`다. push·배포는 하지 않았다.
 - Main synced: false — `origin/master`는 eed52fd887dad608a2e156573f8fbbe9f4f02176. 브랜치 push는 검증만 수행하고, master 승격은 수동 dispatch·`PROMOTE` 확인·production 환경 승인이 필요하도록 로컬 변경됨.
 - Current track: full_lifecycle_goal_harness
-- Working-tree increment: P00 최초 기획부터 P16 retirement까지 phase별 metaprompt, exit criteria, approval gate, 상태 전이와 완료 보고서를 기존 Goal Harness에 통합했다.
-- Next READY: 없음. 다음 게이트 입력은 independent reviewer 정책·feature-ref 호환 branch 전략·`AUTH_TRUST_HOST` 선호·DATAGO secret 보관 가능 여부이며 실제 설정은 별도 승인 게이트다.
+- Working-tree increment: 2026-08-16 전체 로컬 검증, 최신 standalone diagnostic package, live control-plane 재감사 증거.
+- Next READY: 없음. Vercel Production은 22/22이며 GitHub reviewer·branch policy도 존재한다. 현재 유일 reviewer가 운영자 본인이므로 독립 reviewer 지정 전 `preventSelfReview=true`로 바꾸면 promotion이 교착된다.
+
+## 2026-08-16 P10 Release Advancement
+
+- `readiness:control-plane`: Vercel Production 필수 이름 22/22, target match. GitHub Production required reviewer 1명과 branch policy가 확인됐다.
+- 현재 required reviewer는 로그인한 운영자 본인이고 `preventSelfReview=false`다. 독립 reviewer 없이 self-review 방지만 켜면 승인자가 사라지므로 provider 설정을 변경하지 않았다.
+- `verify:product`: 202/202, TypeScript 오류 0, ESLint 오류 0·경고 16.
+- `build`: Next.js 16.3.0, 88 routes, exit 0. 기존 Edge Runtime deprecation 경고는 유지된다.
+- `package:product`: `dist/glosource-ai-0.1.0-20260816T134313599Z.tgz`, 73,289,476 bytes, SHA-256 `ADCD24344B4707DC0F312570D56EB787D80A19A015E5E9A7FF763FB76073AD6D`.
+- package inspection: 2,452 files, blocked 0, all-zero 0, secrets included false, manifest `dirty=true`.
+- standalone smoke: 로컬 프로세스에만 `AUTH_URL`·`AUTH_TRUST_HOST=true`를 적용해 `/`, `/en`, `/api/auth/session` 200 및 제품 계약 7/7.
+- 상세 증거: `docs/harness/reports/2026-08-16-p10-release-advancement.md`.
+- P10은 독립 reviewer, self-review 방지, clean provenance, exact approval references가 없어 blocked다. commit·push·dispatch·배포·DB 변경·외부 발송은 0건이다.
+
+## 2026-08-09 P10 Release Readiness Evidence Audit
+
+- exact candidate `70457e7`은 감사 시작 시 clean worktree였으므로 8월 7일의 mixed dirty provenance blocker는 해소됐다.
+- 로컬 `master` 대비 25 commits ahead, `origin/master` 대비 15 commits ahead이며 둘 다 behind 0이다.
+- `readiness:product`의 사전 결과는 local process 17/22와 archive 부재로 blocked였다. 이후 생성한 archive는 `dirty=true` diagnostic artifact라 Production-ready 판정을 만들지 않는다.
+- `readiness:control-plane`은 Vercel Production 20/22(`AUTH_TRUST_HOST`, `DATAGO_SERVICE_KEY` 누락), GitHub Production required reviewer/self-review/branch policy 부재를 재확인했다.
+- `verify:product` 201/201, TypeScript/ESLint 오류 0, production build, standalone integrity, `/`·`/en`·`/api/auth/session` 200, 제품 계약 7/7은 통과했다.
+- Windows CRLF clean checkout에서 managed Next.js block 검사가 실패하던 오탐을 줄바꿈 정규화와 회귀 테스트로 수정했다.
+- archive는 41.75 MiB, 차단 파일 0, all-zero 0이며 SHA-256은 `835C4A06CA13A2CC92C9C7B6CC98299C3FCFE39B47AF13D9B66F25EB00C957D3`다. 단 manifest `dirty=true`라 승격 불가다.
+- clean fixed candidate, rollback 승인, `G_RELEASE`, `G_PRODUCTION_CONTROL_PLANE_CHANGE`가 없으므로 P10은 blocked이고 P11은 시작하지 않았다.
+- 상세 증거: `docs/harness/reports/2026-08-09-p10-release-readiness-audit.md`.
+- provider 변경, secret 입력, commit, push, PR, dispatch, staging, Production 배포는 0건이다. 로컬 build/package와 읽기 전용 smoke만 수행했다.
+- production 의존성 감사에서 critical 2, high 6, moderate 5를 확인했다. 자동 fix는 실행하지 않았고 Auth.js critical 최소 수정 메타프롬프트를 `docs/operations/P10_AUTH_SECURITY_REMEDIATION_METAPROMPT.md`에 고정했다.
+- Auth.js 최소 수정 실행 완료: `next-auth 5.0.0-beta.32`, `@auth/drizzle-adapter 1.11.3`, `@auth/core 0.41.3`으로 갱신해 production critical을 2→0으로 제거했다. 집중 6/6, 전체 201/201, build/package, 필수 경로 200, 제품 계약 7/7이 통과했다.
+- 최신 diagnostic archive는 `glosource-ai-0.1.0-20260809T145408205Z.tgz`, SHA-256 `16733E1A4A06957EA3BD5895AC55A1755D7E7720045FA30742319FABB05A79A9`다. manifest `dirty=true`라 운영 승격용은 아니다.
+- 잔여 production audit는 critical 0, high 5, moderate 5다. 직접 high인 `next@15.5.20` 수정은 별도 증분으로 분리한다.
+- 2026-08-10 `next/@next-env 15.5.23` 공식 backport를 적용했으나 npm advisory가 모든 15.x를 포함하도록 확대되어 direct Next high는 제거되지 않았다. npm의 유일한 제안은 `next@16.3.0` semver-major다.
+- 15.5.23 회귀 검증은 201/201, TypeScript/ESLint 오류 0, production build 89 pages, 필수 3경로 200, 제품 계약 7/7로 green이다. 보안 성공 기준 미충족으로 새 archive는 만들지 않았고 기존 `20260809T145408205Z` archive는 현재 worktree보다 stale하다.
+
+## 2026-08-10 Next.js 16 Migration and Packaging Follow-up
+
+- `next`, `@next/env`, `eslint-config-next`를 `16.3.0` exact로 갱신했다. React/React DOM은 `19.2.4`를 유지했다.
+- `middleware.ts`를 `proxy.ts`로 옮겼고 Auth.js wrapper, matcher와 `x-pathname` 헤더 동작을 보존했다. Next middleware 규약 경고는 사라졌고 Edge Runtime deprecation은 별도 잔여 경고다.
+- Next 16 flat ESLint config로 전환했다. `verify:product`는 201/201, TypeScript 오류 0, ESLint 오류 0이며 stricter React Hooks 경고 16개가 남아 있다.
+- `npm run build`는 Next 16.3.0/Turbopack으로 88 routes에서 성공했다.
+- Production-only `npm audit --omit=dev`: critical 0, high 0, moderate 4, total 4. 전체 audit의 high 2건은 dev/tooling 경로로 분리 기록했다.
+- Windows symlink 역참조를 추가한 `package-release.ts`로 standalone package 생성 성공: `dist/glosource-ai-0.1.0-20260809T223844953Z.tgz`, 36,244,023 bytes, SHA-256 `6CB653377D92082886EB4472B0A164F4C342A8010E466046F350705FE5B247E8`, entries 2,845, blocked 0, all-zero 0, `dirty=true`.
+- package local smoke에서 `/`, `/en`, `/api/auth/session` 모두 HTTP 200, `growth:live-contract` 7/7 통과.
+- `readiness:product`는 local 17/22와 dirty source 때문에 계속 blocked다. Vercel 20/22, GitHub 보호 규칙, remediation preferences, fresh approvals와 외부 배포는 변경하지 않았다.
 
 ## 2026-08-07 Full Lifecycle Goal Harness
 
@@ -186,3 +228,70 @@ GLO-EN-DBSEED-EXPAND @ ef082d8 + a4c4b76 (**prod DB 반영 완료**) — 'GloSou
 2. Gmail OAuth 4개 값이 생기면 `growth:replies`로 reply 탐지부터 재개하되 발송은 별도 승인 전 0건 유지.
 3. OpenDART key + prod migration 승인이 생기면 K-Food 7곳 수집/검증을 재개.
 4. 실제 ICP 채널 접근·발송 승인·실결제·K-DEFENSE private analytics 없이는 KPI를 올리지 않는다.
+
+## 2026-08-10 Korean Hero Visual Increment
+
+- 기존 SVG 단청 프레임과 한옥 canopy를 제거하고 `public/images/glosource-hero-gyeongbokgung-dancheong.png`를 `/`·`/en` 공통 HeroSection 커버로 연결했다.
+- 커버는 경복궁 단청 처마, 우측 한복·갓 실루엣과 전통 문양을 사용하며 좌측 잉크 워시 그라디언트로 제품 카피 대비를 보존한다. 모바일은 세로 그라디언트와 `background-position`을 별도 적용한다.
+- `/`·`/en` desktop과 `/` 390×844 browser preview를 확인했고, build 88 routes·test 202/202·typecheck·lint(오류 0)·harness guards가 통과했다.
+- 이 증분은 P10 release-readiness를 완료하거나 phase를 전이하지 않는다. 현재 사용자 working-tree의 Next 16/package/harness 변경을 보존하고 외부 영향은 0건이다.
+- 상세 설계·검증: `docs/plans/2026-08-10-003-hero-korean-visual.md`.
+
+## 2026-08-10 Seasonal Korean Host Increment
+
+- 밝고 맑은 경복궁 사계절 커버 4종을 생성·검토해 `public/images/`에 저장했다. 봄·여름·가을·겨울 모두 좌측 카피 여백과 우측 한복 환영 캐릭터 구도를 유지한다.
+- `HeroSection`에 월별 초기 계절, 18초 자동 순환, 계절 선택 점, `prefers-reduced-motion` 중지, 10×10 조합의 결정적 100상태(포즈·표정)를 연결했다. 100개의 별도 AI 프레임을 생성했다는 의미는 아니다.
+- `app/globals.css`에 밝은 계절 전환, 청량한 광원, 호스트 환영 배지, 우아한 미세 모션, 390px 모바일 초점 보정을 추가했다.
+- `agent-browser`: `/` 1440px, `/en` 1440px, `/` 390×844, 계절 점 클릭, 오류/vitals를 확인했다. 오류 없음, LCP는 계절 PNG로 확인됐다.
+- `npm test` 202/202, typecheck, lint(오류 0·기존 경고 16), build(Next.js 16.3.0·88 routes), lifecycle/상태/placeholder/sensitive/diff 검사를 통과했다.
+- P10 blocked 상태는 전이하지 않았다. 커밋·push·배포·provider 변경·외부 발송·결제·SNS 게시 0건.
+- 상세 설계·메타프롬프트: `docs/plans/2026-08-10-004-hero-seasonal-host.md`.
+
+## 2026-08-10 Independent Host Character Samples
+
+- 기존 계절 배경과 분리된 동일 디자인 언어의 한국 환영 캐릭터 PNG 5종을 생성·검토했다.
+- 샘플 방향: ① 손 내밀어 환영 ② 정중한 인사 ③ 기회 가리키기 ④ 자신감 있는 엄지척 ⑤ 손을 심장에 얹은 신뢰 표현.
+- 자산은 `public/images/glosource-host-samples/`에 저장했으며 아직 HeroSection에 통합하지 않았다.
+- 사용자 샘플 승인 전 최종 투명화·리깅·100상태 통합은 보류한다. 외부 게시·배포·커밋·push 0건.
+- 상세 메타프롬프트: `docs/plans/2026-08-10-005-character-sample-pack.md`.
+
+## 2026-08-10 Korea Journey Visual System
+
+- `/`·`/en` HeroSection 다음에 서울·경주·전주·부산·강원·제주 6개 명소를 잇는 `KoreaJourneySection`을 추가했다.
+- 각 장면은 실제 명소명을 기준으로 생성한 밝은 극사실주의 editorial 이미지이며, 6.5초 자동 전환·점/이전/다음 컨트롤·가로 스냅·키보드/ARIA·reduced-motion을 지원한다.
+- 1440px `/`, 1440px `/en`, 390×844 `/`에서 카드·카피·컨트롤을 확인했고 브라우저 오류는 없었다.
+- `npm test` 202/202, typecheck, lint(오류 0·기존 경고 16), build 88 routes 통과.
+- 관광 위치 인증·실제 재방문율·외부 게시·배포·commit·push는 실행하지 않았다. P10 blocked 유지.
+- 상세 메타프롬프트: `docs/plans/2026-08-10-006-korea-journey-visual-system.md`.
+- 모든 지역 카드 이미지에 작은 `한글 명소명 · English landmark name` 캡션과 bilingual `alt`를 추가했고, 계절별 경복궁 Hero에도 `서울 · SEOUL / 경복궁 · Gyeongbokgung` 라벨을 고정했다. 제품 작업공간·로고 같은 비명소 이미지는 의미가 맞지 않아 관광 명칭을 덧씌우지 않았다.
+- 이 후속 변경은 로컬 화면·카피 범위이며 외부 게시·배포·commit·push는 실행하지 않았다.
+
+## 2026-08-10 Landmark Label HTML Mock
+
+- `public/mockups/glo-landmark-label-layout.html`에 실제 랜딩페이지의 명소 라벨 배치를 독립 실행형 HTML mock으로 정리했다.
+- 히어로 좌상단 `서울 · SEOUL / 경복궁 · Gyeongbokgung`, 우상단 계절 점, 우하단 환영 배지, 지역 카드 하단 `한글 · English` 캡션을 한 화면에서 비교할 수 있다.
+- 1440px·390px 브라우저 프리뷰와 겨울 계절 버튼 전환, bilingual alt/ARIA snapshot을 확인했다. 로컬 mock만 추가했으며 외부 게시·배포·commit·push는 실행하지 않았다.
+
+## 2026-08-10 KR/EN Visual Alignment
+
+- 기존 `/`·`/en`의 화면 카피와 라우트는 유지하고, 새 명소 라벨의 언어 우선순위만 구분했다. KR은 `서울 · SEOUL / 경복궁 · Gyeongbokgung`, EN은 `SEOUL · 서울 / Gyeongbokgung · 경복궁` 순서다.
+- EN Hero는 같은 경복궁 계절 자산을 더 차분한 쿨 톤·오른쪽 중심 crop으로 처리하고, EN Korea Journey는 쿨한 종이 배경·레지스트리 톤 route를 사용한다. KR은 기존 따뜻한 한지·현지 발견 톤을 유지한다.
+- visible copy, CTA, quota, pricing, sourcing direction, legal state는 수정하지 않았다. `HeroSection`·`KoreaJourneySection`·global CSS의 시각 레이어만 조정했다.
+- `/`·`/en` 1440px/390px browser QA에서 label order, journey language order, `scrollWidth === viewport`를 확인했다. P10 blocked와 외부 실행 경계는 유지한다.
+- 상세 설계·메타프롬프트: `docs/plans/2026-08-10-007-kr-en-visual-alignment.md`.
+
+## 2026-08-10 Face-safe Hero Layout
+
+- 기존 얼굴·이미지·카피 자산은 유지하고, 데스크톱 `gs-face-safe-panel`을 오른쪽 열 안에서 아래쪽·약 60px 왼쪽으로 재배치했다. 계절 커버를 세로 110%·하단 정렬로 크롭해 얼굴을 패널 위에 고정하고, 하단 여백을 예약해 제품 패널이 호스트 얼굴을 가리지 않도록 했다.
+- 패널 폭은 오른쪽 열의 95%로 줄여 얼굴·경복궁 배경을 더 노출하면서 영문 검증 헤더가 한 줄로 유지되게 했다.
+- 모바일은 패널을 밀지 않고 계절 커버의 초점을 KR 75%·EN 65%로 고정해 텍스트·CTA·얼굴이 같은 영역에 겹치지 않게 했다. KR/EN 모두 기존 라벨·카피·CTA·가격·쿼터를 수정하지 않았다.
+- `agent-browser` 1440×900 및 390×844 `/`·`/en`에서 패널 위치·라벨·가로 넘침을 확인했다. DOM 기준 `scrollWidth === viewport`(1440/390)이며 외부 게시·배포·commit·push는 실행하지 않았다.
+
+## 2026-08-11 Web Style Reference Proposals
+
+- 첨부 `웹스타일 레퍼런스.pptx`의 33슬라이드(27개 스타일 카드 + 조합 가이드)를 읽기 전용으로 분석했다. 번들 `@oai/artifact-tool`의 `package.json` 부재와 PowerPoint/LibreOffice 미설치로 자동 PNG 렌더는 실행되지 않았으며, XML·내장 이미지 기반 분석 한계를 `docs/plans/2026-08-11-webstyle-reference-matrix.md`에 기록했다.
+- `public/mockups/`에 overview와 5개 독립 HTML Mock을 추가했다: Atelier Map, Dancheong Bento, Heritage Journey, Evidence Workbench, Korea Edit. 각 안은 PPTX의 4~5개 슬라이드 DNA를 화면에 표시하고 기존 경복궁·대한민국 명소 로컬 자산을 사용한다.
+- `/` KR(무료 베타·해외 공급자 탐색)과 `/en` EN(USD/Polar·한국 공급자 탐색)의 카피·가격·CTA·근거 경계를 Mock 안에서 분리했다. 기존 운영 라우트·API·결제·배포는 변경하지 않았다.
+- 360/375/414/768/1440 viewport에서 5개 파일을 agent-browser로 열어 `scrollWidth === viewport`, 이미지 naturalWidth, bilingual alt, reference chip 수, CTA 높이를 확인했다. reduced-motion 및 keyboard focus ring CSS를 포함한다.
+- P10 Release Readiness는 외부 설정·승인 부재로 계속 blocked이며 lifecycle state를 전이하지 않았다. 외부 게시·SNS 발송·배포·commit·push 0건.
+- 상세 메타프롬프트: `docs/plans/2026-08-11-webstyle-reference-proposals.md`; 매핑: `docs/plans/2026-08-11-webstyle-reference-matrix.md`.

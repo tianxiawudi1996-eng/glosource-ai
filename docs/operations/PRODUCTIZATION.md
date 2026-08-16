@@ -22,6 +22,9 @@ The archive contains the traced Next.js server, runtime dependencies, public
 assets, static assets, and `RELEASE-MANIFEST.json`. It deliberately excludes
 common environment, private-key, credential-store, and local credential files.
 Packaging also rejects all-zero files left by an interrupted standalone build.
+Next.js standalone output can contain junctions or symlinks; the release copier
+dereferences them so Windows packaging does not require symlink-creation
+privileges.
 
 ## Runtime
 

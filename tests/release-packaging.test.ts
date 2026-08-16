@@ -42,6 +42,7 @@ test('product packaging builds a standalone Next.js release', () => {
     readFileSync('scripts/package-release.ts', 'utf8'),
     /mkdir\(distRoot,\s*\{\s*recursive:\s*true\s*\}\)/,
   );
+  assert.match(readFileSync('scripts/package-release.ts', 'utf8'), /dereference:\s*true/);
 });
 
 test('release manifest documents runtime and required production configuration', () => {
