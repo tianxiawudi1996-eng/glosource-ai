@@ -82,7 +82,7 @@ export default function AssistantExperience() {
 
   async function searchSuppliers(action: SearchAction) {
     setQuery(action.product);
-    const response = await fetch('/api/source', {
+    const response = await fetch('/api/en/source', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

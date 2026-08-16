@@ -46,7 +46,10 @@ export default async function EnDashboardPage() {
       eq(subscriptions.userId, userId),
       isNotNull(subscriptions.polarSubscriptionId),
     )).orderBy(desc(subscriptions.updatedAt)).limit(1),
-    db.select().from(searchHistory).where(eq(searchHistory.userId, userId))
+    db.select().from(searchHistory).where(and(
+      eq(searchHistory.userId, userId),
+      eq(searchHistory.surface, 'en'),
+    ))
       .orderBy(desc(searchHistory.createdAt)).limit(20),
   ]);
 

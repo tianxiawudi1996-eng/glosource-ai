@@ -29,6 +29,13 @@
       "when": 1785074890915,
       "tag": "0003_red_surge",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1786890542689,
+      "tag": "0004_vengeful_marvel_zombies",
+      "breakpoints": true
     }
   ]
 }

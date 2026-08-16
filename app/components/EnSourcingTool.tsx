@@ -409,7 +409,7 @@ export function SupplierCard({ s, rank, keyword, locked, onStartVoiceCall }: { s
 }
 
 async function callAPI(product: string, quantity: string, budget: string, country: 'china' | 'korea', buyerCountry: BuyerCountry): Promise<SourcingOutput> {
-  const res = await fetch('/api/source', {
+  const res = await fetch('/api/en/source', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({

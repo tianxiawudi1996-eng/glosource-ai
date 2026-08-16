@@ -337,6 +337,7 @@ export type NewBlogPost = typeof blogPosts.$inferInsert;
 export const searchHistory = pgTable('search_history', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   userId: text('user_id').references(() => users.id, { onDelete: 'cascade' }),
+  surface: text('surface', { enum: ['kr', 'en'] }),
   product: text('product').notNull(),
   region: text('region').notNull(), // 'korea' | 'china' | 'any'
   supplierCount: integer('supplier_count').notNull().default(0),
@@ -348,6 +349,7 @@ export const searchHistory = pgTable('search_history', {
   createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
 }, (t) => [
   index('search_history_created_at_idx').on(t.createdAt),
+  index('search_history_user_surface_created_at_idx').on(t.userId, t.surface, t.createdAt),
 ]);
 
 export type SearchHistory = typeof searchHistory.$inferSelect;

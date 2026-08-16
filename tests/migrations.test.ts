@@ -79,6 +79,13 @@ test('usage-log quota and history hot paths have composite indexes', () => {
   assert.equal(names.has('usage_logs_user_created_at_idx'), true);
   assert.equal(names.has('usage_logs_ip_created_at_idx'), true);
   assert.equal(names.has('usage_logs_created_at_idx'), true);
+
+  const historyConfig = getTableConfig(schema.searchHistory);
+  const historyColumns = new Map(historyConfig.columns.map(column => [column.name, column]));
+  const historyIndexes = new Set(historyConfig.indexes.map(index => index.config.name));
+  assert.ok(historyColumns.get('surface')?.enumValues?.includes('en'));
+  assert.ok(historyColumns.get('surface')?.enumValues?.includes('kr'));
+  assert.equal(historyIndexes.has('search_history_user_surface_created_at_idx'), true);
 });
 
 test('privacy-retention scans have created-at indexes', () => {

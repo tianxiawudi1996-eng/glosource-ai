@@ -33,6 +33,16 @@ test('production promotion requires typed confirmation and protected environment
   assert.match(promoteJob, /permissions:\s*[\s\S]*contents:\s*write/);
 });
 
+test('production migration succeeds before master can advance', () => {
+  const migration = promoteJob.indexOf('npm run db:migrate');
+  const push = promoteJob.indexOf('git push origin HEAD:master');
+
+  assert.ok(migration >= 0, 'the production job must apply tracked migrations');
+  assert.ok(push > migration, 'master must not advance before migrations succeed');
+  assert.match(promoteJob, /DATABASE_URL:\s*\$\{\{ secrets\.DATABASE_URL \}\}/);
+  assert.match(promoteJob, /if \[ -z "\$DATABASE_URL" \]/);
+});
+
 test('promotion remains fast-forward only', () => {
   assert.match(workflow, /git merge-base --is-ancestor origin\/master HEAD/);
   assert.match(workflow, /git push origin HEAD:master/);

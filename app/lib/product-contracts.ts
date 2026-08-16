@@ -3,6 +3,7 @@ import { TOSS_PLANS } from './tossPlans';
 
 export type ProductSurface = 'kr' | 'en';
 export type SubscriptionPlan = 'free' | 'starter' | 'pro' | 'enterprise';
+export type SourcingCountryPreference = 'china' | 'korea' | 'both' | 'any';
 
 export interface SurfaceSubscription {
   plan: Exclude<SubscriptionPlan, 'free'>;
@@ -39,6 +40,29 @@ export const PRODUCT_CONTRACTS = {
     paidPlans: PLANS,
   },
 } as const;
+
+const EXPECTED_COUNTRY_PREFERENCE = {
+  kr: 'china',
+  en: 'korea',
+} as const satisfies Record<ProductSurface, 'china' | 'korea'>;
+
+export function expectedCountryPreference(surface: ProductSurface) {
+  return EXPECTED_COUNTRY_PREFERENCE[surface];
+}
+
+export function resolveSourcingRouteContract(
+  surface: ProductSurface,
+  requestedCountry?: SourcingCountryPreference,
+) {
+  const countryPreference = expectedCountryPreference(surface);
+  if (requestedCountry && requestedCountry !== countryPreference) return null;
+
+  return {
+    surface,
+    countryPreference,
+    outputLanguage: surface === 'en' ? 'en' : 'ko',
+  } as const;
+}
 
 export function monthlySearchQuota(
   surface: ProductSurface,

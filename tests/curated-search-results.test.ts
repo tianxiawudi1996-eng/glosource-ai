@@ -103,7 +103,7 @@ test('repeat disclosure ignores other signed-in users on a shared IP', () => {
 });
 
 test('source route excludes curated insertions from live-result usage analytics', () => {
-  const route = readFileSync('app/api/source/route.ts', 'utf8');
+  const route = readFileSync('app/api/source/handler.ts', 'utf8');
 
   assert.match(route, /repeatQuery:\s*\(await priorSimilarSearchCount\) > 0/);
   assert.match(route, /resultComposition\s*=\s*\{\s*liveSupplierCount,\s*curatedSupplierCount\s*\}/);

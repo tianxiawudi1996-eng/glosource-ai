@@ -4,7 +4,7 @@ import { POST as handleImageAnalysis, maxDuration } from '../api/source/image-an
 export { maxDuration };
 
 export async function POST(request) {
-  const auth = await checkAuthAndQuota(request, 'image_analyze');
+  const auth = await checkAuthAndQuota(request, 'image_analyze', 'kr');
   if (!auth.ok) return auth.response;
   return handleImageAnalysis(request);
 }

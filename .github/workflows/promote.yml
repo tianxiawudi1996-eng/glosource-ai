@@ -72,6 +72,24 @@ jobs:
             echo "::error::This ref diverged from master and cannot be fast-forwarded."
             exit 1
           fi
+      - uses: actions/setup-node@v4
+        if: steps.ff.outputs.promotable == 'true'
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install migration dependencies
+        if: steps.ff.outputs.promotable == 'true'
+        run: npm ci
+      - name: Apply approved production migrations
+        if: steps.ff.outputs.promotable == 'true'
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::error::DATABASE_URL is not configured in the protected production environment."
+            exit 1
+          fi
+          npm run db:migrate
       - name: Promote to master
         if: steps.ff.outputs.promotable == 'true'
         env:
