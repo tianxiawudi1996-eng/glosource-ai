@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import HeroSection from '@/app/components/HeroSection';
+import KoreaJourneySection from '@/app/components/KoreaJourneySection';
 import BrandLogo from '@/app/components/BrandLogo';
 import JsonLdGloSource from '@/app/components/JsonLdGloSource';
 import HaeryeText from './HaeryeText';
@@ -288,6 +289,9 @@ export default async function EnPage({
 
       {/* ── HERO ───────────────────────────────────────────── */}
       <HeroSection lang="en" />
+
+      {/* ── KOREA VISUAL JOURNEY ──────────────────────────── */}
+      <KoreaJourneySection lang="en" />
 
       {/* ── GOVERNMENT REGISTRY CROSS-CHECK ────────────────── */}
       {/* overflow-clip, not -hidden: -hidden would make this section a scroll container

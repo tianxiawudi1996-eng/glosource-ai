@@ -12,6 +12,7 @@ import UpgradeModal from './components/UpgradeModal';
 import TrustCredibility from './components/TrustCredibility';
 import WeChatCard from './components/WeChatCard';
 import HeroSection from './components/HeroSection';
+import KoreaJourneySection from './components/KoreaJourneySection';
 import { SupplierComparisonTable, SupplierDetail } from './components/SupplierCard';
 import RFQComposer from './components/RFQComposer';
 import { Icon } from './components/icons';
@@ -483,6 +484,9 @@ export default function HomePage() {
 
       {/* ── 히어로 ── */}
       <HeroSection lang="ko" />
+
+      {/* ── 대한민국 한 바퀴 비주얼 여정 ── */}
+      <KoreaJourneySection lang="ko" />
 
       {/* ── 베타 웨이트리스트 배너 ── */}
       <section className="max-w-2xl mx-auto w-full px-6 py-4">

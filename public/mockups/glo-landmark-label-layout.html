@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GloSource AI · Landmark Label Layout Mock</title>
+    <style>
+      :root {
+        --ink: #0d1b2a;
+        --muted: #64748b;
+        --paper: #f7f3ed;
+        --line: rgba(13, 27, 42, 0.14);
+        --accent: #8f3a26;
+        --gold: #d5a84b;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: Inter, Pretendard, "Noto Sans KR", system-ui, sans-serif;
+      }
+
+      button { font: inherit; }
+
+      .mock-shell {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 24px 0 56px;
+      }
+
+      .mock-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 18px;
+      }
+
+      .mock-brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.95rem;
+        font-weight: 900;
+      }
+
+      .mock-brand-mark {
+        display: grid;
+        width: 34px;
+        height: 34px;
+        place-items: center;
+        border-radius: 10px;
+        background: var(--ink);
+        color: white;
+        font-size: 0.74rem;
+      }
+
+      .mock-kicker {
+        color: var(--accent);
+        font-size: 0.68rem;
+        font-weight: 900;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .mock-note {
+        margin: 4px 0 0;
+        color: var(--muted);
+        font-size: 0.78rem;
+      }
+
+      .mock-hero {
+        --hero-image: url("../images/glosource-hero-gyeongbokgung-spring.png");
+        position: relative;
+        min-height: 600px;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        background-image: linear-gradient(90deg, rgba(9, 25, 38, 0.88) 0%, rgba(9, 25, 38, 0.66) 32%, rgba(9, 25, 38, 0.18) 66%, rgba(9, 25, 38, 0.06) 100%), var(--hero-image);
+        background-position: center;
+        background-size: cover;
+        box-shadow: 0 26px 60px rgba(13, 27, 42, 0.16);
+      }
+
+      .hero-label,
+      .hero-seasons,
+      .hero-welcome {
+        position: absolute;
+        z-index: 2;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        background: rgba(8, 24, 38, 0.52);
+        color: white;
+        backdrop-filter: blur(12px);
+      }
+
+      .hero-label {
+        top: 24px;
+        left: 24px;
+        display: grid;
+        gap: 4px;
+        min-width: 180px;
+        padding: 10px 12px;
+        border-radius: 12px;
+        text-shadow: 0 1px 8px rgba(0, 0, 0, 0.42);
+      }
+
+      .hero-label-kicker {
+        color: rgba(255, 255, 255, 0.72);
+        font-size: 0.58rem;
+        font-weight: 900;
+        letter-spacing: 0.12em;
+      }
+
+      .hero-label-name {
+        font-size: 0.76rem;
+        font-weight: 900;
+      }
+
+      .hero-seasons {
+        top: 24px;
+        right: 24px;
+        display: flex;
+        gap: 8px;
+        padding: 9px 11px;
+        border-radius: 999px;
+      }
+
+      .hero-seasons button {
+        width: 14px;
+        height: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.72);
+        border-radius: 50%;
+        background: var(--dot);
+        cursor: pointer;
+        opacity: 0.72;
+      }
+
+      .hero-seasons button[aria-pressed="true"],
+      .hero-seasons button:hover,
+      .hero-seasons button:focus-visible { opacity: 1; outline: 2px solid white; outline-offset: 3px; }
+
+      .hero-copy {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        align-content: center;
+        width: min(560px, 72%);
+        min-height: 600px;
+        padding: 112px 48px 72px;
+        color: white;
+      }
+
+      .hero-copy h1 {
+        max-width: 520px;
+        margin: 12px 0;
+        font-size: clamp(2.4rem, 6vw, 5.5rem);
+        line-height: 0.98;
+        letter-spacing: -0.07em;
+      }
+
+      .hero-copy p {
+        max-width: 460px;
+        margin: 0;
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 1rem;
+        line-height: 1.7;
+      }
+
+      .hero-welcome {
+        right: 24px;
+        bottom: 24px;
+        max-width: 210px;
+        padding: 10px 12px;
+        border-radius: 12px;
+        font-size: 0.72rem;
+        font-weight: 800;
+        line-height: 1.4;
+      }
+
+      .hero-welcome small { display: block; color: rgba(255, 255, 255, 0.66); font-size: 0.56rem; letter-spacing: 0.08em; }
+
+      .placement-guide {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin: 14px 0 42px;
+      }
+
+      .guide-item {
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.72);
+      }
+
+      .guide-item strong { display: block; font-size: 0.78rem; }
+      .guide-item span { display: block; margin-top: 5px; color: var(--muted); font-size: 0.72rem; line-height: 1.45; }
+
+      .journey-heading { max-width: 620px; margin-bottom: 18px; }
+      .journey-heading h2 { margin: 7px 0; font-size: clamp(2rem, 4vw, 3.5rem); letter-spacing: -0.06em; line-height: 1.04; }
+      .journey-heading p { margin: 0; color: var(--muted); line-height: 1.65; }
+
+      .journey-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .spot-card {
+        position: relative;
+        min-height: 300px;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: #d9d0c2;
+        box-shadow: 0 14px 30px rgba(13, 27, 42, 0.1);
+      }
+
+      .spot-card img { width: 100%; height: 100%; min-height: 300px; display: block; object-fit: cover; }
+      .spot-wash { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(7, 22, 34, 0.04) 16%, rgba(7, 22, 34, 0.78) 100%); }
+
+      .spot-copy {
+        position: absolute;
+        right: 16px;
+        bottom: 16px;
+        left: 16px;
+        display: grid;
+        gap: 4px;
+        color: white;
+        text-shadow: 0 1px 10px rgba(0, 0, 0, 0.42);
+      }
+
+      .spot-region { color: rgba(255, 255, 255, 0.72); font-size: 0.62rem; font-weight: 900; letter-spacing: 0.15em; text-transform: uppercase; }
+      .spot-title { font-size: 1.3rem; font-weight: 900; line-height: 1.1; }
+      .spot-bilingual { color: rgba(255, 255, 255, 0.82); font-size: 0.66rem; font-weight: 800; letter-spacing: 0.02em; }
+      .spot-note { color: rgba(255, 255, 255, 0.82); font-size: 0.72rem; line-height: 1.4; }
+
+      .mock-footer { margin-top: 20px; color: var(--muted); font-size: 0.7rem; line-height: 1.5; }
+
+      @media (max-width: 760px) {
+        .mock-shell { width: min(100% - 20px, 620px); padding-top: 14px; }
+        .mock-header { align-items: flex-start; }
+        .mock-note { max-width: 230px; }
+        .mock-hero { min-height: 620px; border-radius: 18px; background-position: 62% center; }
+        .hero-label { top: 16px; left: 16px; min-width: 148px; padding: 8px 10px; transform: scale(0.9); transform-origin: left top; }
+        .hero-seasons { top: 16px; right: 16px; }
+        .hero-copy { width: 100%; min-height: 620px; padding: 120px 24px 92px; align-content: center; }
+        .hero-copy h1 { max-width: 340px; font-size: clamp(2.5rem, 13vw, 4rem); }
+        .hero-copy p { max-width: 330px; font-size: 0.88rem; }
+        .hero-welcome { right: 16px; bottom: 16px; }
+        .placement-guide { grid-template-columns: 1fr; gap: 8px; margin-bottom: 34px; }
+        .guide-item { padding: 12px; }
+        .journey-grid { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 8px; scroll-snap-type: x mandatory; }
+        .spot-card { flex: 0 0 78%; min-height: 280px; scroll-snap-align: center; }
+        .spot-card img { min-height: 280px; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="mock-shell">
+      <header class="mock-header">
+        <div>
+          <div class="mock-brand"><span class="mock-brand-mark">◎</span> GloSource AI</div>
+          <p class="mock-note">명소 이미지 위 한·영 명칭 배치 HTML mock</p>
+        </div>
+        <span class="mock-kicker">UI placement / 01</span>
+      </header>
+
+      <section class="mock-hero" aria-label="경복궁 Gyeongbokgung 히어로 라벨 배치">
+        <div class="hero-label" aria-hidden="true">
+          <span class="hero-label-kicker">서울 · SEOUL</span>
+          <span class="hero-label-name">경복궁 · Gyeongbokgung</span>
+        </div>
+        <div class="hero-seasons" aria-label="계절 배경 선택">
+          <button type="button" aria-label="봄 배경" aria-pressed="true" data-season="spring" style="--dot:#9dd9bc"></button>
+          <button type="button" aria-label="여름 배경" aria-pressed="false" data-season="summer" style="--dot:#56a9d7"></button>
+          <button type="button" aria-label="가을 배경" aria-pressed="false" data-season="autumn" style="--dot:#d8893e"></button>
+          <button type="button" aria-label="겨울 배경" aria-pressed="false" data-season="winter" style="--dot:#b9d7e8"></button>
+        </div>
+        <div class="hero-copy">
+          <span class="mock-kicker" style="color:#f3d28a">Landmark label placement</span>
+          <h1>공급자 후보를<br />한국의 결로 만나다</h1>
+          <p>명소 라벨은 이미지 좌상단의 작은 반투명 패널에 고정합니다. 카피와 겹치지 않으면서도 사진의 장소를 즉시 이해하게 하는 구조입니다.</p>
+        </div>
+        <div class="hero-welcome"><small>GLOSOURCE AI · HOST STATE</small>차분하게 시장을 준비해요</div>
+      </section>
+
+      <section class="placement-guide" aria-label="라벨 배치 규칙">
+        <div class="guide-item"><strong>① 이미지 좌상단</strong><span>서울·SEOUL과 명소명을 작은 반투명 패널로 고정</span></div>
+        <div class="guide-item"><strong>② 카드 하단 카피</strong><span>각 지역 이미지 안에 한글 · English 명칭을 한 줄로 표시</span></div>
+        <div class="guide-item"><strong>③ 접근성 텍스트</strong><span>화면에는 작게, alt·aria-label에는 전체 한·영 명칭 제공</span></div>
+      </section>
+
+      <section aria-labelledby="journey-title">
+        <div class="journey-heading">
+          <span class="mock-kicker">Korea, in one scroll</span>
+          <h2 id="journey-title">경복궁에서 제주까지,<br />명소명을 따라 읽는 카드 레일</h2>
+          <p>아래 카드의 작은 한·영 캡션이 실제 랜딩페이지에서 각 이미지의 장소를 설명하는 위치입니다.</p>
+        </div>
+
+        <div class="journey-grid">
+          <article class="spot-card">
+            <img src="../images/korea-journey/seoul-gyeongbokgung.png" alt="서울 Seoul · 경복궁 Gyeongbokgung" />
+            <span class="spot-wash" aria-hidden="true"></span>
+            <div class="spot-copy"><span class="spot-region">서울 · Seoul</span><span class="spot-title">경복궁</span><span class="spot-bilingual">경복궁 · Gyeongbokgung</span><span class="spot-note">단청과 봄빛이 만나는 시작점</span></div>
+          </article>
+          <article class="spot-card">
+            <img src="../images/korea-journey/gyeongju-bulguksa.png" alt="경주 Gyeongju · 불국사 Bulguksa Temple" />
+            <span class="spot-wash" aria-hidden="true"></span>
+            <div class="spot-copy"><span class="spot-region">경주 · Gyeongju</span><span class="spot-title">불국사</span><span class="spot-bilingual">불국사 · Bulguksa Temple</span><span class="spot-note">천년의 돌계단과 고요한 숲</span></div>
+          </article>
+          <article class="spot-card">
+            <img src="../images/korea-journey/jeonju-hanok.png" alt="전주 Jeonju · 한옥마을 Hanok Village" />
+            <span class="spot-wash" aria-hidden="true"></span>
+            <div class="spot-copy"><span class="spot-region">전주 · Jeonju</span><span class="spot-title">한옥마을</span><span class="spot-bilingual">한옥마을 · Hanok Village</span><span class="spot-note">골목의 처마와 느린 하루</span></div>
+          </article>
+          <article class="spot-card">
+            <img src="../images/korea-journey/busan-gamcheon.png" alt="부산 Busan · 감천문화마을 Gamcheon Culture Village" />
+            <span class="spot-wash" aria-hidden="true"></span>
+            <div class="spot-copy"><span class="spot-region">부산 · Busan</span><span class="spot-title">감천문화마을</span><span class="spot-bilingual">감천문화마을 · Gamcheon Culture Village</span><span class="spot-note">바다와 색채가 겹치는 언덕</span></div>
+          </article>
+          <article class="spot-card">
+            <img src="../images/korea-journey/gangwon-seoraksan.png" alt="강원 Gangwon · 설악산 Seoraksan" />
+            <span class="spot-wash" aria-hidden="true"></span>
+            <div class="spot-copy"><span class="spot-region">강원 · Gangwon</span><span class="spot-title">설악산</span><span class="spot-bilingual">설악산 · Seoraksan</span><span class="spot-note">능선과 계절의 깊이를 담은 장면</span></div>
+          </article>
+          <article class="spot-card">
+            <img src="../images/korea-journey/jeju-seongsan.png" alt="제주 Jeju · 성산일출봉 Seongsan Ilchulbong" />
+            <span class="spot-wash" aria-hidden="true"></span>
+            <div class="spot-copy"><span class="spot-region">제주 · Jeju</span><span class="spot-title">성산일출봉</span><span class="spot-bilingual">성산일출봉 · Seongsan Ilchulbong</span><span class="spot-note">푸른 바다에서 다시 만나는 아침</span></div>
+          </article>
+        </div>
+      </section>
+
+      <p class="mock-footer">HTML mock · 실제 랜딩페이지의 라벨 배치 설명용입니다. 명소 이미지는 GloSource AI 로컬 자산을 참조하며, 이 화면 자체는 외부에 게시되지 않습니다.</p>
+    </main>
+
+    <script>
+      const hero = document.querySelector('.mock-hero');
+      const images = {
+        spring: '../images/glosource-hero-gyeongbokgung-spring.png',
+        summer: '../images/glosource-hero-gyeongbokgung-summer.png',
+        autumn: '../images/glosource-hero-gyeongbokgung-autumn.png',
+        winter: '../images/glosource-hero-gyeongbokgung-winter.png'
+      };
+      document.querySelectorAll('[data-season]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const season = button.dataset.season;
+          if (!season || !images[season]) return;
+          hero.style.setProperty('--hero-image', `url("${images[season]}")`);
+          document.querySelectorAll('[data-season]').forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
+        });
+      });
+    </script>
+  </body>
+</html>
