@@ -5,8 +5,8 @@
 - Project: GloSource AI Validation OS (기존 K-DEFENSE 증거는 보존)
 - Last calibrated: 2026-08-16 Asia/Seoul
 - Current branch: codex/p10-provenance-reconstruction
-- Head SHA baseline: 70457e7f883ef55804ca91129bf913f60a508c7b
-- Source state: 승인된 A-E 로컬 커밋 재구성의 HEAD는 `70457e7`이다. 이후 UI·Next.js 16·패키징·시각 자산·하네스 변경은 현재 working tree에만 있어 최신 archive는 `dirty=true`다. push·배포는 하지 않았다.
+- Exact release candidate: `3c5ca96bbba6aab56562a44819f8874e9ab0bb0b`
+- Source state: release/governance는 `6ee214d`, UI/시각 경험은 `3c5ca96`으로 로컬 커밋했다. exact candidate `3c5ca96`의 최신 archive는 `dirty=false`이며 push·배포는 하지 않았다.
 - Main synced: false — `origin/master`는 eed52fd887dad608a2e156573f8fbbe9f4f02176. 브랜치 push는 검증만 수행하고, master 승격은 수동 dispatch·`PROMOTE` 확인·production 환경 승인이 필요하도록 로컬 변경됨.
 - Current track: full_lifecycle_goal_harness
 - Working-tree increment: 2026-08-16 전체 로컬 검증, 최신 standalone diagnostic package, live control-plane 재감사 증거.
@@ -18,11 +18,12 @@
 - 현재 required reviewer는 로그인한 운영자 본인이고 `preventSelfReview=false`다. 독립 reviewer 없이 self-review 방지만 켜면 승인자가 사라지므로 provider 설정을 변경하지 않았다.
 - `verify:product`: 202/202, TypeScript 오류 0, ESLint 오류 0·경고 16.
 - `build`: Next.js 16.3.0, 88 routes, exit 0. 기존 Edge Runtime deprecation 경고는 유지된다.
-- `package:product`: `dist/glosource-ai-0.1.0-20260816T134313599Z.tgz`, 73,289,476 bytes, SHA-256 `ADCD24344B4707DC0F312570D56EB787D80A19A015E5E9A7FF763FB76073AD6D`.
-- package inspection: 2,452 files, blocked 0, all-zero 0, secrets included false, manifest `dirty=true`.
+- 로컬 provenance commits: `6ee214d`와 `3c5ca96`; push 없음.
+- `package:product`: `dist/glosource-ai-0.1.0-20260816T135231882Z.tgz`, 73,289,062 bytes, SHA-256 `359FD0DAF3DAA0EFB3ACBF0EB2F591916706DD57C37F4E6AF949E63293F35C2F`.
+- package inspection: 2,452 files, blocked 0, all-zero 0, secrets included false, manifest `dirty=false`, commit `3c5ca96bbba6`.
 - standalone smoke: 로컬 프로세스에만 `AUTH_URL`·`AUTH_TRUST_HOST=true`를 적용해 `/`, `/en`, `/api/auth/session` 200 및 제품 계약 7/7.
 - 상세 증거: `docs/harness/reports/2026-08-16-p10-release-advancement.md`.
-- P10은 독립 reviewer, self-review 방지, clean provenance, exact approval references가 없어 blocked다. commit·push·dispatch·배포·DB 변경·외부 발송은 0건이다.
+- P10은 독립 reviewer, self-review 방지, exact approval references가 없어 blocked다. 로컬 commit 2건을 만들었고 push·dispatch·배포·DB 변경·외부 발송은 0건이다.
 
 ## 2026-08-09 P10 Release Readiness Evidence Audit
 

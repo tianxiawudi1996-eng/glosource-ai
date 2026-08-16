@@ -59,14 +59,15 @@ npm run growth:outreach:preflight
 2026-08-16 P10 release advancement:
 
 - `npm run lifecycle:validate`: clean; active phase remains P10 blocked.
-- `npm run readiness:product`: expected blocked; local process 17/22, archive initially absent, source dirty.
+- `npm run readiness:product` after clean packaging: expected blocked only for local-process 17/22; archive present and source clean. This local-process scope does not replace the Vercel Production audit.
 - `npm run readiness:control-plane`: Vercel Production 22/22 and target match; GitHub reviewer rule 1, branch policy configured, `preventSelfReview=false`.
 - Sanitized GitHub follow-up: the sole reviewer is the current operator, so self-review prevention was not enabled without an independent reviewer.
 - `npm run verify:product`: 202/202 tests, TypeScript errors 0, ESLint errors 0 and warnings 16.
 - `npm run build`: Next.js 16.3.0, 88 routes, exit 0; existing Edge Runtime deprecation warning remains.
-- `npm run package:product`: archive `dist/glosource-ai-0.1.0-20260816T134313599Z.tgz`, 73,289,476 bytes, 2,452 files, SHA-256 `ADCD24344B4707DC0F312570D56EB787D80A19A015E5E9A7FF763FB76073AD6D`, blocked 0, all-zero 0, `secretsIncluded=false`, `dirty=true`.
+- Local provenance commits: `6ee214d` release/governance and `3c5ca96` UI/visual; no push.
+- `npm run package:product` from clean `3c5ca96`: archive `dist/glosource-ai-0.1.0-20260816T135231882Z.tgz`, 73,289,062 bytes, 2,452 files, SHA-256 `359FD0DAF3DAA0EFB3ACBF0EB2F591916706DD57C37F4E6AF949E63293F35C2F`, blocked 0, all-zero 0, `secretsIncluded=false`, `dirty=false`.
 - Package smoke with local-only `AUTH_URL` and `AUTH_TRUST_HOST=true`: `/`, `/en`, `/api/auth/session` HTTP 200; `growth:live-contract` 7/7.
-- No provider mutation, secret output, commit, push, workflow dispatch, deployment, migration, payment, or external send ran.
+- No provider mutation, secret output, push, workflow dispatch, deployment, migration, payment, or external send ran.
 
 2026-08-09 P10 read-only evidence audit:
 

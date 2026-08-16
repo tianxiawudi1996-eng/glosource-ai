@@ -4,11 +4,11 @@
   "repo": "tianxiawudi1996-eng/glosource-ai",
   "calibrated_at": "2026-08-16T22:50:00+09:00",
   "current_branch": "codex/p10-provenance-reconstruction",
-  "head_sha": "70457e7f883ef55804ca91129bf913f60a508c7b",
+  "head_sha": "3c5ca96bbba6aab56562a44819f8874e9ab0bb0b",
   "main_sha": "cdaae3d29ff6532290ba86cadb6d7afd76b27fb5",
   "origin_main_sha": "eed52fd887dad608a2e156573f8fbbe9f4f02176",
   "main_synced": false,
-  "source_state": "approved five-increment reconstruction remains at HEAD 70457e7; current UI, Next.js 16, packaging, visual assets, and harness changes are uncommitted, so the 2026-08-16 diagnostic archive is dirty and non-promotable",
+  "source_state": "release/governance changes were committed as 6ee214d and UI/visual changes as 3c5ca96; exact candidate 3c5ca96 produced a clean dirty=false standalone archive and remains unpushed",
   "track": "full_lifecycle_goal_harness",
   "latest_harness_artifact": {
     "id": "FINAL-14-DAY-REPORT",
@@ -60,14 +60,14 @@
     "audited_at": "2026-08-16T22:50:00+09:00",
     "state": "blocked",
     "report_path": "docs/harness/reports/2026-08-16-p10-release-advancement.md",
-    "tracked_modified_count": 20,
-    "untracked_count": 39,
+    "tracked_modified_count": 0,
+    "untracked_count": 0,
     "local_required_names": "17/22",
     "vercel_production_required_names": "22/22",
     "github_production_protected": false,
     "phase_advanced": false,
     "external_actions": 0,
-    "summary": "Current local candidate passes 202/202 tests, TypeScript, ESLint with zero errors, Next.js 16 build, standalone integrity, required-route smoke, and 7/7 product contract. Vercel Production is now 22/22 and GitHub has one reviewer plus a branch policy, but the reviewer is the current operator and self-review prevention is false. Enabling it alone would deadlock promotion. The latest archive records dirty=true, so independent review, clean provenance, and exact release approvals remain required."
+    "summary": "Exact candidate 3c5ca96 passes 202/202 tests, TypeScript, ESLint with zero errors, Next.js 16 build, standalone integrity, required-route smoke, and 7/7 product contract. Its archive records dirty=false with no blocked or all-zero files. Vercel Production is 22/22 and GitHub has one reviewer plus a branch policy, but the reviewer is the current operator and self-review prevention is false. Independent review and exact release approvals remain required."
   },
   "latest_provenance_partition": {
     "state": "executed_locally",

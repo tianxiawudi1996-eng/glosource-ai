@@ -8,7 +8,7 @@
 
 ## DONE (로컬 제안·외부 실행 없음)
 
-- P10-RELEASE-ADVANCEMENT-20260816 @ working-tree — Vercel Production 22/22와 GitHub reviewer 1명·branch policy를 live read-only 재확인했다. 유일 reviewer가 현재 운영자이고 `preventSelfReview=false`라 독립 reviewer 없이 활성화하면 promotion이 교착된다. 로컬 202/202·typecheck·lint 오류 0·build 88 routes·package integrity·필수 3경로 200·제품 계약 7/7 통과. 최신 archive는 `dirty=true` diagnostic artifact이며 provider 변경·commit·push·dispatch·배포 0건. 보고서: `docs/harness/reports/2026-08-16-p10-release-advancement.md`.
+- P10-RELEASE-ADVANCEMENT-20260816 @ `3c5ca96` — Vercel Production 22/22와 GitHub reviewer 1명·branch policy를 live read-only 재확인했다. 유일 reviewer가 현재 운영자이고 `preventSelfReview=false`라 독립 reviewer 없이 활성화하면 promotion이 교착된다. 릴리스/거버넌스 `6ee214d`, UI/시각 경험 `3c5ca96`으로 로컬 provenance를 고정했고 202/202·typecheck·lint 오류 0·build 88 routes·clean package integrity·필수 3경로 200·제품 계약 7/7 통과. provider 변경·push·dispatch·배포 0건. 보고서: `docs/harness/reports/2026-08-16-p10-release-advancement.md`.
 
 - GLO-WEBSTYLE-PROPOSALS-20260811 @ working-tree — 첨부 `웹스타일 레퍼런스.pptx` 33슬라이드의 스타일 DNA를 분석해 4~5개 레퍼런스 조합의 5개 HTML Mock과 overview를 `public/mockups/`에 추가했다. KR/EN 카피·가격·CTA·sourcing 방향을 분리 보존했으며 경복궁·6개 지역 명소에 한글/영문 라벨과 alt를 제공했다. 360/375/414/768/1440 browser QA, 이미지·overflow·focus 점검을 통과했다. artifact-tool 자동 렌더는 패키지 누락으로 실행하지 못했고 그 한계를 matrix에 기록했다. P10 blocked 유지, 외부 게시·배포·commit·push 0건. 계획: `docs/plans/2026-08-11-webstyle-reference-proposals.md`.
 
@@ -20,7 +20,7 @@
 
 ## BLOCKED (게이트/외부 필요)
 
-- P10-PRODUCTION-PROMOTION — Vercel required names는 22/22다. GitHub Production의 현재 유일 reviewer가 운영자 본인이므로 독립 reviewer를 추가·지정한 뒤 `preventSelfReview=true`를 활성화해야 한다. 이후 의도된 변경만 clean commit으로 고정하고 `G_RELEASE`·`G_PRODUCTION_CONTROL_PLANE_CHANGE`를 exact SHA/rollback target에 연결한다.
+- P10-PRODUCTION-PROMOTION — Vercel required names는 22/22이고 exact candidate `3c5ca96`의 clean archive가 있다. GitHub Production의 현재 유일 reviewer가 운영자 본인이므로 독립 reviewer를 추가·지정한 뒤 `preventSelfReview=true`를 활성화해야 한다. 이후 `G_RELEASE`·`G_PRODUCTION_CONTROL_PLANE_CHANGE`를 exact SHA/rollback target에 연결한다.
 - GLO-FOOD-BIZRNO-REGISTRY-ACTIVATE — `DART_API_KEY` 발급 + prod 마이그레이션 후 `npm run db:ingest:opendart`. 수집 결과가 7개 업체를 실제로 매칭한 경우에만 curated 번호를 `opendart-registry`로 승격하고 prod 시드를 실행한다. 미매칭·동명이인은 fail-closed하며 번호를 추정하지 않는다.
 - GLO-REPLY-TRIAGE-ACTIVATE — `growth:replies`는 `GMAIL_OAUTH_CLIENT_ID`, `GMAIL_OAUTH_CLIENT_SECRET`, `GMAIL_OAUTH_REFRESH_TOKEN`, `GMAIL_ACCOUNT` 부재로 2026-07-18 fail. 값 확보 후 reply 탐지/분류만 재개하며 실제 draft 생성·발송은 별도 승인 게이트다.
 - GLO-003 — 실제 ICP 리드 20명 1차 배치: **SOP/플레이북 완료**([kbeauty-lead-sourcing-playbook.md](../growth/kbeauty-lead-sourcing-playbook.md)) — 채널별 쿼리·인테이크 스키마·게이트 워크플로우 준비됨. **남은 것=실 수집**: intent 채널(LinkedIn/커뮤니티) 사람 판정 또는 인바운드(배포 후). 콜드 스크래핑 부적합·가짜 리드 금지.

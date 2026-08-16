@@ -2,17 +2,16 @@
 
 ## Status
 
-`blocked` — local verification and packaging are green, and the Vercel
-Production environment-name contract is complete. Production promotion is not
+`blocked` — local verification, clean-provenance packaging, and the Vercel
+Production environment-name contract are green. Production promotion is not
 safe yet because the only configured GitHub environment reviewer is the current
-operator account while `prevent_self_review=false`, and the source tree is
-dirty.
+operator account while `prevent_self_review=false`.
 
 ## Fixed target
 
 - Repository: `tianxiawudi1996-eng/glosource-ai`
 - Branch: `codex/p10-provenance-reconstruction`
-- HEAD: `70457e7f883ef55804ca91129bf913f60a508c7b`
+- Exact release candidate: `3c5ca96bbba6aab56562a44819f8874e9ab0bb0b`
 - Vercel project: `team_1O8DJuyjKpmyIUqPSadnA3Cv` / `prj_YWNLp4TP9OQKt6jvSPVMfYg0QdfA` (`glosource-ai`)
 - GitHub environment: `Production`
 
@@ -33,14 +32,16 @@ dirty.
   warnings 16.
 - `npm run build`: Next.js 16.3.0, 88 routes, exit 0. The existing Edge Runtime
   deprecation warning remains.
-- `npm run package:product`: exit 0.
+- Local provenance commits: `6ee214d` (release/governance) and `3c5ca96`
+  (UI/visual experience). Neither commit was pushed.
+- `npm run package:product` from clean candidate `3c5ca96`: exit 0.
 - Archive:
-  `dist/glosource-ai-0.1.0-20260816T134313599Z.tgz`
-- Size: 73,289,476 bytes
+  `dist/glosource-ai-0.1.0-20260816T135231882Z.tgz`
+- Size: 73,289,062 bytes
 - SHA-256:
-  `ADCD24344B4707DC0F312570D56EB787D80A19A015E5E9A7FF763FB76073AD6D`
+  `359FD0DAF3DAA0EFB3ACBF0EB2F591916706DD57C37F4E6AF949E63293F35C2F`
 - Package inspection: 2,452 files, blocked files 0, all-zero files 0,
-  `secretsIncluded=false`, `dirty=true`.
+  `secretsIncluded=false`, `dirty=false`, manifest commit `3c5ca96bbba6`.
 - Package smoke with local-process-only `AUTH_URL` and
   `AUTH_TRUST_HOST=true`: `/`, `/en`, `/api/auth/session` HTTP 200;
   `npm run growth:live-contract` 7/7.
@@ -49,11 +50,9 @@ dirty.
 
 1. Add or nominate an independent GitHub Production reviewer, then enable
    self-review prevention and repeat the sanitized control-plane audit.
-2. Partition and commit the intended release changes so the exact candidate has
-   clean provenance. The diagnostic archive cannot be promoted because its
-   manifest records `dirty=true`.
-3. Record `G_RELEASE` and `G_PRODUCTION_CONTROL_PLANE_CHANGE` against the exact
+2. Record `G_RELEASE` and `G_PRODUCTION_CONTROL_PLANE_CHANGE` against the exact
    clean SHA and approved rollback target before dispatch or deployment.
 
-No secret value, commit, push, workflow dispatch, deployment, database change,
-payment action, or external send occurred in this loop.
+No secret value, push, workflow dispatch, deployment, database change, payment
+action, or external send occurred in this loop. Two local commits were created
+to establish clean provenance.
