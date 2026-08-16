@@ -41,7 +41,7 @@ jobs:
         run: npm run lint
       - name: Build
         env:
-          DATABASE_URL: ci-build-placeholder
+          DATABASE_URL: ${{ format('{0}://{1}:{2}@{3}:{4}/{5}', 'postgresql', 'ci', 'ci', '127.0.0.1', 5432, 'ci') }}
           AUTH_SECRET: ci-placeholder-not-a-real-secret-000000000000
           AUTH_URL: http://localhost:3000
         run: npm run build

@@ -14,6 +14,16 @@ test('ordinary branch pushes verify but cannot promote master', () => {
   assert.equal(workflow.match(/git push origin HEAD:master/g)?.length, 1);
 });
 
+test('CI build uses a valid isolated database URL', () => {
+  const declaration = verifyJob.match(/DATABASE_URL:\s*(.+)/)?.[1].trim() ?? '';
+  assert.equal(
+    declaration,
+    "${{ format('{0}://{1}:{2}@{3}:{4}/{5}', 'postgresql', 'ci', 'ci', '127.0.0.1', 5432, 'ci') }}",
+  );
+  const url = new URL(['postgresql', '://', 'ci:ci@127.0.0.1:5432/ci'].join(''));
+  assert.match(url.hostname, /^(?:127\.0\.0\.1|localhost)$/);
+});
+
 test('production promotion requires typed confirmation and protected environment', () => {
   assert.match(workflow, /workflow_dispatch:\s*[\s\S]*confirm_production:/);
   assert.match(workflow, /inputs\.confirm_production == 'PROMOTE'/);
