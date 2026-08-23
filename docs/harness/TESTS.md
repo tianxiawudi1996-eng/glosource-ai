@@ -20,6 +20,7 @@ npm run growth:audit
 npm run growth:payments
 npm run growth:live-contract
 npm run readiness:product
+npm run readiness:release-receipt
 npm run readiness:control-plane
 npm run readiness:promotion-context -- --candidate-sha <candidate-sha> --rollback-sha <rollback-sha>
 npm run readiness:promotion-evidence -- <ignored-private-evidence.json> --candidate-sha <candidate-sha> --rollback-sha <rollback-sha>
@@ -57,6 +58,15 @@ npm run growth:outreach:preflight
 - 최종 계속/수정/중단 판단
 
 ## Last Green Run
+
+2026-08-23 non-self-invalidating local release receipt harness:
+
+- `npx tsx --test tests/local-release-receipt.test.ts tests/release-packaging.test.ts tests/product-readiness.test.ts`: 15/15 pass.
+- `npm test`: 248/248 pass, including Windows signal-terminated child-process cleanup.
+- `npx tsc --noEmit`: pass after explicit unknown-number narrowing and child-process environment typing.
+- Receipt schema rejects unknown/sensitive fields, dirty source, candidate/hash/size/manifest drift, and archives outside `dist/`.
+- Actual post-commit proof requires `npm run package:product`, `npm run receipt:release -- --archive <exact archive>`, and `npm run readiness:release-receipt` on the resulting clean HEAD.
+- Receipt output is ignored, sanitized, local-only, and does not authorize Production action.
 
 2026-08-23 local clean candidate consolidation:
 

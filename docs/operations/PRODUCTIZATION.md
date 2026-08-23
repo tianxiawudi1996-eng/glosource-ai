@@ -38,6 +38,35 @@ Next.js standalone output can contain junctions or symlinks; the release copier
 dereferences them so Windows packaging does not require symlink-creation
 privileges.
 
+## Non-self-invalidating local receipt
+
+Tracked Harness files cannot safely store the exact post-build artifact receipt:
+editing and committing that receipt changes `HEAD`, which immediately makes the
+archive stale. GloSource therefore stores local package/smoke receipts under the
+already ignored `reports/harness/private/local-release-receipts/` directory.
+
+After creating an archive from a clean candidate, run:
+
+```bash
+npm run receipt:release -- --archive dist/<exact-archive>.tgz
+npm run readiness:release-receipt
+```
+
+`receipt:release` fails unless the worktree is clean and the archive manifest is
+bound to the exact current `HEAD`. It extracts the actual `.tgz` into an OS temp
+directory, rejects blocked or all-zero files, starts only that extracted server
+on `127.0.0.1` with generated smoke-only configuration, checks `/`, `/en`,
+`/api/auth/session`, and runs the 7-route product contract. Raw logs and generated
+values are discarded; only a sanitized candidate/archive/smoke receipt is written
+atomically.
+
+`readiness:release-receipt` derives the receipt filename from the current
+40-character `HEAD`, then rechecks clean source, archive path, SHA-256, size, and
+manifest binding. A code, archive, or receipt change therefore fails closed
+without requiring a tracked documentation edit. This local receipt is not a
+Production approval, provider audit, backup, restore, rollback, migration, or
+deployment receipt.
+
 ## Runtime
 
 Extract the archive, enter the packaged directory, configure the environment,

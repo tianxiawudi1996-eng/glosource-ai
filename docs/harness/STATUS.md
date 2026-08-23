@@ -5,12 +5,21 @@
 - Project: GloSource AI Validation OS (기존 K-DEFENSE 증거는 보존)
 - Last calibrated: 2026-08-23 Asia/Seoul
 - Current branch: codex/p10-provenance-reconstruction
-- Exact release candidate: 이 보고서를 포함하는 승인된 로컬 current HEAD. Git object는 자신의 SHA를 같은 commit 안에 자가 포함할 수 없으므로 정확한 40자리 값은 `git rev-parse HEAD`로 해석한다.
-- Source state: 무료 entitlement·원자 quota·KR/EN 분리·EN 계약·release guardrail·candidate-bound promotion evidence preflight를 한 로컬 후보 commit에 통합한다. commit 직후 clean 상태와 exact SHA를 다시 확인하며 archive·promotion은 아직 만들지 않는다.
+- Exact release candidate: `npm run readiness:release-receipt`가 current clean HEAD와 ignored local receipt를 동적으로 결합해 판정한다. Git object의 SHA를 tracked file에 자가 포함하지 않는다.
+- Source state: 무료 entitlement·원자 quota·KR/EN 분리·EN 계약·release guardrail·candidate-bound promotion evidence preflight와 non-self-invalidating local receipt harness를 통합한다. 정확한 archive/receipt 상태는 실행 시점 검사 결과가 우선한다.
 - Main synced: false — `origin/master`는 eb7b171da0b79f925926ae6087fd9dc604cc3b98. 브랜치/운영에는 push·dispatch·배포하지 않았다.
 - Current track: full_lifecycle_goal_harness
-- Working-tree increment: 2026-08-23 승인된 local clean candidate consolidation. 전체 242/242, TypeScript, ESLint 오류 0, Next.js 16.3.0 production build 89/89 통과.
-- Next READY: `P10-CLEAN-CANDIDATE-PACKAGE` — clean current HEAD에서 standalone archive를 새로 만들고 manifest·무결성·필수 경로 smoke를 확인하는 로컬 작업. Production promotion은 별도 외부 증거와 승인이 열릴 때까지 blocked다.
+- Working-tree increment: 2026-08-23 non-self-invalidating local release receipt harness. Receipt는 ignored private 경로에 기록되고 current SHA·archive digest·manifest·smoke를 재검증한다.
+- Next READY: 동적 판정. `npm run readiness:release-receipt`가 `ready`이면 로컬 package READY는 없고 P10 외부 게이트만 남는다. `blocked`이면 blocker code에 해당하는 clean package/receipt 복구 한 건만 READY다.
+
+## 2026-08-23 Non-self-invalidating Local Release Receipt
+
+- tracked STATUS/TASK_QUEUE에 exact artifact SHA를 기록해 새 commit이 기존 archive를 stale로 만드는 자기무효화 루프를 제거했다.
+- `receipt:release`는 actual `.tgz` 재추출→blocked/all-zero 검사→loopback 필수 3경로→7-route 제품 계약→runtime error-token 0 순서가 모두 통과한 뒤에만 ignored receipt를 원자 기록한다.
+- `readiness:release-receipt`는 current 40-character HEAD에서 receipt 경로를 계산하고 clean source·archive SHA-256/size·manifest candidate binding을 다시 검사한다.
+- child runtime에는 inherited Secret 전체를 전달하지 않고 OS 실행에 필요한 allowlist와 생성된 smoke-only 값만 전달한다. Receipt와 stdout report에는 Secret·raw log·외부 실행이 없다.
+- 이 메커니즘은 local artifact evidence만 보존한다. independent reviewer, self-review prevention, fresh approvals, staging, backup/restore, rollback rehearsal은 계속 별도 P10 gate다.
+- 상세: `docs/harness/reports/2026-08-23-non-self-invalidating-release-receipt.md`.
 
 ## 2026-08-23 Local Clean Candidate Commit
 

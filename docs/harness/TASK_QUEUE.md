@@ -4,9 +4,11 @@
 
 ## READY (다음 비게이트 증분)
 
-- `P10-CLEAN-CANDIDATE-PACKAGE` — 승인된 local candidate commit의 exact current HEAD에서 새 standalone archive를 만들고 manifest SHA·blocked/all-zero 파일·`/`·`/en`·`/api/auth/session`·제품 계약을 로컬에서 검증한다. push·dispatch·migration·provider 변경·배포는 포함하지 않는다.
+- 동적 판정 — 먼저 `npm run readiness:release-receipt`를 실행한다. `ready`이면 local package 작업을 반복하지 않는다. `LOCAL_RELEASE_RECEIPT_MISSING` 또는 candidate/archive drift blocker이면 `npm run package:product` 후 exact archive에 `npm run receipt:release -- --archive <path>`를 실행하는 복구 한 건만 READY다.
 
 ## DONE (로컬 제안·외부 실행 없음)
+
+- P10-NON-SELF-INVALIDATING-RELEASE-RECEIPT-20260823 @ candidate-current-HEAD — tracked 문서 commit이 artifact SHA를 다시 바꾸는 루프를 없애기 위해 current candidate SHA별 ignored receipt를 도입했다. 실제 archive 재추출, blocked/all-zero 검사, loopback 3경로, 제품 계약 7/7, runtime error-token 0 뒤에만 원자 기록하며 check command가 SHA/hash/size/manifest를 재결합한다. 외부 실행·push·migration·provider 변경·배포 0건. 보고서: `docs/harness/reports/2026-08-23-non-self-invalidating-release-receipt.md`.
 
 - P10-LOCAL-CLEAN-CANDIDATE-20260823 @ candidate-current-HEAD — 사용자가 승인한 범위에서 누적된 제품 계약·quota·UI·release-governance·Harness 변경을 검토하고 단일 local candidate commit으로 고정한다. exact SHA는 commit 직후 `git rev-parse HEAD`로 확인한다. 242/242·TypeScript·ESLint 오류 0·Next.js build 89/89·Harness guards 통과. push·PR·dispatch·migration·provider 변경·배포 0건. 보고서: `docs/harness/reports/2026-08-23-clean-candidate-commit.md`.
 

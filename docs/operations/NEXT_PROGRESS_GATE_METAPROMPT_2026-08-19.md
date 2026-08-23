@@ -29,7 +29,8 @@ SCOPE:
 - `git status -sb`로 기존 변경을 식별하고 보존한다.
 - README, 프로젝트 `AGENTS.md`, 관련 요구사항·Harness·Lifecycle prompt를 읽는다.
 - `npm run lifecycle:validate`, `npm run lifecycle:status`로 현재 상태를 재확인한다.
-- `TASK_QUEUE.md`에서 실행 가능한 `READY` 정확히 한 건만 잠근다.
+- P10에서는 `npm run readiness:release-receipt`를 먼저 실행한다. current HEAD receipt가 `ready`이면 정적 package READY를 반복하지 않고 외부 gate만 남긴다. receipt가 missing/drifted일 때만 clean package/receipt 복구를 READY로 본다.
+- 그 다음 `TASK_QUEUE.md`에서 실행 가능한 `READY` 정확히 한 건만 잠근다.
 - READY가 있으면 요구사항 ID, 수용조건, 실패·권한·접근성 경로를 고정하고 최소 변경→관련 검증→문서 보고 순서로 실행한다.
 - READY가 없으면 본 메타프롬프트와 증거 보고서만 갱신하고 멈춘다.
 
@@ -56,7 +57,7 @@ AUTHORITY / PERMISSIONS:
 
 WORKFLOW:
 
-`Inspect → 상태표 → READY 1건 → 수용조건 → 작업 1건 → 관련 검증 → 증거 보고 → 문서 갱신`.
+`Inspect → 동적 release receipt 판정 → 상태표 → READY 1건 → 수용조건 → 작업 1건 → 관련 검증 → 증거 보고 → 문서 갱신`.
 
 READY가 없거나 동일 원인의 실패가 세 번 반복되면 즉시 `STOP`하고 blocker와 필요한 결정을 기록한다. 검증이 변경 위험을 실제로 증명하지 못하면 PASS라고 쓰지 않는다.
 
@@ -88,7 +89,7 @@ OUTPUTS / FORMAT:
 
 VERIFICATION / EVIDENCE:
 
-문서·Harness 변경 후 최소 `npm run harness:instructions`, `npm run lifecycle:validate`, `node scripts/check-sensitive-strings.mjs .harness-blocklist.local`, `node scripts/check-harness-placeholders.mjs docs/harness`, `node scripts/check-state-json.mjs docs/harness/STATE.json`, `git diff --check`를 실행한다. 코드/UI 변경이 있을 때만 관련 test, typecheck, lint, build, 브라우저 QA를 추가한다.
+문서·Harness 변경 후 최소 `npm run harness:instructions`, `npm run lifecycle:validate`, `npm run readiness:release-receipt`, `node scripts/check-sensitive-strings.mjs .harness-blocklist.local`, `node scripts/check-harness-placeholders.mjs docs/harness`, `node scripts/check-state-json.mjs docs/harness/STATE.json`, `git diff --check`를 실행한다. receipt readiness의 expected blocked는 blocker code와 source 상태가 일치할 때만 통과 증거로 기록한다. 코드/UI 변경이 있을 때만 관련 test, typecheck, lint, build, 브라우저 QA를 추가한다.
 
 MEMORY UPDATE:
 

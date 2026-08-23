@@ -11,6 +11,8 @@
     "verify:product": "npm test && tsc --noEmit && eslint",
     "package:product": "npm run build && tsx scripts/package-release.ts",
     "release:product": "npm run verify:product && npm run package:product",
+    "receipt:release": "tsx scripts/local-release-receipt.ts create",
+    "readiness:release-receipt": "tsx scripts/local-release-receipt.ts check",
     "readiness:product": "tsx scripts/check-product-readiness.ts",
     "readiness:control-plane": "tsx scripts/check-production-control-plane-readiness.ts",
     "readiness:promotion-evidence": "tsx scripts/check-promotion-evidence.ts",
