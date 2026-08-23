@@ -3,10 +3,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getCategoryByCode } from '../../lib/categories';
 import type { Category } from '../../lib/categories';
 import type { MarketRiskFlag, SourcingRequest, SourcingOutput, Supplier } from './types';
-import { kvConsumeFreeCredit, kvSaveHistory, extractTrustedIp } from '../../lib/kv';
+import { kvSaveHistory, extractTrustedIp } from '../../lib/kv';
 import { lookupMfdsFirms, lookupHaccpFirms, lookupMedicalDeviceFirms, lookupHealthFoodFirms, lookupQuasiDrugFirms, normFirmName, type MfdsMatch, type MedicalMatch } from '../../lib/mfds';
 import { checkBusinessStatus } from '../../lib/nts';
-import { checkAuthAndQuota, logUsage } from '../../lib/authMiddleware';
+import {
+  checkAuthAndQuota,
+  finalizeQuotaUsage,
+  releaseQuotaReservation,
+  type QuotaReservation,
+} from '../../lib/authMiddleware';
 import { enforceVerifiedSupplierQualityGate, verifiedSupplierUnavailableMessage } from '../../lib/supplier-verification';
 import { verifySupplierUrlIdentities } from '../../lib/supplier-url-verification';
 import { GOOGLE_SEARCH_TOOLS, hasGroundingMetadata } from '../../lib/gemini-grounding';
@@ -14,7 +19,10 @@ import { normalizeSupplierCandidate } from '../../lib/supplier-normalization';
 import { matchAeoCompanies } from '../../lib/aeo-companies';
 import { logAbuseSignal } from '@/app/lib/abuse';
 import { db, usageLogs, searchHistory, verifiedSuppliers } from '@/app/lib/db';
-import { redactSourcingOutputForFree } from '@/app/lib/free-access';
+import {
+  buildPlanVisibleSourcingResult,
+  redactSourcingOutputForFree,
+} from '@/app/lib/free-access';
 import {
   resolveSourcingRouteContract,
   type ProductSurface,
@@ -748,6 +756,8 @@ export async function handleSourcingPost(
   const start = Date.now();
   const routeDeadlineAt = start + 115_000;
   const postModelReserveMs = 15_000;
+  let quotaReservation: QuotaReservation | null = null;
+  let quotaFinalized = false;
   try {
     // Validate body BEFORE quota check — malformed requests must not consume quota
     const body = (await request.json()) as SourcingRequest;
@@ -777,6 +787,7 @@ export async function handleSourcingPost(
     const authResult = await checkAuthAndQuota(request, 'source', surface);
     if (!authResult.ok) return authResult.response;
     const { userId, plan } = authResult;
+    quotaReservation = authResult.quotaReservation;
     const ip = extractTrustedIp(request.headers);
 
     const req: SourcingRequest = {
@@ -873,7 +884,22 @@ export async function handleSourcingPost(
         : (lang === 'en' ? 'All AI models are unavailable. Please try again shortly.' : '모든 AI 모델이 응답하지 않습니다. 잠시 후 다시 시도해주세요.');
       // LLM unavailable — serve DB-curated verified suppliers instead of failing, if any match.
       const fb500 = await dbFallbackOutput(req, lang);
-      if (fb500) return NextResponse.json({ success: true, data: redactSourcingOutputForFree(fb500, plan, surface) });
+      if (fb500) {
+        await finalizeQuotaUsage(quotaReservation, {
+          userId,
+          ip,
+          surface,
+          action: 'source',
+          product: req.productDescription,
+          supplierCount: fb500.suppliers?.length,
+          durationMs: Date.now() - start,
+        });
+        quotaFinalized = true;
+        return NextResponse.json({
+          success: true,
+          data: redactSourcingOutputForFree(fb500, plan, surface),
+        });
+      }
       throw new Error(friendlyMsg);
     }
 
@@ -922,7 +948,22 @@ export async function handleSourcingPost(
     if (!qualityGate.ok) {
       // No search-grounded candidates passed the gate — serve DB-curated verified suppliers if any match.
       const fb424 = await dbFallbackOutput(req, lang);
-      if (fb424) return NextResponse.json({ success: true, data: redactSourcingOutputForFree(fb424, plan, surface) });
+      if (fb424) {
+        await finalizeQuotaUsage(quotaReservation, {
+          userId,
+          ip,
+          surface,
+          action: 'source',
+          product: req.productDescription,
+          supplierCount: fb424.suppliers?.length,
+          durationMs: Date.now() - start,
+        });
+        quotaFinalized = true;
+        return NextResponse.json({
+          success: true,
+          data: redactSourcingOutputForFree(fb424, plan, surface),
+        });
+      }
 
       kvSaveHistory({
         id: `${Date.now()}-ai-rejected`,
@@ -1130,30 +1171,41 @@ export async function handleSourcingPost(
       }).catch(() => {});
     }
 
+    const visibleResult = buildPlanVisibleSourcingResult(output, plan, surface);
+
     kvSaveHistory({
       id: `${Date.now()}-ai`,
       timestamp: new Date().toISOString(),
       source: 'ai',
       query: { product: req.productDescription, quantity: req.quantity, budget: req.budget ?? '' },
       status: 200,
-      supplierCount: output.suppliers?.length ?? 0,
-      raw: output,
+      supplierCount: visibleResult.supplierCount,
+      raw: visibleResult.output,
     }).catch(() => {});
 
-    // Always charge quota — result was returned regardless of grounding quality
-    await logUsage(userId, ip, surface, 'source', req.productDescription, liveSupplierCount, Date.now() - start);
+    // Complete the admission reservation before returning the billable result.
+    await finalizeQuotaUsage(quotaReservation, {
+      userId,
+      ip,
+      surface,
+      action: 'source',
+      product: req.productDescription,
+      supplierCount: liveSupplierCount,
+      durationMs: Date.now() - start,
+    });
+    quotaFinalized = true;
 
-    // Save full search result for logged-in users (dashboard history)
+    // Persist the same plan-visible result returned to this user. Dashboard history
+    // must never be a backdoor to the suppliers and details hidden by the free preview.
     if (userId) {
-      const topSuppliers = (output.suppliers ?? []).slice(0, 3).map(s => s.name).join(', ');
       db.insert(searchHistory).values({
         userId,
         surface,
         product: req.productDescription.slice(0, 300),
         region: req.countryPreference ?? 'any',
-        supplierCount: output.suppliers?.length ?? 0,
-        topSuppliers: topSuppliers || null,
-        resultJson: JSON.stringify(output),
+        supplierCount: visibleResult.supplierCount,
+        topSuppliers: visibleResult.topSuppliers,
+        resultJson: visibleResult.resultJson,
         durationMs: Date.now() - start,
       }).catch(() => {});
     }
@@ -1171,12 +1223,12 @@ export async function handleSourcingPost(
         },
       }).catch(() => {});
     }
-    if (!userId) kvConsumeFreeCredit(ip, surface).catch(() => {});
-
-    return NextResponse.json({ success: true, data: redactSourcingOutputForFree(output, plan, surface) });
+    return NextResponse.json({ success: true, data: visibleResult.output });
   } catch (error) {
     console.error('[GloSource API Error]', error);
     const message = error instanceof Error ? error.message : '소싱 분석 중 오류가 발생했습니다.';
     return NextResponse.json({ error: message }, { status: 500 });
+  } finally {
+    if (!quotaFinalized) await releaseQuotaReservation(quotaReservation);
   }
 }

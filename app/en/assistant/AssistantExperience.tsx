@@ -13,7 +13,16 @@ type Verification = {
   activeBusiness: boolean | null;
 };
 type Message = { role: 'user' | 'assistant'; content: string; verification?: Verification | null };
-type SearchAction = { product: string; quantity: string; country: 'korea' | 'china'; buyerCountry: string };
+type SearchAction = { product: string; quantity: string; country: 'korea'; buyerCountry: string };
+
+function parseSearchAction(value: unknown): SearchAction | null {
+  if (!value || typeof value !== 'object') return null;
+  const action = value as Record<string, unknown>;
+  if (typeof action.product !== 'string' || typeof action.quantity !== 'string' || typeof action.buyerCountry !== 'string') return null;
+  return action.country === 'korea'
+    ? { product: action.product, quantity: action.quantity, country: 'korea', buyerCountry: action.buyerCountry }
+    : null;
+}
 
 const STARTERS = [
   'Find Korean private-label sunscreen manufacturers for 5,000 units',
@@ -88,7 +97,7 @@ export default function AssistantExperience() {
       body: JSON.stringify({
         productDescription: action.product,
         quantity: action.quantity || '1000',
-        countryPreference: action.country,
+        countryPreference: 'korea',
         orderFrequency: 'one_time',
         outputLanguage: 'en',
         buyerCountry: (action.buyerCountry || 'GLOBAL') as BuyerCountry,
@@ -114,8 +123,17 @@ export default function AssistantExperience() {
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data?.reply || 'The assistant is unavailable.');
-      setMessages((current) => [...current, { role: 'assistant', content: data.reply || 'I found a next step.', verification: data.verification ?? null }]);
-      if (data.action?.type === 'search') await searchSuppliers(data.action.params as SearchAction);
+      const rawAction = data.action?.type === 'search' ? data.action.params : undefined;
+      const action = parseSearchAction(rawAction);
+      const actionWasRejected = data.action?.type === 'search' && !action;
+      setMessages((current) => [...current, {
+        role: 'assistant',
+        content: actionWasRejected
+          ? 'The global service currently searches Korean suppliers only. Please ask for Korean suppliers or a Korean manufacturer.'
+          : (data.reply || 'I found a next step.'),
+        verification: data.verification ?? null,
+      }]);
+      if (action) await searchSuppliers(action);
     } catch (error) {
       // Surface controlled API messages (rate limit, quota, etc.) but never a raw network/stack string.
       const raw = error instanceof Error ? error.message : '';

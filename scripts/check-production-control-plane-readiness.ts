@@ -33,12 +33,79 @@ export interface GithubEnvironmentQuery {
   deploymentBranchPolicyConfigured: boolean;
 }
 
+export interface GithubSecretNamesQuery {
+  queryStatus: QueryStatus;
+  configuredNames: string[];
+}
+
+export interface ProductionTargetContract {
+  schemaVersion: 1;
+  vercel: {
+    orgId: string;
+    projectId: string;
+    projectName: string;
+  };
+  github: {
+    repository: string;
+    environment: string;
+    requiredSecretNames: string[];
+  };
+}
+
 interface ControlPlaneReadinessInput {
   requiredEnvironment: readonly string[];
-  expectedProjectName: string;
+  expectedTarget: ProductionTargetContract | null;
   vercelLink: VercelLink | null;
   vercelQuery: VercelProductionQuery;
   githubQuery: GithubEnvironmentQuery;
+  githubSecretsQuery: GithubSecretNamesQuery;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value && typeof value === 'object' && !Array.isArray(value));
+}
+
+export function parseProductionTargetContract(
+  value: unknown,
+): ProductionTargetContract | null {
+  if (!isRecord(value) || value.schemaVersion !== 1) return null;
+  if (!isRecord(value.vercel) || !isRecord(value.github)) return null;
+
+  const vercel = value.vercel;
+  const github = value.github;
+  if (
+    typeof vercel.orgId !== 'string'
+    || !/^team_[A-Za-z0-9]+$/.test(vercel.orgId)
+    || typeof vercel.projectId !== 'string'
+    || !/^prj_[A-Za-z0-9]+$/.test(vercel.projectId)
+    || vercel.projectName !== RELEASE_IDENTITY.packageName
+    || typeof github.repository !== 'string'
+    || !/^[^/\s]+\/[^/\s]+$/.test(github.repository)
+    || typeof github.environment !== 'string'
+    || github.environment.toLowerCase() !== 'production'
+    || !Array.isArray(github.requiredSecretNames)
+    || github.requiredSecretNames.length === 0
+    || !github.requiredSecretNames.every(
+      (name) => typeof name === 'string' && /^[A-Z][A-Z0-9_]*$/.test(name),
+    )
+    || new Set(github.requiredSecretNames).size !== github.requiredSecretNames.length
+  ) {
+    return null;
+  }
+
+  return {
+    schemaVersion: 1,
+    vercel: {
+      orgId: vercel.orgId,
+      projectId: vercel.projectId,
+      projectName: vercel.projectName,
+    },
+    github: {
+      repository: github.repository,
+      environment: github.environment.toLowerCase(),
+      requiredSecretNames: [...github.requiredSecretNames],
+    },
+  };
 }
 
 function stripAnsi(value: string): string {
@@ -98,6 +165,7 @@ function unverifiedGithubQuery(): GithubEnvironmentQuery {
 
 export function normalizeGithubEnvironment(
   response: unknown,
+  expectedEnvironment = 'production',
 ): GithubEnvironmentQuery {
   if (!response || typeof response !== 'object' || Array.isArray(response)) {
     return unverifiedGithubQuery();
@@ -106,7 +174,7 @@ export function normalizeGithubEnvironment(
   const environment = response as Record<string, unknown>;
   if (
     typeof environment.name !== 'string'
-    || environment.name.toLowerCase() !== 'production'
+    || environment.name.toLowerCase() !== expectedEnvironment.toLowerCase()
     || !Array.isArray(environment.protection_rules)
     || !Object.prototype.hasOwnProperty.call(environment, 'deployment_branch_policy')
   ) {
@@ -192,6 +260,36 @@ export function normalizeGithubEnvironment(
   };
 }
 
+export function parseGithubSecretNames(
+  response: unknown,
+  requiredNames: readonly string[],
+): GithubSecretNamesQuery {
+  if (!isRecord(response) || !Array.isArray(response.secrets)) {
+    return { queryStatus: 'unverified', configuredNames: [] };
+  }
+  if (
+    typeof response.total_count !== 'number'
+    || !Number.isSafeInteger(response.total_count)
+    || response.total_count < 0
+    || response.total_count !== response.secrets.length
+  ) {
+    return { queryStatus: 'unverified', configuredNames: [] };
+  }
+
+  const required = new Set(requiredNames);
+  const configured = new Set<string>();
+  for (const entry of response.secrets) {
+    if (!isRecord(entry) || typeof entry.name !== 'string') {
+      return { queryStatus: 'unverified', configuredNames: [] };
+    }
+    if (required.has(entry.name)) configured.add(entry.name);
+  }
+  return {
+    queryStatus: 'verified',
+    configuredNames: [...configured].sort(),
+  };
+}
+
 export function parseGithubRepository(
   remoteUrl: string,
 ): { owner: string; repo: string } | null {
@@ -212,13 +310,23 @@ export function buildControlPlaneReadinessReport(
   );
   const targetMatch = Boolean(
     linkComplete
-    && input.vercelLink?.projectName === input.expectedProjectName,
+    && input.expectedTarget
+    && input.vercelLink?.orgId === input.expectedTarget.vercel.orgId
+    && input.vercelLink.projectId === input.expectedTarget.vercel.projectId
+    && input.vercelLink.projectName === input.expectedTarget.vercel.projectName,
   );
   const configured = new Set(input.vercelQuery.configuredNames);
   const missing = input.requiredEnvironment.filter((name) => !configured.has(name));
+  const configuredGithubSecrets = new Set(
+    input.githubSecretsQuery.configuredNames,
+  );
+  const missingGithubSecrets = input.expectedTarget?.github.requiredSecretNames
+    .filter((name) => !configuredGithubSecrets.has(name)) ?? [];
   const blockers: string[] = [];
 
-  if (!linkComplete) {
+  if (!input.expectedTarget) {
+    blockers.push('The tracked Production target contract is missing or invalid.');
+  } else if (!linkComplete) {
     blockers.push('Vercel project link is missing or incomplete.');
   } else if (!targetMatch) {
     blockers.push('Vercel linked project does not match the expected GloSource AI project.');
@@ -249,6 +357,14 @@ export function buildControlPlaneReadinessReport(
     if (!input.githubQuery.deploymentBranchPolicyConfigured) {
       blockers.push('GitHub Production deployment branch policy is not configured.');
     }
+  }
+
+  if (input.githubSecretsQuery.queryStatus !== 'verified') {
+    blockers.push('GitHub Production secret names could not be verified.');
+  } else if (missingGithubSecrets.length > 0) {
+    blockers.push(
+      `GitHub Production is missing required secret name(s): ${missingGithubSecrets.join(', ')}.`,
+    );
   }
 
   return {
@@ -284,6 +400,21 @@ async function readVercelLink(projectRoot: string): Promise<VercelLink | null> {
     return JSON.parse(
       await readFile(join(projectRoot, '.vercel', 'project.json'), 'utf8'),
     ) as VercelLink;
+  } catch {
+    return null;
+  }
+}
+
+async function readProductionTargetContract(
+  projectRoot: string,
+): Promise<ProductionTargetContract | null> {
+  try {
+    return parseProductionTargetContract(JSON.parse(
+      await readFile(
+        join(projectRoot, 'docs', 'operations', 'PRODUCTION_TARGET.json'),
+        'utf8',
+      ),
+    ));
   } catch {
     return null;
   }
@@ -335,57 +466,103 @@ async function queryVercelProduction(
 
 async function queryGithubProduction(
   projectRoot: string,
-): Promise<GithubEnvironmentQuery> {
+  expectedTarget: ProductionTargetContract,
+): Promise<{
+  environment: GithubEnvironmentQuery;
+  secrets: GithubSecretNamesQuery;
+}> {
+  const unverified = {
+    environment: unverifiedGithubQuery(),
+    secrets: { queryStatus: 'unverified' as const, configuredNames: [] },
+  };
   const origin = await runReadOnlyCommand(
     'git',
     ['remote', 'get-url', 'origin'],
     projectRoot,
   );
-  if (origin === null) return unverifiedGithubQuery();
+  if (origin === null) return unverified;
   const repository = parseGithubRepository(origin);
-  if (!repository) return unverifiedGithubQuery();
+  if (!repository) return unverified;
+  const repositoryName = `${repository.owner}/${repository.repo}`;
+  if (repositoryName !== expectedTarget.github.repository) return unverified;
 
-  const response = await runReadOnlyCommand(
-    'gh',
-    [
-      'api',
-      `repos/${repository.owner}/${repository.repo}/environments/production`,
-    ],
-    projectRoot,
-  );
-  if (response === null) return unverifiedGithubQuery();
+  const environmentPath = encodeURIComponent(expectedTarget.github.environment);
+  const [environmentResponse, secretsResponse] = await Promise.all([
+    runReadOnlyCommand(
+      'gh',
+      [
+        'api',
+        `repos/${repository.owner}/${repository.repo}/environments/${environmentPath}`,
+      ],
+      projectRoot,
+    ),
+    runReadOnlyCommand(
+      'gh',
+      [
+        'api',
+        `repos/${repository.owner}/${repository.repo}/environments/${environmentPath}/secrets?per_page=100`,
+      ],
+      projectRoot,
+    ),
+  ]);
   try {
-    return normalizeGithubEnvironment(JSON.parse(response));
+    return {
+      environment: environmentResponse === null
+        ? unverifiedGithubQuery()
+        : normalizeGithubEnvironment(
+            JSON.parse(environmentResponse),
+            expectedTarget.github.environment,
+          ),
+      secrets: secretsResponse === null
+        ? unverified.secrets
+        : parseGithubSecretNames(
+            JSON.parse(secretsResponse),
+            expectedTarget.github.requiredSecretNames,
+          ),
+    };
   } catch {
-    return unverifiedGithubQuery();
+    return unverified;
   }
 }
 
 export async function checkProductionControlPlaneReadiness(
   projectRoot = process.cwd(),
 ) {
-  const vercelLink = await readVercelLink(projectRoot);
+  const [vercelLink, expectedTarget] = await Promise.all([
+    readVercelLink(projectRoot),
+    readProductionTargetContract(projectRoot),
+  ]);
   const linkUsable = Boolean(
-    vercelLink?.projectId
-    && vercelLink.orgId
-    && vercelLink.projectName === RELEASE_IDENTITY.packageName,
+    expectedTarget
+    && vercelLink?.projectId === expectedTarget.vercel.projectId
+    && vercelLink.orgId === expectedTarget.vercel.orgId
+    && vercelLink.projectName === expectedTarget.vercel.projectName,
   );
-  const [vercelQuery, githubQuery] = await Promise.all([
+  const [vercelQuery, githubProduction] = await Promise.all([
     linkUsable
       ? queryVercelProduction(projectRoot)
       : Promise.resolve({
           queryStatus: 'unverified' as const,
           configuredNames: [],
         }),
-    queryGithubProduction(projectRoot),
+    expectedTarget
+      ? queryGithubProduction(projectRoot, expectedTarget)
+      : Promise.resolve({
+          environment: unverifiedGithubQuery(),
+          secrets: {
+            queryStatus: 'unverified' as const,
+            configuredNames: [],
+          },
+        }),
   ]);
 
   return buildControlPlaneReadinessReport({
     requiredEnvironment: REQUIRED_PRODUCTION_ENV,
-    expectedProjectName: RELEASE_IDENTITY.packageName,
+    expectedTarget,
     vercelLink,
     vercelQuery,
-    githubQuery,
+    githubQuery: githubProduction.environment,
+    githubSecretsQuery: githubProduction.secrets,
   });
 }
 

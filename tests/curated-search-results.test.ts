@@ -109,11 +109,11 @@ test('source route excludes curated insertions from live-result usage analytics'
   assert.match(route, /resultComposition\s*=\s*\{\s*liveSupplierCount,\s*curatedSupplierCount\s*\}/);
   assert.match(
     route,
-    /await logUsage\(userId,\s*ip,\s*surface,\s*'source',\s*req\.productDescription,\s*liveSupplierCount,/,
+    /await finalizeQuotaUsage\(quotaReservation,\s*\{[\s\S]*?action:\s*'source',[\s\S]*?supplierCount:\s*liveSupplierCount,/,
   );
   assert.doesNotMatch(
     route,
-    /logUsage\(userId,\s*ip,\s*surface,\s*'source',\s*req\.productDescription,\s*output\.suppliers/,
+    /supplierCount:\s*output\.suppliers/,
   );
 });
 

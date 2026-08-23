@@ -12,6 +12,18 @@ npm run verify:product
 npm run package:product
 ```
 
+`readiness:product` does not accept an archive based on filename or modification
+time alone. The selected `.tgz` must contain one valid
+`RELEASE-MANIFEST.json`, record `dirty=false`, use the current required
+environment-name contract, and identify the current clean Git `HEAD`.
+
+`readiness:control-plane` treats
+`docs/operations/PRODUCTION_TARGET.json` as the tracked deployment-target
+contract. The local Vercel link must match its exact organization ID, project
+ID, and project name. The check also reads only the names of GitHub Production
+environment secrets and confirms every name required by the tracked contract;
+it never reads or prints secret values.
+
 `verify:product` runs the complete automated test suite, TypeScript validation,
 and ESLint. `package:product` creates a fresh production build and writes:
 
@@ -74,3 +86,73 @@ headers; never expose the standalone Node.js process directly to the internet.
   is intentionally enabled.
 - Global paid access uses Polar.
 - “Registry Match” means matched evidence, not supplier endorsement.
+
+### Legacy quota transition
+
+Quota accounting never rewrites or guesses the surface of a legacy
+`usage_logs.surface IS NULL` row. Exact `kr` and `en` rows count only in their
+own bucket. Legacy `factory_direct`, `wechat`, and `image_analyze` actions are
+unambiguously KR-only in the tracked route contract, so they count only toward
+KR during their active quota window. A legacy `source` action is ambiguous and
+temporarily counts in neither bucket; this can allow a small amount of quota
+until those rows age out of the active window, but avoids charging the same
+unknown event to both products. Legacy rows remain unmodified and hidden from
+surface-specific history and dashboards.
+
+## Promotion boundary
+
+Production promotion runs share the repository-wide
+`glosource-production-promotion` concurrency lock, so migrations cannot overlap
+across refs.
+
+Before `db:migrate`, the protected promotion job now requires one sanitized
+`promotion_evidence_json` input and runs `readiness:promotion-evidence`. The
+input is never committed, printed, or retained by the repository. The validator
+fails closed unless the evidence binds all of the following to the checked-out
+candidate and the current `origin/master` rollback SHA:
+
+- the tracked Production target digest;
+- the exact migration journal and SQL bundle plus planned migration IDs;
+- a staging migration rehearsal receipt;
+- a fresh candidate-bound database backup receipt and a restore-test receipt
+  linked to that backup digest;
+- a rollback rehearsal receipt for the exact candidate and rollback SHA;
+- a fresh `ready` control-plane audit receipt;
+- exact `G_RELEASE` and `G_PRODUCTION_CONTROL_PLANE_CHANGE` approval references.
+
+Promotion evidence is valid for at most 24 hours. Backup, control-plane, and
+both distinct approval references must be no older than 24 hours; staging,
+restore, and rollback rehearsals must be no older than 30 days. Receipt
+references and SHA-256 digests are accepted, but raw logs, provider payloads,
+reviewer identities, database URLs, tokens, and secret values are outside the
+contract.
+
+GitHub may retain manual-dispatch inputs in workflow event metadata. For that
+reason the input is intentionally a sanitized index of external receipts, not
+the receipts themselves and never a place for secrets or raw logs.
+
+Generate the non-secret context to which an external evidence packet must bind:
+
+```bash
+npm run readiness:promotion-context -- \
+  --candidate-sha <exact-40-character-candidate-sha> \
+  --rollback-sha <exact-40-character-origin-master-sha>
+```
+
+Context generation fails unless the candidate is the exact clean `HEAD` and the
+rollback SHA is its Git ancestor. A digest generated from a dirty working tree
+cannot be used as promotion evidence.
+
+Then validate an ignored/private evidence file locally:
+
+```bash
+npm run readiness:promotion-evidence -- <private-evidence.json> \
+  --candidate-sha <exact-40-character-candidate-sha> \
+  --rollback-sha <exact-40-character-origin-master-sha>
+```
+
+The validator only proves that the supplied receipts are complete, fresh, and
+bound to the current code and target. It does not create a backup, perform a
+restore, query a provider, grant approval, run a migration, or authorize a
+deployment. Independent reviewer protection, current provider evidence, actual
+backup/restore execution, and fresh approvals remain external P10 gates.

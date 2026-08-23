@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { desc, eq } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 import { auth } from '@/auth';
 import { db, usageLogs } from '@/app/lib/db';
 
@@ -20,7 +20,10 @@ export async function GET() {
       createdAt: usageLogs.createdAt,
     })
     .from(usageLogs)
-    .where(eq(usageLogs.userId, session.user.id))
+    .where(and(
+      eq(usageLogs.userId, session.user.id),
+      eq(usageLogs.surface, 'kr'),
+    ))
     .orderBy(desc(usageLogs.createdAt))
     .limit(50);
 

@@ -4,9 +4,21 @@
 
 ## READY (다음 비게이트 증분)
 
-- 없음 — GLO-FOOD-BIZRNO-REGISTRY의 로컬 구현은 완료됐고, 남은 활성화는 OpenDART 인증키·prod DB 마이그레이션/수집 게이트다. READY가 다시 생길 때까지 증거 감사만 수행한다.
+- `P10-CLEAN-CANDIDATE-PACKAGE` — 승인된 local candidate commit의 exact current HEAD에서 새 standalone archive를 만들고 manifest SHA·blocked/all-zero 파일·`/`·`/en`·`/api/auth/session`·제품 계약을 로컬에서 검증한다. push·dispatch·migration·provider 변경·배포는 포함하지 않는다.
 
 ## DONE (로컬 제안·외부 실행 없음)
+
+- P10-LOCAL-CLEAN-CANDIDATE-20260823 @ candidate-current-HEAD — 사용자가 승인한 범위에서 누적된 제품 계약·quota·UI·release-governance·Harness 변경을 검토하고 단일 local candidate commit으로 고정한다. exact SHA는 commit 직후 `git rev-parse HEAD`로 확인한다. 242/242·TypeScript·ESLint 오류 0·Next.js build 89/89·Harness guards 통과. push·PR·dispatch·migration·provider 변경·배포 0건. 보고서: `docs/harness/reports/2026-08-23-clean-candidate-commit.md`.
+
+- P10-PROMOTION-EVIDENCE-PREFLIGHT-20260823 @ candidate-current-HEAD — 사용자 승인된 로컬 READY로 exact clean HEAD/rollback ancestry, candidate/rollback SHA, target/migration digest, staging·backup→restore·rollback rehearsal, current control-plane audit, distinct fresh approvals를 `db:migrate` 전에 검증하는 fail-closed preflight를 구현했다. 최종 집중 17/17·전체 242/242·typecheck·lint 오류 0 통과. 실제 receipt·push·dispatch·provider/DB 변경·배포 0건. 보고서: `docs/harness/reports/2026-08-23-p10-promotion-evidence-preflight.md`.
+
+- GLO-EN-RESTRAINED-KOREAN-MODERN-20260821 @ working-tree — `/en`의 한국미를 인물·계절 전환에서 맑은 경복궁 건축, 한영 명소명, 작은 단청 accent로 절제했다. EN host/season control은 DOM에서 제거하고 Journey는 중성 배경·낮은 3장 rail로 조정했다. 기존 영문 카피·CTA·가격·quota·registry 계약은 유지. 232/232·typecheck·lint 오류 0·build 89 routes·1440/390 browser QA와 Busan pressed/rail interaction 통과. P10 blocked, 외부 실행·commit·push·배포 0건. 보고서: `docs/harness/reports/2026-08-21-en-restrained-korean-modern.md`.
+
+- GLO-EN-EVIDENCE-KOREA-70-30-20260821 @ working-tree — `/en`의 기존 영문 제품 계약을 유지하고 Hero → registry evidence → category → Seoul/Busan/Jeju Journey → sourcing problem 순서로 재설계했다. EN 자동 계절·캐릭터 loop와 synthetic counter를 제거하고 모바일 얼굴 가림·수평 overflow를 방지했다. 232/232·typecheck·lint 오류 0·build 89 routes·1440/390 browser QA 통과. P10 blocked, 외부 실행·commit·push·배포 0건. 보고서: `docs/harness/reports/2026-08-21-en-evidence-korea-70-30.md`.
+
+- P10-CODE-PRODUCT-REVIEW-REMEDIATION-20260818 @ working-tree — KR 무료 5회/검색당 1 preview 서버 redaction, plan-visible history, 원자 quota reservation, legacy KR/EN 분리, EN 월 카운터/Korea-only assistant, exact archive/production target guard를 통합했다. 229/229·typecheck·lint 오류 0·build 89 routes·live contract 7/7 통과. 신규 migration은 미적용이며 commit·push·dispatch·배포·provider/DB 변경은 0건. 보고서: `docs/harness/reports/2026-08-18-code-product-review-remediation.md`.
+
+- GLO-KOREAN-MOCK-BRIDGE-20260818 @ working-tree — 승인된 Web Style Mock의 Atelier·Dancheong·Heritage Journey DNA를 `/`·`/en` Hero, 네비게이션, KR 채널 스트립, 대한민국 여정에 연결했다. 기존 제품 카피·CTA·가격·quota·sourcing 경계를 보존했고, Journey 초기 세로 스크롤 회귀와 EN 모바일 헤더 잘림을 수정했다. 229/229·typecheck·lint 오류 0·build 89 routes·1440/390 browser QA·harness checks 통과. P10 blocked, 외부 실행·commit·push·배포 0건. 계획: `docs/plans/2026-08-18-korean-mock-production-bridge.md`.
 
 - P10-RELEASE-ADVANCEMENT-20260816 @ `3c5ca96` — Vercel Production 22/22와 GitHub reviewer 1명·branch policy를 live read-only 재확인했다. 유일 reviewer가 현재 운영자이고 `preventSelfReview=false`라 독립 reviewer 없이 활성화하면 promotion이 교착된다. 릴리스/거버넌스 `6ee214d`, UI/시각 경험 `3c5ca96`으로 로컬 provenance를 고정했고 202/202·typecheck·lint 오류 0·build 88 routes·clean package integrity·필수 3경로 200·제품 계약 7/7 통과. provider 변경·push·dispatch·배포 0건. 보고서: `docs/harness/reports/2026-08-16-p10-release-advancement.md`.
 
@@ -20,7 +32,7 @@
 
 ## BLOCKED (게이트/외부 필요)
 
-- P10-PRODUCTION-PROMOTION — Vercel required names는 22/22이고 exact candidate `3c5ca96`의 clean archive가 있다. GitHub Production의 현재 유일 reviewer가 운영자 본인이므로 독립 reviewer를 추가·지정한 뒤 `preventSelfReview=true`를 활성화해야 한다. 이후 `G_RELEASE`·`G_PRODUCTION_CONTROL_PLANE_CHANGE`를 exact SHA/rollback target에 연결한다.
+- P10-PRODUCTION-PROMOTION — candidate-bound evidence preflight는 로컬 구현됐지만 현재 remediation은 미커밋 dirty source이고 신규 quota migration `0005`는 staging/production 미적용이다. clean exact candidate, 실제 staging·backup·restore·rollback receipt, current ready control-plane audit, 독립 reviewer, `preventSelfReview=true`, distinct fresh `G_RELEASE`·`G_PRODUCTION_CONTROL_PLANE_CHANGE`가 모두 필요하다.
 - GLO-FOOD-BIZRNO-REGISTRY-ACTIVATE — `DART_API_KEY` 발급 + prod 마이그레이션 후 `npm run db:ingest:opendart`. 수집 결과가 7개 업체를 실제로 매칭한 경우에만 curated 번호를 `opendart-registry`로 승격하고 prod 시드를 실행한다. 미매칭·동명이인은 fail-closed하며 번호를 추정하지 않는다.
 - GLO-REPLY-TRIAGE-ACTIVATE — `growth:replies`는 `GMAIL_OAUTH_CLIENT_ID`, `GMAIL_OAUTH_CLIENT_SECRET`, `GMAIL_OAUTH_REFRESH_TOKEN`, `GMAIL_ACCOUNT` 부재로 2026-07-18 fail. 값 확보 후 reply 탐지/분류만 재개하며 실제 draft 생성·발송은 별도 승인 게이트다.
 - GLO-003 — 실제 ICP 리드 20명 1차 배치: **SOP/플레이북 완료**([kbeauty-lead-sourcing-playbook.md](../growth/kbeauty-lead-sourcing-playbook.md)) — 채널별 쿼리·인테이크 스키마·게이트 워크플로우 준비됨. **남은 것=실 수집**: intent 채널(LinkedIn/커뮤니티) 사람 판정 또는 인바운드(배포 후). 콜드 스크래핑 부적합·가짜 리드 금지.

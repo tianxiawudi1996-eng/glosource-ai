@@ -1,5 +1,4 @@
 import { Redis } from '@upstash/redis';
-import { KR_ANONYMOUS_DAILY_SEARCH_LIMIT } from './free-plan';
 import type { ProductSurface } from './product-contracts';
 
 export interface HistoryEntry {
@@ -100,48 +99,6 @@ export function extractTrustedIp(
 export function freeCreditKey(ip: string, surface: ProductSurface): string {
   const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
   return `glosource:free:${surface}:${ip}:${today}`;
-}
-
-// Returns true if the IP is still under the anonymous free limit. This does not
-// consume credit; failed validation, model timeouts, and parse failures should
-// not burn a user's trial search.
-export async function kvCheckFreeCredit(
-  ip: string,
-  surface: ProductSurface,
-  limit = KR_ANONYMOUS_DAILY_SEARCH_LIMIT,
-): Promise<boolean> {
-  const redis = getRedis();
-  if (!redis) {
-    const allowLocalFallback = process.env.NODE_ENV !== 'production';
-    if (!allowLocalFallback) {
-      console.warn('[KV] Redis is not configured; blocking anonymous free credit in production.');
-    }
-    return allowLocalFallback;
-  }
-
-  try {
-    const count = await redis.get<number>(freeCreditKey(ip, surface));
-    return Number(count ?? 0) < limit;
-  } catch (e) {
-    console.warn('[KV] free credit check failed; blocking anonymous request:', e instanceof Error ? e.message : String(e));
-    return false;
-  }
-}
-
-// Consume credit only after a successful anonymous sourcing result.
-export async function kvConsumeFreeCredit(ip: string, surface: ProductSurface): Promise<void> {
-  const redis = getRedis();
-  if (!redis) return;
-
-  const key = freeCreditKey(ip, surface);
-  try {
-    const count = await redis.incr(key);
-    if (count === 1) {
-      await redis.expire(key, 86400); // TTL 24h
-    }
-  } catch (e) {
-    console.warn('[KV] free credit consume failed:', e instanceof Error ? e.message : String(e));
-  }
 }
 
 // Fixed-window rate limit backed by Redis so the count is shared across all

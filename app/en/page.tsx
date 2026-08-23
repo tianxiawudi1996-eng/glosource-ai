@@ -250,17 +250,17 @@ export default async function EnPage({
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD_FAQ) }} />
 
       {/* ── NAV ────────────────────────────────────────────── */}
-      <nav className="sticky top-0 z-30 bg-[#0D1B2A]/95 backdrop-blur border-b border-white/10">
+      <nav className="gs-en-nav sticky top-0 z-30 bg-[#0D1B2A]/95 backdrop-blur border-b border-white/10" data-style-dna="atelier-dancheong">
         <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between gap-4">
           <BrandLogo compact />
           <div className="flex items-center gap-3">
             <Link href="/en/assistant" className="hidden sm:block text-xs font-bold text-orange-300 hover:text-orange-200 transition-colors">AI Assistant</Link>
             <a href="#sample-reports" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden sm:block">Sample report</a>
-            <a href="#pricing" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors">Pricing</a>
+            <a href="#pricing" className="hidden sm:block text-xs font-semibold text-slate-300 hover:text-white transition-colors">Pricing</a>
             <Link href="/en/blog" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden sm:block">Blog</Link>
             <Link href="/en/case-studies" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden md:block">Examples</Link>
             <Link href="/en/about" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden md:block">About</Link>
-            <TrustCredibility lang="en" tone="dark" />
+            <span className="hidden sm:block"><TrustCredibility lang="en" tone="dark" /></span>
             {isLoggedIn ? (
               <>
                 <Link href="/en/dashboard" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden sm:block">
@@ -289,9 +289,6 @@ export default async function EnPage({
 
       {/* ── HERO ───────────────────────────────────────────── */}
       <HeroSection lang="en" />
-
-      {/* ── KOREA VISUAL JOURNEY ──────────────────────────── */}
-      <KoreaJourneySection lang="en" />
 
       {/* ── GOVERNMENT REGISTRY CROSS-CHECK ────────────────── */}
       {/* overflow-clip, not -hidden: -hidden would make this section a scroll container
@@ -402,6 +399,9 @@ export default async function EnPage({
           </p>
         </div>
       </section>
+
+      {/* ── KOREA VISUAL JOURNEY — after product proof ────── */}
+      <KoreaJourneySection lang="en" />
 
       {/* ── PROBLEM ─────────────────────────────────────────── */}
       <section className="border-b border-slate-200 bg-white">

@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 type JourneyLang = 'ko' | 'en';
 
@@ -86,6 +86,8 @@ const JOURNEY_SPOTS: JourneySpot[] = [
   },
 ];
 
+const EN_JOURNEY_SPOTS = JOURNEY_SPOTS.filter(({ id }) => ['seoul', 'busan', 'jeju'].includes(id));
+
 const COPY = {
   ko: {
     eyebrow: 'Korea, in one scroll · 대한민국 한 바퀴',
@@ -109,31 +111,50 @@ const COPY = {
 
 export default function KoreaJourneySection({ lang = 'ko' }: { lang?: JourneyLang }) {
   const [activeIndex, setActiveIndex] = useState(0);
+  const scrollerRef = useRef<HTMLDivElement>(null);
   const copy = COPY[lang];
+  const journeySpots = lang === 'en' ? EN_JOURNEY_SPOTS : JOURNEY_SPOTS;
+  const route = lang === 'en' ? 'SEOUL · BUSAN · JEJU' : copy.route;
 
   useEffect(() => {
+    if (lang === 'en') return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const timer = window.setInterval(() => {
-      setActiveIndex((current) => (current + 1) % JOURNEY_SPOTS.length);
+      setActiveIndex((current) => (current + 1) % journeySpots.length);
     }, 6500);
     return () => window.clearInterval(timer);
-  }, []);
+  }, [journeySpots.length, lang]);
 
   useEffect(() => {
-    const card = document.querySelector<HTMLElement>(`[data-journey-card="${JOURNEY_SPOTS[activeIndex].id}"]`);
-    card?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'nearest', inline: 'center' });
-  }, [activeIndex]);
+    const scroller = scrollerRef.current;
+    const card = scroller?.querySelector<HTMLElement>(`[data-journey-card="${journeySpots[activeIndex].id}"]`);
+    if (!scroller || !card) return;
+
+    const left = card.offsetLeft - Math.max(0, (scroller.clientWidth - card.offsetWidth) / 2);
+    scroller.scrollTo({
+      left: Math.max(0, left),
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+    });
+  }, [activeIndex, journeySpots]);
 
   const goTo = (index: number) => {
-    setActiveIndex((index + JOURNEY_SPOTS.length) % JOURNEY_SPOTS.length);
+    setActiveIndex((index + journeySpots.length) % journeySpots.length);
   };
 
   return (
-    <section className="gs-korea-journey overflow-hidden border-b border-slate-200 bg-[#F5F0E8]" data-lang={lang} aria-labelledby="korea-journey-title">
-      <div className="mx-auto max-w-6xl px-6 py-20 sm:py-24">
-        <div className="grid gap-10 lg:grid-cols-[0.78fr_1.22fr] lg:items-end">
-          <div className="max-w-xl">
+    <section
+      className="gs-korea-journey overflow-hidden border-b border-slate-200 bg-[#F5F0E8]"
+      data-lang={lang}
+      data-style-dna="heritage-journey"
+      data-cultural-density={lang === 'en' ? 'restrained' : 'expressive'}
+      data-journey-count={journeySpots.length}
+      aria-labelledby="korea-journey-title"
+    >
+      <div className={`mx-auto max-w-6xl px-6 ${lang === 'en' ? 'py-12 sm:py-14' : 'py-20 sm:py-24'}`}>
+        <div className="grid gap-8 lg:grid-cols-[0.78fr_1.22fr] lg:items-end">
+          <div className="gs-journey-heading max-w-xl">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-[#8F3A26]">{copy.eyebrow}</p>
+            <span className="gs-journey-ornament" aria-hidden="true"><i /><i /><i /></span>
             <h2 id="korea-journey-title" className="mt-4 whitespace-pre-line font-display text-3xl font-black leading-[1.08] tracking-tight text-[#0D1B2A] sm:text-4xl lg:text-[2.7rem]">
               {copy.title}
             </h2>
@@ -147,8 +168,8 @@ export default function KoreaJourneySection({ lang = 'ko' }: { lang?: JourneyLan
               >
                 ←
               </button>
-              <div className="flex items-center gap-1.5" aria-label={`${activeIndex + 1} / ${JOURNEY_SPOTS.length}`}>
-                {JOURNEY_SPOTS.map((spot, index) => (
+              <div className="gs-journey-progress flex items-center gap-1.5" aria-label={`${activeIndex + 1} / ${journeySpots.length}`}>
+                {journeySpots.map((spot, index) => (
                   <button
                     key={spot.id}
                     type="button"
@@ -175,10 +196,10 @@ export default function KoreaJourneySection({ lang = 'ko' }: { lang?: JourneyLan
           <div className="relative min-w-0">
             <div className="gs-journey-route" aria-hidden="true">
               <span className="gs-journey-route-line" />
-              <span>{copy.route}</span>
+              <span>{route}</span>
             </div>
-            <div className="gs-journey-scroller" role="region" aria-label={lang === 'ko' ? '대한민국 지역 명소 장면' : 'Korean regional landmark scenes'}>
-              {JOURNEY_SPOTS.map((spot, index) => (
+            <div ref={scrollerRef} className="gs-journey-scroller" role="region" aria-label={lang === 'ko' ? '대한민국 지역 명소 장면' : 'Korean regional landmark scenes'}>
+              {journeySpots.map((spot, index) => (
                 <button
                   key={spot.id}
                   type="button"

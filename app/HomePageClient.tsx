@@ -415,7 +415,7 @@ export default function HomePage() {
       {showPaywall && <UpgradeModal onClose={() => setShowPaywall(false)} />}
 
       {/* ── 네비게이션 ── */}
-      <nav className="border-b border-slate-200 bg-white sticky top-0 z-40">
+      <nav className="gs-ko-nav border-b border-slate-200 bg-white sticky top-0 z-40" data-style-dna="atelier-dancheong">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-3">
           {/* 로고 */}
           <div className="flex items-center gap-2 flex-shrink-0">
@@ -494,13 +494,14 @@ export default function HomePage() {
       </section>
 
       {/* ── 신뢰 배지 바 ── */}
-      <section className="bg-white border-y border-slate-100">
+      <section className="gs-channel-strip bg-white border-y border-slate-100" data-style-dna="dancheong-atlas">
         <div className="max-w-6xl mx-auto px-6 py-5">
           <div className="flex flex-col sm:flex-row items-center gap-4">
             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap shrink-0">분석 대상 소싱 채널</p>
-            <div className="flex flex-wrap justify-center sm:justify-start gap-2">
-              {(['1688.com 诚信通', 'Baidu 爱采购', 'Made-in-China · Global Sources', 'WeChat 公众号'] as const).map(name => (
-                <span key={name} className="border border-slate-200 rounded-lg px-4 py-2 text-xs font-semibold text-slate-600 bg-slate-50">
+            <div className="gs-stagger flex flex-wrap justify-center sm:justify-start gap-2">
+              {(['1688.com 诚信通', 'Baidu 爱采购', 'Made-in-China · Global Sources', 'WeChat 公众号'] as const).map((name, index) => (
+                <span key={name} data-channel-index={index} className="gs-channel-chip border border-slate-200 rounded-lg px-4 py-2 text-xs font-semibold text-slate-600 bg-slate-50">
+                  <span className="gs-channel-index" aria-hidden="true">0{index + 1}</span>
                   {name}
                 </span>
               ))}

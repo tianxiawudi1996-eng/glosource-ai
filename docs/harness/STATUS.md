@@ -3,14 +3,61 @@
 ## Snapshot
 
 - Project: GloSource AI Validation OS (기존 K-DEFENSE 증거는 보존)
-- Last calibrated: 2026-08-16 Asia/Seoul
+- Last calibrated: 2026-08-23 Asia/Seoul
 - Current branch: codex/p10-provenance-reconstruction
-- Exact release candidate: `3c5ca96bbba6aab56562a44819f8874e9ab0bb0b`
-- Source state: release/governance는 `6ee214d`, UI/시각 경험은 `3c5ca96`으로 로컬 커밋했다. exact candidate `3c5ca96`의 최신 archive는 `dirty=false`이며 push·배포는 하지 않았다.
-- Main synced: false — `origin/master`는 eed52fd887dad608a2e156573f8fbbe9f4f02176. 브랜치 push는 검증만 수행하고, master 승격은 수동 dispatch·`PROMOTE` 확인·production 환경 승인이 필요하도록 로컬 변경됨.
+- Exact release candidate: 이 보고서를 포함하는 승인된 로컬 current HEAD. Git object는 자신의 SHA를 같은 commit 안에 자가 포함할 수 없으므로 정확한 40자리 값은 `git rev-parse HEAD`로 해석한다.
+- Source state: 무료 entitlement·원자 quota·KR/EN 분리·EN 계약·release guardrail·candidate-bound promotion evidence preflight를 한 로컬 후보 commit에 통합한다. commit 직후 clean 상태와 exact SHA를 다시 확인하며 archive·promotion은 아직 만들지 않는다.
+- Main synced: false — `origin/master`는 eb7b171da0b79f925926ae6087fd9dc604cc3b98. 브랜치/운영에는 push·dispatch·배포하지 않았다.
 - Current track: full_lifecycle_goal_harness
-- Working-tree increment: 2026-08-16 전체 로컬 검증, 최신 standalone diagnostic package, live control-plane 재감사 증거.
-- Next READY: 없음. Vercel Production은 22/22이며 GitHub reviewer·branch policy도 존재한다. 현재 유일 reviewer가 운영자 본인이므로 독립 reviewer 지정 전 `preventSelfReview=true`로 바꾸면 promotion이 교착된다.
+- Working-tree increment: 2026-08-23 승인된 local clean candidate consolidation. 전체 242/242, TypeScript, ESLint 오류 0, Next.js 16.3.0 production build 89/89 통과.
+- Next READY: `P10-CLEAN-CANDIDATE-PACKAGE` — clean current HEAD에서 standalone archive를 새로 만들고 manifest·무결성·필수 경로 smoke를 확인하는 로컬 작업. Production promotion은 별도 외부 증거와 승인이 열릴 때까지 blocked다.
+
+## 2026-08-23 Local Clean Candidate Commit
+
+- 사용자 승인 범위는 현재 dirty 변경의 검토와 단일 local candidate commit 생성까지다.
+- 포함 단위는 KR/EN 제품 계약·무료 결과/이력 redaction·원자 quota migration·KR/EN UI·정확한 release target·candidate-bound promotion preflight·Harness 증거다.
+- `npm run verify:product`: 242/242, TypeScript 오류 0, ESLint 오류 0·기존 경고 16.
+- `npm run build`: Next.js 16.3.0, static generation 89/89, exit 0. 기존 Edge Runtime deprecation 경고는 유지된다.
+- instruction·lifecycle·sensitive-string·placeholder·STATE·diff 검사는 모두 clean이다.
+- commit 후 `git status -sb`, exact HEAD, rollback ancestry와 promotion context를 다시 확인한다. push·PR·dispatch·migration·provider 변경·배포는 실행하지 않는다.
+- 상세: `docs/harness/reports/2026-08-23-clean-candidate-commit.md`.
+
+## 2026-08-23 Candidate-bound Promotion Evidence Preflight
+
+- `db:migrate` 전에 exact clean HEAD·rollback ancestry, 후보/rollback SHA, Production target, migration bundle, staging, backup→restore, rollback rehearsal, control-plane audit와 두 승인 참조를 기계적으로 검증한다.
+- evidence는 최대 24시간만 유효하고 backup/audit/approval은 24시간, rehearsal은 30일 이내여야 한다. unknown field·불일치·재사용 승인·만료는 fail-closed다.
+- workflow 입력 원문은 출력·커밋하지 않고 runner 임시 파일로만 검증한 뒤 삭제한다.
+- 최종 집중 17/17 및 전체 242/242, TypeScript, ESLint 오류 0·기존 경고 16 통과. runtime/UI 변경이 없어 build·브라우저 QA는 생략했다.
+- 실제 receipt, 승인, provider 변경, commit, push, dispatch, migration, deployment는 0건이다. P10 blocked 유지.
+- 상세: `docs/harness/reports/2026-08-23-p10-promotion-evidence-preflight.md`.
+
+## 2026-08-21 EN Evidence 70 : Korea 30
+
+- `/en`의 Hero·정부 원장 근거·카테고리·문제·샘플·가격 계약을 유지하면서 한국 이미지를 Hero 배경과 Seoul/Busan/Jeju 3장 Journey로 제한했다.
+- 정보 순서를 Hero → registry evidence → category → Korea Journey → sourcing problem으로 고정했다. EN 계절·캐릭터 자동 전환과 synthetic `01 / 100` 노출은 제거하고, KR 기존 모션은 유지했다.
+- 1440×900에서는 proof panel과 CTA가 우선 노출되고, 390×844에서는 인물 얼굴·계절 switcher가 카피를 가리지 않는다. 두 viewport 모두 양의 page overflow가 없다.
+- `npx tsc --noEmit`, lint 오류 0, `npm test` 232/232, Next.js build 89 routes, browser accessibility snapshot이 통과했다. 실제 Journey 포인터 상태 전환은 완료 증거로 기록하지 않는다.
+- P10 blocked와 외부 실행 0건은 유지한다. 상세: `docs/harness/reports/2026-08-21-en-evidence-korea-70-30.md`.
+
+## 2026-08-21 EN Restrained Korean-modern Refinement
+
+- `/en`의 한국미를 한복 인물·계절 전환 중심에서 맑은 경복궁 건축·한영 병기·작은 단청 3점 중심으로 전환했다. 기존 영문 카피·CTA·가격·quota·근거 고지는 그대로다.
+- EN Hero는 `gyeongbokgung-architecture` static scene이며 host/season control을 DOM에 렌더링하지 않는다. KR seasonal host 경험은 변경하지 않았다.
+- EN Journey는 Seoul/Busan/Jeju 3장을 유지하되 중성 배경, 낮은 카드, 완만한 hover와 78% mobile rail로 절제했다.
+- 1440×900과 390×844에서 양의 page overflow 없음, host/season controls 0, runtime error/warning 0을 확인했다. `localhost` hydration QA에서 Busan 선택이 dot/card pressed state와 rail `scrollLeft=227`로 반영됐다. 전체 232/232·typecheck·lint 오류 0·build 89 routes 통과.
+- 초기 `127.0.0.1`의 Next.js dev-resource cross-origin 차단을 기능 실패와 분리해 재검증했다. P10 blocked와 외부 실행 0건 유지. 상세: `docs/harness/reports/2026-08-21-en-restrained-korean-modern.md`.
+
+## 2026-08-18 Code and Product Review Remediation
+
+- KR 무료 응답·이력에 검색당 공급사 1개 preview와 gated-field redaction을 서버에서 강제했다.
+- committed usage와 활성 reservation을 동일 SQL에서 합산해 quota 초과 동시 입장을 차단했다. B가 먼저 완료되는 interleaving 회귀 테스트도 통과했다.
+- legacy NULL usage는 명확한 KR-only action만 KR로 보수 귀속하며 EN에는 넣지 않는다. 모호한 `source`는 어느 bucket에도 넣거나 backfill하지 않는다.
+- EN 무료 카운터는 월 단위이며 assistant는 Korea-only sourcing 계약을 지킨다.
+- release archive의 clean/current-HEAD manifest와 정확한 Vercel/GitHub 대상 계약을 검증하도록 보강했다.
+- `verify:product` 229/229, TypeScript 통과, ESLint 오류 0·기존 경고 16, Next.js 16.3.0 build 89 routes, 제품 계약 7/7 통과.
+- 로컬 `/`·`/en`은 200이었지만 `/api/auth/session`은 localhost `UntrustedHost`로 500이므로 해당 smoke는 통과로 기록하지 않았다.
+- migration `0005`는 운영 미적용이고, promotion workflow에는 후보 결합 backup/restore/rollback evidence preflight가 아직 없다. P10 blocked, 외부 변경 0건.
+- 상세 증거: `docs/harness/reports/2026-08-18-code-product-review-remediation.md`.
 
 ## 2026-08-16 P10 Release Advancement
 
@@ -296,3 +343,19 @@ GLO-EN-DBSEED-EXPAND @ ef082d8 + a4c4b76 (**prod DB 반영 완료**) — 'GloSou
 - 360/375/414/768/1440 viewport에서 5개 파일을 agent-browser로 열어 `scrollWidth === viewport`, 이미지 naturalWidth, bilingual alt, reference chip 수, CTA 높이를 확인했다. reduced-motion 및 keyboard focus ring CSS를 포함한다.
 - P10 Release Readiness는 외부 설정·승인 부재로 계속 blocked이며 lifecycle state를 전이하지 않았다. 외부 게시·SNS 발송·배포·commit·push 0건.
 - 상세 메타프롬프트: `docs/plans/2026-08-11-webstyle-reference-proposals.md`; 매핑: `docs/plans/2026-08-11-webstyle-reference-matrix.md`.
+
+## 2026-08-18 Korean Mock Production Bridge
+
+- 승인된 Web Style Mock의 Atelier 정렬·Dancheong 색 띠·Heritage Journey 리듬을 기존 `/`·`/en` 운영 화면에 연결했다. 기존 visible copy, CTA, quota, 가격, sourcing 방향과 법적 상태는 변경하지 않았다.
+- Hero에 단청 하단 띠·편집 장식·증거 패널 깊이를 추가하고, KR/EN 네비게이션에 언어별 단청 규칙을 적용했다. KR 채널 스트립은 한지 배경·번호 칩·호버/스크롤 리듬으로 확장했고, 여정 헤더·진행 캡슐을 목업 형상과 맞췄다.
+- 기존 여정 초기 effect가 문서 전체를 카드 위치로 세로 스크롤하던 문제를 발견해, `useRef` 기반 레일 내부 가로 `scrollTo`로 교정했다. 모바일 첫 화면에서 Hero가 유지된다.
+- `/`·`/en` 1440px·390px 브라우저 QA에서 양의 수평 오버플로 없음, bilingual 경복궁/지역 명소 라벨, EN 모바일 핵심 CTA와 브라우저 오류 0건을 확인했다.
+- `npx tsc --noEmit`, `npm run lint`(오류 0·기존 경고 16), `npm test` 229/229, `npm run build`(89 routes), harness/lifecycle/state/placeholder/sensitive/diff 검사가 통과했다. P10 blocked와 외부 실행 0건은 유지한다.
+- 상세 설계·증거: `docs/plans/2026-08-18-korean-mock-production-bridge.md`.
+
+## 2026-08-19 Next Progress Gate Audit
+
+- `다음진행` 요청에 따라 Lifecycle·Harness·Task Queue를 재확인했다. 실행 가능한 `READY`는 없고 P10 Release Readiness는 `GITHUB_PRODUCTION_INDEPENDENT_REVIEWER_MISSING`, `GITHUB_PRODUCTION_SELF_REVIEW_PREVENTION_MISSING`, `FRESH_EXECUTION_APPROVAL_ABSENT`로 계속 `blocked`다.
+- 차단 작업을 구현하거나 상태를 승격하지 않고, 재개 조건·권한·검증·STOP 규칙을 담은 `docs/operations/NEXT_PROGRESS_GATE_METAPROMPT_2026-08-19.md`를 저장했다. 3,439자, strict 계약검증 8/8 PASS, placeholder 0이다.
+- Harness·Lifecycle·sensitive-string·placeholder·state·diff 검사는 모두 clean이다. 코드·UI 변경과 외부 실행은 0건이므로 typecheck/lint/test/build/browser QA는 이번 Loop에서 생략했다.
+- 보고서: `docs/harness/reports/2026-08-19-next-progress-gate.md`.

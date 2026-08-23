@@ -19,7 +19,71 @@ interface ProductReadinessInput {
   environment: Record<string, string | undefined>;
   vercelLink: VercelLink | null;
   archivePath: string | null;
+  archiveManifest: unknown;
+  currentHead: string | null;
   dirty: boolean;
+}
+
+interface ReleaseManifestAssessment {
+  verified: boolean;
+  candidateMatch: boolean;
+  cleanSource: boolean;
+  commit: string | null;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value && typeof value === 'object' && !Array.isArray(value));
+}
+
+export function assessReleaseManifest(
+  manifest: unknown,
+  currentHead: string | null,
+  requiredEnvironment: readonly string[] = REQUIRED_PRODUCTION_ENV,
+): ReleaseManifestAssessment {
+  if (!isRecord(manifest) || !isRecord(manifest.source)) {
+    return {
+      verified: false,
+      candidateMatch: false,
+      cleanSource: false,
+      commit: null,
+    };
+  }
+
+  const commit = typeof manifest.source.commit === 'string'
+    ? manifest.source.commit.trim().toLowerCase()
+    : null;
+  const manifestEnvironment = Array.isArray(manifest.requiredEnvironment)
+    ? manifest.requiredEnvironment
+    : null;
+  const verified = Boolean(
+    manifest.schemaVersion === 1
+    && manifest.product === RELEASE_IDENTITY.product
+    && manifest.packageName === RELEASE_IDENTITY.packageName
+    && manifest.secretsIncluded === false
+    && typeof manifest.version === 'string'
+    && manifest.version.length > 0
+    && commit
+    && /^[a-f0-9]{12,40}$/.test(commit)
+    && typeof manifest.source.dirty === 'boolean'
+    && manifestEnvironment
+    && manifestEnvironment.length === requiredEnvironment.length
+    && manifestEnvironment.every(
+      (name, index) => name === requiredEnvironment[index],
+    )
+  );
+  const normalizedHead = currentHead?.trim().toLowerCase() ?? '';
+  const candidateMatch = Boolean(
+    verified
+    && /^[a-f0-9]{40}$/.test(normalizedHead)
+    && normalizedHead.startsWith(commit!),
+  );
+
+  return {
+    verified,
+    candidateMatch,
+    cleanSource: verified && manifest.source.dirty === false,
+    commit: verified ? commit : null,
+  };
 }
 
 export function buildProductReadinessReport(input: ProductReadinessInput) {
@@ -31,6 +95,13 @@ export function buildProductReadinessReport(input: ProductReadinessInput) {
     && input.vercelLink.orgId
     && input.vercelLink.projectName,
   );
+  const manifest = input.archivePath
+    ? assessReleaseManifest(
+        input.archiveManifest,
+        input.currentHead,
+        input.requiredEnvironment,
+      )
+    : null;
   const blockers: string[] = [];
 
   if (missing.length > 0) {
@@ -41,6 +112,15 @@ export function buildProductReadinessReport(input: ProductReadinessInput) {
   }
   if (!input.archivePath) {
     blockers.push('No packaged release archive was found.');
+  } else if (!manifest?.verified) {
+    blockers.push('The packaged release archive manifest is missing or invalid.');
+  } else {
+    if (!manifest.cleanSource) {
+      blockers.push('The packaged release archive was built from dirty source.');
+    }
+    if (!manifest.candidateMatch) {
+      blockers.push('The packaged release archive is not bound to the current HEAD.');
+    }
   }
   if (input.dirty) {
     blockers.push(
@@ -66,12 +146,54 @@ export function buildProductReadinessReport(input: ProductReadinessInput) {
     releaseArchive: {
       present: Boolean(input.archivePath),
       path: input.archivePath,
+      manifestVerified: manifest?.verified ?? false,
+      candidateMatch: manifest?.candidateMatch ?? false,
+      cleanSource: manifest?.cleanSource ?? false,
+      commit: manifest?.commit ?? null,
     },
     source: {
       dirty: input.dirty,
+      head: input.currentHead,
     },
     blockers,
   };
+}
+
+export async function readReleaseManifestFromArchive(
+  archivePath: string,
+  projectRoot: string,
+): Promise<unknown> {
+  try {
+    const { stdout: listing } = await execFileAsync(
+      'tar',
+      ['-tzf', archivePath],
+      {
+        cwd: projectRoot,
+        encoding: 'utf8',
+        timeout: 120_000,
+        maxBuffer: 2 * 1024 * 1024,
+      },
+    );
+    const manifestEntries = listing
+      .split(/\r?\n/)
+      .map((entry) => entry.trim())
+      .filter((entry) => /(?:^|\/)RELEASE-MANIFEST\.json$/.test(entry));
+    if (manifestEntries.length !== 1) return null;
+
+    const { stdout: source } = await execFileAsync(
+      'tar',
+      ['-xOf', archivePath, manifestEntries[0]],
+      {
+        cwd: projectRoot,
+        encoding: 'utf8',
+        timeout: 120_000,
+        maxBuffer: 2 * 1024 * 1024,
+      },
+    );
+    return JSON.parse(source) as unknown;
+  } catch {
+    return null;
+  }
 }
 
 async function readVercelLink(projectRoot: string): Promise<VercelLink | null> {
@@ -113,18 +235,37 @@ async function sourceIsDirty(projectRoot: string): Promise<boolean> {
   }
 }
 
+async function currentHead(projectRoot: string): Promise<string | null> {
+  try {
+    const { stdout } = await execFileAsync('git', ['rev-parse', 'HEAD'], {
+      cwd: projectRoot,
+      encoding: 'utf8',
+    });
+    const head = stdout.trim().toLowerCase();
+    return /^[a-f0-9]{40}$/.test(head) ? head : null;
+  } catch {
+    return null;
+  }
+}
+
 async function checkProductReadiness(projectRoot = process.cwd()) {
   loadEnvConfig(projectRoot);
-  const [vercelLink, archivePath, dirty] = await Promise.all([
+  const [vercelLink, archivePath, dirty, head] = await Promise.all([
     readVercelLink(projectRoot),
     findLatestArchive(projectRoot),
     sourceIsDirty(projectRoot),
+    currentHead(projectRoot),
   ]);
+  const archiveManifest = archivePath
+    ? await readReleaseManifestFromArchive(archivePath, projectRoot)
+    : null;
   return buildProductReadinessReport({
     requiredEnvironment: REQUIRED_PRODUCTION_ENV,
     environment: process.env,
     vercelLink,
     archivePath,
+    archiveManifest,
+    currentHead: head,
     dirty,
   });
 }

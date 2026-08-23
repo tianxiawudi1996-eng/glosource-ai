@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "vercel": {
+    "orgId": "team_1O8DJuyjKpmyIUqPSadnA3Cv",
+    "projectId": "prj_YWNLp4TP9OQKt6jvSPVMfYg0QdfA",
+    "projectName": "glosource-ai"
+  },
+  "github": {
+    "repository": "tianxiawudi1996-eng/glosource-ai",
+    "environment": "production",
+    "requiredSecretNames": [
+      "DATABASE_URL"
+    ]
+  }
+}

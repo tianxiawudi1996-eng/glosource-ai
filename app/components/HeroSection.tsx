@@ -102,6 +102,7 @@ const SEASON_CONFIG: Record<Season, {
 };
 
 const SEASONS: Season[] = ['spring', 'summer', 'autumn', 'winter'];
+const EN_HERO_IMAGE = '/images/korea-journey/seoul-gyeongbokgung.png';
 const HOST_POSES = ['맞이하기', '손짓하기', '두 손 모으기', '손 하트', '고개 인사', '가리키기', '손바닥 안내', '한 발 내딛기', '소매 살짝 들기', '정면 미소'] as const;
 const HOST_EXPRESSIONS = ['환한 미소', '다정한 미소', '호기심', '자신감', '안도감', '기대감', '감탄', '집중', '따뜻한 눈빛', '반가움'] as const;
 
@@ -129,15 +130,16 @@ function nextSeason(season: Season): Season {
 }
 
 /**
- * Seasonal cover + deterministic host companion. The generated cover already
- * contains the Korean host, while the 10×10 state library gives the welcome
- * motion a stable, testable rhythm instead of a hydration-unsafe random loop.
+ * KR keeps its seasonal host experience. EN uses a single architectural
+ * Gyeongbokgung scene so Korean origin is visible without competing with the
+ * sourcing proposition and registry evidence.
  */
 function SeasonalHeroCover({ lang }: { lang: 'ko' | 'en' }) {
   const [season, setSeason] = useState<Season>('spring');
   const [stateIndex, setStateIndex] = useState(0);
 
   useEffect(() => {
+    if (lang === 'en') return;
     const monthTimer = window.setTimeout(() => {
       setSeason(monthToSeason(new Date().getMonth()));
     }, 0);
@@ -151,24 +153,26 @@ function SeasonalHeroCover({ lang }: { lang: 'ko' | 'en' }) {
       window.clearTimeout(monthTimer);
       window.clearInterval(seasonTimer);
     };
-  }, []);
+  }, [lang]);
 
   useEffect(() => {
+    if (lang === 'en') return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const hostTimer = window.setInterval(() => {
       setStateIndex((current) => (current + 1) % KOREAN_HOST_STATES.length);
     }, 3600);
     return () => window.clearInterval(hostTimer);
-  }, []);
+  }, [lang]);
 
   const config = SEASON_CONFIG[season];
   const hostState = KOREAN_HOST_STATES[stateIndex];
+  const coverImage = lang === 'en' ? EN_HERO_IMAGE : config.image;
   const style = {
     '--host-x': `${hostState.offsetX}px`,
     '--host-y': `${hostState.offsetY}px`,
     '--host-rotate': `${hostState.rotate}deg`,
     '--season-accent': config.palette,
-    backgroundImage: `linear-gradient(90deg, rgba(9, 25, 38, 0.88) 0%, rgba(9, 25, 38, 0.68) 26%, rgba(9, 25, 38, 0.22) 58%, rgba(9, 25, 38, 0.06) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(9, 25, 38, 0.18) 100%), url('${config.image}')`,
+    backgroundImage: `linear-gradient(90deg, rgba(9, 25, 38, 0.9) 0%, rgba(9, 25, 38, 0.7) 28%, rgba(9, 25, 38, 0.24) 62%, rgba(9, 25, 38, 0.1) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(9, 25, 38, 0.2) 100%), url('${coverImage}')`,
   } as React.CSSProperties;
 
   const landmarkLabel = lang === 'en'
@@ -179,11 +183,15 @@ function SeasonalHeroCover({ lang }: { lang: 'ko' | 'en' }) {
     <div
       className="gs-seasonal-stage absolute inset-0 z-0"
       data-lang={lang}
-      data-season={season}
-      data-host-state={hostState.id}
-      data-host-pose={hostState.pose}
-      data-host-expression={hostState.expression}
-      aria-label={`${landmarkLabel.name}. ${config.label}. ${hostState.label}`}
+      data-season={lang === 'ko' ? season : undefined}
+      data-scene={lang === 'en' ? 'gyeongbokgung-architecture' : undefined}
+      data-host-state={lang === 'ko' ? hostState.id : undefined}
+      data-host-pose={lang === 'ko' ? hostState.pose : undefined}
+      data-host-expression={lang === 'ko' ? hostState.expression : undefined}
+      data-motion-mode={lang === 'en' ? 'static' : 'ambient'}
+      aria-label={lang === 'en'
+        ? `${landmarkLabel.name}. Clear-day architectural view of the palace.`
+        : `${landmarkLabel.name}. ${config.label}. ${hostState.label}`}
     >
       <div key={season} aria-hidden="true" className="gs-hero-cover gs-seasonal-cover absolute inset-0" style={style} />
       <div aria-hidden="true" className="gs-seasonal-light absolute inset-0" />
@@ -191,28 +199,32 @@ function SeasonalHeroCover({ lang }: { lang: 'ko' | 'en' }) {
         <span className="gs-landmark-label-kicker">{landmarkLabel.kicker}</span>
         <span className="gs-landmark-label-name">{landmarkLabel.name}</span>
       </div>
-      <div className="gs-host-welcome absolute bottom-5 right-5 z-10 sm:bottom-8 sm:right-8">
-        <span className="gs-host-welcome-orbit" aria-hidden="true" />
-        <span className="gs-host-welcome-copy">
-          <span className="gs-host-welcome-kicker">GloSource AI · {String(hostState.id).padStart(2, '0')} / 100</span>
-          <span className="gs-host-welcome-text">{config.greeting}</span>
-          <span className="sr-only">현재 환영 상태: {hostState.label}</span>
-        </span>
-      </div>
-      <div className="gs-season-switcher absolute right-5 top-5 z-10 sm:right-8 sm:top-8" aria-label={lang === 'ko' ? '경복궁 계절 배경 선택' : 'Choose a Gyeongbokgung season'}>
-        {SEASONS.map((item) => (
-          <button
-            key={item}
-            type="button"
-            aria-label={`${SEASON_CONFIG[item].label} 배경 보기`}
-            aria-pressed={season === item}
-            className="gs-season-dot"
-            data-active={season === item ? 'true' : 'false'}
-            style={{ '--dot-color': SEASON_CONFIG[item].palette } as React.CSSProperties}
-            onClick={() => setSeason(item)}
-          />
-        ))}
-      </div>
+      {lang === 'ko' && (
+        <div className="gs-host-welcome absolute bottom-5 right-5 z-10 sm:bottom-8 sm:right-8">
+          <span className="gs-host-welcome-orbit" aria-hidden="true" />
+          <span className="gs-host-welcome-copy">
+            <span className="gs-host-welcome-kicker">GloSource AI · {String(hostState.id).padStart(2, '0')} / 100</span>
+            <span className="gs-host-welcome-text">{config.greeting}</span>
+            <span className="sr-only">현재 환영 상태: {hostState.label}</span>
+          </span>
+        </div>
+      )}
+      {lang === 'ko' && (
+        <div className="gs-season-switcher absolute right-5 top-5 z-10 sm:right-8 sm:top-8" aria-label="경복궁 계절 배경 선택">
+          {SEASONS.map((item) => (
+            <button
+              key={item}
+              type="button"
+              aria-label={`${SEASON_CONFIG[item].label} 배경 보기`}
+              aria-pressed={season === item}
+              className="gs-season-dot"
+              data-active={season === item ? 'true' : 'false'}
+              style={{ '--dot-color': SEASON_CONFIG[item].palette } as React.CSSProperties}
+              onClick={() => setSeason(item)}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -469,9 +481,19 @@ export default function HeroSection({ lang = 'ko' }: HeroSectionProps) {
   };
 
   return (
-    <section className={`gs-hero relative overflow-hidden bg-[#0D1B2A] text-white ${lang === 'en' ? 'gs-hero-lang-en' : 'gs-hero-lang-ko'}`} data-lang={lang}>
+    <section
+      className={`gs-hero relative overflow-hidden bg-[#0D1B2A] text-white ${lang === 'en' ? 'gs-hero-lang-en' : 'gs-hero-lang-ko'}`}
+      data-lang={lang}
+      data-style-dna="atelier-dancheong-journey"
+      data-cultural-density={lang === 'en' ? 'restrained' : 'expressive'}
+    >
       {/* Seasonal Gyeongbokgung cover with a consistent Korean host companion. */}
       <SeasonalHeroCover lang={lang} />
+      <div className="gs-hero-ornament" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+      </div>
       {lang === 'en' && <HunminjeongeumWatermark />}
       {/* dot-grid background — trails the page scroll for depth (extended so the
           parallax drift never exposes a gap at the edges) */}
@@ -499,7 +521,7 @@ export default function HeroSection({ lang = 'ko' }: HeroSectionProps) {
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-12 items-center">
 
           {/* LEFT — copy */}
-          <div>
+          <div className="gs-hero-copy">
             {lang === 'en' && (
               <div className="gs-fade-up mb-5 flex items-center gap-3 text-[#B89A4A]">
                 <span className="h-px w-12 bg-current" />
@@ -559,7 +581,7 @@ export default function HeroSection({ lang = 'ko' }: HeroSectionProps) {
               </div>
             )}
 
-            <div className="gs-fade-up gs-delay-4 grid grid-cols-2 sm:grid-cols-4 gap-6 border-t border-white/10 pt-8">
+            <div className="gs-hero-stats gs-fade-up gs-delay-4 grid grid-cols-2 sm:grid-cols-4 gap-6 border-t border-white/10 pt-8">
               {c.stats.map(s => (
                 <div key={s.num}>
                   <p className="text-2xl font-black text-white">{s.num}</p>
@@ -570,7 +592,7 @@ export default function HeroSection({ lang = 'ko' }: HeroSectionProps) {
           </div>
 
           {/* RIGHT — hero visual (floats gently; entrance stays on the inner card) */}
-          <div className="gs-hero-float gs-face-safe-panel block">
+          <div className="gs-hero-float gs-face-safe-panel gs-hero-proof-panel block">
             {lang === 'en' ? (
               <EnVerificationMockPanel />
             ) : (

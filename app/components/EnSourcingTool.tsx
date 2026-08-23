@@ -15,7 +15,7 @@ import { supplierVerificationKind } from '@/app/lib/supplier-verification';
 import { FREE_SEARCH_LIMIT } from '@/app/lib/free-plan';
 import { extractUnverifiedCertificationMentions } from '@/app/lib/certification-signals';
 
-type SourceRegion = 'china' | 'korea';
+type SourceRegion = 'korea';
 
 const FREE_COUNT_KEY = 'glosource_en_free_count';
 
@@ -191,11 +191,10 @@ function formatEstimate(value: string | undefined): string {
   return isUnavailableEstimate(value) ? 'AI estimate unavailable' : value!.trim();
 }
 
-function freeCountStorageKey(limit: number): string {
-  const now = new Date();
-  const period = limit > 5
-    ? now.toISOString().slice(0, 7)
-    : now.toISOString().slice(0, 10);
+export function freeCountStorageKey(limit: number, now = new Date()): string {
+  // The EN free contract is monthly (currently 3 searches/month). Keep the
+  // client display aligned with the server across day and month boundaries.
+  const period = now.toISOString().slice(0, 7);
   return `${FREE_COUNT_KEY}:${period}:${limit}`;
 }
 
@@ -408,7 +407,7 @@ export function SupplierCard({ s, rank, keyword, locked, onStartVoiceCall }: { s
   );
 }
 
-async function callAPI(product: string, quantity: string, budget: string, country: 'china' | 'korea', buyerCountry: BuyerCountry): Promise<SourcingOutput> {
+async function callAPI(product: string, quantity: string, budget: string, country: 'korea', buyerCountry: BuyerCountry): Promise<SourcingOutput> {
   const res = await fetch('/api/en/source', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -562,6 +561,10 @@ export default function EnSourcingTool({
 
   // Invoked by the AI assistant when the buyer asks it to source a product (Pro+).
   const handleChatSearch = (params: { product: string; quantity: string; country: 'korea' | 'china'; buyerCountry: string }) => {
+    if (params.country !== 'korea') {
+      setError('The global service currently searches Korean suppliers only.');
+      return;
+    }
     setProduct(params.product);
     setQuantity(params.quantity);
     setRegion('korea');

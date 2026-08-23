@@ -5,6 +5,7 @@ import {
   boolean,
   integer,
   index,
+  uniqueIndex,
   primaryKey,
 } from 'drizzle-orm/pg-core';
 import type { AdapterAccountType } from 'next-auth/adapters';
@@ -103,6 +104,32 @@ export const usageLogs = pgTable('usage_logs', {
   index('usage_logs_user_created_at_idx').on(t.userId, t.createdAt),
   index('usage_logs_ip_created_at_idx').on(t.ip, t.createdAt),
   index('usage_logs_created_at_idx').on(t.createdAt),
+]);
+
+// Atomic quota admission slots. Completed usage remains authoritative in
+// usage_logs; these rows cover only in-flight work or a conservative fallback
+// when a completed usage log could not be persisted.
+export const quotaReservations = pgTable('quota_reservations', {
+  token: text('token').primaryKey(),
+  subjectType: text('subject_type', {
+    enum: ['user', 'free_network', 'anonymous_ip'],
+  }).notNull(),
+  subjectKey: text('subject_key').notNull(),
+  surface: text('surface', { enum: ['kr', 'en'] }).notNull(),
+  periodStart: timestamp('period_start', { mode: 'date' }).notNull(),
+  periodEnd: timestamp('period_end', { mode: 'date' }).notNull(),
+  slot: integer('slot').notNull(),
+  expiresAt: timestamp('expires_at', { mode: 'date' }).notNull(),
+  createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
+}, (t) => [
+  uniqueIndex('quota_reservations_bucket_slot_uidx').on(
+    t.subjectType,
+    t.subjectKey,
+    t.surface,
+    t.periodStart,
+    t.slot,
+  ),
+  index('quota_reservations_expires_at_idx').on(t.expiresAt),
 ]);
 
 // ── 결제 내역 ─────────────────────────────────────────────────────────

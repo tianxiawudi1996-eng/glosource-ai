@@ -21,6 +21,8 @@ npm run growth:payments
 npm run growth:live-contract
 npm run readiness:product
 npm run readiness:control-plane
+npm run readiness:promotion-context -- --candidate-sha <candidate-sha> --rollback-sha <rollback-sha>
+npm run readiness:promotion-evidence -- <ignored-private-evidence.json> --candidate-sha <candidate-sha> --rollback-sha <rollback-sha>
 npm run readiness:remediation-approval -- <preferences.json> <sanitized-audit.json>
 npm run growth:acquisition:gate
 npm run growth:outreach:preflight
@@ -55,6 +57,24 @@ npm run growth:outreach:preflight
 - 최종 계속/수정/중단 판단
 
 ## Last Green Run
+
+2026-08-23 local clean candidate consolidation:
+
+- `npm run verify:product`: 242/242 tests, TypeScript exit 0, ESLint errors 0 and existing warnings 16.
+- `npm run build`: Next.js 16.3.0, compile/typecheck/static generation 89/89, exit 0; existing Edge Runtime deprecation warning remains.
+- `npm run harness:instructions`, `npm run lifecycle:validate`, sensitive-string, placeholder, STATE and `git diff --check`: clean.
+- `npm run lifecycle:status`: P10 remains blocked on independent reviewer, self-review prevention and fresh execution approval.
+- Browser QA was not repeated in this commit-only loop; the included EN UI state retains the 2026-08-21 1440/390 browser evidence, and the current production build is green.
+- Push, PR, workflow dispatch, provider mutation, DB migration, package creation and deployment: 0.
+
+2026-08-23 candidate-bound promotion evidence preflight:
+
+- Final focused release/preflight suite: 17/17 pass.
+- Full `npm test`: 242/242 pass; TypeScript pass; ESLint errors 0 and existing warnings 16 in the preceding full verification.
+- Context calculation covers the tracked Production target and migrations `0000` through `0005`; the operational CLI correctly remains blocked until the working tree is clean.
+- Runtime/UI unchanged, so build and browser QA were not run for this increment.
+- No real promotion evidence packet was supplied. Commit, push, dispatch, provider mutation, DB migration, backup, restore, rollback, and deployment: 0.
+- P10 remains blocked on dirty provenance, real receipts, independent reviewer/self-review prevention, and fresh approvals.
 
 2026-08-16 P10 release advancement:
 
@@ -262,3 +282,35 @@ npm run growth:outreach:preflight
 - Screenshots: `C:\Users\ddedi\AppData\Local\Temp\glo-webstyle-overview-full.png` and per-proposal 1440/360 captures were created for local QA only.
 - Existing regression: `npm test`, `npx tsc --noEmit`, `npm run lint`, `npm run build`, `npm run harness:instructions`, `npm run lifecycle:validate`, state/placeholder/sensitive-string checks, and `git diff --check` were run after implementation; results recorded in the final handoff.
 - No production route replacement, external publication, deployment, payment, provider mutation, commit, or push.
+
+2026-08-18 Korean mock production bridge:
+
+- `npx tsc --noEmit`: green; `npm run lint`: 0 errors, 16 existing warnings; `npm test`: 229/229; `npm run build`: green, Next.js 16.3.0, 89 routes.
+- `/` and `/en` browser QA at 1440px and 390px: `scrollWidth <= viewport`, Hero/Journey `data-style-dna` present, bilingual landmark labels present, KR channel chips = 4, Journey cards = 6, EN mobile `Sign in`/`Sign up free`/`Get my shortlist →` visible, runtime error logs = 0.
+- A pre-existing initial-scroll regression was reproduced and fixed: the Journey effect now scrolls only its horizontal rail; after returning to top, `window.scrollY` stayed 0 for 2.5 seconds and Hero remained visible.
+- `npm run harness:instructions`, `npm run lifecycle:validate`, state/placeholder/sensitive-string checks and `git diff --check`: green. P10 remains blocked; no commit, push, deployment, provider mutation, payment, or external publication.
+
+2026-08-19 next progress gate audit:
+
+- `python C:\Users\ddedi\.codex\skills\bamsoft-prompt-engineering\scripts\validate_prompt_contract.py docs/operations/NEXT_PROGRESS_GATE_METAPROMPT_2026-08-19.md --strict --json`: PASS, required groups 8/8, placeholders 0.
+- Prompt length: 3,439 characters; SHA-256 `500D459BF6EE698A82AABBAAF4D6864B079F2A44DA7352CFD8D8AD983C80C7BA`.
+- `npm run harness:instructions`, `npm run lifecycle:validate`, `node scripts/check-sensitive-strings.mjs .harness-blocklist.local`, `node scripts/check-harness-placeholders.mjs docs/harness`, `node scripts/check-state-json.mjs docs/harness/STATE.json`, `git diff --check`: clean.
+- No code/UI change; typecheck/lint/test/build/browser QA intentionally not run in this gate. P10 remains blocked and no external effect occurred.
+
+2026-08-21 EN evidence 70 : Korea 30:
+
+- `npx tsx --test tests/en-visual-balance.test.ts`: 3/3; source order, compact three-stop journey, EN manual hero motion and English season accessibility names are fixed by regression tests.
+- `npx tsc --noEmit`: green; `npm run lint`: 오류 0; `npm test`: 232/232; `npm run build`: green, Next.js 16.3.0, 89 routes.
+- In-app browser 1440×900: host hidden, season controls visible, Journey count 3, heading order Hero → registry → category → journey → problem, `scrollWidth=1434 <= 1440`.
+- In-app browser 390×844: host and season controls hidden, Hero/CTA/proof widths fit 336px, Journey rail has three bilingual cards, `scrollWidth=384 <= 390`.
+- Accessibility snapshot exposes English season description, 3/3 Journey state, Previous/Next and Seoul/Busan/Jeju selection names. Pointer-driven Journey state transition was not recorded as completed evidence.
+- No commit, push, deployment, payment, provider mutation, or external publication.
+
+2026-08-21 EN restrained Korean-modern refinement:
+
+- `npx tsc --noEmit`: green; `npm run lint`: 오류 0; `npm test`: 232/232; `npm run build`: green, Next.js 16.3.0, 89 routes.
+- In-app browser 1440×900: clean Gyeongbokgung architecture scene, static motion, host 0, season controls 0, compact 3-card Journey, `scrollWidth=1434 <= 1440`.
+- In-app browser 390×844: Hero/CTA/proof width 336px, palace crop 64%, host/season controls 0; Journey first card 257px with next-card affordance, `scrollWidth=384 <= 390`.
+- `localhost` hydrated browser: `View Busan scene` click 후 dots `[false,true,false]`, Busan card pressed, rail `scrollLeft=227`; page overflow -6px and runtime error/warning log 0.
+- 초기 `127.0.0.1` 접근은 Next.js dev-resource cross-origin 차단으로 hydration되지 않아 기능 판정에서 제외했다.
+- No commit, push, deployment, payment, provider mutation, or external publication.

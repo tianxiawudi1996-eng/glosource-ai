@@ -13,6 +13,8 @@
     "release:product": "npm run verify:product && npm run package:product",
     "readiness:product": "tsx scripts/check-product-readiness.ts",
     "readiness:control-plane": "tsx scripts/check-production-control-plane-readiness.ts",
+    "readiness:promotion-evidence": "tsx scripts/check-promotion-evidence.ts",
+    "readiness:promotion-context": "tsx scripts/check-promotion-evidence.ts --print-context",
     "readiness:remediation-approval": "tsx scripts/build-production-remediation-approval-packet.ts",
     "readiness:remediation-preflight": "tsx scripts/build-production-remediation-execution-preflight.ts",
     "harness:instructions": "tsx scripts/check-agent-instructions.ts",
