@@ -159,6 +159,9 @@ Browser / Server Component
 
 ```powershell
 npm run harness:instructions
+npm run harness:landing-goal
+npm run harness:en-balance
+npm run harness:en-balance:pixels -- <receipt.json>
 npm run lifecycle:validate
 npm test
 npx tsc --noEmit
@@ -212,6 +215,9 @@ $env:GLOSOURCE_BASE_URL='http://localhost:3000'; npm run growth:live-contract
 
 ## 13. Agent and Model Orchestration
 
+- 랜딩페이지 장기 작업의 모델 라우팅·토큰 절약·승급 기준은 `docs/operations/GLOSOURCE_LANDING_LONG_RUNNING_METAPROMPT.md`를 따른다.
+- `/en`의 70:30은 `docs/plans/2026-08-25-en-70-30-measurement.md`의 product-supporting 70% floor와 culture-only 30% cap으로 검사하며 pixel 비율로 오인하지 않는다.
+- 실제 높이 비중은 브라우저에서 수집한 제한된 receipt를 `npm run harness:en-balance:pixels -- <receipt.json>`로 판정하며 receipt가 없으면 완료로 주장하지 않는다.
 - 병렬화는 독립적이고 충돌 없는 작업이 실제 시간을 줄일 때만 사용한다.
 - 같은 파일·schema·공통 interface를 여러 에이전트가 동시에 수정하지 않는다.
 - 하위 작업에는 목표, 범위, 소유 파일, 입력, 완료 조건, 검증과 금지 대상을 전달한다.

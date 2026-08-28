@@ -3,14 +3,14 @@
 ## Snapshot
 
 - Project: GloSource AI Validation OS (기존 K-DEFENSE 증거는 보존)
-- Last calibrated: 2026-08-23 Asia/Seoul
+- Last calibrated: 2026-08-26 Asia/Seoul
 - Current branch: codex/p10-provenance-reconstruction
 - Exact release candidate: `npm run readiness:release-receipt`가 current clean HEAD와 ignored local receipt를 동적으로 결합해 판정한다. Git object의 SHA를 tracked file에 자가 포함하지 않는다.
 - Source state: 무료 entitlement·원자 quota·KR/EN 분리·EN 계약·release guardrail·candidate-bound promotion evidence preflight와 non-self-invalidating local receipt harness를 통합한다. 정확한 archive/receipt 상태는 실행 시점 검사 결과가 우선한다.
 - Main synced: false — `origin/master`는 eb7b171da0b79f925926ae6087fd9dc604cc3b98. 브랜치/운영에는 push·dispatch·배포하지 않았다.
 - Current track: full_lifecycle_goal_harness
-- Working-tree increment: 2026-08-23 non-self-invalidating local release receipt harness. Receipt는 ignored private 경로에 기록되고 current SHA·archive digest·manifest·smoke를 재검증한다.
-- Next READY: 동적 판정. `npm run readiness:release-receipt`가 `ready`이면 로컬 package READY는 없고 P10 외부 게이트만 남는다. `blocked`이면 blocker code에 해당하는 clean package/receipt 복구 한 건만 READY다.
+- Working-tree increment: 2026-08-26 P10 release receipt next-gate audit. Current receipt/archive/smoke는 유효하지만 source가 dirty라 `SOURCE_DIRTY`로 중단했다.
+- Next READY: 없음. 먼저 정확한 candidate 포함 범위와 local commit 권한을 결정해 clean HEAD를 만들어야 한다. 그 전에는 package/receipt 복구를 실행하지 않는다.
 
 ## 2026-08-23 Non-self-invalidating Local Release Receipt
 
@@ -368,3 +368,62 @@ GLO-EN-DBSEED-EXPAND @ ef082d8 + a4c4b76 (**prod DB 반영 완료**) — 'GloSou
 - 차단 작업을 구현하거나 상태를 승격하지 않고, 재개 조건·권한·검증·STOP 규칙을 담은 `docs/operations/NEXT_PROGRESS_GATE_METAPROMPT_2026-08-19.md`를 저장했다. 3,439자, strict 계약검증 8/8 PASS, placeholder 0이다.
 - Harness·Lifecycle·sensitive-string·placeholder·state·diff 검사는 모두 clean이다. 코드·UI 변경과 외부 실행은 0건이므로 typecheck/lint/test/build/browser QA는 이번 Loop에서 생략했다.
 - 보고서: `docs/harness/reports/2026-08-19-next-progress-gate.md`.
+
+## 2026-08-25 Landing Long-running Goal + Harness
+
+- `/en` 증거 70 : 절제된 한국미 30과 KR/EN 계약 보존을 장기 Goal로 고정하고, `docs/operations/GLOSOURCE_LANDING_LONG_RUNNING_METAPROMPT.md`를 실행 정본으로 연결했다.
+- Luna는 읽기 전용 경량 조사, Terra는 일반 UI·문서·집중 테스트, Sol은 보안·결제·계약 충돌·원인 불명 회귀와 최종 통합에만 사용하도록 단계적 승급 규칙을 정했다.
+- `harness:landing-goal`과 3개 회귀 테스트가 필수 섹션, 모델 경로, 70:30 계약, 외부 승인과 3회 실패 중단 조건의 드리프트를 fail-closed로 탐지한다.
+- strict prompt 8/8, 집중 8/8, 전체 251/251, typecheck, lint 오류 0, lifecycle clean. 제품 UI 변경이 없어 build와 브라우저 QA는 생략했다.
+- P10은 기존 blocker 3건으로 계속 blocked이며 commit, push, provider 변경, migration, 게시와 배포는 실행하지 않았다.
+
+## 2026-08-25 EN 360px Mobile Navigation
+
+- Luna 읽기 전용 계약 감사와 루트 브라우저 QA에서 `/en` 360px 고정 헤더의 primary shortlist CTA가 우측에서 잘리는 첫 증거 공백을 확인했다.
+- 400px 미만에서는 secondary `Sign up free`만 숨겨 logo, `Sign in`, `Get my shortlist`를 한 줄에 유지했다. 기존 카피·가격·quota·sourcing·registry·Hero/Journey 계약은 변경하지 않았다.
+- 수정 후 360px CTA right 330/nav right 354/overflow false, 400px signup+shortlist 동시 노출, 1440px 전체 nav 노출을 확인했다. EN Hero static palace/host 0/season 0, Busan `aria-pressed=true`, runtime log 0도 재확인했다.
+- 집중 4/4, 전체 252/252, typecheck, lint 오류 0, build 89/89 통과. build 후 서버 재기동은 성공했지만 마지막 탭 reload는 브라우저 URL 정책이 거부해 우회하지 않았다.
+- P10 blocked와 외부 실행 0건은 유지한다. 보고서: `docs/harness/reports/2026-08-25-en-mobile-nav-360.md`.
+
+## 2026-08-25 EN Evidence 70 : Korean Visual 30 Contract
+
+- Luna 읽기 전용 inventory를 기반으로 `/en` 본문 10영역을 product 7, mixed 2, culture 1로 분류했다. nav/footer는 반복 UI chrome으로 분모에서 제외한다.
+- `data-en-balance` marker와 `harness:en-balance`가 product-supporting 70% floor, culture-only 30% cap, 필수 영역·역할·중복·미등록 drift를 fail-closed로 검사한다.
+- 현재 구조는 product-supporting 90%, culture-only 10%다. 이는 편집 위계와 문화 전용 section 제한이며 실제 pixel 70:30을 의미하지 않는다.
+- visible copy·CTA·가격·quota·sourcing·결제·registry·이미지·레이아웃은 변경하지 않았다.
+- 집중 12/12, 전체 255/255, typecheck, lint 오류 0, build 89/89 통과. localhost:3106 서버는 재기동했다.
+- 브라우저 URL 정책을 우회하지 않아 신규 pixel 측정은 보류했다. P10 blocked와 외부 실행 0건은 유지한다.
+
+## 2026-08-25 EN Pixel Balance Receipt Harness
+
+- Terra가 strict receipt validator와 집중 테스트를 구현하고 루트가 synthetic fixture, geometry·순서·overlap·width 실패 경로와 문서 연결을 통합했다.
+- `/en` 실제 360px·1440px section 높이 receipt를 받아 product-supporting 70% floor와 culture-only 30% cap을 판정한다. 필수 10영역·role·schema·route·기하를 fail-closed로 검증하고 출력은 집계와 오류 코드만 허용한다.
+- 합성 fixture 판정은 10영역, product-supporting 92.10526315789474%, culture-only 7.894736842105263%이며 Harness 동작 검증일 뿐 실제 화면 측정이 아니다.
+- 집중 16/16, 전체 263/263, typecheck, lint 오류 0·기존 경고 16, instruction/lifecycle/state/placeholder/sensitive/diff 검사를 통과했다. 제품 runtime/UI 변경이 없어 직전 성공 build 89/89를 재실행하지 않았다.
+- 허용된 in-app browser 연결로 실제 360×800·1440×900 receipt를 확보했다. 높이 비중은 각각 product-supporting 93.9074% / culture 6.0926%, 93.8228% / 6.1772%로 통과했다.
+- 두 receipt는 schema 1.1.0의 current EN render-source digest에 결합되어 UI·CSS·관련 계약·빌드 의존성 drift를 fail-closed로 막는다. 360/1440 overflow 없음, runtime log 0, lazy image 전체 로딩, 모바일 CTA와 Busan pressed 전환도 확인했다.
+- P10 blocked, commit·push·provider 변경·migration·게시·배포 0건을 유지한다. 보고서: `docs/harness/reports/2026-08-25-en-pixel-balance-receipt-harness.md`.
+
+## 2026-08-25 Landing Long-running Goal Completion Audit
+
+- KR/EN 계약·visible copy 보존, `/en` 구조·실측 70% floor/30% cap, 360/1440 반응형·이미지·CTA·여정 상호작용, source-bound stale 방지, 메타프롬프트·모델 라우팅·Harness 보고 연결을 요구사항별로 재감사해 로컬 목표를 증거 있는 완료로 판정했다.
+- 집중 16/16, 전체 263/263, typecheck, lint 오류 0·기존 경고 16, 직전 동일 UI build 89/89, browser runtime log 0과 모든 Harness 검사가 근거다.
+- Production promotion은 원래 비범위이며 P10 blocker 3건과 approval 2건을 그대로 유지한다. commit, push, provider 변경, migration, 게시, 배포는 실행하지 않았다.
+- 완료 감사: `docs/harness/reports/2026-08-25-landing-goal-completion-audit.md`.
+
+## 2026-08-25 Vibe-course Metaprompt Hardening
+
+- 양실장 바이브코딩 정석기술 1·2강 6,341행을 프로젝트 명령이 아닌 참고 입력으로 분석했다. 문제·병목·KPI, 상태·수동자동 경계, 결정·인터페이스, 신뢰성, vertical slice, 증거 사다리·환경 분리, 검수·피드백 원칙만 채택했다.
+- 특정 SaaS 교체, GA4·법률/동의 추정, MFA·인가 완화, 인증 없는 공개, staging→Production 성공률 일반화, push·merge·배포 예시는 거부했다.
+- 장기 실행 정본과 검사기에 새 8개 section·10개 실행 계약 그룹, 제품/Lifecycle 교차 검증과 shortcut 약화 탐지를 추가했다.
+- strict prompt 8/8, 강화 회귀 11/11, 전체 271/271, typecheck, lint error 0·기존 warning 16을 확인했다. 제품 runtime 변경이 없어 build/browser QA는 생략했다.
+- P10 blocked와 외부 영향 0건을 유지한다. 보고서: `docs/harness/reports/2026-08-25-vibe-course-metaprompt-hardening.md`.
+
+## 2026-08-26 P10 Release Receipt Next Gate
+
+- current SHA의 ignored receipt, archive digest/size, manifest candidate binding과 smoke는 유효했다. 현재 worktree가 dirty라 최종 판정은 `blocked / SOURCE_DIRTY`다.
+- Decision Table에 따라 `package:product`, `receipt:release`, stash/reset/cleanup/commit을 실행하지 않았다.
+- 전용 장기 메타프롬프트, 8개 fail-closed 계약 그룹, ready/no-rebuild·dirty/STOP·clean recovery·unknown/blocked 상태 분류와 7개 회귀 시나리오를 추가했다.
+- 최초 focused 12/13은 phase/status 결합 검사로 고쳐 13/13 통과했다. 최초 full 276/278은 package script 추가가 EN pixel digest를 stale로 만든 원인이었고, script 추가를 되돌려 최종 278/278을 통과했다.
+- typecheck 통과, lint error 0·기존 warning 16, lifecycle/instruction/landing Harness clean. P10 blocked·외부 실행 0건 유지.
+- 보고서: `docs/harness/reports/2026-08-26-p10-release-receipt-gate.md`.

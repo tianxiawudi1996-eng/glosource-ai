@@ -27,10 +27,15 @@ const REQUIRED_REFERENCES = [
   'docs/harness/lifecycle/LIFECYCLE.md',
   'docs/harness/STATE.json',
   'docs/harness/TASK_QUEUE.md',
+  'docs/operations/GLOSOURCE_LANDING_LONG_RUNNING_METAPROMPT.md',
+  'docs/plans/2026-08-25-en-70-30-measurement.md',
 ] as const;
 
 const REQUIRED_SCRIPTS = [
   { name: 'harness:instructions', command: 'npm run harness:instructions' },
+  { name: 'harness:landing-goal', command: 'npm run harness:landing-goal' },
+  { name: 'harness:en-balance', command: 'npm run harness:en-balance' },
+  { name: 'harness:en-balance:pixels', command: 'npm run harness:en-balance:pixels' },
   { name: 'lifecycle:validate', command: 'npm run lifecycle:validate' },
   { name: 'lifecycle:status', command: 'npm run lifecycle:status' },
   { name: 'test', command: 'npm test' },

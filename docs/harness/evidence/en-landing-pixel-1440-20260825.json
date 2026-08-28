@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "1.1.0",
+  "route": "/en",
+  "sourceDigest": "8a17273a33c9f8733e15a797de44f0570a256d4fbad9105264a79567f58c7b86",
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "measuredAt": "2026-08-24T23:27:50.642Z",
+  "regions": [
+    { "id": "hero", "role": "mixed", "top": 67, "height": 858.25, "width": 1434 },
+    { "id": "registry", "role": "product", "top": 925.25, "height": 705.5, "width": 1434 },
+    { "id": "categories", "role": "mixed", "top": 1630.75, "height": 856.5, "width": 1434 },
+    { "id": "journey", "role": "culture", "top": 2487.25, "height": 526.5625, "width": 1434 },
+    { "id": "problem", "role": "product", "top": 3013.8125, "height": 746, "width": 1434 },
+    { "id": "samples", "role": "product", "top": 3759.8125, "height": 771, "width": 1434 },
+    { "id": "tool", "role": "product", "top": 4530.8125, "height": 1046, "width": 1434 },
+    { "id": "process", "role": "product", "top": 5576.8125, "height": 519, "width": 1434 },
+    { "id": "pricing", "role": "product", "top": 6115.8125, "height": 1304.5, "width": 1434 },
+    { "id": "faq", "role": "product", "top": 7420.3125, "height": 1191, "width": 1434 }
+  ]
+}

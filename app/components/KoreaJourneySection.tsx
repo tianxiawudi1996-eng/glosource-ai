@@ -147,6 +147,7 @@ export default function KoreaJourneySection({ lang = 'ko' }: { lang?: JourneyLan
       data-lang={lang}
       data-style-dna="heritage-journey"
       data-cultural-density={lang === 'en' ? 'restrained' : 'expressive'}
+      data-en-balance={lang === 'en' ? 'journey:culture' : undefined}
       data-journey-count={journeySpots.length}
       aria-labelledby="korea-journey-title"
     >

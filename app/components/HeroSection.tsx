@@ -486,6 +486,7 @@ export default function HeroSection({ lang = 'ko' }: HeroSectionProps) {
       data-lang={lang}
       data-style-dna="atelier-dancheong-journey"
       data-cultural-density={lang === 'en' ? 'restrained' : 'expressive'}
+      data-en-balance={lang === 'en' ? 'hero:mixed' : undefined}
     >
       {/* Seasonal Gyeongbokgung cover with a consistent Korean host companion. */}
       <SeasonalHeroCover lang={lang} />

@@ -4,9 +4,21 @@
 
 ## READY (다음 비게이트 증분)
 
-- 동적 판정 — 먼저 `npm run readiness:release-receipt`를 실행한다. `ready`이면 local package 작업을 반복하지 않는다. `LOCAL_RELEASE_RECEIPT_MISSING` 또는 candidate/archive drift blocker이면 `npm run package:product` 후 exact archive에 `npm run receipt:release -- --archive <path>`를 실행하는 복구 한 건만 READY다.
+- 없음 — 2026-08-26 current receipt 판정은 `SOURCE_DIRTY`다. 먼저 candidate에 포함할 정확한 변경 범위와 local commit 권한을 결정해야 한다. clean HEAD 전에는 package/receipt 복구를 실행하지 않는다.
 
 ## DONE (로컬 제안·외부 실행 없음)
+
+- P10-RELEASE-RECEIPT-GATE-20260826 @ working-tree — current SHA receipt·archive binding·smoke는 유효하지만 source dirty를 확인해 `blocked / SOURCE_DIRTY`로 중단했다. package/create/Git 정리 0건. 전용 메타프롬프트와 drift/decision Harness를 추가했고 focused 13/13·전체 278/278·typecheck·lint error 0을 확인했다. 보고서: `docs/harness/reports/2026-08-26-p10-release-receipt-gate.md`.
+
+- VIBE-COURSE-METAPROMPT-HARDENING-20260825 @ working-tree — 양실장 바이브코딩 정석기술 1·2강 6,341행을 참고 입력으로 분석해 병목/KPI, 상태·수동자동 경계, 결정·provider 경계, 신뢰성, 증거 사다리·환경 분리, 검수 루프를 랜딩 장기 메타프롬프트와 fail-closed 검사에 결합했다. strict 8/8, 강화 11/11, 전체 271/271, typecheck, lint error 0. P10 blocked·외부 실행 0건. 보고서: `docs/harness/reports/2026-08-25-vibe-course-metaprompt-hardening.md`.
+
+- GLO-LANDING-LONG-GOAL-COMPLETE-20260825 @ working-tree — KR/EN 제품 계약과 visible copy를 보존하면서 `/en`을 구조 90:10, 실제 360×800 93.9074:6.0926, 1440×900 93.8228:6.1772로 검증했다. source-bound receipt, 반응형 browser QA, 263/263·typecheck·lint 오류 0, 메타프롬프트·모델 라우팅·Harness 동기화를 완료했다. Production P10은 별도 외부 게이트로 유지한다. 감사: `docs/harness/reports/2026-08-25-landing-goal-completion-audit.md`.
+
+- GLO-EN-70-30-BALANCE-CONTRACT-20260825 @ working-tree — `/en` 본문 10영역을 product/mixed/culture로 표시하고 product-supporting 70% floor, culture-only 30% cap을 검사하는 `harness:en-balance`를 추가했다. 현재 90%/10%, 집중 12/12·전체 255/255·typecheck·lint 오류 0·build 89/89를 확인했다. pixel 비율은 미측정으로 남기고 P10 blocked·외부 실행 0건을 유지한다. 보고서: `docs/harness/reports/2026-08-25-en-70-30-balance-contract.md`.
+
+- GLO-EN-MOBILE-NAV-360-20260825 @ working-tree — `/en` 360px 완료 감사에서 고정 헤더 primary CTA 잘림을 발견해 400px 미만의 secondary `Sign up free`만 숨겼다. 360/400/1440 browser QA, Busan pressed 상태, runtime log 0, 집중 4/4·전체 252/252·typecheck·lint 오류 0·build 89/89를 확인했다. P10 blocked와 외부 실행 0건을 유지한다. 보고서: `docs/harness/reports/2026-08-25-en-mobile-nav-360.md`.
+
+- GLO-LANDING-LONG-GOAL-HARNESS-20260825 @ working-tree — 랜딩페이지 장기 Goal을 `docs/operations/GLOSOURCE_LANDING_LONG_RUNNING_METAPROMPT.md`로 고정하고 Luna 경량 조사, Terra 일반 구현, Sol 고위험 판단·통합의 단계적 모델 라우팅을 적용했다. 전용 드리프트 검사와 3개 회귀 테스트를 추가했으며 strict prompt 8/8, 전체 251/251, typecheck, lint 오류 0, lifecycle clean을 확인했다. P10 blocked와 외부 실행 0건을 유지한다. 보고서: `docs/harness/reports/2026-08-25-landing-long-running-goal-harness.md`.
 
 - P10-NON-SELF-INVALIDATING-RELEASE-RECEIPT-20260823 @ candidate-current-HEAD — tracked 문서 commit이 artifact SHA를 다시 바꾸는 루프를 없애기 위해 current candidate SHA별 ignored receipt를 도입했다. 실제 archive 재추출, blocked/all-zero 검사, loopback 3경로, 제품 계약 7/7, runtime error-token 0 뒤에만 원자 기록하며 check command가 SHA/hash/size/manifest를 재결합한다. 외부 실행·push·migration·provider 변경·배포 0건. 보고서: `docs/harness/reports/2026-08-23-non-self-invalidating-release-receipt.md`.
 
@@ -34,6 +46,7 @@
 
 ## BLOCKED (게이트/외부 필요)
 
+- P10-LOCAL-RECEIPT-RECOVERY — current SHA receipt와 archive/smoke는 유효하나 worktree가 dirty다. 정확한 candidate 포함 범위와 local commit 권한이 있어야 clean HEAD를 만들 수 있다. 그 전에는 package/create를 금지하며, clean 후 `npm run readiness:release-receipt` 재판정에서 missing/drift가 있을 때만 복구 1건을 연다.
 - P10-PRODUCTION-PROMOTION — candidate-bound evidence preflight는 로컬 구현됐지만 현재 remediation은 미커밋 dirty source이고 신규 quota migration `0005`는 staging/production 미적용이다. clean exact candidate, 실제 staging·backup·restore·rollback receipt, current ready control-plane audit, 독립 reviewer, `preventSelfReview=true`, distinct fresh `G_RELEASE`·`G_PRODUCTION_CONTROL_PLANE_CHANGE`가 모두 필요하다.
 - GLO-FOOD-BIZRNO-REGISTRY-ACTIVATE — `DART_API_KEY` 발급 + prod 마이그레이션 후 `npm run db:ingest:opendart`. 수집 결과가 7개 업체를 실제로 매칭한 경우에만 curated 번호를 `opendart-registry`로 승격하고 prod 시드를 실행한다. 미매칭·동명이인은 fail-closed하며 번호를 추정하지 않는다.
 - GLO-REPLY-TRIAGE-ACTIVATE — `growth:replies`는 `GMAIL_OAUTH_CLIENT_ID`, `GMAIL_OAUTH_CLIENT_SECRET`, `GMAIL_OAUTH_REFRESH_TOKEN`, `GMAIL_ACCOUNT` 부재로 2026-07-18 fail. 값 확보 후 reply 탐지/분류만 재개하며 실제 draft 생성·발송은 별도 승인 게이트다.
@@ -54,6 +67,8 @@
 4. **아웃바운드 가동**: tianxiawudi1996 Gmail OAuth + 실 리드 → 발송 승인.
 
 ## DONE
+
+- GLO-EN-PIXEL-BALANCE-RECEIPT-HARNESS-20260825 @ working-tree — `/en`의 실제 360×800·1440×900 section 높이 receipt를 확보해 product-supporting 93.9074%/93.8228%, culture-only 6.0926%/6.1772%로 판정했다. schema 1.1.0 source digest가 stale receipt를 fail-closed 처리하며 360/1440 overflow·이미지·CTA·여정 상호작용·runtime log QA를 통과했다. P10 blocked, 외부 실행·commit·push·배포 0건. 보고서: `docs/harness/reports/2026-08-25-en-pixel-balance-receipt-harness.md`.
 
 - GLO-HERO-FACE-SAFE-20260810 @ working-tree(**로컬 UI 후속 수정·배포 없음**) — 사람 얼굴과 히어로 검증 패널이 겹치지 않도록 데스크톱 패널을 오른쪽 열의 하단·좌측으로 재배치하고 폭을 95%로 축소했으며, 계절 커버를 세로 110%·하단 정렬해 얼굴을 패널 위에 고정했다. 모바일 계절 이미지 초점은 KR 75%·EN 65%로 조정했다. 기존 카피·CTA·라우트·가격·쿼터는 유지했다. `/`·`/en` 1440/390 browser QA에서 패널 bounds와 `scrollWidth === viewport`를 확인했으며 P10 blocked, 외부 게시·배포·commit·push 0건.
 

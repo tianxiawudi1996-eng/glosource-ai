@@ -275,7 +275,7 @@ export default async function EnPage({
                 <Link href="/en/login" className="whitespace-nowrap text-xs font-semibold text-slate-300 hover:text-white transition-colors">
                   Sign in
                 </Link>
-                <Link href="/en/register" className="whitespace-nowrap text-xs font-bold border border-white/30 text-white px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors">
+                <Link href="/en/register" className="hidden min-[400px]:inline-flex whitespace-nowrap text-xs font-bold border border-white/30 text-white px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors">
                   Sign up free
                 </Link>
               </>
@@ -293,7 +293,7 @@ export default async function EnPage({
       {/* ── GOVERNMENT REGISTRY CROSS-CHECK ────────────────── */}
       {/* overflow-clip, not -hidden: -hidden would make this section a scroll container
           and freeze the view() timelines of the cards inside it. */}
-      <section className="relative overflow-clip border-b border-slate-200 bg-[#0A1520] bg-lattice-dark text-white">
+      <section data-en-balance="registry:product" className="relative overflow-clip border-b border-slate-200 bg-[#0A1520] bg-lattice-dark text-white">
         <div aria-hidden="true" className="gs-hangul-watermark right-4 top-1/2 -translate-y-1/2 hidden lg:flex flex-col gap-6 text-white/[0.05]">
           <YetGlyph char="geom" className="h-52 w-52" />
           <YetGlyph char="jeung" className="h-52 w-52" />
@@ -338,7 +338,7 @@ export default async function EnPage({
       </section>
 
       {/* ── CATEGORIES — jogakbo patchwork grid ────────────── */}
-      <section className="bg-hanji border-b border-slate-200">
+      <section data-en-balance="categories:mixed" className="bg-hanji border-b border-slate-200">
         {/* 기와 처마 — the registry section's dark roof overhangs the hanji courtyard */}
         <div className="text-[#0A1520]"><GiwaEaves className="h-7" /></div>
         <div className="mx-auto max-w-5xl px-6 py-20">
@@ -404,7 +404,7 @@ export default async function EnPage({
       <KoreaJourneySection lang="en" />
 
       {/* ── PROBLEM ─────────────────────────────────────────── */}
-      <section className="border-b border-slate-200 bg-white">
+      <section data-en-balance="problem:product" className="border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-5xl px-6 py-20">
           <div className="gs-reveal max-w-3xl">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-[#8F3A26]">The sourcing gap · <HaeryeText className="tracking-normal">간극</HaeryeText></p>
@@ -430,7 +430,7 @@ export default async function EnPage({
       </section>
 
       {/* ── SAMPLE REPORTS ─────────────────────────────────── */}
-      <section id="sample-reports" className="scroll-mt-16 border-b border-slate-200 bg-hanji">
+      <section id="sample-reports" data-en-balance="samples:product" className="scroll-mt-16 border-b border-slate-200 bg-hanji">
         <div className="mx-auto max-w-5xl px-6 py-20">
           <div className="gs-reveal mb-10 max-w-2xl">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-[#8F3A26]">Free sample reports · <HaeryeText className="tracking-normal">견본</HaeryeText></p>
@@ -444,7 +444,7 @@ export default async function EnPage({
       </section>
 
       {/* ── SOURCING TOOL ──────────────────────────────────── */}
-      <section id="sourcing-tool" className="scroll-mt-16 bg-slate-50 border-b border-slate-100">
+      <section id="sourcing-tool" data-en-balance="tool:product" className="scroll-mt-16 bg-slate-50 border-b border-slate-100">
         <div className="max-w-4xl mx-auto px-6 py-20">
           <div className="gs-reveal mb-10 text-center">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-[#8F3A26] mb-3">Build your first shortlist · <HaeryeText className="tracking-normal">검색</HaeryeText></p>
@@ -458,7 +458,7 @@ export default async function EnPage({
       </section>
 
       {/* ── HOW IT WORKS ───────────────────────────────────── */}
-      <section className="bg-white border-b border-slate-100">
+      <section data-en-balance="process:product" className="bg-white border-b border-slate-100">
         <div className="max-w-5xl mx-auto px-6 py-20">
           <div className="gs-reveal mb-10 text-center">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-[#8F3A26] mb-3">How it works · <HaeryeText className="tracking-normal">절차</HaeryeText></p>
@@ -483,7 +483,7 @@ export default async function EnPage({
 
       {/* ── PRICING ────────────────────────────────────────── */}
       <DancheongBand />
-      <section id="pricing" className="scroll-mt-16 bg-white border-b border-slate-200">
+      <section id="pricing" data-en-balance="pricing:product" className="scroll-mt-16 bg-white border-b border-slate-200">
         <PricingViewTracker />
         <div className="max-w-5xl mx-auto px-6 py-20">
           <div className="gs-reveal mb-10 text-center">
@@ -554,7 +554,7 @@ export default async function EnPage({
       </section>
 
       {/* ── FAQ ────────────────────────────────────────────── */}
-      <section className="bg-hanji border-b border-slate-100">
+      <section data-en-balance="faq:product" className="bg-hanji border-b border-slate-100">
         <div className="max-w-3xl mx-auto px-6 py-20">
           <div className="gs-reveal mb-10 text-center">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-[#8F3A26] mb-3">FAQ · <HaeryeText className="tracking-normal">문답</HaeryeText></p>

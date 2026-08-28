@@ -324,3 +324,60 @@ npm run growth:outreach:preflight
 - `localhost` hydrated browser: `View Busan scene` click 후 dots `[false,true,false]`, Busan card pressed, rail `scrollLeft=227`; page overflow -6px and runtime error/warning log 0.
 - 초기 `127.0.0.1` 접근은 Next.js dev-resource cross-origin 차단으로 hydration되지 않아 기능 판정에서 제외했다.
 - No commit, push, deployment, payment, provider mutation, or external publication.
+
+2026-08-25 Landing long-running Goal + Harness:
+
+- strict prompt validator: 8/8 required groups, placeholders 0, warnings 0; 3,175 characters; SHA-256 `8E31C8C92D1020487935EE8F3DF4A4023B3B9057E2329A6094824A5DBC25D653`.
+- `npm run harness:landing-goal`: clean; focused landing/agent-instruction tests 8/8 pass.
+- `npm test`: 251/251 pass; `npx tsc --noEmit`: pass; `npm run lint`: exit 0 with 0 errors and 16 pre-existing warnings.
+- `npm run lifecycle:validate`: clean; `npm run lifecycle:status`: P10 blocked with the existing three blockers.
+- No product UI/runtime change; build and browser QA intentionally skipped. No commit, push, provider mutation, migration, publication, or deployment.
+
+2026-08-25 EN 360px mobile navigation:
+
+- `npx tsx --test tests/en-visual-balance.test.ts`: 4/4 pass, including the under-400px secondary signup hide and persistent shortlist CTA contract.
+- Browser 360×800: shortlist `left=202,right=330,width=128`, nav right 354, signup hidden, `scrollWidth=354`, overflow false.
+- Browser 400×800: signup `left=150,right=244`, shortlist `left=256,right=384`, `scrollWidth=394`; both visible.
+- Browser 1440×900: full nav visible, overflow false; static Gyeongbokgung scene, EN host 0, season controls 0, Busan pressed, error/warn log 0.
+- `npm run build`: Next.js 16.3.0, 89/89; `npx tsc --noEmit`: pass; `npm test`: 252/252; `npm run lint`: exit 0, errors 0, existing warnings 16.
+- Dev server restarted on localhost:3106. Final browser reload was rejected by the browser URL policy and was not bypassed. No external effects.
+
+2026-08-25 EN 70:30 balance contract:
+
+- `npm run harness:en-balance`: clean; 10 content regions, product-supporting 9/10 (90%), culture-only 1/10 (10%).
+- Focused EN balance, visual, and instruction tests: 12/12 pass, including culture cap overflow and missing required product region failures.
+- `npm run build`: Next.js 16.3.0, 89/89; `npx tsc --noEmit`: pass; `npm test`: 255/255; `npm run lint`: exit 0, errors 0, existing warnings 16.
+- Exact pixel ratio was not measured because localhost Browser Use remained policy-blocked; the restriction was not bypassed. Dev server restarted on localhost:3106.
+- No visible copy, layout, API, DB, provider, commit, push, publication, or deployment change.
+
+2026-08-25 EN pixel balance receipt harness:
+
+- `npx tsx --test tests/en-landing-pixel-balance.test.ts tests/en-landing-balance.test.ts tests/agent-instructions.test.ts`: 16/16 pass.
+- `npm test`: 263/263 pass; `npx tsc --noEmit`: pass; `npm run lint`: exit 0, errors 0, existing warnings 16.
+- `npm run harness:en-balance:pixels -- tests/fixtures/en-landing-pixel-receipt.synthetic.json`: exit 0, 10 regions, total height 3800, product-supporting 92.10526315789474%, culture-only 7.894736842105263%.
+- CLI without a receipt path: expected exit 1 with `USAGE_REQUIRES_ONE_RECEIPT_PATH`.
+- The synthetic fixture validates schema, aggregation, and failure behavior. Actual source-bound 360×800 and 1440×900 browser receipts are tracked separately under `docs/harness/evidence/`.
+- Product runtime/UI did not change in this loop, so build was not rerun; the immediately preceding marker integration build remains green at 89/89 routes.
+- No browser policy bypass, commit, push, provider mutation, migration, publication, or deployment ran.
+- Actual 360×800 receipt: total height 14908.984375, product-supporting 93.90740692221028%, culture-only 6.092593077789714%, clean.
+- Actual 1440×900 receipt: total height 8524.3125, product-supporting 93.8228156229608%, culture-only 6.177184377039204%, clean.
+- Receipt schema 1.1.0 requires the current EN render-source SHA-256; a stale digest fails with `SOURCE_DIGEST_MISMATCH`, and both tracked browser receipts must share the same current digest.
+- Browser 360×800: `scrollWidth=354`, primary shortlist CTA visible, signup hidden, host/season controls 0, Busan dot/card pressed, full lazy-image load, error/warning logs 0.
+- Browser 1440×900: `scrollWidth=1434`, primary shortlist CTA visible, host/season controls 0, full lazy-image load, error/warning logs 0.
+
+2026-08-25 Vibe-course metaprompt hardening:
+
+- strict prompt validator: required groups 8/8, placeholders 0, warnings 0; 6,266 characters; SHA-256 `EA90369ACD66507BDE08236724B99774396CB958E8B1B925740353588061469F`.
+- `npm run harness:landing-goal`: clean; strengthened focused tests 11/11 pass.
+- `npm test`: 271/271 pass; `npx tsc --noEmit`: pass; `npm run lint`: exit 0, errors 0, existing warnings 16.
+- Initial focused run was 9/10 because the lifecycle-drift test mutated only the first `P10`; the fixture was corrected to replace all occurrences and final verification passed 11/11.
+- Product runtime/UI/API/DB/dependencies unchanged, so build and browser QA were not run. Lifecycle remains P10 blocked; commit, push, provider/OAuth change, migration, external send, publication and deployment: 0.
+
+2026-08-26 P10 release receipt next gate:
+
+- `npm run readiness:release-receipt`: expected exit 1, `blocked / SOURCE_DIRTY`; current-SHA receipt found, receipt valid, archive bound, manifest verified/candidate match, smoke green, secret/raw log absent, external action 0.
+- strict prompt validator: required groups 8/8, placeholders 0, warnings 0; 5,866 characters; SHA-256 `0EC6AAF87ACDCF064B9EDB3C52AD62356850A09632E81569C4D77AA54C2FB2D2`.
+- `npx tsx scripts/check-p10-receipt-gate-harness.ts`: clean; focused gate+receipt tests 13/13 pass.
+- Initial focused run 12/13 exposed a loose lifecycle phase/status check; exact pair validation fixed it. Initial full run 276/278 exposed package.json-driven EN pixel receipt staleness; the new npm script line was removed and direct checker execution preserves the prior source digest.
+- Final `npm test`: 278/278 pass; `npx tsc --noEmit`: pass; `npm run lint`: exit 0, errors 0, existing warnings 16.
+- `package:product`, `receipt:release`, build/browser, commit/push, provider/OAuth, migration, staging/Production were not run. P10 remains blocked.

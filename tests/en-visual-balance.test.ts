@@ -34,3 +34,14 @@ test('EN hero uses a static palace scene without the KR host or season controls'
   assert.match(hero, /\{lang === 'ko' && \(\s*<div className="gs-season-switcher/);
   assert.match(hero, /if \(lang === 'en'\) return;/);
 });
+
+test('EN mobile navigation preserves the primary shortlist action at 360px', () => {
+  assert.match(
+    enPage,
+    /href="\/en\/register" className="hidden min-\[400px\]:inline-flex/,
+  );
+  assert.match(
+    enPage,
+    /<ScrollCTA targetId="sourcing-tool" className="whitespace-nowrap/,
+  );
+});
