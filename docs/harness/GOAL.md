@@ -6,6 +6,17 @@
 
 현재 제품은 brownfield 기준선 P10 Release Readiness에서 blocked다. 과거 P00-P09를 새 하네스에서 완료한 것처럼 소급 기록하지 않는다.
 
+## Active P10 Completion Continuation Goal — 2026-08-29
+
+현재 P10을 검증 가능한 완료 지점까지 연속 진행한다. 누적된 `/en` 화면·균형·Harness 변경은 명시 파일만 local candidate commit으로 고정했고, exact clean HEAD의 ignored release receipt를 생성해 archive binding·manifest·loopback smoke를 통과시켰다.
+
+- 현재 로컬 상태의 정본: `git rev-parse HEAD` + `npm run readiness:release-receipt`
+- 로컬 완료 범위: 전체 278/278, typecheck, lint 오류 0, Next.js build 89/89, clean archive·receipt·smoke
+- 현재 P10 blocker: GitHub Production의 독립 reviewer 0명, `preventSelfReview=false`, required environment secret name `DATABASE_URL` 부재, staging migration·backup/restore·rollback rehearsal receipt 부재, distinct fresh approvals 부재
+- 다음 외부 작업: final current SHA를 기존 `codex/p10-provenance-reconstruction` 브랜치와 PR #1에 반영하는 정확한 push 승인부터 시작한다.
+- 안전 경계: 포괄 진행 승인은 로컬 commit·검증을 허용하지만, Secret 전송·권한 변경·workflow dispatch·migration·Production 배포는 정확한 대상과 행위를 action-time에 다시 고정한다.
+- 보고서: `docs/harness/reports/2026-08-29-p10-continuation-gate.md`
+
 ## Completed Local Landing Goal — 2026-08-25
 
 기존 KR/EN 제품 계약과 문구를 보존하면서 `/en`을 증거 중심 70%, 절제된 한국적 이미지·여정 30%로 고도화하고, 단계별 메타프롬프트·모델 라우팅·검증 증거·완료 보고를 Repository Harness로 연결한다.

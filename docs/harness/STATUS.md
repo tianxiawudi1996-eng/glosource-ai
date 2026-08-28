@@ -3,14 +3,24 @@
 ## Snapshot
 
 - Project: GloSource AI Validation OS (기존 K-DEFENSE 증거는 보존)
-- Last calibrated: 2026-08-26 Asia/Seoul
+- Last calibrated: 2026-08-29 Asia/Seoul
 - Current branch: codex/p10-provenance-reconstruction
 - Exact release candidate: `npm run readiness:release-receipt`가 current clean HEAD와 ignored local receipt를 동적으로 결합해 판정한다. Git object의 SHA를 tracked file에 자가 포함하지 않는다.
 - Source state: 무료 entitlement·원자 quota·KR/EN 분리·EN 계약·release guardrail·candidate-bound promotion evidence preflight와 non-self-invalidating local receipt harness를 통합한다. 정확한 archive/receipt 상태는 실행 시점 검사 결과가 우선한다.
 - Main synced: false — `origin/master`는 eb7b171da0b79f925926ae6087fd9dc604cc3b98. 브랜치/운영에는 push·dispatch·배포하지 않았다.
 - Current track: full_lifecycle_goal_harness
-- Working-tree increment: 2026-08-26 P10 release receipt next-gate audit. Current receipt/archive/smoke는 유효하지만 source가 dirty라 `SOURCE_DIRTY`로 중단했다.
-- Next READY: 없음. 먼저 정확한 candidate 포함 범위와 local commit 권한을 결정해 clean HEAD를 만들어야 한다. 그 전에는 package/receipt 복구를 실행하지 않는다.
+- Working-tree increment: 2026-08-29 P10 continuation. 누적 `/en`·Harness 변경을 local candidate commit으로 고정하고 exact clean HEAD의 archive·receipt·smoke를 복구했다. tracked 보고서 동기화 뒤 최종 current HEAD receipt를 다시 생성·확인한다.
+- Next READY: 없음. 다음 단계는 외부 게이트다. final current SHA를 `origin/codex/p10-provenance-reconstruction`과 기존 PR #1에 반영할 정확한 push, GitHub Production 권한·Secret 변경, staging/DB rehearsal은 각각 action-time 대상 확인이 필요하다.
+
+## 2026-08-29 P10 Completion Continuation
+
+- 누적 화면·Harness 35개 파일을 명시적으로 검토·stage해 local integration candidate를 생성했다. unrelated 삭제·stash·reset은 0건이다.
+- 구조 균형은 product-supporting 90%, culture-only 10%이며 source-bound 실제 높이 receipt는 360×800에서 93.9074%/6.0926%, 1440×900에서 93.8228%/6.1772%다.
+- 전체 278/278, TypeScript, ESLint 오류 0·기존 경고 16, Next.js 16.3.0 build 89/89, instruction·lifecycle·sensitive·placeholder·STATE·diff 검사를 통과했다.
+- clean candidate archive의 manifest·candidate binding·SHA-256/size와 필수 3경로·제품 계약 loopback smoke를 ignored receipt로 검증했다. exact current 증거는 `npm run readiness:release-receipt`가 동적으로 판정한다.
+- 2026-08-29 control-plane 재감사: Vercel Production 22/22, GitHub Production reviewer 1명은 current operator, 독립 reviewer 0명, `preventSelfReview=false`, required GitHub environment secret name `DATABASE_URL` 부재다.
+- 현재 session의 새 브라우저 제어는 localhost URL 정책에 차단됐다. 우회하지 않았으며, 현재 source digest와 일치하는 기존 360/1440 browser receipt와 새 build 증거를 사용했다.
+- push·PR 수정·workflow dispatch·provider mutation·Secret 전송·staging·migration·Production 배포는 아직 0건이다. 상세: `docs/harness/reports/2026-08-29-p10-continuation-gate.md`.
 
 ## 2026-08-23 Non-self-invalidating Local Release Receipt
 

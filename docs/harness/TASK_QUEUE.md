@@ -4,9 +4,11 @@
 
 ## READY (다음 비게이트 증분)
 
-- 없음 — 2026-08-26 current receipt 판정은 `SOURCE_DIRTY`다. 먼저 candidate에 포함할 정확한 변경 범위와 local commit 권한을 결정해야 한다. clean HEAD 전에는 package/receipt 복구를 실행하지 않는다.
+- 없음 — local candidate·archive·receipt·smoke는 복구됐다. tracked 보고서 commit 뒤 `npm run readiness:release-receipt`로 final current SHA를 재확인한다. 다음 증분부터는 push, GitHub Production 보호·Secret, staging/DB rehearsal처럼 외부 상태를 바꾸므로 exact current SHA·대상·행위의 action-time 승인이 필요하다.
 
 ## DONE (로컬 제안·외부 실행 없음)
+
+- P10-LOCAL-RECEIPT-RECOVERY-20260829 @ current-HEAD — 사용자 진행 승인으로 기존 GloSource dirty 범위를 명시 검토해 local candidate commit으로 고정했다. clean HEAD에서만 `LOCAL_RELEASE_RECEIPT_MISSING`을 확인한 뒤 package/create 1회를 실행했고 archive binding·manifest·loopback smoke가 `ready`다. clean HEAD 전에는 package/receipt 복구를 실행하지 않는다. 전체 278/278·typecheck·lint error 0·build 89/89. 보고서: `docs/harness/reports/2026-08-29-p10-continuation-gate.md`.
 
 - P10-RELEASE-RECEIPT-GATE-20260826 @ working-tree — current SHA receipt·archive binding·smoke는 유효하지만 source dirty를 확인해 `blocked / SOURCE_DIRTY`로 중단했다. package/create/Git 정리 0건. 전용 메타프롬프트와 drift/decision Harness를 추가했고 focused 13/13·전체 278/278·typecheck·lint error 0을 확인했다. 보고서: `docs/harness/reports/2026-08-26-p10-release-receipt-gate.md`.
 
@@ -46,8 +48,7 @@
 
 ## BLOCKED (게이트/외부 필요)
 
-- P10-LOCAL-RECEIPT-RECOVERY — current SHA receipt와 archive/smoke는 유효하나 worktree가 dirty다. 정확한 candidate 포함 범위와 local commit 권한이 있어야 clean HEAD를 만들 수 있다. 그 전에는 package/create를 금지하며, clean 후 `npm run readiness:release-receipt` 재판정에서 missing/drift가 있을 때만 복구 1건을 연다.
-- P10-PRODUCTION-PROMOTION — candidate-bound evidence preflight는 로컬 구현됐지만 현재 remediation은 미커밋 dirty source이고 신규 quota migration `0005`는 staging/production 미적용이다. clean exact candidate, 실제 staging·backup·restore·rollback receipt, current ready control-plane audit, 독립 reviewer, `preventSelfReview=true`, distinct fresh `G_RELEASE`·`G_PRODUCTION_CONTROL_PLANE_CHANGE`가 모두 필요하다.
+- P10-PRODUCTION-PROMOTION — local candidate·archive·receipt·smoke는 green이지만 final current SHA는 아직 origin/PR에 미반영이다. GitHub Production은 reviewer 1명이 current operator라 독립 reviewer 0명, `preventSelfReview=false`, required secret name `DATABASE_URL` 부재다. 신규 quota migration `0005`의 staging rehearsal, candidate-bound backup→restore·rollback receipt, ready control-plane audit, distinct fresh `G_RELEASE`·`G_PRODUCTION_CONTROL_PLANE_CHANGE`도 필요하다.
 - GLO-FOOD-BIZRNO-REGISTRY-ACTIVATE — `DART_API_KEY` 발급 + prod 마이그레이션 후 `npm run db:ingest:opendart`. 수집 결과가 7개 업체를 실제로 매칭한 경우에만 curated 번호를 `opendart-registry`로 승격하고 prod 시드를 실행한다. 미매칭·동명이인은 fail-closed하며 번호를 추정하지 않는다.
 - GLO-REPLY-TRIAGE-ACTIVATE — `growth:replies`는 `GMAIL_OAUTH_CLIENT_ID`, `GMAIL_OAUTH_CLIENT_SECRET`, `GMAIL_OAUTH_REFRESH_TOKEN`, `GMAIL_ACCOUNT` 부재로 2026-07-18 fail. 값 확보 후 reply 탐지/분류만 재개하며 실제 draft 생성·발송은 별도 승인 게이트다.
 - GLO-003 — 실제 ICP 리드 20명 1차 배치: **SOP/플레이북 완료**([kbeauty-lead-sourcing-playbook.md](../growth/kbeauty-lead-sourcing-playbook.md)) — 채널별 쿼리·인테이크 스키마·게이트 워크플로우 준비됨. **남은 것=실 수집**: intent 채널(LinkedIn/커뮤니티) 사람 판정 또는 인바운드(배포 후). 콜드 스크래핑 부적합·가짜 리드 금지.

@@ -59,6 +59,18 @@ npm run growth:outreach:preflight
 
 ## Last Green Run
 
+2026-08-29 P10 continuation and clean candidate recovery:
+
+- `npm test`: 278/278 pass.
+- `npx tsc --noEmit`: pass.
+- `npm run lint`: 0 errors, 16 existing warnings.
+- `npm run build` and the package rebuild: Next.js 16.3.0, static generation 89/89, pass; existing Edge Runtime deprecation warning remains.
+- `npm run harness:instructions`, `npm run harness:landing-goal`, structural and 360/1440 pixel balance, P10 receipt-gate Harness, lifecycle, STATE, placeholder, sensitive-string and diff checks: clean.
+- `npm run readiness:release-receipt`: exact clean local candidate, archive binding, manifest and loopback smoke `ready`; final exact identity is resolved dynamically after tracked report synchronization.
+- Current browser automation could not claim the localhost tab because of the browser URL policy. No workaround was attempted; the tracked 360/1440 receipts remain valid for the current source digest.
+- `npm run readiness:control-plane`: expected blocked; Vercel Production 22/22, GitHub reviewer count 1 but independent reviewer 0, `preventSelfReview=false`, required GitHub environment secret name `DATABASE_URL` missing.
+- Push, PR mutation, workflow dispatch, provider mutation, Secret transfer, staging, DB migration, backup/restore, rollback and Production deployment: 0.
+
 2026-08-23 non-self-invalidating local release receipt harness:
 
 - `npx tsx --test tests/local-release-receipt.test.ts tests/release-packaging.test.ts tests/product-readiness.test.ts`: 15/15 pass.
