@@ -9,8 +9,16 @@
 - Source state: 무료 entitlement·원자 quota·KR/EN 분리·EN 계약·release guardrail·candidate-bound promotion evidence preflight와 non-self-invalidating local receipt harness를 통합한다. 정확한 archive/receipt 상태는 실행 시점 검사 결과가 우선한다.
 - Main synced: false — `origin/master`는 eb7b171da0b79f925926ae6087fd9dc604cc3b98. 승인된 feature branch/PR push만 수행했고 master·workflow dispatch·Production 배포는 수행하지 않았다.
 - Current track: full_lifecycle_goal_harness
-- Working-tree increment: 2026-08-29 승인된 P10 control-plane 실행과 remote CI repair. branch-only Preview build 변수, exact branch/PR push, 독립 reviewer/self-review 보호, Production Secret 전달을 완료했고 cross-platform receipt digest와 Next 16.3/Vercel adapter 충돌을 최소 수정했다.
-- Next READY: 없음. control-plane은 `ready`지만 P10 완료에는 staging migration rehearsal, candidate-bound backup→restore, rollback rehearsal, fresh `G_RELEASE`가 필요하다. workflow dispatch·migration·merge·Production 배포는 별도 승인 전 실행하지 않는다.
+- Working-tree increment: 2026-08-29 권장 입력 적용. 중복 Vercel 프로젝트의 branch-only Preview build 변수를 최소권한으로 추가하고 Preview를 `Ready`로 복구했다. 격리 PostgreSQL 16에서 6개 SQL migration bundle·합성 backup→restore·rollback-SHA DB 호환성을 검증했다.
+- Next READY: 외부 staging target 정보가 제공되기 전까지 없음. 로컬 SQL/recovery rehearsal은 green이지만 `db:migrate` staging receipt가 아니므로 P10 완료에는 별도 staging migration, candidate-bound operational backup→restore, full rollback rehearsal, fresh `G_RELEASE`가 필요하다. workflow dispatch·Production migration·merge·Production 배포는 실행하지 않는다.
+
+## 2026-08-29 Recommended Inputs and Isolated Rehearsal
+
+- 비계약 중복 프로젝트 `mubinkims-projects/glosource-ai-68c4`의 Preview에만 loopback build-only `DATABASE_URL`을 추가하고 동일 실패 deployment를 Preview로 재배포했다. 새 배포는 `Ready`이며 PR #1의 두 Vercel check와 GitHub verify가 모두 통과했다.
+- 첫 격리 시도에서 repository `db:migrate`는 `@neondatabase/serverless`가 로컬 TCP PostgreSQL을 지원하지 않아 DDL 전에 fail-closed했다. 원격/Production DB로 우회하지 않았다.
+- fallback은 disposable `postgres:16-alpine`에서 journal 순서 SQL 6개를 적용했다. 합성 데이터만 사용한 37,206-byte custom backup의 SHA-256은 `4407cd9fa339045cea1eb3131d100706d4739e2c727b5d6cddac24984e93b9d5`이며 restore `1:1:1`, rollback-SHA legacy insert/read, transaction cleanup `0:0`이 통과했다.
+- 이 결과의 claim ceiling은 local SQL bundle/recovery procedure다. 외부 staging `db:migrate`, operational backup receipt, full previous-artifact smoke를 대체하지 않으며 lifecycle blocker 4개는 유지한다.
+- 상세: `docs/harness/reports/2026-08-29-p10-recommended-inputs-rehearsal.md`.
 
 ## 2026-08-29 Approved Control-plane Execution and Remote Repair
 

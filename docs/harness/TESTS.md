@@ -59,6 +59,15 @@ npm run growth:outreach:preflight
 
 ## Last Green Run
 
+2026-08-29 recommended inputs and isolated rehearsal:
+
+- Duplicate Vercel `glosource-ai-68c4`: `DATABASE_URL` exists only for Preview branch `codex/p10-provenance-reconstruction`; value not queried or printed.
+- Preview redeployment `glosource-ai-68c4-9bfd9nefz-mubinkims-projects.vercel.app`: target `preview`, status `Ready`.
+- PR #1 checks: GitHub `verify`, both Vercel projects and Preview Comments pass; Production `promote` skips as designed.
+- Isolated repository `npm run db:migrate`: expected fail before DDL because `@neondatabase/serverless` cannot connect to loopback TCP PostgreSQL. Remote/Production DB fallback: 0.
+- Disposable PostgreSQL 16 SQL-bundle rehearsal: journal migrations 6/6 applied; synthetic custom backup 37,206 bytes; restore verification `1:1:1`; rollback-SHA legacy insert/read pass; transaction cleanup `0:0`; container removed.
+- Claim ceiling: local SQL bundle/recovery procedure only. External staging migration, candidate-bound operational backup/restore, full application rollback smoke and `G_RELEASE` remain absent.
+
 2026-08-29 approved control-plane execution and remote repair:
 
 - `npm test`: 279/279 pass, including CRLF/LF source-digest equivalence.

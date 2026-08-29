@@ -2,13 +2,13 @@
   "schema_version": "1.0.0",
   "project": "GloSource AI Validation OS (legacy K-DEFENSE evidence retained)",
   "repo": "tianxiawudi1996-eng/glosource-ai",
-  "calibrated_at": "2026-08-29T17:04:05+09:00",
+  "calibrated_at": "2026-08-29T17:40:46+09:00",
   "current_branch": "codex/p10-provenance-reconstruction",
   "head_sha": "dynamic:git-rev-parse-HEAD",
   "main_sha": "cdaae3d29ff6532290ba86cadb6d7afd76b27fb5",
   "origin_main_sha": "eb7b171da0b79f925926ae6087fd9dc604cc3b98",
   "main_synced": false,
-  "source_state": "The approved feature-branch push and Production control-plane changes are complete, and readiness:control-plane is ready. Cross-platform EN receipt hashing and the Next 16.3 Vercel-adapter/standalone conflict received minimal verified fixes. Resolve the final candidate, archive/smoke receipt, remote equality and CI dynamically after tracked report synchronization. P10 remains blocked on staging migration, backup/restore, rollback rehearsal and fresh G_RELEASE evidence.",
+  "source_state": "The approved feature-branch push and Production control-plane changes are complete, readiness:control-plane is ready, and the duplicate Vercel Preview check is now green with a branch-only build placeholder. A local ephemeral PostgreSQL 16 SQL-bundle, backup/restore, and rollback-SHA compatibility rehearsal passed, but repository db:migrate cannot use local TCP through the installed Neon driver. This local evidence does not replace external staging receipts. Resolve the final candidate, archive/smoke receipt, remote equality and CI dynamically after tracked report synchronization. P10 remains blocked on staging migration, candidate-bound operational backup/restore, full rollback rehearsal and fresh G_RELEASE evidence.",
   "track": "full_lifecycle_goal_harness",
   "latest_harness_artifact": {
     "id": "FINAL-14-DAY-REPORT",
@@ -59,6 +59,19 @@
     "execution_approval_present": false,
     "external_actions": 0,
     "summary": "The protected workflow now fails before db:migrate unless a fresh sanitized packet binds the exact candidate and rollback SHA, Production target, migration bundle, staging, backup/restore, rollback rehearsal, current control-plane audit, and two distinct approvals. No operational receipt or external action was created."
+  },
+  "recommended_inputs_rehearsal": {
+    "state": "duplicate_preview_green_local_rehearsal_only",
+    "report_path": "docs/harness/reports/2026-08-29-p10-recommended-inputs-rehearsal.md",
+    "duplicate_project_preview_ready": true,
+    "duplicate_project_branch_only_database_url_present": true,
+    "repository_db_migrate_local_tcp": "blocked_by_neon_websocket_driver_before_ddl",
+    "journal_ordered_sql_migrations": "6/6 passed",
+    "synthetic_backup_restore": "passed",
+    "rollback_sha_database_shape_compatibility": "passed",
+    "external_staging_receipts_present": false,
+    "production_database_accessed": false,
+    "summary": "Recommended low-risk inputs repaired the non-contract duplicate Preview without Production data. A disposable PostgreSQL 16 run proved the journal SQL bundle, synthetic backup/restore, and rollback-SHA legacy insert/read shape, but its claim ceiling is local procedure evidence and all three external staging/recovery blockers remain."
   },
   "local_clean_candidate": {
     "state": "local_candidate_committed_and_verified",
@@ -251,7 +264,7 @@
     "sha": "ef082d8 + a4c4b76 (chore/harness-cal-0623; pushed; prod DB seeded with operator approval)",
     "summary": "2026-07-12: the 'GloSource Verified' badge sat only on three mega-ODMs, so an indie brand with a 1,000-unit budget was being pointed at factories that would not take their order — a trust claim we cannot cash. Curated four more K-Beauty manufacturers using the product's own method: web discovery, then cross-check against the government registries we already ingest (MFDS kr_cosmetics_firms induty=화장품제조 for the manufacturing licence + business-reg number + plant address; MFDS CGMP list matched on business-reg number). The registry did real work and rejected most of what the web calls a low-MOQ Korean factory: Laonhase advertises the lowest MOQ anyone does (300 units) yet has NO MFDS manufacturing record under that name (exactly the trap our buyers fall into); Factosquare is 화장품책임판매 only (a brand owner); Selfcos and Smallcosmetic have no record at all; OEMKorea/CosKorea/Crescent Seoul/Mayk/Sourcing Lab/KPrivateLabel are sourcing agencies that outrank real factories and resell someone else's plant. Survivors: NOWCOS and Hankook Cosmo (CGMP-certified, mid-size, publish no MOQ) and COSMEDIQUE and CTK (publish a 1,000-unit MOQ but are NOT CGMP-listed) — the notes state that trade-off plainly rather than implying every badged supplier is both cheap to start with and top-certified. COSMAX was corrected, not just kept: its 2023 indie programme dropped the minimum from 10,000 to 1,000 units, so the old 'typically high MOQ' note had been steering away the exact buyer it was meant to help; the seed now upserts instead of skipping, or a stale note would survive forever precisely because the row exists. Critically, seeding alone changed NOTHING for buyers: dbFallbackOutput injected only two curated rows with no ORDER BY, so insertion order handed every search to the mega-ODMs — fixed in a4c4b76 (MOQ ascending, NULLS LAST) and verified against the production table (a serum query now injects COSMAX 1,000 + COSMEDIQUE 1,000). 6 new honesty-invariant tests: a CGMP claim must match the government list by business-reg number, an MOQ must be the company's own published figure or null, trustScore stays null, and the rejected middlemen cannot reappear. Green: tsc, eslint (0 errors), npm test 25/25, next build. Prior increments this branch: GLO-EN-JSONLD-PRICE (8306d94), GLO-EN-TRUSTANCHOR (7abe07a), GLO-EN-PAYHIST (406b411), GLO-HARDEN (a1e8f62)."
   },
-  "next_ready_task": "No non-gated local task. Recheck the final dynamic local receipt and remote CI/Preview after report synchronization. Staging migration and recovery rehearsal, G_RELEASE, workflow dispatch, merge and Production deployment remain separate external gates.",
+  "next_ready_task": "No non-gated local task. Recheck the final dynamic local receipt and remote CI/Preview after report synchronization. With a separately named synthetic-only staging PostgreSQL DATABASE_URL, run provider-supported db:migrate, candidate-bound backup/restore, and previous-artifact smoke. G_RELEASE, workflow dispatch, merge and Production deployment remain separate external gates; never reuse Production as staging.",
   "resource_allocation": {
     "glosource_percent": 80,
     "k_defense_percent": 20,
@@ -396,7 +409,7 @@
     "private_platform_analytics_access"
   ],
   "verification": {
-    "last_green_at": "2026-08-29T17:04:05+09:00",
+    "last_green_at": "2026-08-29T17:40:46+09:00",
     "commands": [
       "npm run harness:instructions -> clean",
       "npx tsx --test tests/agent-instructions.test.ts -> 4/4 pass including Windows CRLF checkout regression",
@@ -436,8 +449,11 @@
       "npm run build -> exit 0; Next.js 16.3.0 generated 89/89 pages with local standalone output",
       "npm run harness:en-balance:pixels -- tracked 360 and 1440 receipts -> clean with canonical-LF source digest",
       "npm run readiness:control-plane -> ready; Vercel Production 22/22 and GitHub reviewer, self-review, branch-policy controls verified",
-      "approved external actions -> branch-only Preview env, feature branch and PR push, reviewer/self-review protection, GitHub Production DATABASE_URL secret transfer; no secret values logged"
+      "approved external actions -> branch-only Preview env, feature branch and PR push, reviewer/self-review protection, GitHub Production DATABASE_URL secret transfer; no secret values logged",
+      "duplicate Vercel Preview remediation -> branch-only DATABASE_URL name present, exact Preview redeployment Ready, PR checks all green",
+      "isolated npm run db:migrate -> expected fail before DDL because Neon serverless driver cannot connect to loopback PostgreSQL; no remote fallback",
+      "disposable PostgreSQL 16 SQL-bundle rehearsal -> 6/6 journal migrations, synthetic backup/restore 1:1:1, rollback-SHA compatibility pass, transaction cleanup 0:0"
     ],
-    "summary": "2026-08-29 local verification is green: 279/279 tests, lifecycle and Harness validation, typecheck, lint with zero errors, Vercel-mode and local-standalone builds, source-bound 360/1440 pixel receipts, and ready Production control-plane. Approved branch/PR and provider configuration actions ran without secret-value output. P10 remains blocked on staging migration, candidate-bound backup/restore, rollback rehearsal and fresh G_RELEASE. No workflow dispatch, merge, Production migration or deployment ran."
+    "summary": "2026-08-29 local verification is green: 279/279 tests, lifecycle and Harness validation, typecheck, lint with zero errors, Vercel-mode and local-standalone builds, source-bound 360/1440 pixel receipts, ready Production control-plane, and green official plus duplicate Preview checks. A disposable PostgreSQL SQL-bundle/backup/restore/rollback-compatibility rehearsal passed, while repository db:migrate correctly remained unable to use local TCP through the Neon driver. This is not external staging evidence. P10 remains blocked on staging migration, candidate-bound operational backup/restore, full rollback rehearsal and fresh G_RELEASE. No workflow dispatch, merge, Production migration or deployment ran."
   }
 }

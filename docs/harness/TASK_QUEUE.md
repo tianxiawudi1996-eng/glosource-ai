@@ -4,9 +4,11 @@
 
 ## READY (다음 비게이트 증분)
 
-- 없음 — 승인된 branch/PR push와 Production control-plane 설정은 완료되어 `readiness:control-plane`이 ready다. 최종 current SHA는 `npm run readiness:release-receipt`로 재확인하고 remote CI/Preview도 검증한다. 그 뒤에도 staging migration, backup→restore, rollback rehearsal과 `G_RELEASE`는 별도 외부 게이트다.
+- 없음 — 중복 Vercel Preview까지 green이고 격리 local SQL bundle·backup→restore·rollback-SHA DB 호환성도 통과했다. tracked report 동기화 후 최종 current SHA는 `npm run readiness:release-receipt`로 다시 확인한다. 그러나 실제 staging target이 없고 local `db:migrate`는 Neon WebSocket driver가 loopback PostgreSQL을 지원하지 않아 실패했다. 별도 staging `DATABASE_URL`과 synthetic-only 정책이 제공되면 staging migration→backup/restore→previous-artifact smoke가 다음 READY다. Production DB 재사용, workflow dispatch, merge와 Production 배포는 금지한다.
 
 ## DONE (로컬 제안·외부 실행 없음)
+
+- P10-RECOMMENDED-INPUTS-REHEARSAL-20260829 @ dynamic-current-HEAD — 중복 `glosource-ai-68c4`에 branch-only Preview build placeholder를 추가하고 exact failed Preview를 재배포해 PR check를 green으로 복구했다. disposable PostgreSQL 16에서 journal SQL 6개, synthetic backup→restore와 rollback-SHA legacy DB shape를 검증했다. `db:migrate`는 local TCP driver 제약으로 DDL 전 차단됐고 실제 staging/Production DB는 사용하지 않았다. lifecycle blocker 4개 유지. 보고서: `docs/harness/reports/2026-08-29-p10-recommended-inputs-rehearsal.md`.
 
 - P10-CONTROL-PLANE-EXECUTION-20260829 @ dynamic-current-HEAD — branch-only Preview build 변수, feature branch/PR push, 독립 reviewer+self-review 방지, Vercel Production DB URL의 GitHub Production Secret 비노출 전달을 승인 범위대로 수행했다. 첫 remote 검증에서 cross-OS receipt digest와 Next 16.3/Vercel adapter 충돌을 발견해 canonical LF digest와 Vercel 조건부 standalone으로 최소 수정했다. 전체 279/279·dual-mode build·control-plane ready. migration·dispatch·merge·Production deploy 0건. 보고서: `docs/harness/reports/2026-08-29-p10-continuation-gate.md`.
 
