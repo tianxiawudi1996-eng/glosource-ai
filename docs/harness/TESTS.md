@@ -59,17 +59,19 @@ npm run growth:outreach:preflight
 
 ## Last Green Run
 
-2026-08-29 P10 continuation and clean candidate recovery:
+2026-08-29 approved control-plane execution and remote repair:
 
-- `npm test`: 278/278 pass.
+- `npm test`: 279/279 pass, including CRLF/LF source-digest equivalence.
 - `npx tsc --noEmit`: pass.
 - `npm run lint`: 0 errors, 16 existing warnings.
-- `npm run build` and the package rebuild: Next.js 16.3.0, static generation 89/89, pass; existing Edge Runtime deprecation warning remains.
+- `$env:VERCEL=1; npm run build`: Next.js 16.3.0, static generation 89/89, pass; `.next/standalone/server.js` absent by design.
+- local `npm run build`: Next.js 16.3.0, static generation 89/89, pass; `.next/standalone/server.js` present for immutable packaging.
 - `npm run harness:instructions`, `npm run harness:landing-goal`, structural and 360/1440 pixel balance, P10 receipt-gate Harness, lifecycle, STATE, placeholder, sensitive-string and diff checks: clean.
-- `npm run readiness:release-receipt`: exact clean local candidate, archive binding, manifest and loopback smoke `ready`; final exact identity is resolved dynamically after tracked report synchronization.
+- The first pushed SHA's GitHub verify failed 276/278 only on `SOURCE_DIGEST_MISMATCH`; the two failures were reproduced as line-ending-dependent provenance and fixed without changing browser geometry.
+- The first pushed SHA's target Vercel Preview passed compile, TypeScript and 89/89 page generation, then failed in `onBuildComplete` on missing `.next/next-server.js.nft.json`; conditional standalone output removes that adapter conflict while retaining local packaging.
 - Current browser automation could not claim the localhost tab because of the browser URL policy. No workaround was attempted; the tracked 360/1440 receipts remain valid for the current source digest.
-- `npm run readiness:control-plane`: expected blocked; Vercel Production 22/22, GitHub reviewer count 1 but independent reviewer 0, `preventSelfReview=false`, required GitHub environment secret name `DATABASE_URL` missing.
-- Push, PR mutation, workflow dispatch, provider mutation, Secret transfer, staging, DB migration, backup/restore, rollback and Production deployment: 0.
+- `npm run readiness:control-plane`: ready; Vercel Production 22/22, GitHub reviewer rule 1, `preventSelfReview=true`, branch policy configured, required GitHub Production Secret name present.
+- Approved effects: branch-only Preview env 1, feature branch/PR push, Production reviewer/self-review update, Production Secret transfer. Workflow dispatch, staging, DB migration, backup/restore, rollback, merge and Production deployment: 0.
 
 2026-08-23 non-self-invalidating local release receipt harness:
 

@@ -63,13 +63,20 @@ function collectSourceFiles(path: string): string[] {
     .filter((file) => /\.(?:css|ts|tsx)$/.test(file));
 }
 
+export function canonicalizeTextForDigest(contents: string): string {
+  return contents.replace(/\r\n?/g, '\n');
+}
+
 export function computeEnLandingPixelSourceDigest(): string {
   const files = EN_LANDING_PIXEL_SOURCE_ROOTS.flatMap(collectSourceFiles).sort();
   const hash = createHash('sha256');
   for (const file of files) {
     hash.update(file);
     hash.update('\0');
-    hash.update(readFileSync(resolve(file)));
+    // Git may materialize text as CRLF on Windows and LF on Linux. Browser
+    // rendering is unchanged, so provenance hashes canonical text instead of
+    // binding valid receipts to the checkout operating system.
+    hash.update(canonicalizeTextForDigest(readFileSync(resolve(file), 'utf8')));
     hash.update('\0');
   }
   return hash.digest('hex');

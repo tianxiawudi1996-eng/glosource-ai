@@ -2,48 +2,46 @@
 
 ## Result
 
-The prior `SOURCE_DIRTY` local blocker was resolved without deleting, stashing, or resetting user work. The reviewed GloSource landing and Harness increment was committed locally, then the exact clean candidate received one immutable archive and one ignored SHA-keyed release receipt. P10 itself remains blocked on external control-plane, staging, recovery, and approval evidence.
+The four action-time-approved external changes were executed against their exact branch, project, repository, environment, and account targets. The Production control-plane audit is now `ready`. The first remote verification exposed two independent portability/platform defects; both received minimal local fixes and full regression verification. P10 remains blocked on staging migration and recovery evidence plus a separate fresh Production release approval.
 
-## Scope and authority
+## Approved scope and exact targets
 
-- Repository: `tianxiawudi1996-eng/glosource-ai`
-- Branch: `codex/p10-provenance-reconstruction`
-- User authority used: continue the current GloSource work through local candidate commit and verification.
-- Not inferred from the broad approval: Secret transfer, permission mutation, workflow dispatch, migration, or Production deployment without an exact action-time target.
+- Repository and PR: `tianxiawudi1996-eng/glosource-ai`, PR #1.
+- Branch: `codex/p10-provenance-reconstruction`.
+- Vercel target: `mubinkims-projects/glosource-ai`.
+- GitHub environment: `Production`.
+- Approved reviewer: `like2buyglobal-sudo`.
+- Explicitly excluded: workflow dispatch, migration, merge, master promotion, Production deployment, and Production DB use from Preview.
 
-## Local candidate evidence
+## External changes performed
 
-- Integration candidate created during this loop: `a9f6051ade7c44282ffbc602919c373fbfa4609d`.
-- Its clean archive was `dist/glosource-ai-0.1.0-20260828T231130330Z.tgz`, 73,719,767 bytes, SHA-256 `1c996727e0356b33bc819a35afaef6ee2a8775722b9475c4ee120dfcbb455f01`.
-- Archive manifest, candidate binding, clean-source flag, loopback smoke and sanitized receipt all passed.
-- This tracked report changes the final commit identity. Therefore the final authority is always `git rev-parse HEAD` plus `npm run readiness:release-receipt`; the ignored receipt is regenerated after this report commit rather than self-embedding the final SHA here.
+1. Added a non-sensitive build-only `DATABASE_URL` to Vercel Preview, scoped only to the approved branch. It points to a loopback CI placeholder and cannot reach Production data.
+2. Pushed the approved candidate to the feature branch and updated PR #1; remote branch and PR head equality were verified.
+3. Replaced the Production approval reviewer with `like2buyglobal-sudo`, removed the current operator from the reviewer list, enabled `preventSelfReview`, and preserved the existing custom branch policy.
+4. Transferred Vercel Production `DATABASE_URL` directly from process memory to `gh secret set` stdin. The value was never written to a tracked or temporary value file, command argument, stdout, report, or Memory. Only the GitHub Production Secret name was queried afterward.
+
+## First remote verification and corrections
+
+- GitHub verify ran all 278 tests but failed two EN pixel-receipt tests with `SOURCE_DIGEST_MISMATCH`. The digest hashed CRLF bytes on Windows and LF bytes on Linux even though rendering was identical.
+- The source digest now hashes canonical LF text. A regression test proves CRLF, CR, and LF equivalence. Existing measured 360×800 and 1440×900 rectangles were not altered; only their provenance digest was rebound to the canonical source.
+- The target Vercel Preview passed compilation, TypeScript, and static generation 89/89, then Next 16.3.0 failed during Vercel adapter `onBuildComplete` because standalone packaging requested a root NFT trace the adapter build did not emit.
+- `next.config.ts` now disables standalone output only when Vercel sets `VERCEL`; Vercel does not use the standalone directory. Local release builds still generate `.next/standalone/server.js` for the immutable archive workflow.
 
 ## Verification
 
-- `npm test`: 278/278 pass.
+- Focused EN receipt and release packaging tests: 14/14 pass.
+- Full `npm test`: 279/279 pass.
 - `npx tsc --noEmit`: pass.
 - `npm run lint`: 0 errors, 16 existing warnings.
-- `npm run build`: Next.js 16.3.0, static generation 89/89, pass.
-- Instruction, landing-goal, 90:10 structural balance, 360/1440 pixel balance, P10 receipt gate, lifecycle, STATE, placeholder, sensitive-string and diff checks: clean.
-- Fresh browser control could not claim the localhost page because the browser URL policy blocked it. No alternate browser or raw protocol workaround was used. The current source digest still matches the previously captured 360×800 and 1440×900 browser receipts.
+- Vercel-mode local build: Next.js 16.3.0, 89/89 pages, pass, standalone absent by design.
+- Local release-mode build: Next.js 16.3.0, 89/89 pages, pass, standalone present.
+- Structural EN balance: product-supporting 90%, culture-only 10%.
+- Existing source-bound browser receipts remain clean: 360×800 at 93.9074%/6.0926% and 1440×900 at 93.8228%/6.1772%.
+- `npm run readiness:control-plane`: `ready`; Vercel Production 22/22 and GitHub reviewer/self-review/branch-policy checks pass with no values or reviewer identities in the output.
+- Instruction, landing-goal, lifecycle, STATE, placeholder, sensitive-string and diff checks are rerun on the final tracked candidate. Exact SHA, local release receipt, remote equality, GitHub CI, and Vercel Preview are verified dynamically after this report commit so this tracked report does not invalidate its own SHA.
 
-## Current Production control-plane audit
+## Current boundary
 
-- Vercel Production required names: 22/22.
-- GitHub Production required reviewer rule: present, count 1.
-- The sole reviewer is the current operator; independent reviewer count is 0.
-- `preventSelfReview`: false.
-- Deployment branch policy: configured.
-- Required GitHub Production environment secret name missing: `DATABASE_URL`.
-- Migration bundle includes `0000_baseline` through `0005_handy_iron_fist`; `0005` has no current staging rehearsal receipt.
-- No current staging migration, candidate-bound backup, linked restore test, rollback rehearsal, ready control-plane receipt, or two distinct fresh approval references exist.
-
-## External effects
-
-- Local commits: 1 integration commit before this report synchronization.
-- Package/receipt: 1 clean recovery for that commit.
-- Push, PR mutation, workflow dispatch, GitHub/Vercel mutation, Secret transfer, staging, DB migration, backup/restore, rollback and Production deployment: 0.
-
-## Next gate
-
-After this report is committed and the final dynamic receipt is green, the first external action is an exact-SHA push to `origin/codex/p10-provenance-reconstruction`, updating existing PR #1. Provider settings, Secret transfer, staging rehearsal, promotion dispatch and Production deployment remain separately gated actions.
+- The approved control-plane change authorization was used and is no longer pending.
+- P10 is still `blocked`: staging migration rehearsal, candidate-bound backup→restore, rollback rehearsal, and fresh `G_RELEASE` evidence are absent.
+- P11 was not started. No workflow dispatch, migration, backup/restore, merge, master promotion, Production deployment, payment, or external publication ran.

@@ -4,9 +4,11 @@
 
 ## READY (다음 비게이트 증분)
 
-- 없음 — local candidate·archive·receipt·smoke는 복구됐다. tracked 보고서 commit 뒤 `npm run readiness:release-receipt`로 final current SHA를 재확인한다. 다음 증분부터는 push, GitHub Production 보호·Secret, staging/DB rehearsal처럼 외부 상태를 바꾸므로 exact current SHA·대상·행위의 action-time 승인이 필요하다.
+- 없음 — 승인된 branch/PR push와 Production control-plane 설정은 완료되어 `readiness:control-plane`이 ready다. 최종 current SHA는 `npm run readiness:release-receipt`로 재확인하고 remote CI/Preview도 검증한다. 그 뒤에도 staging migration, backup→restore, rollback rehearsal과 `G_RELEASE`는 별도 외부 게이트다.
 
 ## DONE (로컬 제안·외부 실행 없음)
+
+- P10-CONTROL-PLANE-EXECUTION-20260829 @ dynamic-current-HEAD — branch-only Preview build 변수, feature branch/PR push, 독립 reviewer+self-review 방지, Vercel Production DB URL의 GitHub Production Secret 비노출 전달을 승인 범위대로 수행했다. 첫 remote 검증에서 cross-OS receipt digest와 Next 16.3/Vercel adapter 충돌을 발견해 canonical LF digest와 Vercel 조건부 standalone으로 최소 수정했다. 전체 279/279·dual-mode build·control-plane ready. migration·dispatch·merge·Production deploy 0건. 보고서: `docs/harness/reports/2026-08-29-p10-continuation-gate.md`.
 
 - P10-LOCAL-RECEIPT-RECOVERY-20260829 @ current-HEAD — 사용자 진행 승인으로 기존 GloSource dirty 범위를 명시 검토해 local candidate commit으로 고정했다. clean HEAD에서만 `LOCAL_RELEASE_RECEIPT_MISSING`을 확인한 뒤 package/create 1회를 실행했고 archive binding·manifest·loopback smoke가 `ready`다. clean HEAD 전에는 package/receipt 복구를 실행하지 않는다. 전체 278/278·typecheck·lint error 0·build 89/89. 보고서: `docs/harness/reports/2026-08-29-p10-continuation-gate.md`.
 

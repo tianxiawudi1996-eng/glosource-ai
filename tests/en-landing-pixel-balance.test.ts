@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import {
   assessEnLandingPixelBalance,
+  canonicalizeTextForDigest,
   computeEnLandingPixelSourceDigest,
   EN_LANDING_PIXEL_RECEIPT_SCHEMA_VERSION,
   toSafePixelBalanceSummary,
@@ -38,6 +39,10 @@ function receipt(width: number, height: number): EnLandingPixelReceipt {
     })),
   };
 }
+
+test('source digest canonicalization treats CRLF, CR, and LF as the same text', () => {
+  assert.equal(canonicalizeTextForDigest('first\r\nsecond\rthird\n'), 'first\nsecond\nthird\n');
+});
 
 test('accepts valid 360px and 1440px height-share receipts', () => {
   for (const viewport of [[360, 800], [1440, 900]] as const) {

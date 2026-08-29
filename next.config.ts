@@ -26,7 +26,11 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
-  output: 'standalone',
+  // Vercel injects a Next.js build adapter. Next 16.3.0 currently suppresses
+  // the root NFT trace when an adapter is active, while standalone packaging
+  // still tries to read it. Vercel does not consume the standalone directory;
+  // keep it for our local immutable release package only.
+  output: process.env.VERCEL ? undefined : 'standalone',
   images: {
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 31536000,

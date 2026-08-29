@@ -27,7 +27,7 @@ const packageJson = JSON.parse(readFileSync('package.json', 'utf8')) as {
 const nextConfig = readFileSync('next.config.ts', 'utf8');
 const eslintConfig = readFileSync('eslint.config.mjs', 'utf8');
 
-test('product packaging builds a standalone Next.js release', () => {
+test('product packaging keeps standalone output local and omits it on Vercel', () => {
   assert.equal(
     packageJson.scripts['package:product'],
     'npm run build && tsx scripts/package-release.ts',
@@ -36,7 +36,10 @@ test('product packaging builds a standalone Next.js release', () => {
     packageJson.scripts['release:product'],
     'npm run verify:product && npm run package:product',
   );
-  assert.match(nextConfig, /output:\s*['"]standalone['"]/);
+  assert.match(
+    nextConfig,
+    /output:\s*process\.env\.VERCEL\s*\?\s*undefined\s*:\s*['"]standalone['"]/,
+  );
   assert.match(eslintConfig, /['"]dist\/\*\*['"]/);
   assert.match(
     readFileSync('scripts/package-release.ts', 'utf8'),

@@ -7,10 +7,20 @@
 - Current branch: codex/p10-provenance-reconstruction
 - Exact release candidate: `npm run readiness:release-receipt`가 current clean HEAD와 ignored local receipt를 동적으로 결합해 판정한다. Git object의 SHA를 tracked file에 자가 포함하지 않는다.
 - Source state: 무료 entitlement·원자 quota·KR/EN 분리·EN 계약·release guardrail·candidate-bound promotion evidence preflight와 non-self-invalidating local receipt harness를 통합한다. 정확한 archive/receipt 상태는 실행 시점 검사 결과가 우선한다.
-- Main synced: false — `origin/master`는 eb7b171da0b79f925926ae6087fd9dc604cc3b98. 브랜치/운영에는 push·dispatch·배포하지 않았다.
+- Main synced: false — `origin/master`는 eb7b171da0b79f925926ae6087fd9dc604cc3b98. 승인된 feature branch/PR push만 수행했고 master·workflow dispatch·Production 배포는 수행하지 않았다.
 - Current track: full_lifecycle_goal_harness
-- Working-tree increment: 2026-08-29 P10 continuation. 누적 `/en`·Harness 변경을 local candidate commit으로 고정하고 exact clean HEAD의 archive·receipt·smoke를 복구했다. tracked 보고서 동기화 뒤 최종 current HEAD receipt를 다시 생성·확인한다.
-- Next READY: 없음. 다음 단계는 외부 게이트다. final current SHA를 `origin/codex/p10-provenance-reconstruction`과 기존 PR #1에 반영할 정확한 push, GitHub Production 권한·Secret 변경, staging/DB rehearsal은 각각 action-time 대상 확인이 필요하다.
+- Working-tree increment: 2026-08-29 승인된 P10 control-plane 실행과 remote CI repair. branch-only Preview build 변수, exact branch/PR push, 독립 reviewer/self-review 보호, Production Secret 전달을 완료했고 cross-platform receipt digest와 Next 16.3/Vercel adapter 충돌을 최소 수정했다.
+- Next READY: 없음. control-plane은 `ready`지만 P10 완료에는 staging migration rehearsal, candidate-bound backup→restore, rollback rehearsal, fresh `G_RELEASE`가 필요하다. workflow dispatch·migration·merge·Production 배포는 별도 승인 전 실행하지 않는다.
+
+## 2026-08-29 Approved Control-plane Execution and Remote Repair
+
+- Vercel `mubinkims-projects/glosource-ai` Preview의 `codex/p10-provenance-reconstruction` 브랜치에만 build-only `DATABASE_URL`을 추가했다. Production DB는 Preview에 연결하지 않았다.
+- 승인 시점 후보 `b4e24f154c9427a99845c7820fc0d789808b54b0`를 원격 브랜치와 PR #1에 push했고 exact equality를 확인했다. 이 push의 GitHub verify는 Windows/Linux 줄바꿈에 종속된 EN receipt digest 때문에 276/278, Vercel Preview는 Next 16.3.0 `standalone`+Vercel adapter 충돌 때문에 89/89 생성 뒤 packaging에서 실패했다.
+- source digest를 LF canonical text로 계산하도록 바꾸고 기존 실제 360/1440 geometry는 그대로 새 digest에 결합했다. Vercel에서는 사용하지 않는 standalone 출력을 끄고 local immutable release build에서는 유지했다.
+- GitHub Production reviewer는 `like2buyglobal-sudo` 1명으로 고정했고 현재 작업자는 reviewer가 아니며 `preventSelfReview=true`, 기존 custom branch policy=true를 확인했다.
+- Vercel Production `DATABASE_URL`은 Vercel env-run 프로세스 메모리에서 최소환경 `gh` stdin으로만 전달했다. 값은 파일·명령 인자·stdout·tracked Harness에 기록하지 않았고 GitHub Production Secret 이름 존재만 확인했다.
+- 수정 후 전체 279/279, TypeScript, ESLint 오류 0·기존 경고 16, Vercel 모드 build 89/89와 local standalone build 89/89, 구조 및 360/1440 pixel Harness, control-plane `ready`를 확인했다. 최종 exact SHA·remote CI/Preview 결과는 tracked 파일에 자가 포함하지 않고 handoff 시 동적으로 확인한다.
+- workflow dispatch·migration·merge·master 승격·Production 배포는 0건이다. 상세: `docs/harness/reports/2026-08-29-p10-continuation-gate.md`.
 
 ## 2026-08-29 P10 Completion Continuation
 
