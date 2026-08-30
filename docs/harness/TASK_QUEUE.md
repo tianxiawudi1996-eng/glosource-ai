@@ -4,7 +4,7 @@
 
 ## READY (다음 비게이트 증분)
 
-- P10-PHASE-0-CANDIDATE-FREEZE-20260830 — `owner-approval-2026-08-30-p10-phases` 범위에서 실행 계약·체크리스트·Phase 0 보고서를 검증하고 현재 feature branch/PR #1에 commit/push한 뒤 final candidate를 재고정한다. 다음 READY는 exact Supabase project pause와 `glosource-staging` 0/month 생성이다. fresh `G_RELEASE`, workflow dispatch, merge와 Production 배포는 금지한다.
+- P10-PHASE-0-CANDIDATE-FREEZE-20260830 — `owner-approval-2026-08-30-p10-phases` 범위에서 실행 계약·체크리스트·Phase 0 보고서를 검증하고 현재 feature branch/PR #1에 commit/push한 뒤 `npm run readiness:release-receipt`로 final candidate를 재고정한다. 다음 READY는 exact Supabase project pause와 `glosource-staging` 0/month 생성이다. fresh `G_RELEASE`, workflow dispatch, merge와 Production 배포는 금지한다.
 
 ## DONE (로컬 제안·외부 실행 없음)
 
