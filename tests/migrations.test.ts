@@ -167,6 +167,43 @@ test('the surface migration can be retried after a partial deployment', () => {
   assert.match(sql, /ADD COLUMN IF NOT EXISTS "surface" text/);
 });
 
+test('the Data API lockdown protects every application table and stays provider-portable', () => {
+  const sql = fs.readFileSync(`${FOLDER}/0006_rls_data_api_lockdown.sql`, 'utf8');
+  const expected = [...schemaTables().keys()].sort();
+  const tableListMatch = sql.match(/protected_tables constant text\[\] := ARRAY\[([\s\S]*?)\n\t\];/);
+  assert.ok(tableListMatch, 'the RLS migration must declare its protected table inventory');
+
+  const protectedTables = [...tableListMatch[1].matchAll(/'([a-z0-9_]+)'/g)]
+    .map(match => match[1])
+    .sort();
+  assert.deepEqual(
+    protectedTables,
+    expected,
+    'every schema.ts table must remain inside the fail-closed RLS inventory',
+  );
+
+  assert.match(sql, /ALTER TABLE public\.%I ENABLE ROW LEVEL SECURITY/);
+  assert.match(sql, /CREATE POLICY glo_data_api_deny_all[\s\S]*AS RESTRICTIVE FOR ALL TO PUBLIC[\s\S]*USING \(false\) WITH CHECK \(false\)/);
+  assert.doesNotMatch(sql, /FORCE ROW LEVEL SECURITY/, 'the table owner must retain server-side access');
+
+  for (const role of ['anon', 'authenticated', 'service_role']) {
+    assert.match(sql, new RegExp(`ARRAY\\['anon', 'authenticated', 'service_role'\\]`));
+    assert.match(sql, /CONTINUE WHEN NOT EXISTS \(SELECT 1 FROM pg_roles WHERE rolname = api_role\)/);
+    assert.ok(sql.includes(role));
+  }
+
+  for (const objectType of ['TABLES', 'SEQUENCES', 'FUNCTIONS']) {
+    assert.match(
+      sql,
+      new RegExp(`REVOKE ALL PRIVILEGES ON ALL ${objectType} IN SCHEMA public FROM %I`),
+    );
+    assert.match(
+      sql,
+      new RegExp(`ALTER DEFAULT PRIVILEGES[\\s\\S]*REVOKE ALL PRIVILEGES ON ${objectType} FROM %I`),
+    );
+  }
+});
+
 test('payment records survive account and subscription deletion without retaining a user link', () => {
   const config = getTableConfig(schema.payments);
   const userId = config.columns.find(column => column.name === 'user_id');
