@@ -1,5 +1,13 @@
 # TESTS
 
+## 2026-08-30 P10 Phased Execution Contract
+
+- prompt contract strict: PASS, required 8/8, placeholders 0, warnings 0
+- `npm run harness:instructions`: clean
+- `npm run lifecycle:validate`: clean
+- sensitive strings, Harness placeholders, STATE JSON, `git diff --check`: clean
+- 문서·Harness만 변경했으므로 test/typecheck/lint/build/browser QA는 candidate 동결 전 이 Loop에서 생략한다.
+
 ## Generic Checks
 
 ```powershell

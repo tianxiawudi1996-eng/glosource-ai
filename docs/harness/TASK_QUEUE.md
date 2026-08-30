@@ -4,7 +4,7 @@
 
 ## READY (다음 비게이트 증분)
 
-- 없음 — 중복 Vercel Preview까지 green이고 격리 local SQL bundle·backup→restore·rollback-SHA DB 호환성도 통과했다. tracked report 동기화 후 최종 current SHA는 `npm run readiness:release-receipt`로 다시 확인한다. 그러나 실제 staging target이 없고 local `db:migrate`는 Neon WebSocket driver가 loopback PostgreSQL을 지원하지 않아 실패했다. 별도 staging `DATABASE_URL`과 synthetic-only 정책이 제공되면 staging migration→backup/restore→previous-artifact smoke가 다음 READY다. Production DB 재사용, workflow dispatch, merge와 Production 배포는 금지한다.
+- P10-PHASE-0-CANDIDATE-FREEZE-20260830 — `owner-approval-2026-08-30-p10-phases` 범위에서 실행 계약·체크리스트·Phase 0 보고서를 검증하고 현재 feature branch/PR #1에 commit/push한 뒤 final candidate를 재고정한다. 다음 READY는 exact Supabase project pause와 `glosource-staging` 0/month 생성이다. fresh `G_RELEASE`, workflow dispatch, merge와 Production 배포는 금지한다.
 
 ## DONE (로컬 제안·외부 실행 없음)
 

@@ -3,14 +3,21 @@
 ## Snapshot
 
 - Project: GloSource AI Validation OS (기존 K-DEFENSE 증거는 보존)
-- Last calibrated: 2026-08-29 Asia/Seoul
+- Last calibrated: 2026-08-30 Asia/Seoul
 - Current branch: codex/p10-provenance-reconstruction
 - Exact release candidate: `npm run readiness:release-receipt`가 current clean HEAD와 ignored local receipt를 동적으로 결합해 판정한다. Git object의 SHA를 tracked file에 자가 포함하지 않는다.
 - Source state: 무료 entitlement·원자 quota·KR/EN 분리·EN 계약·release guardrail·candidate-bound promotion evidence preflight와 non-self-invalidating local receipt harness를 통합한다. 정확한 archive/receipt 상태는 실행 시점 검사 결과가 우선한다.
 - Main synced: false — `origin/master`는 eb7b171da0b79f925926ae6087fd9dc604cc3b98. 승인된 feature branch/PR push만 수행했고 master·workflow dispatch·Production 배포는 수행하지 않았다.
 - Current track: full_lifecycle_goal_harness
-- Working-tree increment: 2026-08-29 권장 입력 적용. 중복 Vercel 프로젝트의 branch-only Preview build 변수를 최소권한으로 추가하고 Preview를 `Ready`로 복구했다. 격리 PostgreSQL 16에서 6개 SQL migration bundle·합성 backup→restore·rollback-SHA DB 호환성을 검증했다.
-- Next READY: 외부 staging target 정보가 제공되기 전까지 없음. 로컬 SQL/recovery rehearsal은 green이지만 `db:migrate` staging receipt가 아니므로 P10 완료에는 별도 staging migration, candidate-bound operational backup→restore, full rollback rehearsal, fresh `G_RELEASE`가 필요하다. workflow dispatch·Production migration·merge·Production 배포는 실행하지 않는다.
+- Working-tree increment: 2026-08-30 P10 phased execution contract·checklist·Phase 0 report. 사용자는 exact Supabase pause/create, synthetic-only migration·recovery·rollback smoke와 feature branch/PR commit·push를 `owner-approval-2026-08-30-p10-phases`로 승인했다.
+- Next READY: Phase 0 문서 commit/push와 final candidate 동결 후 Supabase project `wzmzpuxpcpuvuacwmslj` pause→`glosource-staging` 생성. fresh `G_RELEASE`, workflow dispatch·Production migration·merge·Production 배포는 승인 범위 밖이다.
+
+## 2026-08-30 P10 Phased Execution Contract
+
+- prompt contract strict 8/8, instructions·lifecycle·sensitive·placeholder·STATE·diff 검사가 clean이다.
+- 소유권 불명 stale metaprompt는 승인에 따라 ignored/private로 이동 보존했고 tracked 정본으로 채택하지 않았다.
+- 사전 승인 범위는 A-P10-1~5뿐이며 비용·대상·리전·SHA drift 또는 Production/실데이터 가능성이 생기면 자동 무효다.
+- 상세: `docs/harness/reports/2026-08-30-p10-phased-execution-contract.md`.
 
 ## 2026-08-29 Recommended Inputs and Isolated Rehearsal
 
