@@ -57,11 +57,11 @@
 
 실제 receipt에는 현재 계약의 10영역과 현재 EN 렌더 소스의 `sourceDigest`가 모두 필요하다. digest는 `app/en`, 공유 `app/components`, global CSS, 가격·무료·환불 계약과 Next/PostCSS/package lock을 canonical 순서로 결합한 SHA-256이다. 현재 digest와 다르면 `SOURCE_DIGEST_MISMATCH`로 실패하므로 UI·스타일·의존성 변경 뒤에는 실제 브라우저 측정을 다시 수행해야 한다. 자유서술, URL query, cookie, 계정·세션·환경값은 넣지 않는다. 집계 단위는 영역의 세로 `height`이며 screenshot 색상 면적이나 mixed 내부의 문화 비율을 추정하지 않는다.
 
-## 2026-08-25 실제 측정 기준선
+## 현재 실제 측정 기준선
 
 | Viewport | Product-supporting | Culture-only | Receipt |
 |---|---:|---:|---|
-| 360×800 | 93.90740692221028% | 6.092593077789714% | `docs/harness/evidence/en-landing-pixel-360-20260825.json` |
+| 360×800 | 93.80994110638225% | 6.1900588936177465% | `docs/harness/evidence/en-landing-pixel-360-20260825.json` |
 | 1440×900 | 93.8228156229608% | 6.177184377039204% | `docs/harness/evidence/en-landing-pixel-1440-20260825.json` |
 
 두 receipt는 같은 current source digest에 결합되어 있으며 구조 계약 90:10과 함께 70% floor·30% cap을 통과한다.

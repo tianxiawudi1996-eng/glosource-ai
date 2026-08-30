@@ -1,22 +1,22 @@
 {
   "schemaVersion": "1.1.0",
   "route": "/en",
-  "sourceDigest": "ea0bbe6f7743f31a36907838ef702196ebd39786fdd60008537273f087e8025b",
+  "sourceDigest": "df39b0efad7ce6c88f3f4e9996d4c798715ec49028ca34edba57e7d15e3558dd",
   "viewport": {
     "width": 360,
     "height": 800
   },
-  "measuredAt": "2026-08-24T23:27:35.939Z",
+  "measuredAt": "2026-08-30T14:23:11.131Z",
   "regions": [
-    { "id": "hero", "role": "mixed", "top": 67, "height": 1594.140625, "width": 354 },
-    { "id": "registry", "role": "product", "top": 1661.140625, "height": 1355, "width": 354 },
-    { "id": "categories", "role": "mixed", "top": 3016.140625, "height": 1584.5, "width": 354 },
-    { "id": "journey", "role": "culture", "top": 4600.640625, "height": 908.34375, "width": 354 },
-    { "id": "problem", "role": "product", "top": 5508.984375, "height": 1341.5, "width": 354 },
-    { "id": "samples", "role": "product", "top": 6850.484375, "height": 1457, "width": 354 },
-    { "id": "tool", "role": "product", "top": 8307.484375, "height": 963, "width": 354 },
-    { "id": "process", "role": "product", "top": 9270.484375, "height": 1039, "width": 354 },
-    { "id": "pricing", "role": "product", "top": 10329.484375, "height": 2859, "width": 354 },
-    { "id": "faq", "role": "product", "top": 13188.484375, "height": 1807.5, "width": 354 }
+    { "id": "hero", "role": "mixed", "top": 67, "height": 1594.140625, "width": 360 },
+    { "id": "registry", "role": "product", "top": 1661.140625, "height": 1317.5, "width": 360 },
+    { "id": "categories", "role": "mixed", "top": 2978.640625, "height": 1547, "width": 360 },
+    { "id": "journey", "role": "culture", "top": 4525.640625, "height": 908.34375, "width": 360 },
+    { "id": "problem", "role": "product", "top": 5433.984375, "height": 1313.5, "width": 360 },
+    { "id": "samples", "role": "product", "top": 6747.484375, "height": 1421, "width": 360 },
+    { "id": "tool", "role": "product", "top": 8168.484375, "height": 966, "width": 360 },
+    { "id": "process", "role": "product", "top": 9134.484375, "height": 1039, "width": 360 },
+    { "id": "pricing", "role": "product", "top": 10193.484375, "height": 2803, "width": 360 },
+    { "id": "faq", "role": "product", "top": 12996.484375, "height": 1764.75, "width": 360 }
   ]
 }
