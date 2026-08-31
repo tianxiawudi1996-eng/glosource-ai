@@ -1,103 +1,111 @@
-# P10 Staging·Recovery·Release 실행 체크리스트
+# P10 Candidate Rebind·Recovery 실행 체크리스트
 
-정본 메타프롬프트: `docs/operations/P10_STAGING_RECOVERY_RELEASE_METAPROMPT_2026-08-30.md`
+정본: `docs/operations/P10_STAGING_RECOVERY_RELEASE_METAPROMPT_2026-08-30.md`
 
 ## 현재 상태
 
-- 상태: `PHASE_0_APPROVED — CANDIDATE_FREEZE_IN_PROGRESS`
-- 활성 lifecycle: `P10 Release Readiness`
-- 조사 기준 candidate: `5423da504030dcad7907c5ed274040340ff673b0`
+- 상태: `PHASE_0_APPROVED — COMMIT_IN_PROGRESS`
+- lifecycle: `P10 Release Readiness / blocked`
+- 문서 변경 전 기준선: `c9de8dfd44573271c376977195a8b6683e7dbd7b` = upstream
+- final candidate: Phase 0 commit 후 동적 확정
 - rollback: `eb7b171da0b79f925926ae6087fd9dc604cc3b98`
-- 외부 DB 변경: 없음
-- Secret 기록: 없음
-- 승인 참조: `owner-approval-2026-08-30-p10-phases`
-- 첫 READY: Phase 0 문서 commit/push와 final candidate 재동결
-- 소유권 불명 변경: ignored/private로 이동 보존 완료, SHA-256 `524fcab8085719d99d932da718abb4e81e3f6a87f67fa2d66eea6b372cfbb206`
+- staging: Neon `fancy-thunder-59988165` / `br-odd-shape-aw186zyk`
+- 기존 `720e5a3` migration receipt: 통과했으나 candidate drift로 재사용 불가
+- stale snapshot: `main at 2026-08-30 11:33:51 UTC (manual)`, 아직 삭제하지 않음
+- 현재 외부 변경: 이 Loop에서 0건
 
 ## Phase Gate Matrix
 
-| Phase | 상태 | 완료 증거 | 실패 시 복구 | 다음 게이트 |
-|---|---|---|---|---|
-| 0 계약·후보 동결 | 진행 중 | prompt strict, Harness clean, clean pushed SHA | tracked 변경 재검증 | A-P10-1~5 |
-| 1 staging 용량 | 차단 | pause receipt, new project ACTIVE_HEALTHY, 0/month | paused project restore | provider URL |
-| 2 db:migrate | 미착수 | exact candidate, command exit 0, journal 6 | 새 staging만 복구/재생성 | backup |
-| 3 backup→restore | 미착수 | backup digest, isolated restore mismatch 0 | restore target만 정리 | rollback smoke |
-| 4 rollback smoke | 미착수 | exact rollback artifact HTTP/DB green | 임시 runtime 종료 | fresh receipts |
-| 5 G_RELEASE·P10 | 미착수 | promotion validator ready, lifecycle P11 | stale evidence 폐기 | P11 별도 실행 |
+| Phase | 상태 | 완료 증거 | 다음 READY |
+|---|---|---|---|
+| 0 계약·후보 동결 | 진행 중 | 두 파일 commit/push, clean HEAD=upstream | local candidate |
+| 1 local candidate | 미착수 | verify/package/archive/receipt green | staging rebind |
+| 2 staging rebind | 미착수 | ledger 7, RLS/policy 21, rows/cleanup 0 | backup→restore |
+| 3 backup→restore | 차단 | 새 snapshot/restore, mismatch 0 | rollback smoke |
+| 4 rollback smoke | 미착수 | exact rollback artifact HTTP/DB green | release gate |
+| 5 release gate | 미착수 | fresh `G_RELEASE`, validator ready, P11 | 별도 Production 승인 |
 
-## 공통 사전 점검
+## 공통 게이트
 
-- [ ] 승인 ID, 정확한 대상 ID, 조직, 리전, 비용이 일치한다.
-- [ ] `git status -sb`가 clean이고 candidate가 upstream/PR과 일치한다.
-- [ ] Production DB·고객 데이터·다른 프로젝트를 사용하지 않는다.
-- [ ] Secret은 process memory 또는 gitignored local secret에만 존재한다.
-- [ ] Phase 완료 전 다음 Phase를 시작하지 않는다.
-- [ ] tracked 변경 발생 시 candidate receipt를 폐기하고 Phase 0으로 돌아간다.
+- [ ] 승인 ID와 exact SHA/project/branch/action 일치
+- [ ] clean HEAD=upstream, rollback ancestor
+- [ ] Production·고객 데이터·유료 변경 0
+- [ ] Secret 출력·tracked 저장·raw receipt 0
+- [ ] Phase당 READY 한 건, 실패 3회 시 중단
 
-## Phase 0
+## Phase 0 — 계약·후보
 
-- [x] 현재 lifecycle P10/blocker 4개 재확인
-- [x] Supabase 생성 실패 원인과 Vercel Secret non-exportable 확인
-- [x] 장기 실행 메타프롬프트·체크리스트 작성
-- [x] strict prompt 8/8
-- [x] Harness·sensitive·placeholder·STATE·diff 검사
-- [x] 소유권 불명 메타프롬프트의 ignored/private 이동 보존
-- [x] 사용자 사전 승인 `A-P10-1`~`A-P10-5`
-- [ ] tracked 변경 commit/push와 final candidate 재고정
+- [x] 후보 drift `720e5a3`→`c9de8df` 탐지
+- [x] 기존 snapshot 삭제 전 중단
+- [x] 현재 정본을 Neon/candidate rebind 흐름으로 갱신
+- [x] prompt strict 8/8·Harness·diff·sensitive 검사
+- [x] `P10_REBASE_PHASES_APPROVAL=owner-approval-2026-08-31-01` 수신
+- [ ] 두 정본 파일만 commit/push
+- [ ] 새 40자리 candidate·upstream·clean 고정
 
-## Phase 1
+## Phase 1 — local candidate
 
-- [ ] pause 전 `wzmzpuxpcpuvuacwmslj` 상태 기록
-- [ ] 정확한 프로젝트 한 개 pause
-- [ ] pause 후 상태 확인
-- [ ] project 비용 0/month 재확인·confirm_cost
-- [ ] `glosource-staging` 생성
-- [ ] 조직/리전/상태 확인
-- [ ] Phase 1 sanitized private report
+- [ ] `npm run verify:product`
+- [ ] `npm run package:product`
+- [ ] archive blocked/all-zero 0, SHA-256
+- [ ] `/`, `/en`, `/api/auth/session`, live contract smoke
+- [ ] candidate-bound release receipt ready
 
-## Phase 2
+## Phase 2 — staging rebind
 
-- [ ] provider-supported URL 안전 주입
-- [ ] staging fingerprint·Production 비사용 확인
-- [ ] `npm run db:migrate`
-- [ ] migration journal 0000~0005
-- [ ] schema·재실행 안전성 probe
-- [ ] Phase 2 receipt digest
+- [ ] target fingerprint·synthetic-only·업무행 0
+- [ ] final migration bundle/`0006` SHA 고정
+- [ ] `0006` 멱등 재검증과 ledger 7
+- [ ] RLS 21, exact restrictive policy 21, FORCE RLS 0
+- [ ] owner write/read/delete, residual 0
+- [ ] sanitized staging receipt digest
 
-## Phase 3
+## Phase 3 — backup→restore
 
-- [ ] synthetic-only 확인
-- [ ] candidate-bound backup와 SHA-256
-- [ ] isolated restore target 확인
-- [ ] restore 실행
-- [ ] table/row/constraint/ledger mismatch 0
-- [ ] 핵심 write/read/transaction cleanup
-- [ ] Phase 3 receipt digests
+- [ ] stale snapshot exact 대상 action-time 삭제 확인
+- [ ] stale snapshot 한 개만 삭제
+- [ ] migrated branch의 새 snapshot 생성
+- [ ] 새 격리 restore branch 생성; 기존 branch 유지
+- [ ] table/column/constraint/index/ledger/row mismatch 0
+- [ ] 합성 transaction rollback·residual 0
+- [ ] backup·restore receipt가 같은 digest/candidate에 결합
 
-## Phase 4
+## Phase 4 — rollback artifact
 
-- [ ] rollback SHA artifact 확인 또는 격리 package
-- [ ] restore DB 연결
-- [ ] `/`, `/en`, `/api/auth/session` HTTP smoke
-- [ ] DB 의존 핵심 경로와 하위호환성 smoke
-- [ ] 임시 runtime/restore target의 승인 범위 내 정리
-- [ ] Phase 4 receipt digest
+- [ ] rollback SHA artifact integrity
+- [ ] restore DB 연결은 메모리 내 Secret만 사용
+- [ ] `/`, `/en`, `/api/auth/session` HTTP 200
+- [ ] 권한 역조건과 DB 하위호환성
+- [ ] 임시 runtime 종료; restore target 삭제는 별도 승인
 
-## Phase 5
+## Phase 5 — release gate
 
-- [ ] 24시간 이내 backup·control-plane audit
-- [ ] 30일 이내 staging·restore·rollback receipts
-- [ ] candidate/rollback/context/digest equality
-- [ ] exact evidence card로 fresh `G_RELEASE` 요청
-- [ ] private promotion evidence JSON strict validation
-- [ ] lifecycle completion command
-- [ ] P10 report와 active P11 확인
+- [ ] receipt 유효기간·candidate/context equality
+- [ ] current control-plane read-only 재감사
+- [ ] exact digest 카드로 fresh `G_RELEASE`
+- [ ] promotion evidence validator ready
+- [ ] lifecycle command로 P10 완료/P11 확인
+- [ ] workflow·merge·Production 실행 0
 
-## 금지 확인
+## 사전 승인 입력
 
-- [ ] workflow dispatch 안 함
-- [ ] merge/master 승격 안 함
-- [ ] Production migration/deploy 안 함
-- [ ] 유료 plan/branch 안 만듦
-- [ ] 다른 project pause/delete 안 함
-- [ ] Secret/provider payload를 문서·로그·Memory에 남기지 않음
+```text
+P10_REBASE_PHASES_APPROVAL=owner-approval-2026-08-31-01
+
+승인 대상:
+- Phase 0 두 정본 파일 commit/push와 final candidate 동결
+- Phase 1 로컬 verify/package/release receipt
+- Phase 2 Neon synthetic staging migration 멱등 재검증
+- Phase 3 새 snapshot 및 새 격리 restore와 정합성 검사
+- Phase 4 rollback artifact smoke
+- Phase 5 fresh G_RELEASE 전 로컬 evidence 검증
+
+재확인 필수:
+- 기존 snapshot 삭제는 실행 직전 exact 대상 재확인
+- G_RELEASE는 모든 digest 확정 후 별도 발급
+
+금지:
+- Production, workflow dispatch, merge, 유료 변경
+- 기존 DB/branch 삭제, 고객 데이터, Secret 기록
+승인
+```
