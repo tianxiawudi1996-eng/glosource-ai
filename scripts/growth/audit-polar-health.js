@@ -16,6 +16,23 @@ const productKeys = [
   'POLAR_PRO_PRODUCT_ID',
   'POLAR_AGENCY_PRODUCT_ID',
 ];
+const expectedProducts = {
+  POLAR_STARTER_PRODUCT_ID: {
+    name: 'GloSource Starter',
+    monthlyAmount: 3900,
+    description: '40 supplier shortlist searches per month.\nKorean manufacturer research with registry evidence and English RFQ drafts.',
+  },
+  POLAR_PRO_PRODUCT_ID: {
+    name: 'GloSource Pro',
+    monthlyAmount: 9900,
+    description: '100 supplier shortlist searches per month.\nFull PDF reports, saved comparisons, and priority support.',
+  },
+  POLAR_AGENCY_PRODUCT_ID: {
+    name: 'GloSource Business',
+    monthlyAmount: 24900,
+    description: '300 supplier shortlist searches per month.\nHigh-volume sourcing with CSV/PDF export and project history.',
+  },
+};
 
 function requestHead(url) {
   return new Promise(resolve => {
@@ -42,7 +59,7 @@ function requestPolarProduct(id, token) {
       let body = '';
       res.setEncoding('utf8');
       res.on('data', chunk => { body += chunk; });
-      res.on('end', () => resolve({ ok: res.statusCode >= 200 && res.statusCode < 300, status: res.statusCode, body: body.slice(0, 200) }));
+      res.on('end', () => resolve({ ok: res.statusCode >= 200 && res.statusCode < 300, status: res.statusCode, body }));
     });
     req.on('timeout', () => {
       req.destroy();
@@ -51,6 +68,58 @@ function requestPolarProduct(id, token) {
     req.on('error', error => resolve({ ok: false, status: 0, error: error.message }));
     req.end();
   });
+}
+
+function summarizePolarProduct(result) {
+  if (!result.body) return null;
+  try {
+    const product = JSON.parse(result.body);
+    const prices = Array.isArray(product.prices)
+      ? product.prices.map(price => ({
+        amountType: price.amount_type,
+        amount: price.price_amount,
+        currency: price.price_currency,
+        interval: price.recurring_interval,
+        archived: Boolean(price.is_archived),
+      }))
+      : [];
+    return {
+      name: product.name,
+      description: product.description || '',
+      archived: Boolean(product.is_archived),
+      prices,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function validatePolarProduct(key, summary) {
+  const expected = expectedProducts[key];
+  if (!expected || !summary) return [`${key} returned an unreadable product payload.`];
+
+  const errors = [];
+  if (summary.name !== expected.name) {
+    errors.push(`${key} is named "${summary.name}", expected "${expected.name}".`);
+  }
+  if (summary.description !== expected.description) {
+    errors.push(`${key} description does not match the live plan quota and trust contract.`);
+  }
+  if (summary.archived) {
+    errors.push(`${key} points to an archived product.`);
+  }
+
+  const matchingPrice = summary.prices.find(price => (
+    !price.archived
+    && price.amountType === 'fixed'
+    && price.amount === expected.monthlyAmount
+    && String(price.currency).toLowerCase() === 'usd'
+    && price.interval === 'month'
+  ));
+  if (!matchingPrice) {
+    errors.push(`${key} has no active monthly USD price matching $${expected.monthlyAmount / 100}.`);
+  }
+  return errors;
 }
 
 function describePolarError(result) {
@@ -101,13 +170,25 @@ function describePolarError(result) {
     for (const key of productKeys) {
       if (!env[key]) continue;
       const result = await requestPolarProduct(env[key], env.POLAR_ACCESS_TOKEN);
-      productResults.push({ key, ok: result.ok, status: result.status, error: describePolarError(result) || undefined });
+      const summary = result.ok ? summarizePolarProduct(result) : null;
+      const contractErrors = result.ok ? validatePolarProduct(key, summary) : [];
+      productResults.push({
+        key,
+        ok: result.ok && contractErrors.length === 0,
+        status: result.status,
+        product: summary || undefined,
+        contractErrors,
+        error: result.ok ? undefined : (describePolarError(result) || undefined),
+      });
       if (!result.ok) {
         const error = describePolarError(result);
         const hint = result.status === 403
           ? ' Check that POLAR_ACCESS_TOKEN is an Organization Access Token for the same Polar organization and includes products:read or products:write scope. If Polar returns insufficient_scope, create a new organization token with products:read and update .env.local.'
           : '';
         criticals.push({ file: '.env.local', message: `${key} cannot be read with POLAR_ACCESS_TOKEN. Status: ${result.status || result.error}.${error ? ` ${error}` : ''}${hint}` });
+      }
+      for (const message of contractErrors) {
+        criticals.push({ file: '.env.local', message });
       }
     }
   }

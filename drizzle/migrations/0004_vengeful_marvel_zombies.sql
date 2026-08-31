@@ -1,0 +1,2 @@
+ALTER TABLE "search_history" ADD COLUMN "surface" text;--> statement-breakpoint
+CREATE INDEX "search_history_user_surface_created_at_idx" ON "search_history" USING btree ("user_id","surface","created_at");

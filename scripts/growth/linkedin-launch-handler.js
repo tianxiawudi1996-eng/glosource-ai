@@ -35,7 +35,7 @@ GloSource AI helps buyers do this first-pass research faster.
 
 It is not a supplier audit. It is a shortlist and RFQ preparation tool for buyers sourcing from Korea.
 
-Try 5 free searches:
+Create an account for 3 free searches per month:
 https://glosourceai.com/en?utm_source=linkedin&utm_medium=organic&utm_campaign=2026-07-korean-supplier-intelligence&utm_content=linkedin-01
 
 #Procurement #Sourcing #KoreanSuppliers`,
@@ -61,7 +61,7 @@ GloSource AI searches Korean supplier sources and prepares:
 
 Buyers still need to verify suppliers directly before ordering.
 
-Free search:
+Create an account for 3 free searches per month:
 https://glosourceai.com/en?utm_source=linkedin&utm_medium=organic&utm_campaign=2026-07-korean-supplier-intelligence&utm_content=linkedin-02
 
 #B2B #ImportExport #AmazonFBA`,
@@ -83,7 +83,7 @@ GloSource AI generates a supplier-specific English RFQ draft after the supplier 
 The goal is simple:
 less tab-switching, better first outreach.
 
-Try it here:
+Create an account for 3 free searches per month:
 https://glosourceai.com/en?utm_source=linkedin&utm_medium=organic&utm_campaign=2026-07-korean-supplier-intelligence&utm_content=linkedin-03
 
 #Procurement #Sourcing #KoreanManufacturing`,

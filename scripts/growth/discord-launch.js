@@ -38,23 +38,23 @@ const EMBED = {
   username: 'GloSource AI',
   embeds: [
     {
-      title: '🇰🇷 Find Korean Suppliers in 60 Seconds',
-      description: `Scans **EC21 · BuyKorea (KOTRA gov) · tradeKorea** simultaneously — AI ranks supplier candidates by trust score and generates a pre-filled English RFQ.
+      title: '🇰🇷 Research Korean Supplier Candidates',
+      description: `Researches public Korean sourcing channels, organizes supplier candidates by evidence signals, and prepares an English RFQ draft for review.
 
 **Per supplier result:**
-✅ Trust score 0–100 with Listing Quality breakdown
-✅ MFDS / HACCP / KC / KS certification signals
-✅ Est. MOQ, unit price & lead time
-✅ AEO customs-certified companies highlighted
-✅ Ready-to-send English RFQ draft
+✅ AI-estimated trust and listing-quality signals
+✅ Registry matches and certification mentions with evidence labels
+✅ Published, estimated, and unknown MOQ or pricing kept separate
+✅ Source links for independent verification
+✅ Reviewable English RFQ draft
 
-**5 free anonymous searches. Free account: 10 searches/month after email verification.**`,
+**Create an account for 3 free searches per month. No credit card required.**`,
       url: 'https://glosourceai.com/en',
       color: 0xEA580C,
       fields: [
         { name: 'Best for', value: 'K-beauty OEM · K-food bulk · Electronics · Private label cosmetics', inline: false },
-        { name: 'Free',     value: '5 anonymous · 10/month after signup', inline: true },
-        { name: 'Paid',     value: 'From $19/mo — 30 searches',           inline: true },
+        { name: 'Free',     value: '3 free searches/month with an account', inline: true },
+        { name: 'Paid',     value: 'From $39/mo — 40 searches',             inline: true },
       ],
       footer: { text: 'Feedback welcome — DM or reply' },
       timestamp: new Date().toISOString(),

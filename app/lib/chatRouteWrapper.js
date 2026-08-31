@@ -7,7 +7,7 @@ import { POST as handleChatPost, maxDuration } from '../api/chat/handler';
 export { maxDuration };
 
 export async function POST(request) {
-  const auth = await checkAuthAndQuota(request, 'chat');
+  const auth = await checkAuthAndQuota(request, 'chat', 'en');
   if (!auth.ok) return auth.response;
   const ip = extractTrustedIp(request.headers);
   const perMinute = Math.max(1, Number(process.env.CHAT_RATE_LIMIT_PER_MINUTE ?? 10));

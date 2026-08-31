@@ -1,10 +1,11 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { and, count, desc, eq, gte } from 'drizzle-orm';
+import { and, count, desc, eq, gte, isNotNull } from 'drizzle-orm';
 import { auth } from '@/auth';
-import { db, PLAN_LIMITS, subscriptions, usageLogs, searchHistory } from '@/app/lib/db';
+import { db, subscriptions, usageLogs, searchHistory } from '@/app/lib/db';
 import type { PlanTier } from '@/app/lib/db/schema';
 import BrandLogo from '@/app/components/BrandLogo';
+import { monthlySearchQuota } from '@/app/lib/product-contracts';
 
 const regionLabel: Record<string, string> = {
   korea: '🇰🇷 Korea',
@@ -31,20 +32,30 @@ export default async function EnDashboardPage() {
   if (!session?.user?.id) redirect('/en/login?callbackUrl=/en/dashboard');
 
   const userId = session.user.id;
-  const plan = (session.user.plan ?? 'free') as PlanTier;
+  const plan = (session.user.plans?.en ?? 'free') as PlanTier;
   const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
 
   const [monthlyUsageRows, subscriptionRows, historyRows] = await Promise.all([
     db.select({ value: count() }).from(usageLogs)
-      .where(and(eq(usageLogs.userId, userId), gte(usageLogs.createdAt, monthStart))),
-    db.select().from(subscriptions).where(eq(subscriptions.userId, userId)).limit(1),
-    db.select().from(searchHistory).where(eq(searchHistory.userId, userId))
+      .where(and(
+        eq(usageLogs.userId, userId),
+        eq(usageLogs.surface, 'en'),
+        gte(usageLogs.createdAt, monthStart),
+      )),
+    db.select().from(subscriptions).where(and(
+      eq(subscriptions.userId, userId),
+      isNotNull(subscriptions.polarSubscriptionId),
+    )).orderBy(desc(subscriptions.updatedAt)).limit(1),
+    db.select().from(searchHistory).where(and(
+      eq(searchHistory.userId, userId),
+      eq(searchHistory.surface, 'en'),
+    ))
       .orderBy(desc(searchHistory.createdAt)).limit(20),
   ]);
 
   const usageCount = monthlyUsageRows[0]?.value ?? 0;
-  const limit = PLAN_LIMITS[plan]?.monthly ?? PLAN_LIMITS.free.monthly;
-  const usagePercent = limit > 0 ? Math.min(100, Math.round((usageCount / limit) * 100)) : 0;
+  const limit = monthlySearchQuota('en', plan);
+  const usagePercent = limit && limit > 0 ? Math.min(100, Math.round((usageCount / limit) * 100)) : 0;
   const subscription = subscriptionRows[0];
 
   const planLabel = plan === 'enterprise' ? 'Business' : plan.charAt(0).toUpperCase() + plan.slice(1);

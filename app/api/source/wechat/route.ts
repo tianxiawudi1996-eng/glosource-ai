@@ -2,8 +2,14 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { load } from 'cheerio';
 import { NextRequest, NextResponse } from 'next/server';
 import type { WeChatPost, WeChatSourcingOutput } from '../types';
-import { kvConsumeFreeCredit, kvSaveHistory, extractTrustedIp } from '../../../lib/kv';
-import { checkAuthAndQuota, logUsage } from '../../../lib/authMiddleware';
+import { kvSaveHistory, extractTrustedIp } from '../../../lib/kv';
+import {
+  checkAuthAndQuota,
+  finalizeQuotaUsage,
+  releaseQuotaReservation,
+  type QuotaReservation,
+} from '../../../lib/authMiddleware';
+import { redactWeChatSourcingOutputForFree } from '../../../lib/free-access';
 import { normalizeWeChatOutput, parseWeChatKeyword, verifyWeChatPostUrls } from '../../../lib/wechat-verification';
 import { GOOGLE_SEARCH_TOOLS, groundingUrls } from '../../../lib/gemini-grounding';
 
@@ -372,6 +378,8 @@ function mergeResults(grounding: WeChatSourcingOutput, sogou?: WeChatSourcingOut
 
 export async function POST(request: NextRequest) {
   const start = Date.now();
+  let quotaReservation: QuotaReservation | null = null;
+  let quotaFinalized = false;
   const budget: RequestBudget = {
     deadlineAt: start + 55_000,
     signal: request.signal,
@@ -388,9 +396,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '검색할 제품/키워드를 입력해주세요.' }, { status: 400 });
     }
 
-    const authResult = await checkAuthAndQuota(request, 'wechat');
+    const authResult = await checkAuthAndQuota(request, 'wechat', 'kr');
     if (!authResult.ok) return authResult.response;
-    const { userId } = authResult;
+    const { userId, plan } = authResult;
+    quotaReservation = authResult.quotaReservation;
     const ip = extractTrustedIp(request.headers);
 
     // Step 1: Translate keyword to Chinese manufacturing terminology
@@ -449,23 +458,35 @@ export async function POST(request: NextRequest) {
       output.translatedKeyword = zhKeyword;
     }
 
+    const visibleOutput = redactWeChatSourcingOutputForFree(output, plan, 'kr');
+
     kvSaveHistory({
       id: `${Date.now()}-wechat`,
       timestamp: new Date().toISOString(),
       source: 'wechat',
       query: { keyword },
       status: 200,
-      supplierCount: output.posts?.length ?? 0,
-      raw: output,
+      supplierCount: visibleOutput.posts.length,
+      raw: visibleOutput,
     }).catch(() => {});
 
-    logUsage(userId, ip, 'wechat', keyword, output.posts?.length, Date.now() - start).catch(() => {});
-    if (!userId) kvConsumeFreeCredit(ip).catch(() => {});
+    await finalizeQuotaUsage(quotaReservation, {
+      userId,
+      ip,
+      surface: 'kr',
+      action: 'wechat',
+      product: keyword,
+      supplierCount: output.posts?.length,
+      durationMs: Date.now() - start,
+    });
+    quotaFinalized = true;
 
-    return NextResponse.json({ success: true, data: output });
+    return NextResponse.json({ success: true, data: visibleOutput });
   } catch (error) {
     console.error('[WeChat API Error]', error);
     const message = error instanceof Error ? error.message : 'WeChat 소싱 분석 중 오류가 발생했습니다.';
     return NextResponse.json({ error: message }, { status: 500 });
+  } finally {
+    if (!quotaFinalized) await releaseQuotaReservation(quotaReservation);
   }
 }

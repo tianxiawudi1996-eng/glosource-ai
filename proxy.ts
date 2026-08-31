@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 
 const { auth } = NextAuth(authConfig);
 
-export default auth((request) => {
+const proxy = auth((request) => {
   const { pathname } = request.nextUrl;
 
   // Korean homepage ('/') is public. (Previously redirected to /en.)
@@ -17,6 +17,8 @@ export default auth((request) => {
     },
   });
 });
+
+export default proxy;
 
 export const config = {
   matcher: [

@@ -17,9 +17,22 @@
 - [x] `scripts/check-sensitive-strings.mjs`
 - [x] `scripts/check-harness-placeholders.mjs`
 - [x] `scripts/check-state-json.mjs`
+- [x] `scripts/check-agent-instructions.ts`
 - [x] `scripts/harness-precommit.sh`
 - [x] Hook activation plan documented
 - [x] `.gitignore` entries for local blocklist and private/generated harness evidence
+- [x] `docs/harness/lifecycle/PHASES.json` P00-P16 lifecycle manifest
+- [x] `docs/harness/lifecycle/STATE.json` single-run phase state
+- [x] `docs/harness/lifecycle/prompts/` phase-specific metaprompts
+- [x] `docs/harness/lifecycle/reports/README.md` immutable completion-report contract
+- [x] `docs/harness/lifecycle/completion-evidence.example.json` strict evidence example
+- [x] `docs/harness/lifecycle/ADOPTION_REPORT.md` adoption and verification report
+- [x] `scripts/lifecycle-harness.ts` validation, start, completion, and report engine
+- [x] `tests/lifecycle-harness.test.ts` lifecycle drift and transition regression tests
+- [x] `npm run lifecycle:validate` included in `scripts/harness-precommit.sh`
+- [x] `npm run harness:instructions` validates root instruction drift and runs in the pre-commit mirror
+- [x] `tests/agent-instructions.test.ts` covers required guidance, duplication, transcript artifacts, and package-command drift
+- [x] `docs/harness/AGENTS_INSTRUCTION_ADOPTION_REPORT.md` records normalization decisions, verification, and external boundaries
 
 ## Local-only Files
 
@@ -36,6 +49,8 @@
 | Placeholder check | Yes | Yes | Scans `docs/harness` |
 | State JSON check | Yes | Yes | Validates required fields and arrays |
 | Pre-commit mirror | Yes | No | Script installed; git hook activation requires user approval |
+| Lifecycle validator | Yes | Yes | Manifest, prompt, state, and report-link checks run locally and in the pre-commit mirror |
+| Agent-instruction validator | Yes | Yes | Root product contract, lifecycle links, managed Next block, and executable command references fail closed on drift |
 
 ## Generic Purity Check
 

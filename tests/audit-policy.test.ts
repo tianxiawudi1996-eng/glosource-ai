@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import {
   ANALYTICS_CONSENT_KEY,
@@ -11,12 +12,30 @@ import {
   refundPolicyPublicUrl,
 } from '../app/lib/refundPolicy';
 
+const termsPage = readFileSync('app/terms/page.tsx', 'utf8');
+const polarCheckout = readFileSync('app/en/PolarCheckoutButton.tsx', 'utf8');
+
 test('refund policy keeps the first-payment window and search threshold together', () => {
   assert.equal(REFUND_POLICY.firstPaymentWindowHours, 48);
   assert.equal(REFUND_POLICY.maxSearchesExclusive, 3);
   assert.match(refundEligibilitySummary(), /within 48 hours/);
   assert.match(refundEligibilitySummary(), /fewer than 3 searches/);
   assert.equal(refundPolicyPublicUrl(), 'https://glosourceai.com/terms#section-3-4');
+});
+
+test('EU withdrawal copy preserves the statutory service-contract path', () => {
+  assert.equal(REFUND_POLICY.euWithdrawalPeriodDays, 14);
+  assert.match(termsPage, /REFUND_POLICY\.euWithdrawalPeriodDays/);
+  assert.match(polarCheckout, /REFUND_POLICY\.euWithdrawalPeriodDays/);
+  assert.doesNotMatch(termsPage, /once you have made your first search/);
+  assert.match(termsPage, /proportionate amount/i);
+  assert.match(termsPage, /fully performed/i);
+  assert.match(termsPage, /prior express consent and acknowledgement/i);
+  assert.match(termsPage, /mandatory consumer rights/i);
+  assert.match(polarCheckout, /performance.*begin/i);
+  assert.match(polarCheckout, /proportionate amount/i);
+  assert.match(polarCheckout, /withdrawal right ends only after full performance/i);
+  assert.match(polarCheckout, /EU\/EEA/i);
 });
 
 test('analytics consent accepts only explicit stored choices', () => {

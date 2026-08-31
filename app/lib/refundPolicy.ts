@@ -1,6 +1,7 @@
 export const REFUND_POLICY = {
   firstPaymentWindowHours: 48,
   maxSearchesExclusive: 3,
+  euWithdrawalPeriodDays: 14,
   termsPath: '/terms#section-3-4',
 } as const;
 

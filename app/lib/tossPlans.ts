@@ -4,13 +4,14 @@ export interface TossPlan {
   id: TossPlanId;
   name: string;
   amount: number;
+  searchesPerMonth: number | null;
   searchesLabel: string;
 }
 
 export const TOSS_PLANS: readonly TossPlan[] = [
-  { id: 'starter', name: 'Starter', amount: 190_000, searchesLabel: '소싱 30회/월' },
-  { id: 'pro', name: 'Pro', amount: 490_000, searchesLabel: '소싱 60회/월' },
-  { id: 'enterprise', name: 'Enterprise', amount: 990_000, searchesLabel: '무제한' },
+  { id: 'starter', name: 'Starter', amount: 190_000, searchesPerMonth: 30, searchesLabel: '소싱 30회/월' },
+  { id: 'pro', name: 'Pro', amount: 490_000, searchesPerMonth: 60, searchesLabel: '소싱 60회/월' },
+  { id: 'enterprise', name: 'Enterprise', amount: 990_000, searchesPerMonth: null, searchesLabel: '무제한' },
 ];
 
 export function tossPlanById(id: string): TossPlan | undefined {
@@ -47,6 +48,13 @@ export function isTossCheckoutConfigured(
     && env.TOSS_SECRET_KEY
     && env.TOSS_WEBHOOK_SECRET,
   );
+}
+
+export function isKoreanCommercializationEnabled(
+  env: Readonly<Record<string, string | undefined>>,
+): boolean {
+  return env.KR_COMMERCIALIZATION_ENABLED === 'true'
+    && isTossCheckoutConfigured(env);
 }
 
 export function tossPeriodEnd(periodStart: Date): Date {

@@ -7,13 +7,20 @@ import { sendReceiptEmail } from '@/app/lib/email';
 import { logAbuseSignal } from '@/app/lib/abuse';
 import { PurchaseTracker } from '@/app/components/FunnelTracking';
 import { completeTossPayment } from '@/app/lib/tossSubscription';
-import { tossPlanByAmount } from '@/app/lib/tossPlans';
+import {
+  isKoreanCommercializationEnabled,
+  tossPlanByAmount,
+} from '@/app/lib/tossPlans';
 
 interface Props {
   searchParams: Promise<{ paymentKey?: string; orderId?: string; amount?: string }>;
 }
 
 export default async function BillingSuccessPage({ searchParams }: Props) {
+  if (!isKoreanCommercializationEnabled(process.env)) {
+    redirect('/billing');
+  }
+
   const session = await auth();
   if (!session?.user?.id) redirect('/auth/login');
 

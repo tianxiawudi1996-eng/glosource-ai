@@ -290,12 +290,462 @@ button, a, input, select {
   .gs-tile:active { transform: translateY(-1px) scale(1.004); transition-duration: 0.12s; }
 }
 
+/* ── Hero cover: bright seasonal Gyeongbokgung scenes ──
+   The generated cover carries the palace, dancheong and Korean host. Copy
+   stays in the foreground; the inline gradient is intentionally lighter than
+   the retired dark cover so the page feels clear and sunlit. */
+.gs-hero-cover {
+  background-position: center, center, center right;
+  background-size: cover, cover, auto 110%;
+  background-repeat: no-repeat;
+  opacity: 0.99;
+  filter: saturate(1.06) brightness(1.04);
+  transition: opacity 1.2s ease, filter 1.2s ease;
+}
+
+.gs-seasonal-cover {
+  animation: gs-seasonal-reveal 1.2s ease both, gs-seasonal-breathe 12s ease-in-out 1.2s infinite;
+  will-change: transform, filter;
+}
+
+/* The same landmark asset carries two buyer contexts: KR leads with local
+   discovery, while EN gives the registry panel a cooler, evidence-led field.
+   Copy stays in HeroSection; only the image treatment changes. */
+.gs-hero-lang-ko .gs-seasonal-cover {
+  background-position: center, center, 65% 100%;
+}
+
+.gs-hero-lang-en .gs-seasonal-light {
+  background:
+    radial-gradient(circle at 72% 24%, color-mix(in srgb, #c8e8ff 34%, transparent), transparent 28%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent 42%, rgba(4, 22, 35, 0.1));
+}
+
+.gs-seasonal-light {
+  background:
+    radial-gradient(circle at 74% 28%, color-mix(in srgb, var(--season-accent) 30%, transparent), transparent 28%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.14), transparent 42%, rgba(4, 22, 35, 0.12));
+  mix-blend-mode: screen;
+  opacity: 0.72;
+  pointer-events: none;
+}
+
+.gs-host-welcome {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  transform: translate3d(var(--host-x, 0), var(--host-y, 0), 0) rotate(var(--host-rotate, 0));
+  transform-origin: right bottom;
+  transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+.gs-host-welcome-orbit {
+  display: block;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid color-mix(in srgb, var(--season-accent) 85%, white);
+  border-radius: 999px;
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--season-accent) 15%, transparent), 0 0 24px color-mix(in srgb, var(--season-accent) 65%, transparent);
+  background: radial-gradient(circle, color-mix(in srgb, var(--season-accent) 82%, white) 0 16%, transparent 18% 100%);
+  animation: gs-host-orbit 4.8s ease-in-out infinite;
+}
+
+.gs-host-welcome-copy {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 11rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  border-radius: 0.85rem;
+  background: rgba(8, 24, 38, 0.64);
+  box-shadow: 0 16px 38px rgba(3, 13, 25, 0.24);
+  backdrop-filter: blur(12px);
+}
+
+.gs-host-welcome-kicker {
+  color: color-mix(in srgb, var(--season-accent) 85%, white);
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.gs-host-welcome-text {
+  color: white;
+  font-size: 0.76rem;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.gs-season-switcher {
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.42rem;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 999px;
+  background: rgba(8, 24, 38, 0.45);
+  backdrop-filter: blur(10px);
+}
+
+.gs-landmark-label {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 10.4rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 0.75rem;
+  background: rgba(8, 24, 38, 0.48);
+  backdrop-filter: blur(10px);
+  color: white;
+  pointer-events: none;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.38);
+}
+
+.gs-landmark-label-kicker {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.56rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.gs-landmark-label-name {
+  font-size: 0.72rem;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.gs-hero-lang-ko .gs-landmark-label { border-color: rgba(167, 220, 207, 0.38); }
+.gs-hero-lang-ko .gs-landmark-label-kicker { color: rgba(200, 232, 255, 0.78); }
+.gs-hero-lang-en .gs-landmark-label { border-color: rgba(200, 232, 255, 0.46); }
+.gs-hero-lang-en .gs-landmark-label-kicker { color: rgba(200, 232, 255, 0.86); }
+.gs-hero-lang-en .gs-season-switcher { border-color: rgba(200, 232, 255, 0.4); }
+
+/* Keep the seasonal host's face in the open sky above the product panel.
+   The panel remains in the right column, but drops on wide screens with
+   reserved bottom space so the subject and the proof content read together
+   instead of competing for the same focal area. Mobile keeps the natural
+   stacked flow, where the cover and panel no longer overlap. */
+@media (min-width: 1024px) {
+  .gs-hero-layout { padding-bottom: 5rem; }
+  .gs-face-safe-panel {
+    position: relative;
+    top: 4rem;
+    margin-left: -3.75rem;
+    width: 95%;
+    justify-self: end;
+    align-self: end;
+  }
+}
+
+.gs-season-dot {
+  width: 0.7rem;
+  height: 0.7rem;
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  border-radius: 999px;
+  background: var(--dot-color);
+  opacity: 0.68;
+  transition: transform 250ms ease, opacity 250ms ease, box-shadow 250ms ease;
+}
+
+.gs-season-dot:hover,
+.gs-season-dot:focus-visible,
+.gs-season-dot[data-active='true'] {
+  opacity: 1;
+  transform: scale(1.35);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--dot-color) 30%, transparent);
+}
+
+@media (max-width: 639px) {
+  .gs-landmark-label {
+    transform: scale(0.9);
+    transform-origin: left top;
+  }
+}
+
+/* ── Korea journey: a restrained editorial rail that lets the landing page
+   move from Seoul to Jeju without turning the product into a travel site. */
+.gs-korea-journey {
+  position: relative;
+  isolation: isolate;
+}
+
+.gs-korea-journey::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(circle at 15% 12%, rgba(255, 255, 255, 0.76), transparent 33%), radial-gradient(circle at 86% 80%, rgba(213, 168, 75, 0.12), transparent 32%);
+  content: '';
+  pointer-events: none;
+}
+
+.gs-korea-journey[data-lang='en'] {
+  background-color: #f7f8f8;
+}
+
+.gs-korea-journey[data-lang='en']::before {
+  background: radial-gradient(circle at 14% 10%, rgba(255, 255, 255, 0.96), transparent 34%), radial-gradient(circle at 86% 78%, rgba(105, 184, 194, 0.07), transparent 34%);
+}
+
+.gs-korea-journey[data-lang='en'] #korea-journey-title {
+  font-size: clamp(1.95rem, 3vw, 2.35rem);
+}
+
+.gs-korea-journey[data-lang='en'] .gs-journey-ornament { margin-top: 0.65rem; }
+.gs-korea-journey[data-lang='en'] .gs-journey-ornament i { width: 0.8rem; height: 0.16rem; }
+
+.gs-journey-route {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 0.8rem;
+  color: #64748b;
+  font-size: 0.6rem;
+  font-weight: 900;
+  letter-spacing: 0.13em;
+  white-space: nowrap;
+}
+
+.gs-journey-route-line {
+  display: block;
+  width: 3rem;
+  height: 1px;
+  background: linear-gradient(90deg, #8f3a26, #d5a84b, transparent);
+}
+
+.gs-korea-journey[data-lang='en'] .gs-journey-route-line {
+  background: linear-gradient(90deg, #244b63, #b89a4a, transparent);
+}
+
+.gs-korea-journey[data-lang='en'] .gs-journey-scroller {
+  grid-auto-columns: minmax(220px, 31.5%);
+}
+
+.gs-korea-journey[data-lang='en'] .gs-journey-card {
+  min-height: 16.5rem;
+}
+
+.gs-journey-scroller {
+  display: grid;
+  grid-auto-columns: minmax(250px, 36%);
+  grid-auto-flow: column;
+  gap: 0.9rem;
+  overflow-x: auto;
+  padding: 0.45rem 0.35rem 1.1rem;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.gs-journey-scroller::-webkit-scrollbar { display: none; }
+
+.gs-journey-card {
+  position: relative;
+  min-height: 22rem;
+  overflow: hidden;
+  border: 1px solid rgba(13, 27, 42, 0.14);
+  border-radius: 1.35rem;
+  background: #d9d0c2;
+  box-shadow: 0 12px 30px rgba(13, 27, 42, 0.08);
+  text-align: left;
+  scroll-snap-align: center;
+  transform: translateY(0) scale(0.985);
+  transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 700ms ease, border-color 700ms ease;
+}
+
+.gs-journey-card:hover,
+.gs-journey-card:focus-visible,
+.gs-journey-card[data-active='true'] {
+  border-color: rgba(143, 58, 38, 0.55);
+  box-shadow: 0 22px 45px rgba(13, 27, 42, 0.19);
+  transform: translateY(-0.5rem) scale(1);
+}
+
+.gs-journey-card:focus-visible {
+  outline: 3px solid rgba(234, 88, 12, 0.34);
+  outline-offset: 3px;
+}
+
+.gs-journey-card-wash {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(7, 22, 34, 0.02) 14%, rgba(7, 22, 34, 0.12) 42%, rgba(7, 22, 34, 0.8) 100%);
+  transition: background 700ms ease;
+}
+
+.gs-journey-card[data-active='true'] .gs-journey-card-wash {
+  background: linear-gradient(180deg, rgba(7, 22, 34, 0.02) 10%, rgba(7, 22, 34, 0.08) 36%, rgba(7, 22, 34, 0.72) 100%);
+}
+
+.gs-korea-journey[data-lang='en'] .gs-journey-card[data-active='true'],
+.gs-korea-journey[data-lang='en'] .gs-journey-card:hover,
+.gs-korea-journey[data-lang='en'] .gs-journey-card:focus-visible {
+  border-color: rgba(36, 75, 99, 0.42);
+  box-shadow: 0 14px 30px rgba(13, 27, 42, 0.13);
+  transform: translateY(-0.2rem) scale(1);
+}
+
+.gs-journey-card-copy {
+  position: absolute;
+  inset: auto 1.15rem 1.1rem;
+  display: grid;
+  gap: 0.24rem;
+  color: white;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.4);
+}
+
+.gs-journey-card-region {
+  color: rgba(255, 255, 255, 0.76);
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+}
+
+.gs-journey-card-title {
+  font-size: 1.18rem;
+  font-weight: 900;
+  line-height: 1.15;
+}
+
+.gs-journey-card-bilingual {
+  color: rgba(255, 255, 255, 0.74);
+  font-size: 0.61rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  line-height: 1.25;
+}
+
+.gs-korea-journey[data-lang='en'] .gs-journey-card-bilingual {
+  color: rgba(226, 241, 246, 0.88);
+  letter-spacing: 0.02em;
+}
+
+.gs-journey-card-note {
+  max-width: 16rem;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.gs-journey-arrow {
+  display: grid;
+  width: 2.2rem;
+  height: 2.2rem;
+  place-items: center;
+  border: 1px solid rgba(13, 27, 42, 0.18);
+  border-radius: 999px;
+  color: #0d1b2a;
+  font-size: 1rem;
+  font-weight: 900;
+  transition: background 220ms ease, color 220ms ease, transform 220ms ease;
+}
+
+.gs-journey-arrow:hover,
+.gs-journey-arrow:focus-visible {
+  background: #0d1b2a;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.gs-journey-arrow:focus-visible { outline: 3px solid rgba(234, 88, 12, 0.3); outline-offset: 2px; }
+
+.gs-journey-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border: 1px solid rgba(13, 27, 42, 0.35);
+  border-radius: 999px;
+  background: var(--journey-tint);
+  opacity: 0.52;
+  transition: transform 220ms ease, opacity 220ms ease, box-shadow 220ms ease;
+}
+
+.gs-journey-dot:hover,
+.gs-journey-dot:focus-visible,
+.gs-journey-dot[data-active='true'] {
+  opacity: 1;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--journey-tint) 32%, transparent);
+  transform: scale(1.35);
+}
+
+.gs-journey-dot:focus-visible { outline: 2px solid #ea580c; outline-offset: 2px; }
+
+@media (max-width: 767px) {
+  .gs-journey-scroller {
+    grid-auto-columns: minmax(78%, 1fr);
+    margin-right: -1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  .gs-journey-card { min-height: 19rem; }
+
+  .gs-korea-journey[data-lang='en'] .gs-journey-scroller {
+    grid-auto-columns: minmax(78%, 1fr);
+  }
+
+  .gs-korea-journey[data-lang='en'] .gs-journey-card { min-height: 16rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gs-journey-scroller { scroll-behavior: auto; }
+  .gs-journey-card,
+  .gs-journey-card-wash,
+  .gs-journey-arrow,
+  .gs-journey-dot { transition: none; }
+}
+
+@media (max-width: 639px) {
+  .gs-hero-cover {
+    /* Keep the host on the outer edge of the stacked copy so her face stays
+       visible without sitting beneath the headline and action chips. */
+    background-position: center, center, 65% center;
+    background-size: cover, cover, auto 100%;
+  }
+
+  .gs-hero-lang-ko .gs-seasonal-cover { background-position: center, center, 75% center; }
+
+  .gs-host-welcome {
+    right: 1.25rem;
+    bottom: 1.25rem;
+    transform: scale(0.88) translate3d(var(--host-x, 0), var(--host-y, 0), 0) rotate(var(--host-rotate, 0));
+    transform-origin: right bottom;
+  }
+
+  .gs-season-switcher { right: 1.25rem; top: 1.25rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gs-hero-cover,
+  .gs-host-welcome,
+  .gs-season-dot { transition: none; }
+  .gs-seasonal-cover,
+  .gs-host-welcome-orbit { animation: none; }
+}
+
 /* ── Hero motion: keep the hero visibly alive ──
    A floating preview panel, a breathing glow that drifts, and a scanning
    highlight sweeping the verified card — plus dot-grid parallax on scroll.
    Amplitudes are tuned to actually read as motion, not merely to exist.
    All reduced-motion gated. */
 @media (prefers-reduced-motion: no-preference) {
+  @keyframes gs-seasonal-reveal {
+    from { opacity: 0; transform: scale(1.04); }
+    to   { opacity: 0.99; transform: scale(1.01); }
+  }
+
+  @keyframes gs-seasonal-breathe {
+    0%, 100% { transform: scale(1.01) translate3d(0, 0, 0); }
+    50%      { transform: scale(1.045) translate3d(-0.5%, -0.35%, 0); }
+  }
+
+  @keyframes gs-host-orbit {
+    0%, 100% { transform: translateY(0) rotate(0); }
+    50%      { transform: translateY(-4px) rotate(8deg); }
+  }
+
   @keyframes gs-hero-glow {
     0%   { opacity: 0.55; transform: translate3d(0, 0, 0) scale(1); }
     50%  { opacity: 1;    transform: translate3d(-36px, 26px, 0) scale(1.18); }
@@ -472,22 +922,226 @@ button, a, input, select {
   height: 0.35em;
 }
 
-.gs-dancheong-side {
+@media (prefers-reduced-motion: reduce) {
+  .gs-hunmin-grid { animation: none; }
+}
+
+/* ── Production bridge for the approved Atelier · Dancheong · Journey DNA ──
+   These accents deliberately sit around the existing product UI: the source
+   mockup is a visual reference, while the KR/EN copy, CTA and API surfaces stay
+   owned by their route components. */
+:root {
+  --gs-dancheong-red: #8f3a26;
+  --gs-dancheong-blue: #244b63;
+  --gs-dancheong-gold: #d5a84b;
+  --gs-celadon: #a7dcd0;
+  --gs-hanji: #faf7f2;
+}
+
+.gs-hero {
+  isolation: isolate;
+}
+
+.gs-hero::after {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
   background:
-    linear-gradient(#B89A4A, #B89A4A) center/1px 100% no-repeat,
-    repeating-linear-gradient(
-      180deg,
-      #07130F 0 12px,
-      #8F3A26 12px 19px,
-      #B9782E 19px 25px,
-      #2F604B 25px 33px,
-      #244B63 33px 40px,
-      #07130F 40px 54px
-    );
+    radial-gradient(circle at 16% 76%, rgba(213, 168, 75, 0.14), transparent 25%),
+    repeating-linear-gradient(90deg, transparent 0 72px, rgba(255, 255, 255, 0.025) 72px 73px);
+  content: '';
+  mix-blend-mode: screen;
+  opacity: 0.64;
+  pointer-events: none;
+}
+
+.gs-hero::before {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  height: 5px;
+  background: linear-gradient(90deg, var(--gs-dancheong-red) 0 20%, var(--gs-dancheong-gold) 20% 40%, var(--gs-celadon) 40% 60%, var(--gs-dancheong-blue) 60% 80%, var(--gs-dancheong-red) 80% 100%);
+  content: '';
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.gs-hero-ornament {
+  position: absolute;
+  top: 1.25rem;
+  left: 50%;
+  z-index: 2;
+  display: inline-flex;
+  gap: 0.3rem;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.gs-hero-ornament span {
+  display: block;
+  width: 0.35rem;
+  height: 0.35rem;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 999px;
+  background: var(--gs-dancheong-gold);
+  box-shadow: 0 0 0 3px rgba(213, 168, 75, 0.13);
+}
+
+.gs-hero-ornament span:nth-child(2) {
+  transform: translateY(-0.3rem);
+  background: var(--gs-celadon);
+}
+
+.gs-hero-copy {
+  position: relative;
+}
+
+.gs-hero-copy::before {
+  position: absolute;
+  top: -1.25rem;
+  left: 0;
+  width: 3.8rem;
+  height: 1px;
+  background: linear-gradient(90deg, var(--gs-celadon), transparent);
+  content: '';
+  opacity: 0.8;
+}
+
+.gs-hero-stats {
+  position: relative;
+}
+
+.gs-hero-stats::after {
+  position: absolute;
+  right: 0;
+  bottom: -1.25rem;
+  width: 4.5rem;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gs-dancheong-gold));
+  content: '';
+  opacity: 0.75;
+}
+
+.gs-hero-proof-panel {
+  filter: drop-shadow(0 1.4rem 2rem rgba(3, 13, 25, 0.18));
+}
+
+.gs-ko-nav {
+  isolation: isolate;
+  background-color: var(--gs-hanji);
+  background-image: linear-gradient(90deg, rgba(143, 58, 38, 0.045), transparent 24%, rgba(167, 220, 208, 0.06));
+}
+
+.gs-ko-nav::after {
+  position: absolute;
+  right: 0;
+  bottom: -2px;
+  left: 0;
+  z-index: 1;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gs-dancheong-red), var(--gs-dancheong-gold), var(--gs-celadon), var(--gs-dancheong-blue));
+  content: '';
+  opacity: 0.72;
+}
+
+.gs-en-nav {
+  isolation: isolate;
+}
+
+.gs-en-nav::after {
+  position: absolute;
+  right: 0;
+  bottom: -2px;
+  left: 0;
+  z-index: 1;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gs-dancheong-blue), var(--gs-dancheong-gold), var(--gs-celadon), var(--gs-dancheong-red));
+  content: '';
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+.gs-channel-strip {
+  position: relative;
+  isolation: isolate;
+  background-color: var(--gs-hanji);
+  background-image:
+    radial-gradient(circle at 90% 20%, rgba(213, 168, 75, 0.12), transparent 28%),
+    repeating-linear-gradient(0deg, transparent 0 3px, rgba(120, 100, 70, 0.012) 3px 4px);
+}
+
+.gs-channel-strip::before {
+  position: absolute;
+  top: -1px;
+  right: 0;
+  left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gs-dancheong-red), var(--gs-dancheong-gold), var(--gs-celadon), var(--gs-dancheong-blue));
+  content: '';
+  opacity: 0.68;
+  pointer-events: none;
+}
+
+.gs-channel-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2.5rem;
+  border-color: rgba(143, 58, 38, 0.16);
+  background: rgba(255, 255, 255, 0.68);
+  box-shadow: 0 0.35rem 1rem rgba(13, 27, 42, 0.04);
+  transition: transform 260ms cubic-bezier(0.16, 1, 0.3, 1), border-color 200ms ease, box-shadow 200ms ease;
+}
+
+.gs-channel-chip:hover,
+.gs-channel-chip:focus-visible {
+  border-color: rgba(143, 58, 38, 0.42);
+  box-shadow: 0 0.7rem 1.4rem rgba(13, 27, 42, 0.09);
+  transform: translateY(-2px);
+}
+
+.gs-channel-index {
+  color: var(--gs-dancheong-red);
+  font-family: var(--font-krold), 'Nanum Myeongjo', serif;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+}
+
+.gs-journey-heading {
+  position: relative;
+}
+
+.gs-journey-ornament {
+  display: inline-flex;
+  gap: 0.3rem;
+  margin-top: 0.9rem;
+  vertical-align: middle;
+}
+
+.gs-journey-ornament i {
+  display: block;
+  width: 1.15rem;
+  height: 0.22rem;
+  border-radius: 999px;
+  background: var(--gs-dancheong-red);
+}
+
+.gs-journey-ornament i:nth-child(2) { background: var(--gs-dancheong-gold); }
+.gs-journey-ornament i:nth-child(3) { background: var(--gs-celadon); }
+
+.gs-journey-progress {
+  min-height: 2.2rem;
+  padding: 0.25rem 0.55rem;
+  border: 1px solid rgba(13, 27, 42, 0.1);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.4);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .gs-hunmin-grid { animation: none; }
+  .gs-channel-chip { transition: none; }
 }
 
 /* Old-document Korean voice (classical myeongjo serif) */
@@ -504,4 +1158,37 @@ button, a, input, select {
 /* Faint lattice for dark sections */
 .bg-lattice-dark {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56'%3E%3Cpath d='M0 .5H56M0 55.5H56M.5 0V56M55.5 0V56M28 0V56M0 28H56' stroke='%23FFFFFF' stroke-opacity='0.025' fill='none'/%3E%3C/svg%3E");
+}
+
+/* EN restrained Korean-modern layer: architecture, bilingual provenance and
+   three dancheong accents support the sales surface without becoming a theme. */
+.gs-hero-lang-en .gs-seasonal-cover {
+  background-position: center, center, center 56%;
+  background-size: cover, cover, cover;
+  filter: saturate(0.82) brightness(0.78) contrast(1.05);
+  animation: none;
+}
+
+.gs-hero-lang-en .gs-seasonal-stage::after {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(90deg, rgba(5, 18, 28, 0.18) 0 52%, rgba(5, 18, 28, 0.36) 100%);
+  content: '';
+  pointer-events: none;
+}
+
+.gs-hero-lang-en .gs-seasonal-light { opacity: 0.16; }
+.gs-hero-lang-en .gs-hero-proof-panel { animation: none; }
+
+@media (max-width: 639px) {
+  .gs-hero-lang-en .gs-seasonal-cover {
+    background-position: center, center, 64% center;
+    background-size: cover, cover, cover;
+    filter: saturate(0.72) brightness(0.62) contrast(1.08);
+  }
+
+  .gs-hero-lang-en .gs-seasonal-stage::after {
+    background: linear-gradient(180deg, rgba(5, 18, 28, 0.42), rgba(5, 18, 28, 0.66));
+  }
 }

@@ -2,16 +2,11 @@
 
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
-import { TOSS_PLANS } from '@/app/lib/tossPlans';
+import { KR_FREE_ACCOUNT_MONTHLY_SEARCH_LIMIT } from '@/app/lib/free-plan';
 
 interface UpgradeModalProps {
   onClose: () => void;
 }
-
-// This Korean modal follows the KRW/Toss catalog, not the EN/USD Polar plans.
-const PLAN_QUOTA_SUMMARY = TOSS_PLANS
-  .map(plan => `${plan.name}: ${plan.searchesLabel}`)
-  .join(' · ');
 
 export default function UpgradeModal({ onClose }: UpgradeModalProps) {
   const { data: session } = useSession();
@@ -45,16 +40,16 @@ export default function UpgradeModal({ onClose }: UpgradeModalProps) {
               className="block w-full rounded-xl bg-[#EA580C] px-4 py-3.5 text-center text-sm font-black text-white hover:bg-orange-600"
               onClick={onClose}
             >
-              로그인하고 월 10회 무료 시작 →
+              로그인하고 월 {KR_FREE_ACCOUNT_MONTHLY_SEARCH_LIMIT}회 무료 시작 →
             </Link>
           )}
 
           <Link
-            href="/billing"
+            href="/#waitlist"
             className="block w-full rounded-xl bg-[#0D1B2A] px-4 py-3.5 text-center text-sm font-black text-white hover:bg-slate-800"
             onClick={onClose}
           >
-            {isLoggedIn ? '플랜 업그레이드 →' : '요금제 보기'}
+            국내 유료 서비스 출시 알림 신청 →
           </Link>
 
           <button
@@ -67,7 +62,7 @@ export default function UpgradeModal({ onClose }: UpgradeModalProps) {
         </div>
 
         <p className="mt-5 text-center text-xs text-slate-400">
-          {PLAN_QUOTA_SUMMARY}
+          한국 서비스는 현재 무료 베타이며 결제를 받지 않습니다.
         </p>
       </div>
     </div>

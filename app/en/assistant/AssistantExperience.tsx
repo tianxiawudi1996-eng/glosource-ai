@@ -13,7 +13,16 @@ type Verification = {
   activeBusiness: boolean | null;
 };
 type Message = { role: 'user' | 'assistant'; content: string; verification?: Verification | null };
-type SearchAction = { product: string; quantity: string; country: 'korea' | 'china'; buyerCountry: string };
+type SearchAction = { product: string; quantity: string; country: 'korea'; buyerCountry: string };
+
+function parseSearchAction(value: unknown): SearchAction | null {
+  if (!value || typeof value !== 'object') return null;
+  const action = value as Record<string, unknown>;
+  if (typeof action.product !== 'string' || typeof action.quantity !== 'string' || typeof action.buyerCountry !== 'string') return null;
+  return action.country === 'korea'
+    ? { product: action.product, quantity: action.quantity, country: 'korea', buyerCountry: action.buyerCountry }
+    : null;
+}
 
 const STARTERS = [
   'Find Korean private-label sunscreen manufacturers for 5,000 units',
@@ -82,13 +91,13 @@ export default function AssistantExperience() {
 
   async function searchSuppliers(action: SearchAction) {
     setQuery(action.product);
-    const response = await fetch('/api/source', {
+    const response = await fetch('/api/en/source', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         productDescription: action.product,
         quantity: action.quantity || '1000',
-        countryPreference: action.country,
+        countryPreference: 'korea',
         orderFrequency: 'one_time',
         outputLanguage: 'en',
         buyerCountry: (action.buyerCountry || 'GLOBAL') as BuyerCountry,
@@ -114,8 +123,17 @@ export default function AssistantExperience() {
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data?.reply || 'The assistant is unavailable.');
-      setMessages((current) => [...current, { role: 'assistant', content: data.reply || 'I found a next step.', verification: data.verification ?? null }]);
-      if (data.action?.type === 'search') await searchSuppliers(data.action.params as SearchAction);
+      const rawAction = data.action?.type === 'search' ? data.action.params : undefined;
+      const action = parseSearchAction(rawAction);
+      const actionWasRejected = data.action?.type === 'search' && !action;
+      setMessages((current) => [...current, {
+        role: 'assistant',
+        content: actionWasRejected
+          ? 'The global service currently searches Korean suppliers only. Please ask for Korean suppliers or a Korean manufacturer.'
+          : (data.reply || 'I found a next step.'),
+        verification: data.verification ?? null,
+      }]);
+      if (action) await searchSuppliers(action);
     } catch (error) {
       // Surface controlled API messages (rate limit, quota, etc.) but never a raw network/stack string.
       const raw = error instanceof Error ? error.message : '';
@@ -129,8 +147,8 @@ export default function AssistantExperience() {
   }
 
   const free = result?.access?.plan === 'free';
-  const visible = free ? result?.suppliers.slice(0, 3) : result?.suppliers;
-  const hiddenCount = free ? Math.max(0, (result?.suppliers.length ?? 0) - 3) : 0;
+  const visible = result?.suppliers;
+  const hiddenCount = free ? result?.access?.hiddenSupplierCount ?? 0 : 0;
 
   return (
     <div className="mx-auto grid max-w-6xl gap-6 px-4 py-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:px-6">

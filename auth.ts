@@ -7,7 +7,8 @@ import bcrypt from 'bcryptjs';
 import { db, users, subscriptions } from '@/app/lib/db';
 import { checkLoginRateLimit } from '@/app/lib/loginRateLimit';
 import { isPasswordSessionInvalidated } from '@/app/lib/session-security';
-import { and, eq, gt } from 'drizzle-orm';
+import { resolveSurfacePlans } from '@/app/lib/product-contracts';
+import { and, desc, eq, gt } from 'drizzle-orm';
 
 // [C-3] bcrypt 기반 해싱 — SHA-256(legacy) 대비 GPU 브루트포스 저항
 export async function hashPassword(plain: string): Promise<string> {
@@ -103,8 +104,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         // [H-1] 구독 상태를 JWT 캐시 대신 DB에서 실시간 검증
         const now = new Date();
-        const [sub] = await db
-          .select()
+        const activeSubscriptions = await db
+          .select({
+            plan: subscriptions.plan,
+            polarSubscriptionId: subscriptions.polarSubscriptionId,
+          })
           .from(subscriptions)
           .where(
             and(
@@ -113,10 +117,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               gt(subscriptions.currentPeriodEnd, now),
             ),
           )
-          .limit(1);
+          .orderBy(desc(subscriptions.updatedAt));
 
-        session.user.plan = sub?.plan ?? 'free';
-        session.user.subscriptionStatus = sub?.status ?? null;
+        const plans = resolveSurfacePlans(activeSubscriptions);
+        session.user.plans = plans;
+        session.user.subscriptionStatuses = {
+          kr: plans.kr === 'free' ? null : 'active',
+          en: plans.en === 'free' ? null : 'active',
+        };
+
+        // Kept for older consumers while route-specific code migrates to `plans`.
+        session.user.plan = plans.en !== 'free' ? plans.en : plans.kr;
+        session.user.subscriptionStatus = activeSubscriptions.length > 0 ? 'active' : null;
       }
       return session;
     },

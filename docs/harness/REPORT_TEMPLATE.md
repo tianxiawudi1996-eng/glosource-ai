@@ -9,6 +9,9 @@
 - ID:
 - Name:
 - Selected from: `docs/harness/TASK_QUEUE.md`
+- Lifecycle run / phase:
+- Phase prompt:
+- Phase completion report: 생성된 경우에만 경로 기록
 
 ## 2. 오늘 완료한 일
 

@@ -1,9 +1,15 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+
 import { trackShortlistCta } from '@/app/lib/analytics';
+import {
+  KR_ANONYMOUS_DAILY_SEARCH_LIMIT,
+  KR_FREE_RESULT_PREVIEW_COUNT,
+} from '@/app/lib/free-plan';
 import HaeryeText from '@/app/en/HaeryeText';
 import YetGlyph from '@/app/en/YetHangul';
-import { DancheongBand, GiwaEaves, SumaksaeRosette } from '@/app/en/KoreanOrnaments';
+import { SumaksaeRosette } from '@/app/en/KoreanOrnaments';
 
 interface HeroSectionProps {
   lang?: 'ko' | 'en';
@@ -15,12 +21,12 @@ const copy = {
     h1: 'GloSource AI',
     h1sub: '공급자 후보 AI 매칭',
     desc: '1688 · Baidu 爱采购 · Alibaba · WeChat 후보를 비교하고, 발주 전 공급자 리스크와 RFQ 질문 리스트를 정리합니다.',
-    cta1: '무료 5회 체험 시작 →',
-    cta2: '요금제 보기',
+    cta1: `무료 ${KR_ANONYMOUS_DAILY_SEARCH_LIMIT}회 체험 시작 →`,
+    cta2: '무료 샘플 보기',
     note: 'GloSource AI는 납품 대행사가 아닙니다. 공급자 후보 발굴, 비교 분석, RFQ 준비까지 지원합니다.',
-    features: ['공장 후보 3~5개 자동 탐색', '사업자·리스크 신뢰도 분석', 'RFQ 이메일 자동 생성', '예상 원가·MOQ 비교 리포트'],
+    features: [`공장 후보 3~5개 탐색 · 무료 ${KR_FREE_RESULT_PREVIEW_COUNT}개 미리보기`, '사업자·리스크 신뢰도 분석', 'RFQ 이메일 자동 생성', '예상 원가·MOQ 비교 리포트'],
     stats: [
-      { num: '3~5개', label: '공급자 자동 탐색' },
+      { num: `${KR_FREE_RESULT_PREVIEW_COUNT}개`, label: '무료 결과 미리보기' },
       { num: '~90초', label: '평균 분석 소요 시간' },
       { num: '0~100', label: '공급자 리스크 점수' },
       { num: '3단계', label: '검색·검증·RFQ 매칭' },
@@ -61,6 +67,168 @@ const HUNMIN_WATERMARK_GLYPHS = [
   'ㄱ', 'ㅡ', 'ㅅ', 'ㅓ', 'ㅂ', 'ㅏ', 'ㅇ', 'ㄷ',
 ] as const;
 
+type Season = 'spring' | 'summer' | 'autumn' | 'winter';
+
+const SEASON_CONFIG: Record<Season, {
+  label: string;
+  image: string;
+  greeting: string;
+  palette: string;
+}> = {
+  spring: {
+    label: '봄 · 벚꽃과 민트빛 단청',
+    image: '/images/glosource-hero-gyeongbokgung-spring.png',
+    greeting: '새로운 연결을 시작해요',
+    palette: '#A7DCCF',
+  },
+  summer: {
+    label: '여름 · 연꽃과 푸른 정원',
+    image: '/images/glosource-hero-gyeongbokgung-summer.png',
+    greeting: '맑은 기회가 피어납니다',
+    palette: '#83D7C1',
+  },
+  autumn: {
+    label: '가을 · 은행나무와 황금빛',
+    image: '/images/glosource-hero-gyeongbokgung-autumn.png',
+    greeting: '좋은 바이어를 만나보세요',
+    palette: '#F1C46A',
+  },
+  winter: {
+    label: '겨울 · 설경과 쪽빛 온기',
+    image: '/images/glosource-hero-gyeongbokgung-winter.png',
+    greeting: '차분하게 다음 시장을 준비해요',
+    palette: '#C8E8FF',
+  },
+};
+
+const SEASONS: Season[] = ['spring', 'summer', 'autumn', 'winter'];
+const EN_HERO_IMAGE = '/images/korea-journey/seoul-gyeongbokgung.png';
+const HOST_POSES = ['맞이하기', '손짓하기', '두 손 모으기', '손 하트', '고개 인사', '가리키기', '손바닥 안내', '한 발 내딛기', '소매 살짝 들기', '정면 미소'] as const;
+const HOST_EXPRESSIONS = ['환한 미소', '다정한 미소', '호기심', '자신감', '안도감', '기대감', '감탄', '집중', '따뜻한 눈빛', '반가움'] as const;
+
+const KOREAN_HOST_STATES = HOST_POSES.flatMap((pose, poseIndex) =>
+  HOST_EXPRESSIONS.map((expression, expressionIndex) => ({
+    id: poseIndex * HOST_EXPRESSIONS.length + expressionIndex + 1,
+    pose,
+    expression,
+    label: `${pose} · ${expression}`,
+    offsetX: ((poseIndex % 5) - 2) * 1.4,
+    offsetY: ((expressionIndex % 5) - 2) * 0.8,
+    rotate: ((poseIndex + expressionIndex) % 5) - 2,
+  })),
+);
+
+function monthToSeason(month: number): Season {
+  if (month >= 2 && month <= 4) return 'spring';
+  if (month >= 5 && month <= 7) return 'summer';
+  if (month >= 8 && month <= 10) return 'autumn';
+  return 'winter';
+}
+
+function nextSeason(season: Season): Season {
+  return SEASONS[(SEASONS.indexOf(season) + 1) % SEASONS.length];
+}
+
+/**
+ * KR keeps its seasonal host experience. EN uses a single architectural
+ * Gyeongbokgung scene so Korean origin is visible without competing with the
+ * sourcing proposition and registry evidence.
+ */
+function SeasonalHeroCover({ lang }: { lang: 'ko' | 'en' }) {
+  const [season, setSeason] = useState<Season>('spring');
+  const [stateIndex, setStateIndex] = useState(0);
+
+  useEffect(() => {
+    if (lang === 'en') return;
+    const monthTimer = window.setTimeout(() => {
+      setSeason(monthToSeason(new Date().getMonth()));
+    }, 0);
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduceMotion) return () => window.clearTimeout(monthTimer);
+
+    const seasonTimer = window.setInterval(() => {
+      setSeason((current) => nextSeason(current));
+    }, 18000);
+    return () => {
+      window.clearTimeout(monthTimer);
+      window.clearInterval(seasonTimer);
+    };
+  }, [lang]);
+
+  useEffect(() => {
+    if (lang === 'en') return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const hostTimer = window.setInterval(() => {
+      setStateIndex((current) => (current + 1) % KOREAN_HOST_STATES.length);
+    }, 3600);
+    return () => window.clearInterval(hostTimer);
+  }, [lang]);
+
+  const config = SEASON_CONFIG[season];
+  const hostState = KOREAN_HOST_STATES[stateIndex];
+  const coverImage = lang === 'en' ? EN_HERO_IMAGE : config.image;
+  const style = {
+    '--host-x': `${hostState.offsetX}px`,
+    '--host-y': `${hostState.offsetY}px`,
+    '--host-rotate': `${hostState.rotate}deg`,
+    '--season-accent': config.palette,
+    backgroundImage: `linear-gradient(90deg, rgba(9, 25, 38, 0.9) 0%, rgba(9, 25, 38, 0.7) 28%, rgba(9, 25, 38, 0.24) 62%, rgba(9, 25, 38, 0.1) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(9, 25, 38, 0.2) 100%), url('${coverImage}')`,
+  } as React.CSSProperties;
+
+  const landmarkLabel = lang === 'en'
+    ? { kicker: 'SEOUL · 서울', name: 'Gyeongbokgung · 경복궁' }
+    : { kicker: '서울 · SEOUL', name: '경복궁 · Gyeongbokgung' };
+
+  return (
+    <div
+      className="gs-seasonal-stage absolute inset-0 z-0"
+      data-lang={lang}
+      data-season={lang === 'ko' ? season : undefined}
+      data-scene={lang === 'en' ? 'gyeongbokgung-architecture' : undefined}
+      data-host-state={lang === 'ko' ? hostState.id : undefined}
+      data-host-pose={lang === 'ko' ? hostState.pose : undefined}
+      data-host-expression={lang === 'ko' ? hostState.expression : undefined}
+      data-motion-mode={lang === 'en' ? 'static' : 'ambient'}
+      aria-label={lang === 'en'
+        ? `${landmarkLabel.name}. Clear-day architectural view of the palace.`
+        : `${landmarkLabel.name}. ${config.label}. ${hostState.label}`}
+    >
+      <div key={season} aria-hidden="true" className="gs-hero-cover gs-seasonal-cover absolute inset-0" style={style} />
+      <div aria-hidden="true" className="gs-seasonal-light absolute inset-0" />
+      <div className="gs-landmark-label absolute left-5 top-5 z-10 sm:left-8 sm:top-8" aria-hidden="true">
+        <span className="gs-landmark-label-kicker">{landmarkLabel.kicker}</span>
+        <span className="gs-landmark-label-name">{landmarkLabel.name}</span>
+      </div>
+      {lang === 'ko' && (
+        <div className="gs-host-welcome absolute bottom-5 right-5 z-10 sm:bottom-8 sm:right-8">
+          <span className="gs-host-welcome-orbit" aria-hidden="true" />
+          <span className="gs-host-welcome-copy">
+            <span className="gs-host-welcome-kicker">GloSource AI · {String(hostState.id).padStart(2, '0')} / 100</span>
+            <span className="gs-host-welcome-text">{config.greeting}</span>
+            <span className="sr-only">현재 환영 상태: {hostState.label}</span>
+          </span>
+        </div>
+      )}
+      {lang === 'ko' && (
+        <div className="gs-season-switcher absolute right-5 top-5 z-10 sm:right-8 sm:top-8" aria-label="경복궁 계절 배경 선택">
+          {SEASONS.map((item) => (
+            <button
+              key={item}
+              type="button"
+              aria-label={`${SEASON_CONFIG[item].label} 배경 보기`}
+              aria-pressed={season === item}
+              className="gs-season-dot"
+              data-active={season === item ? 'true' : 'false'}
+              style={{ '--dot-color': SEASON_CONFIG[item].palette } as React.CSSProperties}
+              onClick={() => setSeason(item)}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function HunminjeongeumWatermark() {
   return (
     <div aria-hidden="true" className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -83,50 +251,6 @@ function HunminjeongeumWatermark() {
         <YetGlyph char="hwa" className="absolute left-24 top-24 h-32 w-32 text-[#8F3A26]/20" />
       </div>
     </div>
-  );
-}
-
-function HanokHeroCanopy() {
-  return (
-    <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 text-[#050B12]">
-      <svg viewBox="0 0 1440 128" preserveAspectRatio="none" className="block h-24 w-full sm:h-28">
-        <path
-          d="M0 0H1440V36C1216 28 1051 38 884 60C681 87 443 116 0 72V0Z"
-          fill="currentColor"
-          opacity={0.86}
-        />
-        <path
-          d="M0 60C238 92 467 91 695 66C925 40 1136 16 1440 36"
-          fill="none"
-          stroke="#B89A4A"
-          strokeWidth={2}
-          opacity={0.75}
-        />
-        <path
-          d="M0 72C262 111 523 104 765 72C986 43 1189 31 1440 58"
-          fill="none"
-          stroke="#8F3A26"
-          strokeWidth={1.4}
-          opacity={0.55}
-        />
-      </svg>
-      <GiwaEaves className="-mt-1 h-7 opacity-95" />
-    </div>
-  );
-}
-
-function DancheongFrame() {
-  return (
-    <>
-      <div aria-hidden="true" className="absolute inset-x-0 top-0 z-[1] opacity-95">
-        <DancheongBand className="border-b border-[#B89A4A]/30" />
-      </div>
-      <div aria-hidden="true" className="absolute bottom-0 left-0 right-0 z-[1] opacity-90">
-        <DancheongBand className="border-t border-[#B89A4A]/30" />
-      </div>
-      <div aria-hidden="true" className="gs-dancheong-side absolute bottom-5 left-0 top-5 z-[1] hidden w-5 opacity-80 md:block" />
-      <div aria-hidden="true" className="gs-dancheong-side absolute bottom-5 right-0 top-5 z-[1] hidden w-5 opacity-80 md:block" />
-    </>
   );
 }
 
@@ -180,7 +304,7 @@ function EnVerificationMockPanel() {
             </div>
             <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-emerald-500/15 border border-emerald-400/30 px-2 py-0.5 text-[10px] font-black text-emerald-300">
               <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-              Gov-Verified
+              Registry Match
             </span>
           </div>
 
@@ -357,14 +481,21 @@ export default function HeroSection({ lang = 'ko' }: HeroSectionProps) {
   };
 
   return (
-    <section className="relative overflow-hidden bg-[#0D1B2A] text-white">
-      {lang === 'en' && (
-        <>
-          <DancheongFrame />
-          <HanokHeroCanopy />
-          <HunminjeongeumWatermark />
-        </>
-      )}
+    <section
+      className={`gs-hero relative overflow-hidden bg-[#0D1B2A] text-white ${lang === 'en' ? 'gs-hero-lang-en' : 'gs-hero-lang-ko'}`}
+      data-lang={lang}
+      data-style-dna="atelier-dancheong-journey"
+      data-cultural-density={lang === 'en' ? 'restrained' : 'expressive'}
+      data-en-balance={lang === 'en' ? 'hero:mixed' : undefined}
+    >
+      {/* Seasonal Gyeongbokgung cover with a consistent Korean host companion. */}
+      <SeasonalHeroCover lang={lang} />
+      <div className="gs-hero-ornament" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+      </div>
+      {lang === 'en' && <HunminjeongeumWatermark />}
       {/* dot-grid background — trails the page scroll for depth (extended so the
           parallax drift never exposes a gap at the edges) */}
       <div
@@ -387,11 +518,11 @@ export default function HeroSection({ lang = 'ko' }: HeroSectionProps) {
       {/* right glow — drifts and breathes so the hero has visible life at rest */}
       <div className="gs-hero-glow absolute -right-32 top-0 h-full w-[600px] rounded-full bg-[#EA580C]/10 blur-3xl pointer-events-none" />
 
-      <div className="relative z-10 max-w-6xl mx-auto px-6 py-20 sm:py-24 lg:py-28">
+      <div className="gs-hero-layout relative z-10 max-w-6xl mx-auto px-6 py-20 sm:py-24 lg:py-28">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-12 items-center">
 
           {/* LEFT — copy */}
-          <div>
+          <div className="gs-hero-copy">
             {lang === 'en' && (
               <div className="gs-fade-up mb-5 flex items-center gap-3 text-[#B89A4A]">
                 <span className="h-px w-12 bg-current" />
@@ -451,7 +582,7 @@ export default function HeroSection({ lang = 'ko' }: HeroSectionProps) {
               </div>
             )}
 
-            <div className="gs-fade-up gs-delay-4 grid grid-cols-2 sm:grid-cols-4 gap-6 border-t border-white/10 pt-8">
+            <div className="gs-hero-stats gs-fade-up gs-delay-4 grid grid-cols-2 sm:grid-cols-4 gap-6 border-t border-white/10 pt-8">
               {c.stats.map(s => (
                 <div key={s.num}>
                   <p className="text-2xl font-black text-white">{s.num}</p>
@@ -462,7 +593,7 @@ export default function HeroSection({ lang = 'ko' }: HeroSectionProps) {
           </div>
 
           {/* RIGHT — hero visual (floats gently; entrance stays on the inner card) */}
-          <div className="gs-hero-float block">
+          <div className="gs-hero-float gs-face-safe-panel gs-hero-proof-panel block">
             {lang === 'en' ? (
               <EnVerificationMockPanel />
             ) : (

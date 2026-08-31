@@ -57,7 +57,7 @@ I've received your cancellation request and passed it to our billing team. They'
 
 Before you go: was there something specific that didn't work for you? Even a quick note helps me improve GloSource for others.
 
-You can always come back — the 5 free searches are always available at glosourceai.com/en.
+You can always come back — the 3 free searches are always available at glosourceai.com/en.
 
 Best,
 Vision @ GloSource AI`,
@@ -591,7 +591,7 @@ GloSource AI is a Korean supplier discovery tool. Here's how it works:
 
 It's built for Amazon FBA sellers, K-beauty importers, and anyone who sources from Korea.
 
-5 free searches at glosourceai.com/en — no signup needed.
+3 free searches at glosourceai.com/en.
 
 Best,
 Vision @ GloSource AI`,
@@ -683,11 +683,11 @@ Vision @ GloSource AI`,
   {
     id: 'free_plan_limit',
     category: 'billing',
-    triggers: ['free searches used', 'limit reached', 'no more free', 'used all 5', 'out of free searches', 'exceeded limit'],
+    triggers: ['free searches used', 'limit reached', 'no more free', 'used all 3', 'out of free searches', 'exceeded limit'],
     tone: 'informative',
     response: `Hi {{name}},
 
-You've used all 5 free searches! To continue, you can upgrade to a paid plan:
+You've used all 3 free searches! To continue, you can upgrade to a paid plan:
 
 • **Starter** ($39/mo) — 40 searches/month = ~$0.98/search
 • **Pro** ($99/mo) — 100 searches/month = ~$0.99/search
@@ -738,7 +738,7 @@ Great question — verification is the heart of GloSource. For each Korean suppl
 • Health-functional-food & quasi-drug (의약외품) makers
 • National Tax Service — a live check that the business is still active (계속사업자)
 
-When a supplier matches, you'll see a green "Gov-Verified" panel with the exact facts. AI-guessed signals are kept separate and clearly labeled "unverified." Always confirm details directly with the supplier before ordering.
+When a supplier matches, you'll see a green "Registry Match" panel with the exact facts. AI-guessed signals are kept separate and clearly labeled "unverified." A registry match is evidence, not an endorsement; always confirm details directly with the supplier before ordering.
 
 Best,
 Vision @ GloSource AI`,
@@ -878,7 +878,7 @@ Vision @ GloSource AI`,
 
 Here's how to judge a specific supplier with GloSource:
 
-1. Check for the green "Gov-Verified" panel — a government-registry match is the strongest signal.
+1. Check for the green "Registry Match" panel — a government-registry match is the strongest evidence signal.
 2. Look for "Active business — live NTS check" (a currently-operating, tax-registered company).
 3. Note whether it's a MANUFACTURER vs a brand/distributor.
 4. Watch for any red flags.
@@ -913,7 +913,7 @@ Vision @ GloSource AI`,
 
 When you enter a product, GloSource uses AI search grounding to find Korean supplier candidates across public B2B sources (EC21, BuyKorea/KOTRA, tradeKorea/KITA), then cross-checks each candidate against Korean government registries and a live tax-office status check.
 
-You get a shortlist with: government-verified signals (where matched), an AI trust score, estimated price/MOQ, and a ready-to-send English RFQ draft. It's research that compresses days of sourcing into ~90 seconds — you still confirm commercial terms directly with the supplier.
+You get a shortlist with: government-registry match evidence (where matched), an AI trust score, estimated price/MOQ, and a ready-to-send English RFQ draft. It's research that compresses days of sourcing into ~90 seconds — you still confirm commercial terms directly with the supplier.
 
 Best,
 Vision @ GloSource AI`,
@@ -1257,7 +1257,7 @@ Vision @ GloSource AI`,
 
 Yes — contact 3–5 suppliers from your shortlist. Getting multiple quotes lets you compare price, MOQ, lead time, and responsiveness, and gives you negotiating leverage.
 
-Prioritize the government-verified, active-business suppliers first. Send each a tailored RFQ (ours pre-fills the details), then shortlist the 1–2 most responsive for samples.
+Prioritize candidates with government-registry matches and active-business evidence first. Send each a tailored RFQ (ours pre-fills the details), then shortlist the 1–2 most responsive for samples.
 
 Best,
 Vision @ GloSource AI`,
@@ -1388,7 +1388,7 @@ Vision @ GloSource AI`,
     tone: 'informative',
     response: `Hi {{name}},
 
-Yes — you can start free. Free includes a limited number of searches with basic government-verification results, so you can see real Korean suppliers before paying. Contact details, full evidence, and RFQ export unlock on a paid plan.
+Yes — you can start free. Free includes a limited number of searches with basic government-registry match results, so you can review Korean supplier candidates before paying. Contact details, full evidence, and RFQ export unlock on a paid plan.
 
 No Korean business entity is required to use GloSource. Create a free account at glosourceai.com/en/register and try a search.
 
@@ -1574,7 +1574,7 @@ Vision @ GloSource AI`,
 
 Fair question to ask of any new tool. GloSource is a sourcing-research platform: we surface Korean supplier candidates and back them with REAL Korean government data (MFDS, HACCP, medical-device registries) plus a live National Tax Service business-status check. We're transparent about what's verified vs AI-estimated.
 
-We don't take your money for orders or hold your goods — you transact directly with suppliers. Try the free tier and see the government-verified results for yourself.
+We don't take your money for orders or hold your goods — you transact directly with suppliers. Try the free tier and review the registry-match evidence for yourself.
 
 Best,
 Vision @ GloSource AI`,
@@ -1637,7 +1637,7 @@ Vision @ GloSource AI`,
 
 GloSource is built for international buyers sourcing Korean products — indie brands, importers, distributors, retailers, and agencies — whether you're placing your first OEM order or sourcing at scale.
 
-You don't need a Korean entity, and you can start free. If you're evaluating Korean suppliers and want government-verified signals before you commit, you're exactly who we built this for. What are you looking to source?
+You don't need a Korean entity, and you can start free. If you're evaluating Korean suppliers and want government-registry evidence before you commit, you're exactly who we built this for. What are you looking to source?
 
 Best,
 Vision @ GloSource AI`,
@@ -1696,10 +1696,10 @@ Welcome! Here's the fastest path:
 
 1. Create a free account at glosourceai.com/en/register.
 2. Enter a product (e.g., "vegan facial serum, private-label").
-3. Review the shortlist — look for the green "Gov-Verified" panel and active-business signals.
+3. Review the shortlist — look for the green "Registry Match" panel and active-business signals.
 4. Send the pre-filled English RFQ to your top 3–5 suppliers, and request samples.
 
-That's it — verified Korean suppliers in about 90 seconds. Reply any time and I'll guide you. What are you sourcing first?
+That's it — Korean supplier candidates with registry-match evidence in about 90 seconds. Reply any time and I'll guide you. What are you sourcing first?
 
 Best,
 Vision @ GloSource AI`,

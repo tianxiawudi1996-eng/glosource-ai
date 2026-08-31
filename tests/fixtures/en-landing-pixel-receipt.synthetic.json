@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "1.1.0",
+  "route": "/en",
+  "sourceDigest": "df39b0efad7ce6c88f3f4e9996d4c798715ec49028ca34edba57e7d15e3558dd",
+  "viewport": { "width": 360, "height": 800 },
+  "measuredAt": "2026-08-25T00:00:00.000Z",
+  "regions": [
+    { "id": "hero", "role": "mixed", "top": 0, "height": 500, "width": 360 },
+    { "id": "registry", "role": "product", "top": 500, "height": 400, "width": 360 },
+    { "id": "categories", "role": "mixed", "top": 900, "height": 400, "width": 360 },
+    { "id": "journey", "role": "culture", "top": 1300, "height": 300, "width": 360 },
+    { "id": "problem", "role": "product", "top": 1600, "height": 300, "width": 360 },
+    { "id": "samples", "role": "product", "top": 1900, "height": 300, "width": 360 },
+    { "id": "tool", "role": "product", "top": 2200, "height": 500, "width": 360 },
+    { "id": "process", "role": "product", "top": 2700, "height": 300, "width": 360 },
+    { "id": "pricing", "role": "product", "top": 3000, "height": 500, "width": 360 },
+    { "id": "faq", "role": "product", "top": 3500, "height": 300, "width": 360 }
+  ]
+}

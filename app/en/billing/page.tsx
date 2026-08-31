@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { desc, eq } from 'drizzle-orm';
+import { and, desc, eq, isNotNull } from 'drizzle-orm';
 import Link from 'next/link';
 import { auth } from '@/auth';
 import { db, payments, subscriptions } from '@/app/lib/db';
@@ -50,12 +50,18 @@ export default async function EnBillingPage({
 
   const userId = session.user.id;
   const [subscriptionRows, paymentRows] = await Promise.all([
-    db.select().from(subscriptions).where(eq(subscriptions.userId, userId)).limit(1),
-    db.select().from(payments).where(eq(payments.userId, userId)).orderBy(desc(payments.createdAt)).limit(20),
+    db.select().from(subscriptions).where(and(
+      eq(subscriptions.userId, userId),
+      isNotNull(subscriptions.polarSubscriptionId),
+    )).orderBy(desc(subscriptions.updatedAt)).limit(1),
+    db.select().from(payments).where(and(
+      eq(payments.userId, userId),
+      isNotNull(payments.polarPaymentId),
+    )).orderBy(desc(payments.createdAt)).limit(20),
   ]);
 
   const subscription = subscriptionRows[0];
-  const currentPlan = subscription?.plan ?? session.user.plan ?? 'free';
+  const currentPlan = subscription?.plan ?? session.user.plans?.en ?? 'free';
   const hasActivePolarSub = subscription?.status === 'active' && Boolean(subscription.polarSubscriptionId);
 
   const planDisplayName = currentPlan === 'enterprise' ? 'Business'

@@ -1,7 +1,12 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
-import { extractTrustedIp, kvConsumeFreeCredit } from '../../../lib/kv';
-import { checkAuthAndQuota, logUsage } from '../../../lib/authMiddleware';
+import { extractTrustedIp } from '../../../lib/kv';
+import {
+  checkAuthAndQuota,
+  finalizeQuotaUsage,
+  releaseQuotaReservation,
+  type QuotaReservation,
+} from '../../../lib/authMiddleware';
 
 export const maxDuration = 30;
 
@@ -22,6 +27,8 @@ const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
 
 export async function POST(request: NextRequest) {
   const start = Date.now();
+  let quotaReservation: QuotaReservation | null = null;
+  let quotaFinalized = false;
   try {
     const formData = await request.formData();
     const file = formData.get('image') as File | null;
@@ -36,9 +43,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '이미지 크기는 10MB 이하여야 합니다.' }, { status: 400 });
     }
 
-    const authResult = await checkAuthAndQuota(request, 'image_analyze');
+    const authResult = await checkAuthAndQuota(request, 'image_analyze', 'kr');
     if (!authResult.ok) return authResult.response;
     const { userId } = authResult;
+    quotaReservation = authResult.quotaReservation;
     const ip = extractTrustedIp(request.headers);
 
     const bytes = await file.arrayBuffer();
@@ -89,16 +97,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    logUsage(userId, ip, 'image_analyze', data.productNameKo, undefined, Date.now() - start).catch(() => {});
-
-    // Anonymous users: consume a free daily credit only on a successful analysis,
-    // matching the sourcing route. image_analyze is now billable, so logged-in
-    // usage is metered via the monthly quota count in checkAuthAndQuota.
-    if (!userId) kvConsumeFreeCredit(ip).catch(() => {});
+    await finalizeQuotaUsage(quotaReservation, {
+      userId,
+      ip,
+      surface: 'kr',
+      action: 'image_analyze',
+      product: data.productNameKo,
+      durationMs: Date.now() - start,
+    });
+    quotaFinalized = true;
 
     return NextResponse.json({ success: true, data });
   } catch (e) {
     const message = e instanceof Error ? e.message : '이미지 분석 중 오류가 발생했습니다.';
     return NextResponse.json({ error: message }, { status: 500 });
+  } finally {
+    if (!quotaFinalized) await releaseQuotaReservation(quotaReservation);
   }
 }

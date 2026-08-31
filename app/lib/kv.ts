@@ -1,4 +1,5 @@
 import { Redis } from '@upstash/redis';
+import type { ProductSurface } from './product-contracts';
 
 export interface HistoryEntry {
   id: string;
@@ -26,7 +27,6 @@ const HISTORY_KEY = 'glosource:history';
 const LEADS_KEY = 'glosource:leads';
 const MAX_ENTRIES = 200;
 const MAX_LEADS = 500;
-const FREE_DAILY_LIMIT = 5; // Anonymous successful sourcing searches per day. Signup gets monthly quota.
 
 function getRedis(): Redis | null {
   if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
@@ -96,47 +96,9 @@ export function extractTrustedIp(
   return 'unknown';
 }
 
-function freeCreditKey(ip: string): string {
+export function freeCreditKey(ip: string, surface: ProductSurface): string {
   const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-  return `glosource:free:${ip}:${today}`;
-}
-
-// Returns true if the IP is still under the anonymous free limit. This does not
-// consume credit; failed validation, model timeouts, and parse failures should
-// not burn a user's trial search.
-export async function kvCheckFreeCredit(ip: string): Promise<boolean> {
-  const redis = getRedis();
-  if (!redis) {
-    const allowLocalFallback = process.env.NODE_ENV !== 'production';
-    if (!allowLocalFallback) {
-      console.warn('[KV] Redis is not configured; blocking anonymous free credit in production.');
-    }
-    return allowLocalFallback;
-  }
-
-  try {
-    const count = await redis.get<number>(freeCreditKey(ip));
-    return Number(count ?? 0) < FREE_DAILY_LIMIT;
-  } catch (e) {
-    console.warn('[KV] free credit check failed; blocking anonymous request:', e instanceof Error ? e.message : String(e));
-    return false;
-  }
-}
-
-// Consume credit only after a successful anonymous sourcing result.
-export async function kvConsumeFreeCredit(ip: string): Promise<void> {
-  const redis = getRedis();
-  if (!redis) return;
-
-  const key = freeCreditKey(ip);
-  try {
-    const count = await redis.incr(key);
-    if (count === 1) {
-      await redis.expire(key, 86400); // TTL 24h
-    }
-  } catch (e) {
-    console.warn('[KV] free credit consume failed:', e instanceof Error ? e.message : String(e));
-  }
+  return `glosource:free:${surface}:${ip}:${today}`;
 }
 
 // Fixed-window rate limit backed by Redis so the count is shared across all

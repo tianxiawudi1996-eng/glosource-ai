@@ -13,7 +13,7 @@ interface PortalShellProps {
 const navItems = [
   { key: 'dashboard', href: '/dashboard', label: '대시보드', icon: Icon.Search },
   { key: 'account', href: '/account', label: '내 계정', icon: Icon.User },
-  { key: 'billing', href: '/billing', label: '구독 관리', icon: Icon.Download },
+  { key: 'billing', href: '/#waitlist', label: '출시 알림', icon: Icon.Download },
   { key: 'admin', href: '/admin', label: '어드민', icon: Icon.Shield },
   { key: 'emails', href: '/emails', label: '이메일 템플릿', icon: Icon.Mail },
 ] as const;

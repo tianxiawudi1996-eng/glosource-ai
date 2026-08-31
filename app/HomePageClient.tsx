@@ -12,12 +12,18 @@ import UpgradeModal from './components/UpgradeModal';
 import TrustCredibility from './components/TrustCredibility';
 import WeChatCard from './components/WeChatCard';
 import HeroSection from './components/HeroSection';
+import KoreaJourneySection from './components/KoreaJourneySection';
 import { SupplierComparisonTable, SupplierDetail } from './components/SupplierCard';
 import RFQComposer from './components/RFQComposer';
 import { Icon } from './components/icons';
 import type { Category } from './lib/categories';
 import type { SourcingRequest, SourcingOutput, Supplier, CountryPreference, OrderFrequency, WeChatSourcingOutput } from './api/source/types';
 import { trackSearch } from '@/app/lib/analytics';
+import {
+  KR_ANONYMOUS_DAILY_SEARCH_LIMIT,
+  KR_FREE_ACCOUNT_MONTHLY_SEARCH_LIMIT,
+  KR_FREE_RESULT_PREVIEW_COUNT,
+} from '@/app/lib/free-plan';
 
 type SourceMode = 'ai' | '1688' | 'wechat' | 'image';
 
@@ -36,6 +42,8 @@ interface ImageAnalysis {
 ══════════════════════════════════════════════ */
 const HISTORY_KEY = 'glosource_search_history';
 const HISTORY_MAX = 50;
+const ANONYMOUS_CONSENT_REQUIRED_ERROR =
+  '이용약관과 개인정보처리방침에 동의해주세요.';
 
 function saveToHistory(entry: {
   timestamp: string;
@@ -53,7 +61,6 @@ function saveToHistory(entry: {
 
 const COUNTRY_OPTIONS: { value: CountryPreference; label: string; desc: string }[] = [
   { value: 'china', label: '중국', desc: '1688·Alibaba 직접 탐색' },
-  { value: 'korea', label: '한국', desc: 'EC21·BuyKorea·tradeKorea' },
 ];
 
 const FREQUENCY_OPTIONS: { value: OrderFrequency; label: string; desc: string }[] = [
@@ -171,7 +178,7 @@ function generateReportHTML(result: SourcingOutput, req: SourcingRequest, compan
    메인 컴포넌트
 ══════════════════════════════════════════════ */
 export default function HomePage() {
-  const { data: session } = useSession();
+  const { data: session, status: sessionStatus } = useSession();
   const [form, setForm] = useState<SourcingRequest>({
     productDescription: '',
     quantity: '',
@@ -197,9 +204,20 @@ export default function HomePage() {
   const [imageAnalyzing, setImageAnalyzing] = useState(false);
   const [imageDragOver, setImageDragOver] = useState(false);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [anonymousTermsAccepted, setAnonymousTermsAccepted] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const resultRef = useRef<HTMLDivElement>(null);
   const loadingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const anonymousConsentRequired =
+    sessionStatus !== 'authenticated' && !anonymousTermsAccepted;
+  const anonymousConsentRequiredRef = useRef(anonymousConsentRequired);
+  anonymousConsentRequiredRef.current = anonymousConsentRequired;
+
+  const blockAnonymousSearchWithoutConsent = (): boolean => {
+    if (!anonymousConsentRequiredRef.current) return false;
+    setError(ANONYMOUS_CONSENT_REQUIRED_ERROR);
+    return true;
+  };
 
   useEffect(() => {
     if (session?.user) {
@@ -231,6 +249,7 @@ export default function HomePage() {
   };
 
   const handleGenerate = async () => {
+    if (blockAnonymousSearchWithoutConsent()) return;
     if (activeSource === 'image' && !imageAnalysis) { setError('먼저 제품 이미지를 업로드해주세요.'); return; }
     if (!form.productDescription.trim()) { setError('제품/자재명을 입력해주세요.'); return; }
     if (activeSource !== 'wechat' && activeSource !== 'image' && !form.quantity.trim()) { setError('필요 수량을 입력해주세요.'); return; }
@@ -295,6 +314,10 @@ export default function HomePage() {
   };
 
   const handleImageFile = async (file: File) => {
+    if (blockAnonymousSearchWithoutConsent()) {
+      if (imageInputRef.current) imageInputRef.current.value = '';
+      return;
+    }
     setImageFile(file);
     setImagePreviewUrl(URL.createObjectURL(file));
     setImageAnalysis(null);
@@ -325,6 +348,7 @@ export default function HomePage() {
   };
 
   const handleGenerateWithProduct = async (productDescription: string) => {
+    if (blockAnonymousSearchWithoutConsent()) return;
     const currentForm: SourcingRequest = {
       productDescription,
       quantity: form.quantity || '1개',
@@ -391,7 +415,7 @@ export default function HomePage() {
       {showPaywall && <UpgradeModal onClose={() => setShowPaywall(false)} />}
 
       {/* ── 네비게이션 ── */}
-      <nav className="border-b border-slate-200 bg-white sticky top-0 z-40">
+      <nav className="gs-ko-nav border-b border-slate-200 bg-white sticky top-0 z-40" data-style-dna="atelier-dancheong">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-3">
           {/* 로고 */}
           <div className="flex items-center gap-2 flex-shrink-0">
@@ -412,7 +436,7 @@ export default function HomePage() {
               <>
                 {/* 플랜 뱃지 */}
                 <span className="hidden sm:inline-flex text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200 px-2.5 py-1.5 rounded-full capitalize">
-                  {session.user.plan ?? 'free'}
+                  {session.user.plans?.kr ?? 'free'}
                 </span>
                 {/* 대시보드 */}
                 <a
@@ -439,7 +463,7 @@ export default function HomePage() {
               </>
             ) : (
               <>
-                <span className="hidden sm:inline-flex text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-full">무료 5회 체험</span>
+                <span className="hidden sm:inline-flex text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-full">무료 {KR_ANONYMOUS_DAILY_SEARCH_LIMIT}회 체험</span>
                 <a
                   href="/auth/login"
                   className="min-h-[44px] flex items-center px-3 py-2 text-xs font-bold text-[#0D1B2A] border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
@@ -461,19 +485,23 @@ export default function HomePage() {
       {/* ── 히어로 ── */}
       <HeroSection lang="ko" />
 
+      {/* ── 대한민국 한 바퀴 비주얼 여정 ── */}
+      <KoreaJourneySection lang="ko" />
+
       {/* ── 베타 웨이트리스트 배너 ── */}
       <section className="max-w-2xl mx-auto w-full px-6 py-4">
         <WaitlistBanner />
       </section>
 
       {/* ── 신뢰 배지 바 ── */}
-      <section className="bg-white border-y border-slate-100">
+      <section className="gs-channel-strip bg-white border-y border-slate-100" data-style-dna="dancheong-atlas">
         <div className="max-w-6xl mx-auto px-6 py-5">
           <div className="flex flex-col sm:flex-row items-center gap-4">
             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap shrink-0">분석 대상 소싱 채널</p>
-            <div className="flex flex-wrap justify-center sm:justify-start gap-2">
-              {(['1688.com 诚信通', 'Baidu 爱采购', 'Made-in-China · Global Sources', 'WeChat 公众号'] as const).map(name => (
-                <span key={name} className="border border-slate-200 rounded-lg px-4 py-2 text-xs font-semibold text-slate-600 bg-slate-50">
+            <div className="gs-stagger flex flex-wrap justify-center sm:justify-start gap-2">
+              {(['1688.com 诚信通', 'Baidu 爱采购', 'Made-in-China · Global Sources', 'WeChat 公众号'] as const).map((name, index) => (
+                <span key={name} data-channel-index={index} className="gs-channel-chip border border-slate-200 rounded-lg px-4 py-2 text-xs font-semibold text-slate-600 bg-slate-50">
+                  <span className="gs-channel-index" aria-hidden="true">0{index + 1}</span>
                   {name}
                 </span>
               ))}
@@ -487,7 +515,7 @@ export default function HomePage() {
         <div className="max-w-5xl mx-auto px-6 py-6">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:divide-x sm:divide-white/10">
             {[
-              { before: '수동 검색', after: '~90초', label: '공급자 후보 3~5개 확보까지 (AI 보조)' },
+              { before: '수동 검색', after: '~90초', label: `3~5개 후보 탐색 · 무료 ${KR_FREE_RESULT_PREVIEW_COUNT}개 미리보기` },
               { before: '5개+ 탭', after: '검색 1번', label: '1688 · Alibaba · WeChat 동시 탐색' },
               { before: '직접 작성', after: '자동 생성', label: '영문·중문 RFQ 초안 즉시 준비' },
             ].map(({ before, after, label }) => (
@@ -713,7 +741,7 @@ export default function HomePage() {
               <div className="flex overflow-x-auto scrollbar-none border-b border-slate-100">
                 {([
                   { id: 'ai'     as SourceMode, label: 'AI 종합',    badge: '1688+Alibaba+WeChat' },
-                  { id: '1688'   as SourceMode, label: '1688 직거래',  badge: '원가 30~50% 절감' },
+                  { id: '1688'   as SourceMode, label: '1688 직거래',  badge: '공장가 신호 비교' },
                   { id: 'wechat' as SourceMode, label: 'WeChat',      badge: '공장 홍보 직접 탐색' },
                   { id: 'image'  as SourceMode, label: '사진 검색',   badge: 'AI 이미지 매칭' },
                 ] as const).map(tab => (
@@ -905,7 +933,7 @@ export default function HomePage() {
                       원산지 선호
                       <span className="ml-1 bg-slate-100 text-slate-400 text-[10px] px-2 py-0.5 rounded-full font-normal">현재 중국 집중 서비스</span>
                     </label>
-                    <div className="grid grid-cols-2 gap-1.5">
+                    <div className="grid grid-cols-1 gap-1.5">
                       {COUNTRY_OPTIONS.map(c => (
                         <button key={c.value} onClick={() => setForm({ ...form, countryPreference: c.value })}
                           className={`min-h-[44px] py-2.5 px-2 rounded-xl border text-center transition-all ${form.countryPreference === c.value ? 'bg-[#0D1B2A] border-[#0D1B2A] text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`}>
@@ -936,7 +964,38 @@ export default function HomePage() {
                   </div>
                 )}
 
-                <button onClick={handleGenerate} disabled={loading}
+                {sessionStatus !== 'authenticated' && (
+                  <div className="flex items-start gap-2.5 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-3">
+                    <input
+                      id="anonymous-search-consent"
+                      type="checkbox"
+                      checked={anonymousTermsAccepted}
+                      onChange={event => {
+                        setAnonymousTermsAccepted(event.target.checked);
+                        if (event.target.checked && error === ANONYMOUS_CONSENT_REQUIRED_ERROR) {
+                          setError('');
+                        }
+                      }}
+                      aria-describedby="anonymous-search-consent-copy"
+                      className="mt-0.5 h-4 w-4 shrink-0 rounded border-slate-300 text-[#EA580C] focus:ring-[#EA580C]"
+                    />
+                    <p id="anonymous-search-consent-copy" className="text-xs leading-relaxed text-slate-600">
+                      <label htmlFor="anonymous-search-consent" className="cursor-pointer">
+                        익명 검색을 시작하기 전에
+                      </label>{' '}
+                      <a href="/terms" target="_blank" rel="noreferrer" className="font-semibold text-[#0D1B2A] underline underline-offset-2">
+                        이용약관
+                      </a>
+                      과{' '}
+                      <a href="/privacy" target="_blank" rel="noreferrer" className="font-semibold text-[#0D1B2A] underline underline-offset-2">
+                        개인정보처리방침
+                      </a>
+                      을 확인했으며, AI 결과는 참고용이고 공급자 정보는 직접 검증해야 함에 동의합니다.
+                    </p>
+                  </div>
+                )}
+
+                <button onClick={handleGenerate} disabled={loading || anonymousConsentRequired}
                   className="w-full min-h-[44px] py-4 rounded-xl font-bold text-sm transition-all bg-[#EA580C] text-white hover:bg-[#DC4C00] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm">
                   {loading
                     ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />{LOADING_MESSAGES[activeSource][loadingMsg]}</>
@@ -1096,14 +1155,14 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── 활용 사례 시뮬레이션 ── */}
+      {/* ── 활용 사례 예시 ── */}
       <section className="bg-[#0D1B2A]">
         <div className="max-w-6xl mx-auto px-6 py-16">
           <div className="mb-10 text-center">
             <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-3">Use Cases</p>
-            <h2 className="text-3xl font-black leading-tight text-white">실제 소싱 시뮬레이션</h2>
+            <h2 className="text-3xl font-black leading-tight text-white">소싱 검토 예시 시나리오</h2>
             <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-slate-400">
-              GloSource AI가 실제 건자재·산업재 품목에서 어떤 결과를 도출했는지 확인하세요.
+              아래 카드는 실제 고객 성과나 확정 견적이 아닙니다. 품목별로 어떤 공급자 자료와 거래 조건을 확인해야 하는지 보여주는 예시입니다.
             </p>
           </div>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
@@ -1111,31 +1170,25 @@ export default function HomePage() {
               {
                 tag: '철강',
                 product: 'SD400 D16 철근 50ton',
-                suppliers: 4,
-                priceRange: '¥3,200~3,850/ton',
-                saving: 'Alibaba 대비 ~38% 절감',
-                moq: '20ton',
-                highlight: '诚信通 인증 공장 3개소, 韩国 수출 경험 포함',
+                supplierScope: '제조·수출 후보를 복수 채널에서 비교',
+                quoteChecks: '강종·수량별 단가, MOQ, 납기, 결제조건',
+                certificationChecks: '재질성적서와 적용 규격 원본 요청',
               },
               {
                 tag: '알루미늄',
                 product: '알루미늄 커튼월 프레임 6063-T5',
-                suppliers: 3,
-                priceRange: '¥28~41/kg',
-                saving: '국내 수입 대비 ~45% 절감',
-                moq: '500kg',
-                highlight: 'OEM 가능 2개소, CE 인증 1개소',
+                supplierScope: '압출·가공 가능 후보와 무역상을 구분',
+                quoteChecks: '합금·표면처리·금형비·MOQ·납기',
+                certificationChecks: '재질 및 시험성적서 발급 주체 확인',
               },
               {
                 tag: '스마트팩토리',
                 product: '협동로봇 6축 UR10e 동급',
-                suppliers: 5,
-                priceRange: '¥58,000~72,000/대',
-                saving: '유럽 브랜드 대비 ~52% 절감',
-                moq: '1대',
-                highlight: 'ISO 10218 인증 후보 2개사, 한국 A/S 파트너십 보유',
+                supplierScope: '제조사·리셀러·통합업체 역할을 구분',
+                quoteChecks: '본체·컨트롤러·설치·교육·보증 범위',
+                certificationChecks: '안전규격과 국내 지원 증빙 요청',
               },
-            ].map(({ tag, product, suppliers, priceRange, saving, moq, highlight }) => (
+            ].map(({ tag, product, supplierScope, quoteChecks, certificationChecks }) => (
               <div key={tag} className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
                 <span className="inline-block rounded-full border border-[#EA580C]/40 bg-[#EA580C]/10 px-3 py-1 text-xs font-bold text-[#EA580C] mb-4">
                   {tag}
@@ -1144,27 +1197,26 @@ export default function HomePage() {
                 <h3 className="text-base font-black text-white mb-5 leading-snug">{product}</h3>
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-slate-400">발굴 공급자</span>
-                    <span className="font-bold text-white">{suppliers}개사</span>
+                    <span className="text-slate-400">확인할 공급자 범위</span>
+                    <span className="ml-4 text-right font-bold text-white">{supplierScope}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">가격 범위</span>
-                    <span className="font-bold text-white">{priceRange}</span>
+                    <span className="text-slate-400">견적 확인 항목</span>
+                    <span className="ml-4 text-right font-bold text-white">{quoteChecks}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">최소 발주</span>
-                    <span className="font-bold text-white">{moq}</span>
+                    <span className="text-slate-400">인증 확인 항목</span>
+                    <span className="ml-4 text-right font-bold text-white">{certificationChecks}</span>
                   </div>
-                  <div className="rounded-lg bg-[#EA580C]/10 px-3 py-2 text-xs text-[#EA580C] font-semibold">
-                    {saving}
+                  <div className="rounded-lg bg-[#EA580C]/10 px-3 py-2 text-xs font-semibold text-[#EA580C]">
+                    가격·MOQ·납기·인증은 공급자 원자료로 확인
                   </div>
-                  <p className="text-xs text-slate-500 leading-relaxed">{highlight}</p>
                 </div>
               </div>
             ))}
           </div>
           <p className="mt-8 text-center text-xs text-slate-500">
-            * 위 수치는 GloSource AI 탐색 시뮬레이션 결과이며 실제 거래 조건은 공급자와 직접 협의 후 확정됩니다.
+            * 예시 시나리오입니다. 실제 조건은 공급자 자료와 견적으로 직접 확인하고, 인증·계약·결제 정보는 독립적으로 확인해야 합니다.
           </p>
         </div>
       </section>
@@ -1277,23 +1329,23 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── 요금제 ── */}
+      {/* ── 국내 무료 베타 ── */}
       <section id="pricing" className="bg-white border-t border-slate-200">
         <div className="max-w-5xl mx-auto px-6 py-16">
           <div className="mb-12 grid grid-cols-1 gap-8 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
             <div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">요금제</p>
-              <h2 className="text-2xl font-black text-[#0D1B2A] mb-3">규모에 맞는 플랜을 선택하세요</h2>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Korean Beta</p>
+              <h2 className="text-2xl font-black text-[#0D1B2A] mb-3">한국 서비스는 현재 무료 베타입니다</h2>
               <p className="text-sm leading-relaxed text-slate-500 mb-2">
-                1회 = 공급자 후보 3~5개 탐색 + 리스크 분석 + RFQ 질문 리스트 + PDF 리포트.
+                1회 검색은 공급자 후보 3~5개를 탐색하며, 무료 결과는 공급자 {KR_FREE_RESULT_PREVIEW_COUNT}개 미리보기로 제공됩니다.
                 GloSource AI는 거래 실행, 납품, 결제, 물류를 대행하지 않습니다.
               </p>
-              <p className="text-xs text-slate-400 mb-4">한국 바이어 전용 · 원화(KRW) 결제 · 해외 바이어는 <a href="/en#pricing" className="underline text-[#0D1B2A] hover:text-slate-700">영어 플랜(USD)</a>을 이용하세요</p>
-              <span className="inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold px-3 py-1.5 rounded-full">
+              <p className="text-xs text-slate-400 mb-4">사업자등록과 국내 유료 서비스 준비가 끝날 때까지 결제를 받지 않습니다. 해외 바이어는 지금 구매 가능한 <a href="/en#pricing" className="underline text-[#0D1B2A] hover:text-slate-700">영어 서비스(USD)</a>를 이용하세요.</p>
+              <span className="inline-flex items-center gap-1.5 bg-amber-50 border border-amber-200 text-amber-700 text-xs font-semibold px-3 py-1.5 rounded-full">
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                연간 결제 시 2개월 무료
+                국내 유료 플랜은 사업자등록 후 별도 안내
               </span>
             </div>
             <div className="relative min-h-[220px] overflow-hidden rounded-lg border border-slate-200 bg-slate-100 shadow-sm">
@@ -1306,69 +1358,34 @@ export default function HomePage() {
               />
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
             {[
-              {
-                name: '스타터', tag: '소규모 발주',
-                price: '19만원', unit: '/ 월',
-                per: '분석 30회/월',
-                features: ['공급자 탐색 3~5개', 'KS인증 참고 매칭', '예상 원가 비교', 'RFQ 이메일 자동화', 'PDF 리포트 저장'],
-                highlight: false,
-              }, {
-                name: '프로', tag: '가장 인기',
-                price: '49만원', unit: '/ 월',
-                per: '분석 60회/월',
-                features: ['확장 소싱 분석', 'KS인증·규격 참고 매칭', '세금계산서 발행', '한국어 의사결정 PDF', '한국어 RFQ 작성 지원'],
-                highlight: true,
-              }, {
-                name: '팀', tag: '기업용',
-                price: '99만원', unit: '/ 월',
-                per: '5계정 공유',
-                features: ['5계정 공유', '프로젝트별 소싱 이력 관리', '우선 문의 지원', '공급자 검증 템플릿', '세금계산서 발행'],
-                highlight: false,
-              },
-            ].map(plan => (
-              <div key={plan.name} className={`rounded-2xl border p-6 flex flex-col relative ${plan.highlight ? 'bg-[#0D1B2A] border-[#0D1B2A]' : 'bg-white border-slate-200'}`}>
-                {plan.highlight && (
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#EA580C] text-white text-xs font-bold px-3 py-1 rounded-full">가장 인기</span>
-                )}
-                <div className="mb-5">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className={`text-sm font-bold ${plan.highlight ? 'text-white' : 'text-[#0D1B2A]'}`}>{plan.name}</span>
-                    <span className={`text-xs px-2 py-1 rounded-full ${plan.highlight ? 'bg-white/10 text-slate-300' : 'bg-slate-100 text-slate-500'}`}>{plan.tag}</span>
-                  </div>
-                  <div className="flex items-end gap-1 mb-0.5">
-                    <span className={`text-3xl font-black ${plan.highlight ? 'text-white' : 'text-[#0D1B2A]'}`}>{plan.price}</span>
-                    <span className={`text-sm mb-1 ${plan.highlight ? 'text-slate-300' : 'text-slate-400'}`}>{plan.unit}</span>
-                  </div>
-                  <p className={`text-xs ${plan.highlight ? 'text-slate-400' : 'text-slate-400'}`}>{plan.per}</p>
-                </div>
-                <ul className="space-y-2.5 mb-6 flex-1">
-                  {plan.features.map(f => (
-                    <li key={f} className="flex items-center gap-2">
-                      <div className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 ${plan.highlight ? 'bg-white/10' : 'bg-slate-100'}`}>
-                        <Icon.Check className={`w-2.5 h-2.5 ${plan.highlight ? 'text-white' : 'text-[#0D1B2A]'}`} />
-                      </div>
-                      <span className={`text-xs ${plan.highlight ? 'text-slate-300' : 'text-slate-500'}`}>{f}</span>
-                    </li>
-                  ))}
-                </ul>
-                <a
-                  href="/billing"
-                  className={`block w-full text-center py-3 rounded-xl font-semibold text-sm transition-all ${plan.highlight ? 'bg-white text-[#0D1B2A] hover:bg-slate-100' : 'bg-[#0D1B2A] text-white hover:bg-slate-800'}`}>
-                  시작하기
-                </a>
+              ['무료 체험', '비회원 일일 무료 체험으로 제품 적합성을 확인합니다.'],
+              ['무료 회원', `회원 월 ${KR_FREE_ACCOUNT_MONTHLY_SEARCH_LIMIT}회 한도로 공급자 ${KR_FREE_RESULT_PREVIEW_COUNT}개 미리보기를 확인합니다.`],
+              ['출시 알림', '국내 유료 서비스가 정식 준비되면 우선 안내를 받습니다.'],
+            ].map(([title, description]) => (
+              <div key={title} className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
+                <h3 className="text-lg font-black text-[#0D1B2A]">{title}</h3>
+                <p className="mt-3 text-sm leading-6 text-slate-500">{description}</p>
               </div>
             ))}
           </div>
-          <p className="text-center text-xs text-slate-400 mt-8">세금계산서 발행 가능 · 문의: glosourceai@gmail.com · 평일 09:00–18:00</p>
+          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+            <a href="#sourcing-tool" className="rounded-xl bg-[#0D1B2A] px-6 py-3 text-center text-sm font-black text-white hover:bg-slate-800">
+              무료 소싱 시작
+            </a>
+            <a href="#waitlist" className="rounded-xl border border-slate-300 px-6 py-3 text-center text-sm font-black text-[#0D1B2A] hover:bg-slate-50">
+              국내 출시 알림 신청
+            </a>
+          </div>
+          <p className="text-center text-xs text-slate-400 mt-8">현재 국내 결제 없음 · 문의: glosourceai@gmail.com · 평일 09:00–18:00</p>
         </div>
       </section>
 
       {/* ── CTA 스트립 ── */}
       <section className="bg-[#0D1B2A] border-t border-white/5">
         <div className="max-w-4xl mx-auto px-6 py-16 text-center">
-          <h2 className="text-2xl sm:text-3xl font-black text-white mb-3">지금 바로 5회 무료 체험을 시작하세요</h2>
+          <h2 className="text-2xl sm:text-3xl font-black text-white mb-3">지금 바로 {KR_ANONYMOUS_DAILY_SEARCH_LIMIT}회 무료 체험을 시작하세요</h2>
           <p className="text-slate-400 text-sm mb-8">신용카드 없이 · 계정 생성 없이 · 제품명만 입력하면 끝</p>
           <a
             href="#sourcing-tool"

@@ -5,9 +5,11 @@ import {
   boolean,
   integer,
   index,
+  uniqueIndex,
   primaryKey,
 } from 'drizzle-orm/pg-core';
 import type { AdapterAccountType } from 'next-auth/adapters';
+import { FREE_SEARCH_LIMIT } from '../free-plan';
 
 // ── NextAuth required tables ──────────────────────────────────────────
 
@@ -89,6 +91,7 @@ export const usageLogs = pgTable('usage_logs', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   userId: text('user_id').references(() => users.id, { onDelete: 'cascade' }),
   ip: text('ip'),
+  surface: text('surface', { enum: ['kr', 'en'] }),
   action: text('action', {
     enum: ['source', 'factory_direct', 'wechat', 'image_analyze'],
   }).notNull(),
@@ -101,6 +104,32 @@ export const usageLogs = pgTable('usage_logs', {
   index('usage_logs_user_created_at_idx').on(t.userId, t.createdAt),
   index('usage_logs_ip_created_at_idx').on(t.ip, t.createdAt),
   index('usage_logs_created_at_idx').on(t.createdAt),
+]);
+
+// Atomic quota admission slots. Completed usage remains authoritative in
+// usage_logs; these rows cover only in-flight work or a conservative fallback
+// when a completed usage log could not be persisted.
+export const quotaReservations = pgTable('quota_reservations', {
+  token: text('token').primaryKey(),
+  subjectType: text('subject_type', {
+    enum: ['user', 'free_network', 'anonymous_ip'],
+  }).notNull(),
+  subjectKey: text('subject_key').notNull(),
+  surface: text('surface', { enum: ['kr', 'en'] }).notNull(),
+  periodStart: timestamp('period_start', { mode: 'date' }).notNull(),
+  periodEnd: timestamp('period_end', { mode: 'date' }).notNull(),
+  slot: integer('slot').notNull(),
+  expiresAt: timestamp('expires_at', { mode: 'date' }).notNull(),
+  createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
+}, (t) => [
+  uniqueIndex('quota_reservations_bucket_slot_uidx').on(
+    t.subjectType,
+    t.subjectKey,
+    t.surface,
+    t.periodStart,
+    t.slot,
+  ),
+  index('quota_reservations_expires_at_idx').on(t.expiresAt),
 ]);
 
 // ── 결제 내역 ─────────────────────────────────────────────────────────
@@ -290,7 +319,7 @@ export const krQuasiDrugFirms = pgTable('kr_quasi_drug_firms', {
 // ── 플랜별 한도 ───────────────────────────────────────────────────────
 
 export const PLAN_LIMITS = {
-  free:       { monthly: 10,  label: '무료 회원' }, // [C-4] 가입 회원 월 10회 — 익명 체험(kv.ts FREE_DAILY_LIMIT=일 5회)보다 가입이 나은 구조
+  free:       { monthly: FREE_SEARCH_LIMIT, label: '무료 회원' },
   starter:    { monthly: 40,  label: 'Starter' },
   pro:        { monthly: 100, label: 'Pro' },
   enterprise: { monthly: 300, label: 'Business' },
@@ -335,6 +364,7 @@ export type NewBlogPost = typeof blogPosts.$inferInsert;
 export const searchHistory = pgTable('search_history', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   userId: text('user_id').references(() => users.id, { onDelete: 'cascade' }),
+  surface: text('surface', { enum: ['kr', 'en'] }),
   product: text('product').notNull(),
   region: text('region').notNull(), // 'korea' | 'china' | 'any'
   supplierCount: integer('supplier_count').notNull().default(0),
@@ -346,6 +376,7 @@ export const searchHistory = pgTable('search_history', {
   createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
 }, (t) => [
   index('search_history_created_at_idx').on(t.createdAt),
+  index('search_history_user_surface_created_at_idx').on(t.userId, t.surface, t.createdAt),
 ]);
 
 export type SearchHistory = typeof searchHistory.$inferSelect;

@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "1.0.0",
+  "lifecycleId": "glosource-product-lifecycle-v1",
+  "runId": "GLO-BROWNFIELD-20260807",
+  "mode": "brownfield",
+  "baselinePhase": "P10",
+  "activePhase": "P10",
+  "status": "blocked",
+  "phaseStartedAt": "2026-08-07T08:07:50+09:00",
+  "completedPhases": [],
+  "reportIndex": [],
+  "blockers": [
+    "STAGING_MIGRATION_REHEARSAL_MISSING",
+    "BACKUP_RESTORE_RECEIPT_MISSING",
+    "ROLLBACK_REHEARSAL_RECEIPT_MISSING",
+    "G_RELEASE_APPROVAL_ABSENT"
+  ],
+  "approvalsPending": [
+    "G_RELEASE"
+  ],
+  "lastValidatedAt": null
+}

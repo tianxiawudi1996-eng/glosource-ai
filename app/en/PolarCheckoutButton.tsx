@@ -42,7 +42,9 @@ export default function PolarCheckoutButton({ checkoutUrl, label, planId, onDark
             className="mt-0.5 h-4 w-4 rounded border-slate-300 text-orange-600 focus:ring-orange-500 shrink-0"
           />
           <span className={`text-xs leading-relaxed transition-colors ${onDark ? 'text-slate-300 group-hover:text-slate-200' : 'text-slate-500 group-hover:text-slate-600'}`}>
-            I agree that access starts immediately upon payment. Refund eligibility is limited to the first {REFUND_POLICY.firstPaymentWindowHours} hours (see{' '}
+            I expressly request that performance begin immediately upon payment, before any EU/EEA {REFUND_POLICY.euWithdrawalPeriodDays}-day withdrawal period expires.
+            If I withdraw before full performance, I may owe a proportionate amount for service already supplied; where applicable, the withdrawal right ends only after full performance.
+            The commercial refund window is the first {REFUND_POLICY.firstPaymentWindowHours} hours (see{' '}
             <a href={REFUND_POLICY.termsPath} target="_blank" rel="noopener noreferrer" className="underline">Terms §3.4</a>
             ).
           </span>

@@ -1,3 +1,5 @@
+import { KR_FREE_ACCOUNT_MONTHLY_SEARCH_LIMIT } from '@/app/lib/free-plan';
+
 type TemplateVars = Record<string, string | number>;
 
 function baseLayout(title: string, body: string): string {
@@ -42,7 +44,7 @@ export function welcomeEmail(vars: TemplateVars = {}): string {
   const name = vars.name || '고객';
   return baseLayout('GloSource AI 가입을 환영합니다', `
     <h1 style="margin:0 0 12px;font-size:24px;line-height:32px;color:#0D1B2A;">${name}님, 환영합니다.</h1>
-    <p style="margin:0 0 20px;font-size:14px;line-height:24px;color:#475569;">무료 5회 분석으로 중국·해외 공급자 후보를 찾고 RFQ 초안을 준비해보세요.</p>
+    <p style="margin:0 0 20px;font-size:14px;line-height:24px;color:#475569;">매월 무료 ${KR_FREE_ACCOUNT_MONTHLY_SEARCH_LIMIT}회 분석으로 중국·해외 공급자 후보를 찾고 RFQ 초안을 준비해보세요.</p>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0;">
       <tr>
         <td style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;">

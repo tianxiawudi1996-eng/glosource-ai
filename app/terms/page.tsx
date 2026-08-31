@@ -76,8 +76,8 @@ export default function TermsPage() {
             </p>
             <h3 className="font-semibold text-white mb-2">3.2 Free Tier</h3>
             <p className="mb-3">
-              Visitors receive 5 anonymous trial searches. Verified free accounts receive 10 free searches per month.
-              Free-tier searches expire and do not roll over. No payment information is required for the free tier.
+              Free accounts receive 3 searches per month with preview-only results.
+              Free-tier searches expire and do not roll over. Full supplier details, RFQ drafts, and exports require a paid plan. No payment information is required for the free tier.
             </p>
             <h3 className="font-semibold text-white mb-2">3.3 Auto-renewal</h3>
             <p className="mb-3">
@@ -101,9 +101,14 @@ export default function TermsPage() {
             </p>
             <h3 id="section-3-5" className="font-semibold text-white mb-2 scroll-mt-24">3.5 EU Consumer Withdrawal Rights</h3>
             <p className="mb-3">
-              If you are a consumer resident in the EU/EEA, you normally have a 14-day right of withdrawal under the EU Consumer Rights Directive.
-              However, by subscribing and receiving immediate digital access to the Service, you expressly request that performance of the contract begin before the withdrawal period expires and you acknowledge that you thereby <strong className="text-white">lose your right of withdrawal</strong> once the service has been fully performed, or once you have made your first search.
-              This acknowledgement is collected as a separate consent step during checkout.
+              If you are a consumer resident in the EU/EEA, you normally have a {REFUND_POLICY.euWithdrawalPeriodDays}-day right of withdrawal under the EU Consumer Rights Directive.
+              At checkout, you may expressly request that performance begin before that period expires.
+              If you withdraw after making that request but before the Service has been fully performed, you may be required to pay a <strong className="text-white">proportionate amount</strong> for the service supplied up to the time you notify us.
+              You lose the right of withdrawal only once the Service has been fully performed, where applicable, after your prior express consent and acknowledgement.
+            </p>
+            <p className="mb-3">
+              The commercial refund policy in Section 3.4 does not restrict any mandatory consumer rights available under applicable national law.
+              The immediate-performance request and acknowledgement are collected as a separate consent step during checkout.
             </p>
             <h3 id="section-3-6" className="font-semibold text-white mb-2 scroll-mt-24">3.6 California Consumer Privacy (CCPA)</h3>
             <p>

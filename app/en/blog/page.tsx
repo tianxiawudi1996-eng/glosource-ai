@@ -104,7 +104,7 @@ export default async function EnBlogIndex() {
           <Link href="/en" aria-label="GloSource AI home">
             <BrandLogo compact />
           </Link>
-          <Link href="/en" className="text-xs font-bold text-[#EA580C] hover:text-[#DC4C00]">Try the sourcing tool — 5 free searches →</Link>
+          <Link href="/en" className="text-xs font-bold text-[#EA580C] hover:text-[#DC4C00]">Try the sourcing tool — 3 free searches →</Link>
         </div>
       </footer>
     </div>

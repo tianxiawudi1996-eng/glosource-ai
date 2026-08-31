@@ -3,8 +3,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getCategoryByCode } from '../../../lib/categories';
 import type { Category } from '../../../lib/categories';
 import type { SourcingRequest } from '../types';
-import { kvConsumeFreeCredit, kvSaveHistory, extractTrustedIp } from '../../../lib/kv';
-import { checkAuthAndQuota, logUsage } from '../../../lib/authMiddleware';
+import { kvSaveHistory, extractTrustedIp } from '../../../lib/kv';
+import {
+  checkAuthAndQuota,
+  finalizeQuotaUsage,
+  releaseQuotaReservation,
+  type QuotaReservation,
+} from '../../../lib/authMiddleware';
+import { redactSourcingOutputForFree } from '../../../lib/free-access';
 import { verifiedSupplierUnavailableMessage } from '../../../lib/supplier-verification';
 import {
   FACTORY_DIRECT_MODEL_ATTEMPTS,
@@ -150,6 +156,8 @@ function extractJSON(text: string): string {
 
 export async function POST(request: NextRequest) {
   const start = Date.now();
+  let quotaReservation: QuotaReservation | null = null;
+  let quotaFinalized = false;
   try {
     let requestBody: unknown;
     try {
@@ -160,9 +168,10 @@ export async function POST(request: NextRequest) {
     const body = parseFactoryDirectRequest(requestBody);
     if (!body) return NextResponse.json({ error: '제품/자재명과 필요 수량을 입력해주세요.' }, { status: 400 });
 
-    const authResult = await checkAuthAndQuota(request, 'factory_direct');
+    const authResult = await checkAuthAndQuota(request, 'factory_direct', 'kr');
     if (!authResult.ok) return authResult.response;
-    const { userId } = authResult;
+    const { userId, plan } = authResult;
+    quotaReservation = authResult.quotaReservation;
     const ip = extractTrustedIp(request.headers);
 
     const req: SourcingRequest = {
@@ -248,6 +257,7 @@ export async function POST(request: NextRequest) {
     }
 
     const output = qualityGate.output;
+    const visibleOutput = redactSourcingOutputForFree(output, plan, 'kr');
 
     kvSaveHistory({
       id: `${Date.now()}-1688`,
@@ -255,17 +265,27 @@ export async function POST(request: NextRequest) {
       source: '1688',
       query: { product: body.productDescription, quantity: body.quantity, budget: body.budget ?? '' },
       status: 200,
-      supplierCount: output.suppliers?.length ?? 0,
-      raw: output,
+      supplierCount: visibleOutput.suppliers.length,
+      raw: visibleOutput,
     }).catch(() => {});
 
-    logUsage(userId, ip, 'factory_direct', body.productDescription, output.suppliers?.length, Date.now() - start).catch(() => {});
-    if (!userId) kvConsumeFreeCredit(ip).catch(() => {});
+    await finalizeQuotaUsage(quotaReservation, {
+      userId,
+      ip,
+      surface: 'kr',
+      action: 'factory_direct',
+      product: body.productDescription,
+      supplierCount: output.suppliers?.length,
+      durationMs: Date.now() - start,
+    });
+    quotaFinalized = true;
 
-    return NextResponse.json({ success: true, data: output });
+    return NextResponse.json({ success: true, data: visibleOutput });
   } catch (error) {
     console.error('[1688 API Error]', error);
     const message = error instanceof Error ? error.message : '1688 소싱 분석 중 오류가 발생했습니다.';
     return NextResponse.json({ error: message }, { status: 500 });
+  } finally {
+    if (!quotaFinalized) await releaseQuotaReservation(quotaReservation);
   }
 }

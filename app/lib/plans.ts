@@ -39,7 +39,7 @@ export const PLANS: readonly Plan[] = [
     priceUsd: 99,
     searchesPerMonth: 100,
     envKey: 'NEXT_PUBLIC_POLAR_PRO_LINK',
-    blurb: 'Korea + China sourcing, full PDF report, priority support',
+    blurb: 'Korean supplier sourcing, full PDF report, priority support',
     highlight: true,
   },
   {

@@ -79,6 +79,13 @@ test('usage-log quota and history hot paths have composite indexes', () => {
   assert.equal(names.has('usage_logs_user_created_at_idx'), true);
   assert.equal(names.has('usage_logs_ip_created_at_idx'), true);
   assert.equal(names.has('usage_logs_created_at_idx'), true);
+
+  const historyConfig = getTableConfig(schema.searchHistory);
+  const historyColumns = new Map(historyConfig.columns.map(column => [column.name, column]));
+  const historyIndexes = new Set(historyConfig.indexes.map(index => index.config.name));
+  assert.ok(historyColumns.get('surface')?.enumValues?.includes('en'));
+  assert.ok(historyColumns.get('surface')?.enumValues?.includes('kr'));
+  assert.equal(historyIndexes.has('search_history_user_surface_created_at_idx'), true);
 });
 
 test('privacy-retention scans have created-at indexes', () => {
@@ -113,7 +120,7 @@ test('account-owned logs cascade while billing references survive without an own
   assert.equal(subscriptionUser?.notNull, false);
 });
 
-test('production retention indexes are created concurrently and retry safely', () => {
+test('production retention indexes are transaction-safe and retry safely', () => {
   const retentionIndexes = new Set([
     'abuse_events_created_at_idx',
     'abuse_identities_last_seen_at_idx',
@@ -134,7 +141,66 @@ test('production retention indexes are created concurrently and retry safely', (
   );
   assert.equal(indexStatements.length, retentionIndexes.size);
   for (const statement of indexStatements) {
-    assert.match(statement, /^CREATE INDEX CONCURRENTLY IF NOT EXISTS /);
+    assert.match(statement, /^CREATE INDEX IF NOT EXISTS /);
+    assert.doesNotMatch(
+      statement,
+      /\bCONCURRENTLY\b/,
+      'Drizzle runs PostgreSQL migrations in a transaction, where CREATE INDEX CONCURRENTLY is forbidden',
+    );
+  }
+});
+
+test('the Drizzle config loads Next environment files before migration', () => {
+  const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8')) as {
+    scripts?: Record<string, string>;
+  };
+  const command = pkg.scripts?.['db:migrate'] ?? '';
+  const config = fs.readFileSync('drizzle.config.ts', 'utf8');
+
+  assert.equal(command, 'drizzle-kit migrate');
+  assert.match(config, /import \{ loadEnvConfig \} from '@next\/env';/);
+  assert.match(config, /loadEnvConfig\(process\.cwd\(\)\);/);
+});
+
+test('the surface migration can be retried after a partial deployment', () => {
+  const sql = fs.readFileSync(`${FOLDER}/0003_red_surge.sql`, 'utf8');
+  assert.match(sql, /ADD COLUMN IF NOT EXISTS "surface" text/);
+});
+
+test('the Data API lockdown protects every application table and stays provider-portable', () => {
+  const sql = fs.readFileSync(`${FOLDER}/0006_rls_data_api_lockdown.sql`, 'utf8');
+  const expected = [...schemaTables().keys()].sort();
+  const tableListMatch = sql.match(/protected_tables constant text\[\] := ARRAY\[([\s\S]*?)\n\t\];/);
+  assert.ok(tableListMatch, 'the RLS migration must declare its protected table inventory');
+
+  const protectedTables = [...tableListMatch[1].matchAll(/'([a-z0-9_]+)'/g)]
+    .map(match => match[1])
+    .sort();
+  assert.deepEqual(
+    protectedTables,
+    expected,
+    'every schema.ts table must remain inside the fail-closed RLS inventory',
+  );
+
+  assert.match(sql, /ALTER TABLE public\.%I ENABLE ROW LEVEL SECURITY/);
+  assert.match(sql, /CREATE POLICY glo_data_api_deny_all[\s\S]*AS RESTRICTIVE FOR ALL TO PUBLIC[\s\S]*USING \(false\) WITH CHECK \(false\)/);
+  assert.doesNotMatch(sql, /FORCE ROW LEVEL SECURITY/, 'the table owner must retain server-side access');
+
+  for (const role of ['anon', 'authenticated', 'service_role']) {
+    assert.match(sql, new RegExp(`ARRAY\\['anon', 'authenticated', 'service_role'\\]`));
+    assert.match(sql, /CONTINUE WHEN NOT EXISTS \(SELECT 1 FROM pg_roles WHERE rolname = api_role\)/);
+    assert.ok(sql.includes(role));
+  }
+
+  for (const objectType of ['TABLES', 'SEQUENCES', 'FUNCTIONS']) {
+    assert.match(
+      sql,
+      new RegExp(`REVOKE ALL PRIVILEGES ON ALL ${objectType} IN SCHEMA public FROM %I`),
+    );
+    assert.match(
+      sql,
+      new RegExp(`ALTER DEFAULT PRIVILEGES[\\s\\S]*REVOKE ALL PRIVILEGES ON ${objectType} FROM %I`),
+    );
   }
 });
 

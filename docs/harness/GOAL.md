@@ -1,5 +1,55 @@
 # GOAL
 
+## Lifecycle Continuity Goal
+
+모든 신규 GloSource 작업은 `docs/harness/lifecycle/PHASES.json`의 P00-P16 순서를 따른다. 각 phase는 전용 metaprompt, exit criteria, approval gate와 완료 보고서를 가지며 `npm run lifecycle:validate`가 연결 상태를 검사한다.
+
+현재 제품은 brownfield 기준선 P10 Release Readiness에서 blocked다. 과거 P00-P09를 새 하네스에서 완료한 것처럼 소급 기록하지 않는다.
+
+## Active P10 Completion Continuation Goal — 2026-08-29
+
+현재 P10을 검증 가능한 완료 지점까지 연속 진행한다. 누적된 `/en` 화면·균형·Harness 변경은 명시 파일만 local candidate commit으로 고정했고, exact clean HEAD의 ignored release receipt를 생성해 archive binding·manifest·loopback smoke를 통과시켰다.
+
+- 현재 로컬 상태의 정본: `git rev-parse HEAD` + `npm run readiness:release-receipt`
+- 로컬 완료 범위: 전체 278/278, typecheck, lint 오류 0, Next.js build 89/89, clean archive·receipt·smoke
+- 현재 P10 blocker: GitHub Production의 독립 reviewer 0명, `preventSelfReview=false`, required environment secret name `DATABASE_URL` 부재, staging migration·backup/restore·rollback rehearsal receipt 부재, distinct fresh approvals 부재
+- 다음 외부 작업: final current SHA를 기존 `codex/p10-provenance-reconstruction` 브랜치와 PR #1에 반영하는 정확한 push 승인부터 시작한다.
+- 안전 경계: 포괄 진행 승인은 로컬 commit·검증을 허용하지만, Secret 전송·권한 변경·workflow dispatch·migration·Production 배포는 정확한 대상과 행위를 action-time에 다시 고정한다.
+- 보고서: `docs/harness/reports/2026-08-29-p10-continuation-gate.md`
+
+## Completed Local Landing Goal — 2026-08-25
+
+기존 KR/EN 제품 계약과 문구를 보존하면서 `/en`을 증거 중심 70%, 절제된 한국적 이미지·여정 30%로 고도화하고, 단계별 메타프롬프트·모델 라우팅·검증 증거·완료 보고를 Repository Harness로 연결한다.
+
+- 실행 계약: `docs/operations/GLOSOURCE_LANDING_LONG_RUNNING_METAPROMPT.md`
+- 완료 증거: `/en` 구조 90:10, source-bound 360×800·1440×900 실제 높이 receipt, 263/263 회귀 테스트, 반응형 browser QA와 최종 완료 감사 보고서
+- 완료 감사: `docs/harness/reports/2026-08-25-landing-goal-completion-audit.md`
+- 현재 Lifecycle: P10 `blocked`; 이 Goal은 phase를 우회하거나 완료 처리하지 않는다.
+- 외부 영향: commit, push, provider 변경, migration, 게시와 배포는 별도 명시 승인 전 금지한다.
+
+## Completed Vibe-course Metaprompt Hardening Goal — 2026-08-25
+
+양실장의 바이브코딩 정석기술 1·2강을 비권위 참고 입력으로 분석하고, 유효한 문제정의·병목·KPI·상태·수동/자동·결정·신뢰성·증거/환경·검수 원칙을 현재 GloSource 장기 실행 정본과 드리프트 Harness에 결합한다.
+
+- 실행 정본: `docs/operations/GLOSOURCE_LANDING_LONG_RUNNING_METAPROMPT.md`
+- 단일 READY: `VIBE-COURSE-METAPROMPT-HARDENING-20260825`
+- 완료 증거: strict prompt 8/8, 강화 회귀 11/11, 전체 271/271, typecheck, lint error 0
+- 완료 보고서: `docs/harness/reports/2026-08-25-vibe-course-metaprompt-hardening.md`
+- 현재 Lifecycle: P10 `blocked`; 강의의 push·배포·인증 완화·법률 추정은 적용하지 않았다.
+- 외부 영향: commit, push, provider 변경, OAuth, migration, 게시와 배포 0건.
+
+## Completed P10 Release Receipt Next-gate Goal — 2026-08-26
+
+current candidate의 local release receipt를 장기 Goal+Harness로 판정하고, `ready`/clean recovery/dirty·unknown 차단 경계를 실행 메타프롬프트와 회귀 검사로 고정한다.
+
+- 실행 정본: `docs/operations/GLOSOURCE_P10_RELEASE_RECEIPT_GATE_METAPROMPT.md`
+- 단일 READY: `P10-RELEASE-RECEIPT-GATE-20260826`
+- 실제 판정: `blocked / SOURCE_DIRTY`; receipt valid, archive bound, smoke green
+- 안전 결과: package/create/commit/push/provider/migration/staging/Production 0건
+- 완료 증거: focused 13/13, 전체 278/278, typecheck, lint error 0
+- 보고서: `docs/harness/reports/2026-08-26-p10-release-receipt-gate.md`
+- Lifecycle: P10 `blocked` 유지; 이 로컬 Goal 완료는 phase 완료가 아니다.
+
 ## One-line Goal
 
 14일 동안 해외 바이어 접촉과 교육형 콘텐츠 실험을 실행하면, GloSource AI의 유료 가능성과 K-DEFENSE의 교육형 IP 반응을 숫자와 원본 증거로 판정하는 보고서를 자동 축적한다.

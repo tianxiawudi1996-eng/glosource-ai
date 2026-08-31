@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import HeroSection from '@/app/components/HeroSection';
+import KoreaJourneySection from '@/app/components/KoreaJourneySection';
 import BrandLogo from '@/app/components/BrandLogo';
 import JsonLdGloSource from '@/app/components/JsonLdGloSource';
 import HaeryeText from './HaeryeText';
@@ -16,6 +17,7 @@ import SampleReportLeadForm from './SampleReportLeadForm';
 import PricingViewTracker from './PricingViewTracker';
 import TrustCredibility from '@/app/components/TrustCredibility';
 import { REFUND_POLICY } from '@/app/lib/refundPolicy';
+import { FREE_SEARCH_LIMIT } from '@/app/lib/free-plan';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://glosourceai.com'),
@@ -236,7 +238,7 @@ export default async function EnPage({
   const session = await auth();
   const isLoggedIn = !!session?.user;
   const plan = session?.user?.plan ?? 'free';
-  const freeSearchLimit = 10;
+  const freeSearchLimit = FREE_SEARCH_LIMIT;
 
   // overflow-x-clip, not -hidden: -hidden computes overflow-y to auto, which would make
   // this a scroll container and silently break every view() timeline inside.
@@ -248,17 +250,17 @@ export default async function EnPage({
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD_FAQ) }} />
 
       {/* ── NAV ────────────────────────────────────────────── */}
-      <nav className="sticky top-0 z-30 bg-[#0D1B2A]/95 backdrop-blur border-b border-white/10">
+      <nav className="gs-en-nav sticky top-0 z-30 bg-[#0D1B2A]/95 backdrop-blur border-b border-white/10" data-style-dna="atelier-dancheong">
         <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between gap-4">
           <BrandLogo compact />
           <div className="flex items-center gap-3">
             <Link href="/en/assistant" className="hidden sm:block text-xs font-bold text-orange-300 hover:text-orange-200 transition-colors">AI Assistant</Link>
             <a href="#sample-reports" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden sm:block">Sample report</a>
-            <a href="#pricing" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors">Pricing</a>
+            <a href="#pricing" className="hidden sm:block text-xs font-semibold text-slate-300 hover:text-white transition-colors">Pricing</a>
             <Link href="/en/blog" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden sm:block">Blog</Link>
             <Link href="/en/case-studies" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden md:block">Examples</Link>
             <Link href="/en/about" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden md:block">About</Link>
-            <TrustCredibility lang="en" tone="dark" />
+            <span className="hidden sm:block"><TrustCredibility lang="en" tone="dark" /></span>
             {isLoggedIn ? (
               <>
                 <Link href="/en/dashboard" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors hidden sm:block">
@@ -273,7 +275,7 @@ export default async function EnPage({
                 <Link href="/en/login" className="whitespace-nowrap text-xs font-semibold text-slate-300 hover:text-white transition-colors">
                   Sign in
                 </Link>
-                <Link href="/en/register" className="whitespace-nowrap text-xs font-bold border border-white/30 text-white px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors">
+                <Link href="/en/register" className="hidden min-[400px]:inline-flex whitespace-nowrap text-xs font-bold border border-white/30 text-white px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors">
                   Sign up free
                 </Link>
               </>
@@ -291,7 +293,7 @@ export default async function EnPage({
       {/* ── GOVERNMENT REGISTRY CROSS-CHECK ────────────────── */}
       {/* overflow-clip, not -hidden: -hidden would make this section a scroll container
           and freeze the view() timelines of the cards inside it. */}
-      <section className="relative overflow-clip border-b border-slate-200 bg-[#0A1520] bg-lattice-dark text-white">
+      <section data-en-balance="registry:product" className="relative overflow-clip border-b border-slate-200 bg-[#0A1520] bg-lattice-dark text-white">
         <div aria-hidden="true" className="gs-hangul-watermark right-4 top-1/2 -translate-y-1/2 hidden lg:flex flex-col gap-6 text-white/[0.05]">
           <YetGlyph char="geom" className="h-52 w-52" />
           <YetGlyph char="jeung" className="h-52 w-52" />
@@ -300,7 +302,7 @@ export default async function EnPage({
           <div className="gs-reveal max-w-3xl">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-400">Evidence, not promises · <HaeryeText className="tracking-normal">증거</HaeryeText></p>
             <h2 className="font-display mt-3 text-3xl font-black leading-tight sm:text-4xl">
-              Every Korean candidate is <em className="text-emerald-300">cross-checked</em> against official government registries.
+              Identifiable Korean candidates are <em className="text-emerald-300">cross-checked</em> against applicable government registries.
             </h2>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-400">
               When a candidate&apos;s registered Korean company name matches official records, the evidence is pinned to its card — so you start due diligence from government data, not marketing claims.
@@ -336,7 +338,7 @@ export default async function EnPage({
       </section>
 
       {/* ── CATEGORIES — jogakbo patchwork grid ────────────── */}
-      <section className="bg-hanji border-b border-slate-200">
+      <section data-en-balance="categories:mixed" className="bg-hanji border-b border-slate-200">
         {/* 기와 처마 — the registry section's dark roof overhangs the hanji courtyard */}
         <div className="text-[#0A1520]"><GiwaEaves className="h-7" /></div>
         <div className="mx-auto max-w-5xl px-6 py-20">
@@ -398,8 +400,11 @@ export default async function EnPage({
         </div>
       </section>
 
+      {/* ── KOREA VISUAL JOURNEY — after product proof ────── */}
+      <KoreaJourneySection lang="en" />
+
       {/* ── PROBLEM ─────────────────────────────────────────── */}
-      <section className="border-b border-slate-200 bg-white">
+      <section data-en-balance="problem:product" className="border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-5xl px-6 py-20">
           <div className="gs-reveal max-w-3xl">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-[#8F3A26]">The sourcing gap · <HaeryeText className="tracking-normal">간극</HaeryeText></p>
@@ -425,7 +430,7 @@ export default async function EnPage({
       </section>
 
       {/* ── SAMPLE REPORTS ─────────────────────────────────── */}
-      <section id="sample-reports" className="scroll-mt-16 border-b border-slate-200 bg-hanji">
+      <section id="sample-reports" data-en-balance="samples:product" className="scroll-mt-16 border-b border-slate-200 bg-hanji">
         <div className="mx-auto max-w-5xl px-6 py-20">
           <div className="gs-reveal mb-10 max-w-2xl">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-[#8F3A26]">Free sample reports · <HaeryeText className="tracking-normal">견본</HaeryeText></p>
@@ -439,7 +444,7 @@ export default async function EnPage({
       </section>
 
       {/* ── SOURCING TOOL ──────────────────────────────────── */}
-      <section id="sourcing-tool" className="scroll-mt-16 bg-slate-50 border-b border-slate-100">
+      <section id="sourcing-tool" data-en-balance="tool:product" className="scroll-mt-16 bg-slate-50 border-b border-slate-100">
         <div className="max-w-4xl mx-auto px-6 py-20">
           <div className="gs-reveal mb-10 text-center">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-[#8F3A26] mb-3">Build your first shortlist · <HaeryeText className="tracking-normal">검색</HaeryeText></p>
@@ -453,7 +458,7 @@ export default async function EnPage({
       </section>
 
       {/* ── HOW IT WORKS ───────────────────────────────────── */}
-      <section className="bg-white border-b border-slate-100">
+      <section data-en-balance="process:product" className="bg-white border-b border-slate-100">
         <div className="max-w-5xl mx-auto px-6 py-20">
           <div className="gs-reveal mb-10 text-center">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-[#8F3A26] mb-3">How it works · <HaeryeText className="tracking-normal">절차</HaeryeText></p>
@@ -478,18 +483,18 @@ export default async function EnPage({
 
       {/* ── PRICING ────────────────────────────────────────── */}
       <DancheongBand />
-      <section id="pricing" className="scroll-mt-16 bg-white border-b border-slate-200">
+      <section id="pricing" data-en-balance="pricing:product" className="scroll-mt-16 bg-white border-b border-slate-200">
         <PricingViewTracker />
         <div className="max-w-5xl mx-auto px-6 py-20">
           <div className="gs-reveal mb-10 text-center">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-[#8F3A26] mb-3">Pricing · <HaeryeText className="tracking-normal">요금</HaeryeText></p>
             <h2 className="font-display text-3xl font-black text-[#0D1B2A] mb-3">Start with evidence. Upgrade for an active sourcing project.</h2>
             <p className="text-sm text-slate-500 max-w-xl mx-auto">
-              Start with a free sample report. Paid plans support repeated Korean supplier research for active sourcing projects.
+              Start with a free search preview. Paid plans support repeated Korean supplier research and export-ready outputs for active sourcing projects.
             </p>
             <p className="mt-2 text-xs text-slate-400">For international buyers · Priced in USD · Source directly from Korean manufacturers</p>
             <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-500 max-w-lg mx-auto text-left">
-              <strong className="text-slate-700">Research tool disclaimer:</strong> GloSource AI provides AI-generated supplier research only. We do not verify suppliers, guarantee product quality, or handle transactions. Trust scores are AI-estimated signals — always conduct independent due diligence before signing any contract.
+              <strong className="text-slate-700">Research tool disclaimer:</strong> GloSource AI provides AI-generated supplier research and registry-match evidence only. We do not audit or endorse suppliers, guarantee product quality, or handle transactions. Trust scores are AI-estimated signals — always conduct independent due diligence before signing any contract.
             </div>
           </div>
 
@@ -538,7 +543,7 @@ export default async function EnPage({
           </div>
 
           <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-500 max-w-lg mx-auto text-center">
-            <strong className="text-slate-700">Free tier:</strong> 5 anonymous trial searches; verified free accounts get 10 searches/month · up to 3–5 AI-surfaced Korean supplier candidates per search · Trust score · English RFQ draft
+            <strong className="text-slate-700">Free tier:</strong> 3 searches/month · search preview only · paid plans unlock full supplier details, source URLs, RFQ drafts, and exports
           </div>
           <p className="mt-3 text-center text-xs text-slate-400">
             Secure checkout via Polar ·{' '}
@@ -549,7 +554,7 @@ export default async function EnPage({
       </section>
 
       {/* ── FAQ ────────────────────────────────────────────── */}
-      <section className="bg-hanji border-b border-slate-100">
+      <section data-en-balance="faq:product" className="bg-hanji border-b border-slate-100">
         <div className="max-w-3xl mx-auto px-6 py-20">
           <div className="gs-reveal mb-10 text-center">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-[#8F3A26] mb-3">FAQ · <HaeryeText className="tracking-normal">문답</HaeryeText></p>

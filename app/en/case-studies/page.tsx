@@ -190,7 +190,7 @@ export default function CaseStudiesPage() {
           <p className="text-xs font-bold text-[#EA580C] uppercase tracking-widest mb-3">Your turn</p>
           <h2 className="text-xl font-black text-white mb-3">Run a real search for your product</h2>
           <p className="text-slate-300 text-sm mb-6">
-            5 free searches a day, no account needed. Results in about a minute.
+            3 free searches per month. Preview results in about a minute.
           </p>
           <Link
             href="/en#sourcing-tool"

@@ -33,14 +33,14 @@ const verifyDecl = {
 const searchDecl = {
   name: 'searchSuppliers',
   description:
-    'Search for Korean (or Chinese) suppliers/manufacturers for a product the buyer wants to source. ' +
-    'Use when the user wants to FIND or SOURCE suppliers (not just verify a known one).',
+    'Search for Korean suppliers/manufacturers for a product the buyer wants to source. ' +
+    'The global service searches Korea only. Use when the user wants to FIND or SOURCE suppliers (not just verify a known one).',
   parameters: {
     type: 'object',
     properties: {
       product: { type: 'string', description: 'The product to source, e.g. "vegan facial serum, private-label/OEM".' },
       quantity: { type: 'string', description: 'Order quantity if mentioned, e.g. "5000 units". Default "1000".' },
-      country: { type: 'string', description: '"korea" (default) or "china".' },
+      country: { type: 'string', enum: ['korea'], description: 'Always "korea". China sourcing is not supported by the global service.' },
       buyerCountry: { type: 'string', description: 'Destination ISO code if mentioned: US, EU, GB, JP, SG, AU, MX, BR, KR. Else GLOBAL.' },
     },
     required: ['product'],
@@ -56,6 +56,7 @@ function systemPrompt(): string {
     '- Whenever the user asks whether a company is real/legit/registered/a manufacturer, OR names a specific Korean company, call verifyKoreanCompany. ALWAYS pass the company\'s KOREAN registered name (한글 상호); translate English/brand names first.',
     '- After verifying: if found, briefly summarize which registries matched and whether it is an active business. If NOT found, say it is not in the registries you check — explain that this does not necessarily mean it is fake, but you cannot confirm it, and suggest the buyer ask the supplier for its 사업자등록번호 (business-registration number).',
     '- For sourcing requests (find/source suppliers for a product), call searchSuppliers. All plans may search; the sourcing results endpoint applies each plan\'s usage and detail limits.',
+    '- The global service searches Korean suppliers only. If the buyer asks for China or Chinese suppliers, explain this limitation and do not call searchSuppliers.',
     '- Be concise, factual and buyer-friendly. Reply in the user\'s language (default English). Do not use markdown tables.',
     '- CRITICAL: always answer in natural, friendly PROSE of 1–3 sentences. NEVER output JSON, code, field names, or the raw tool result — the structured verification details are shown to the user separately, so just summarize them conversationally (e.g. "Yes — 코스맥스 is a government-registered cosmetics and medical-device manufacturer, and it\'s an active business per today\'s live tax-office check.").',
   ].join('\n');
@@ -67,7 +68,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   if (!process.env.GEMINI_API_KEY) {
     return NextResponse.json({ reply: 'The assistant is temporarily unavailable.' }, { status: 503 });
   }
-  const auth = await checkAuthAndQuota(request, 'chat');
+  const auth = await checkAuthAndQuota(request, 'chat', 'en');
   if (!auth.ok) return auth.response;
   let body: { messages?: ChatMessage[] };
   try { body = await request.json(); } catch { return NextResponse.json({ error: 'bad request' }, { status: 400 }); }
@@ -101,6 +102,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       }
       if (call.name === 'searchSuppliers') {
         const a = call.args as { product?: string; quantity?: string; country?: string; buyerCountry?: string };
+        const requestedCountry = String(a.country ?? 'korea').trim().toLowerCase();
+        if (requestedCountry !== 'korea') {
+          return NextResponse.json({
+            reply: 'The global service currently searches Korean suppliers only. Please ask for Korean suppliers or a Korean manufacturer.',
+          });
+        }
         return NextResponse.json({
           reply: `Searching Korean supplier candidates for “${a.product ?? ''}” and checking available government-registry signals…`,
           action: {
@@ -108,7 +115,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             params: {
               product: String(a.product ?? '').slice(0, 200),
               quantity: String(a.quantity ?? '1000').slice(0, 40),
-              country: a.country === 'china' ? 'china' : 'korea',
+              country: 'korea',
               buyerCountry: String(a.buyerCountry ?? 'GLOBAL').slice(0, 8),
             },
           },

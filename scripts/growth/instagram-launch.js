@@ -37,7 +37,7 @@ const POSTS = [
 
 GloSource AI helps international buyers research Korean manufacturers and exporters using public source links, company signals, MOQ context, and an English RFQ draft.
 
-Try 5 searches free → glosourceai.com/en?utm_source=instagram&utm_medium=organic&utm_campaign=2026-07-korean-supplier-intelligence&utm_content=instagram-01
+Create an account for 3 free searches per month → glosourceai.com/en?utm_source=instagram&utm_medium=organic&utm_campaign=2026-07-korean-supplier-intelligence&utm_content=instagram-01
 
 #Sourcing #B2B #KoreanSuppliers #ImportExport`,
     imagePrompt: `Professional Instagram square image for a Korean B2B sourcing research platform called GloSource AI. Dark navy background (#0D1B2A), orange accent color (#EA580C). Show floating supplier research cards, public source links, evidence badges, MOQ notes, and a glowing search bar. Minimalist tech startup aesthetic. No text overlay. High-end commercial design. 1:1 square ratio.`,
@@ -51,7 +51,7 @@ Review candidates surfaced from Korean export channels and public sources:
 ✅ MOQ context and source links
 ✅ Reviewable English RFQ draft
 
-Free: glosourceai.com/en?utm_source=instagram&utm_medium=organic&utm_campaign=2026-07-korean-supplier-intelligence&utm_content=instagram-02
+Create an account for 3 free searches per month: glosourceai.com/en?utm_source=instagram&utm_medium=organic&utm_campaign=2026-07-korean-supplier-intelligence&utm_content=instagram-02
 
 #Sourcing #B2BSourcing #Korea #Wholesale #Procurement`,
     imagePrompt: `Clean infographic-style Instagram image for a Korean supplier research tool. Dark background with orange and white UI elements. Show a workflow: product brief, Korean supplier research cards with source links, evidence review, then an English RFQ document. Modern flat design with subtle grid lines. Professional B2B technology aesthetic. 1:1 square composition. No text overlay.`,
@@ -61,7 +61,7 @@ Free: glosourceai.com/en?utm_source=instagram&utm_medium=organic&utm_campaign=20
 
 GloSource AI helps you compare public company signals and prepare supplier outreach. It is a research shortcut—not a supplier audit.
 
-Link in bio for 5 free searches.
+Create an account through the link in bio for 3 free searches per month.
 
 #KoreanManufacturers #ImportBusiness #Sourcing #B2B #SmallBusiness`,
     imagePrompt: `Stylized photo-realistic Instagram square image: Korean factory building exterior with modern design, Korean flag subtly visible, overlaid with supplier research cards showing source evidence and certification documents to verify. Dark tech aesthetic with orange glow effects. High-end commercial photography blended with UI elements. Professional sourcing platform branding. 1:1 ratio.`,
