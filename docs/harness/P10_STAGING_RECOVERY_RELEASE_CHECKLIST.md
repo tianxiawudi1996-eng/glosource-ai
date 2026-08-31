@@ -4,22 +4,22 @@
 
 ## 현재 상태
 
-- 상태: `PHASE_0_APPROVED — COMMIT_IN_PROGRESS`
+- 상태: `PHASE_0_EVIDENCE_COMPLETE — PHASE_1_READY`
 - lifecycle: `P10 Release Readiness / blocked`
 - 문서 변경 전 기준선: `c9de8dfd44573271c376977195a8b6683e7dbd7b` = upstream
-- final candidate: Phase 0 commit 후 동적 확정
+- final candidate: 이 완료 기록 commit의 `git rev-parse HEAD`로 동적 확정
 - rollback: `eb7b171da0b79f925926ae6087fd9dc604cc3b98`
 - staging: Neon `fancy-thunder-59988165` / `br-odd-shape-aw186zyk`
 - 기존 `720e5a3` migration receipt: 통과했으나 candidate drift로 재사용 불가
 - stale snapshot: `main at 2026-08-30 11:33:51 UTC (manual)`, 아직 삭제하지 않음
-- 현재 외부 변경: 이 Loop에서 0건
+- Phase 0 외부 변경: 승인된 feature branch commit/push만 수행; Production/DB/provider 변경 0건
 
 ## Phase Gate Matrix
 
 | Phase | 상태 | 완료 증거 | 다음 READY |
 |---|---|---|---|
-| 0 계약·후보 동결 | 진행 중 | 두 파일 commit/push, clean HEAD=upstream | local candidate |
-| 1 local candidate | 미착수 | verify/package/archive/receipt green | staging rebind |
+| 0 계약·후보 동결 | 증거 있는 완료 | `de0ee23` 계약 commit + 이 완료 commit, clean HEAD=upstream | local candidate |
+| 1 local candidate | READY | verify/package/archive/receipt green | staging rebind |
 | 2 staging rebind | 미착수 | ledger 7, RLS/policy 21, rows/cleanup 0 | backup→restore |
 | 3 backup→restore | 차단 | 새 snapshot/restore, mismatch 0 | rollback smoke |
 | 4 rollback smoke | 미착수 | exact rollback artifact HTTP/DB green | release gate |
@@ -40,8 +40,9 @@
 - [x] 현재 정본을 Neon/candidate rebind 흐름으로 갱신
 - [x] prompt strict 8/8·Harness·diff·sensitive 검사
 - [x] `P10_REBASE_PHASES_APPROVAL=owner-approval-2026-08-31-01` 수신
-- [ ] 두 정본 파일만 commit/push
-- [ ] 새 40자리 candidate·upstream·clean 고정
+- [x] 두 정본 파일만 contract commit `de0ee23`/push
+- [x] 이 완료 기록 commit을 final 40자리 candidate로 사용
+- [x] feature branch만 push; workflow·merge·Production·DB 변경 0
 
 ## Phase 1 — local candidate
 
