@@ -34,6 +34,7 @@ const PAYWALL_PLANS = [
 interface EnSourcingToolProps {
   initialProduct?: string;
   initialQuantity?: string;
+  autoSubmitOnPrefill?: boolean;
   plan?: PlanTier;
   freeSearchLimit?: number;
 }
@@ -457,8 +458,9 @@ async function callAPI(product: string, quantity: string, budget: string, countr
 export default function EnSourcingTool({
   initialProduct = '',
   initialQuantity = '',
+  autoSubmitOnPrefill = false,
   plan = 'free',
-  freeSearchLimit = 5,
+  freeSearchLimit = 10,
 }: EnSourcingToolProps) {
   const [product, setProduct] = useState(initialProduct);
   const [quantity, setQuantity] = useState(initialQuantity);
@@ -512,9 +514,9 @@ export default function EnSourcingTool({
       setResult(null);
       setError(null);
       setShowUpgrade(false);
-      setAutoSubmitPending(true);
+      if (autoSubmitOnPrefill) setAutoSubmitPending(true);
     }
-  }, [initialProduct, initialQuantity]);
+  }, [initialProduct, initialQuantity, autoSubmitOnPrefill]);
 
   // Auto-submit once both product and quantity are set from a category click
   useEffect(() => {
