@@ -16,6 +16,7 @@ import SampleReportLeadForm from './SampleReportLeadForm';
 import PricingViewTracker from './PricingViewTracker';
 import TrustCredibility from '@/app/components/TrustCredibility';
 import { REFUND_POLICY } from '@/app/lib/refundPolicy';
+import { PLAN_LIMITS } from '@/app/lib/db/schema';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://glosourceai.com'),
@@ -229,14 +230,15 @@ const JSON_LD_FAQ = {
 export default async function EnPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ q?: string }>;
+  searchParams?: Promise<{ q?: string; qty?: string }>;
 }) {
   const params = await searchParams;
-  const initialProduct = params?.q ?? '';
+  const initialProduct = (params?.q ?? '').slice(0, 160);
+  const initialQuantity = (params?.qty ?? '').slice(0, 80);
   const session = await auth();
   const isLoggedIn = !!session?.user;
   const plan = session?.user?.plan ?? 'free';
-  const freeSearchLimit = 10;
+  const freeSearchLimit = PLAN_LIMITS.free.monthly;
 
   // overflow-x-clip, not -hidden: -hidden computes overflow-y to auto, which would make
   // this a scroll container and silently break every view() timeline inside.
@@ -448,7 +450,7 @@ export default async function EnPage({
               Describe the product you want to source from Korea. Review supplier candidates with source links, company and certification signals, MOQ context, and an English RFQ draft.
             </p>
           </div>
-          <KSourceWrapper initialProduct={initialProduct} plan={plan} freeSearchLimit={freeSearchLimit} authenticated={isLoggedIn} />
+          <KSourceWrapper initialProduct={initialProduct} initialQuantity={initialQuantity} plan={plan} freeSearchLimit={freeSearchLimit} authenticated={isLoggedIn} />
         </div>
       </section>
 
@@ -538,7 +540,7 @@ export default async function EnPage({
           </div>
 
           <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-500 max-w-lg mx-auto text-center">
-            <strong className="text-slate-700">Free tier:</strong> 5 anonymous trial searches; verified free accounts get 10 searches/month · up to 3–5 AI-surfaced Korean supplier candidates per search · Trust score · English RFQ draft
+            <strong className="text-slate-700">Free tier:</strong> verified free accounts get {freeSearchLimit} searches/month · sign-in and email verification required · up to 3–5 AI-surfaced Korean supplier candidates per search · Trust score · English RFQ draft
           </div>
           <p className="mt-3 text-center text-xs text-slate-400">
             Secure checkout via Polar ·{' '}
