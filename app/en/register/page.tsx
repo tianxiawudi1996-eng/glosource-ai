@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { signIn } from 'next-auth/react';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import BrandLogo from '@/app/components/BrandLogo';
 import { trackSignup } from '@/app/lib/analytics';
 
@@ -17,6 +17,15 @@ export default function EnRegisterPage() {
   const [ageConsent, setAgeConsent] = useState(false);
   const [marketingConsent, setMarketingConsent] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState<string | null>(null);
+  const [continuationUrl, setContinuationUrl] = useState('/en');
+
+  useEffect(() => {
+    const callbackUrl = new URLSearchParams(window.location.search).get('callbackUrl');
+    // A same-site path only; never allow a registration link to redirect externally.
+    if (callbackUrl?.startsWith('/en') && !callbackUrl.startsWith('//') && !callbackUrl.includes('\\')) {
+      setContinuationUrl(callbackUrl);
+    }
+  }, []);
 
   const allConsents = tosConsent && dataConsent && gdprConsent && ageConsent;
 
@@ -88,7 +97,7 @@ export default function EnRegisterPage() {
               </p>
               <p className="mt-2 text-xs text-emerald-600">Can&apos;t find it? Check your spam folder, or email hello@glosourceai.com.</p>
             </div>
-            <Link href="/en" className="block w-full rounded-xl bg-[#0D1B2A] px-4 py-3.5 text-sm font-black text-white hover:bg-slate-800">
+            <Link href={continuationUrl} className="block w-full rounded-xl bg-[#0D1B2A] px-4 py-3.5 text-sm font-black text-white hover:bg-slate-800">
               Continue to GloSource →
             </Link>
           </div>
@@ -175,7 +184,7 @@ export default function EnRegisterPage() {
 
         <p className="mt-6 text-center text-sm text-slate-500">
           Already have an account?{' '}
-          <Link href="/en/login" className="font-black text-[#EA580C]">Sign in</Link>
+          <Link href={`/en/login?callbackUrl=${encodeURIComponent(continuationUrl)}`} className="font-black text-[#EA580C]">Sign in</Link>
         </p>
         </>
         )}
