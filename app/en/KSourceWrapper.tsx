@@ -118,7 +118,7 @@ export default function KSourceWrapper({
           <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-slate-600">Create a verified free account to search Korean suppliers. Choose a category below first; your product and quantity will be saved when you sign up.</p>
           {prefill && <p className="mx-auto mt-3 max-w-lg rounded-lg bg-white px-3 py-2 text-sm font-semibold text-[#0D1B2A]">Selected: {prefill}{prefillQuantity ? ` · ${prefillQuantity}` : ''} — confirm your search after email verification.</p>}
           <div className="mt-5 flex flex-wrap justify-center gap-3">
-            <a href={registrationHref} className="rounded-xl bg-[#EA580C] px-5 py-3 text-sm font-black text-white hover:bg-[#DC4C00]">Create free account</a>
+            <a href={registrationHref} onClick={() => trackEvent('signup_intent_click', { source: 'sourcing_preview', product_selected: Boolean(prefill) })} className="rounded-xl bg-[#EA580C] px-5 py-3 text-sm font-black text-white hover:bg-[#DC4C00]">Create free account</a>
             <a href={loginHref} className="rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-black text-[#0D1B2A] hover:bg-slate-50">Sign in</a>
           </div>
         </div>
