@@ -31,3 +31,9 @@ status=LEGAL_IDENTITY_CORROBORATED; MFDS_PENDING
 
 ## Reference caveat
 The 2026 show official site currently returned HTTP 403 to the web retrieval tool. The third-party ConferenceDB subset lists only 22 exhibitors, not the full show. **2025** exhibitor count was **509** in AKEI historical directory; 2026 500/510 figures published in secondary listings are forecasts, not a complete directory. Do not use unrelated 2026 beauty shows' lists or a 2025 KINTEX list as 2026 confirmed exhibitor records.
+
+
+## 2026 expo primary participation corroboration
+NewSelect company LinkedIn announcement explicitly confirms **KINTEX Exhibition Center 1, Hall 3, Booth 3E32** (October 15–17, 2026), presenting the brands **EIOM, CHARDE and TRICONIX**. These are brand names, NOT three additional exhibitor companies. Source: https://kr.linkedin.com/posts/newselect-corp_%EB%89%B4%EC%85%80%EB%A0%89%ED%8A%B8-newselect-kbeautyexpo-activity-7516453810140241920-jf2D
+Legal business identity: https://newselect.co.kr/ and https://stores.auction.co.kr/newselect
+This validates business identity and the *company's own* expo participation claim; it does not establish MFDS manufacturing or responsible-seller registration.
