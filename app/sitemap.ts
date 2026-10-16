@@ -1,10 +1,15 @@
 import type { MetadataRoute } from 'next';
-import { BLOG_POSTS } from './lib/blog-posts';
+import { getAllPostsMerged } from './lib/blog-posts-server';
 
 const BASE = 'https://glosourceai.com';
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const blogEntries: MetadataRoute.Sitemap = BLOG_POSTS.map(post => ({
+// Include published database articles in addition to static blog posts.
+// Refresh hourly so new articles can become discoverable without a code redeploy.
+export const revalidate = 3600;
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const posts = await getAllPostsMerged();
+  const blogEntries: MetadataRoute.Sitemap = posts.map(post => ({
     url: `${BASE}/en/blog/${post.slug}`,
     lastModified: new Date(post.publishedAt),
     changeFrequency: 'monthly' as const,
