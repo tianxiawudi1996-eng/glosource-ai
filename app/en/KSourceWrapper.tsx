@@ -5,6 +5,7 @@ import { trackEvent } from '@/app/lib/analytics';
 import Image from 'next/image';
 import EnSourcingTool from '@/app/components/EnSourcingTool';
 import type { PlanTier } from '@/app/lib/db/schema';
+import { buildSourcingReturnUrl } from '@/app/lib/sourcing-intent';
 
 const QUICK_CATEGORIES = [
   {
@@ -76,10 +77,7 @@ export default function KSourceWrapper({
 
   // Preserve a buyer's selection through registration/login. This prefill is NOT
   // a search request: unauthenticated visitors cannot call the sourcing API.
-  const queryParams = new URLSearchParams();
-  if (prefill.trim()) queryParams.set('q', prefill.slice(0, 160));
-  if (prefillQuantity.trim()) queryParams.set('qty', prefillQuantity.slice(0, 80));
-  const returnUrl = `/en${queryParams.toString() ? `?${queryParams.toString()}` : ''}#sourcing-tool`;
+  const returnUrl = buildSourcingReturnUrl(prefill, prefillQuantity);
   const registrationHref = `/en/register?callbackUrl=${encodeURIComponent(returnUrl)}`;
   const loginHref = `/en/login?callbackUrl=${encodeURIComponent(returnUrl)}`;
 
@@ -125,7 +123,6 @@ export default function KSourceWrapper({
       )}
 
       {/* Category quick-select */}
-      {(
       <div className="mb-10">
         <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-5 text-center">
           {authenticated ? 'Popular categories — click to prefill product and quantity' : 'Explore categories — select a product before creating your free account'}
@@ -154,7 +151,6 @@ export default function KSourceWrapper({
           ))}
         </div>
       </div>
-      )}
 
       {/* Sourcing tool */}
       {authenticated && <EnSourcingTool
