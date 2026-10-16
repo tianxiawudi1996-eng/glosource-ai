@@ -859,7 +859,7 @@ Best regards,
 <h2>HACCP — the most important baseline certification</h2>
 <p>HACCP (Hazard Analysis and Critical Control Points) is an internationally recognized food safety management system. For Korean food exporters, HACCP certification is administered by the Ministry of Food and Drug Safety (MFDS).</p>
 <p><strong>What it means:</strong> The manufacturer has identified biological, chemical, and physical hazards in the production process and has controls in place to prevent them.</p>
-<p><strong>Required for:</strong> Exporting to the US (FDA), EU (EFSA), most Southeast Asian markets. US importers: HACCP is effectively mandatory under FSMA (Food Safety Modernization Act).</p>
+<p><strong>Required for:</strong> Requirements depend on the specific food product and destination market. US seafood and juice products have sector-specific HACCP rules, while other covered foods are subject to applicable FSMA provisions and exemptions. Do not assume HACCP is universally mandatory for US importers.</p>
 <p><strong>How to verify:</strong> Ask for the HACCP certificate number. Verify at the HACCP Korea portal (www.haccp.or.kr) — the certificate should show the company name, facility address, and product category.</p>
 <p><strong>Validity:</strong> HACCP certificates require annual re-inspection. Check the issue and expiry dates.</p>
 
@@ -1048,11 +1048,11 @@ Best regards,
 <li>Commercial Invoice (with HS codes, declared value)</li>
 <li>Packing List</li>
 <li>Bill of Lading or Airway Bill</li>
-<li>Certificate of Origin (to claim 0% KORUS duty rate)</li>
-<li>FDA Prior Notice (for food and cosmetics)</li>
+<li>Origin documentation when claiming a potentially available KORUS tariff preference</li>
+<li>FDA Prior Notice for covered food imports, subject to applicable exemptions (not generally for cosmetics)</li>
 <li>Any required certificates (HACCP, MFDS, etc.)</li>
 </ul>
-<p><strong>Import duty under KORUS FTA:</strong> Most Korean products enter the US at 0% duty under the Korea-US Free Trade Agreement. Without a Certificate of Origin, you'll pay MFN (Most Favored Nation) rates instead.</p>
+<p><strong>Import duty under KORUS FTA:</strong> KORUS FTA preference depends on tariff classification, rules of origin, documentation, and current additional duties. Confirm the entry-date rate with a licensed customs broker; do not assume that every shipment is duty-free.</p>
 
 <h2>Step 4: Ship direct to FBA or use a prep center?</h2>
 
@@ -1100,8 +1100,8 @@ Best regards,
 
 <h2>Common mistakes that cost FBA sellers money</h2>
 <ul>
-<li>❌ No Certificate of Origin — paying full duty instead of 0% KORUS rate</li>
-<li>❌ Skipping FDA Prior Notice for food/cosmetics — customs hold, potential recall</li>
+<li>❌ Assuming zero import duty without checking applicable tariffs and origin rules</li>
+<li>❌ Skipping FDA Prior Notice for covered food imports when required — customs hold, potential recall</li>
 <li>❌ Wrong carton dimensions or weight — FBA receives penalty or refuses shipment</li>
 <li>❌ FNSKU applied over barcode incompletely — scanner reads wrong barcode, stranded inventory</li>
 <li>❌ Not testing supplier's FBA packing quality on trial order — expensive to fix at scale</li>
