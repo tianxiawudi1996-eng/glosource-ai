@@ -21,7 +21,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: post.title,
     description: post.description,
     alternates: { canonical: `https://glosourceai.com/en/blog/${post.slug}` },
-    openGraph: { title: post.title, description: post.description, type: 'article', publishedTime: post.publishedAt },
+    openGraph: { title: post.title, description: post.description, type: 'article', publishedTime: post.publishedAt, url: `https://glosourceai.com/en/blog/${post.slug}` },
+    twitter: { card: 'summary_large_image', title: post.title, description: post.description },
   };
 }
 
