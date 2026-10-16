@@ -5,6 +5,7 @@ import { signIn } from 'next-auth/react';
 import { FormEvent, useEffect, useState } from 'react';
 import BrandLogo from '@/app/components/BrandLogo';
 import { trackSignup } from '@/app/lib/analytics';
+import { safeSourcingContinuation } from '@/app/lib/sourcing-intent';
 
 type RegisterResponse = { error?: string; success?: boolean };
 
@@ -21,10 +22,7 @@ export default function EnRegisterPage() {
 
   useEffect(() => {
     const callbackUrl = new URLSearchParams(window.location.search).get('callbackUrl');
-    // A same-site path only; never allow a registration link to redirect externally.
-    if (callbackUrl?.startsWith('/en') && !callbackUrl.startsWith('//') && !callbackUrl.includes('\\')) {
-      setContinuationUrl(callbackUrl);
-    }
+    setContinuationUrl(safeSourcingContinuation(callbackUrl));
   }, []);
 
   const allConsents = tosConsent && dataConsent && gdprConsent && ageConsent;
